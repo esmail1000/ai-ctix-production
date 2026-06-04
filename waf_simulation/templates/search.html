@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Search Transactions</h1>
+    <p>Search your transaction history by reference ID or description.</p>
+    
+    <form action="/search" method="GET" style="display: flex; gap: 1rem; margin-top: 2rem;">
+        <input type="text" name="q" placeholder="Search query... (e.g. <script>alert('xss')</script>)" style="margin: 0; flex-grow: 1;">
+        <button type="submit" class="btn">Search</button>
+    </form>
+
+    {% if query %}
+        <div style="margin-top: 2rem; padding: 1rem; border: 1px dashed #ccc;">
+            <p>You searched for: <strong>{{ query | safe }}</strong></p>
+            <p style="color: #666; font-style: italic;">No transactions found matching your query.</p>
+        </div>
+    {% endif %}
+{% endblock %}

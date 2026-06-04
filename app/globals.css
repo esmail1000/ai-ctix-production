@@ -1,0 +1,221 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --app-bg: #ffffff;
+  --app-surface: #ffffff;
+  --app-border: #cfe8d8;
+  --text: #0f172a;
+  --brand-green: #15803d;
+  --brand-green-strong: #166534;
+  --brand-green-soft: #dcfce7;
+  --brand-green-panel: #edfdf3;
+  --green-wash: #f6fff9;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  color: var(--text);
+  background: #ffffff;
+  background-attachment: fixed;
+}
+
+::selection {
+  background: rgba(34, 197, 94, 0.22);
+}
+
+@layer components {
+  .page {
+    @apply max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10;
+  }
+
+  .card {
+    @apply rounded-[28px] border p-6;
+    background: #f6fff9;
+    border-color: #cce8d5;
+    box-shadow: 0 16px 34px rgba(22, 101, 52, 0.06);
+  }
+
+  .card-soft {
+    @apply rounded-[22px] border p-4;
+    background: #edfdf3;
+    border-color: #bfe5cc;
+  }
+
+  .panel-green {
+    @apply rounded-[28px] border;
+    background: #f6fff9;
+    border-color: #cce8d5;
+    box-shadow: 0 16px 34px rgba(22, 101, 52, 0.06);
+  }
+
+  .split-card {
+    @apply rounded-[32px] border overflow-hidden;
+    border-color: #cfe8d8;
+    box-shadow: 0 20px 42px rgba(22, 101, 52, 0.06);
+    background: #ffffff;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center rounded-xl px-4 py-2 font-medium transition-all duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2;
+  }
+
+  .btn-primary {
+    @apply btn text-white;
+    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+    box-shadow: 0 14px 30px rgba(22, 163, 74, 0.18);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 18px 34px rgba(22, 163, 74, 0.22);
+  }
+
+  .btn-secondary {
+    @apply btn border text-emerald-900;
+    background: #effcf3;
+    border-color: #c8ebd3;
+  }
+
+  .btn-secondary:hover {
+    background: #e4f8eb;
+  }
+
+  .btn-ghost {
+    @apply btn border bg-white/90 text-slate-700 hover:bg-slate-50;
+    border-color: #d9eadf;
+  }
+
+  .input {
+    @apply w-full rounded-xl border bg-white px-4 py-3 text-slate-900;
+    border-color: #c8e5d1;
+    @apply placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500;
+  }
+
+  .textarea {
+    @apply w-full rounded-xl border bg-white px-4 py-3 text-slate-900;
+    border-color: #c8e5d1;
+    @apply placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500;
+  }
+
+  .muted {
+    @apply text-slate-500;
+  }
+
+  .link {
+    @apply text-emerald-700 hover:underline;
+  }
+
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium border;
+  }
+
+  .badge-red {
+    @apply badge bg-red-50 text-red-700 border-red-200;
+  }
+
+  .badge-orange {
+    @apply badge bg-orange-50 text-orange-700 border-orange-200;
+  }
+
+  .badge-emerald {
+    @apply badge bg-emerald-50 text-emerald-800 border-emerald-200;
+  }
+
+  .page-kicker {
+    @apply text-sm font-semibold uppercase tracking-[0.18em];
+    color: var(--brand-green);
+  }
+
+  .page-heading {
+    @apply mt-2 text-4xl font-semibold tracking-tight;
+    color: #0d2217;
+  }
+
+  .page-heading .accent {
+    color: var(--brand-green);
+  }
+
+  .nav-shell {
+    background: #edfdf3;
+    border: 1px solid #bfe5cc;
+    box-shadow: 0 10px 24px rgba(22, 101, 52, 0.08);
+  }
+
+  .nav-link-active {
+    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+    color: white;
+    box-shadow: 0 10px 22px rgba(21, 128, 61, 0.22);
+  }
+
+  .nav-link-idle {
+    color: #1f4d36;
+  }
+
+  .nav-link-idle:hover {
+    background: rgba(255, 255, 255, 0.76);
+    color: #14532d;
+  }
+
+  .section-title-green {
+    @apply text-2xl font-semibold;
+    color: #0d2217;
+  }
+
+  .section-title-green .accent {
+    color: #15803d;
+  }
+
+  .logo-mark {
+    @apply flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border bg-white;
+    border-color: #bfe5cc;
+    box-shadow: 0 6px 18px rgba(21, 128, 61, 0.1);
+  }
+
+  .logo-box {
+    @apply rounded-[22px] border p-4;
+    background: #edfdf3;
+    border-color: #bfe5cc;
+  }
+
+}
+
+
+@layer components {
+  .home-section-heading {
+    color: #0d2217;
+  }
+}
+
+@layer base {
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid #16a34a;
+    outline-offset: 3px;
+  }
+}
+
+@media print {
+  nav,
+  header,
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: #ffffff !important;
+  }
+
+  .print-section {
+    break-inside: avoid;
+  }
+}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Welcome to Global Secure Bank</h1>
+    <p>Your security is our top priority. We use advanced Web Application Firewalls to protect your assets.</p>
+    
+    <div style="margin-top: 2rem; padding: 1rem; background: #e8eaf6; border-radius: 4px; border-left: 4px solid #3f51b5;">
+        <h3>Tester Instructions</h3>
+        <p>This is a vulnerable dummy site. Try to attack the forms below to see the WAF in action.</p>
+        <ul>
+            <li><strong>Login Page:</strong> Try SQL Injection like <code>' OR 1=1 --</code> in the username.</li>
+            <li><strong>Search Page:</strong> Try XSS like <code>&lt;script&gt;alert(1)&lt;/script&gt;</code> or RCE like <code>; ls -la</code>.</li>
+            <li><strong>Transfer Page:</strong> Try to submit the form rapidly to trigger Race Condition or DoS, or notice there's no CSRF token.</li>
+            <li><strong>Admin Panel:</strong> Try path traversal <code>../../etc/passwd</code> in the search bar.</li>
+        </ul>
+    </div>
+{% endblock %}

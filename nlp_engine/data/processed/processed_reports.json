@@ -1,0 +1,92 @@
+[
+  {
+    "company": "DemoCorp",
+    "file": "report_001.pdf",
+    "report_text": "Critical SQL Injection vulnerability identified in the login endpoint. CVE-2024-12345 may allow attackers to bypass authentication and access sensitive data.",
+    "severity": ["Critical"],
+    "vulnerabilities": ["SQL Injection"],
+    "cves": ["CVE-2024-12345"],
+    "impact": ["bypass authentication", "access sensitive data"]
+  },
+  {
+    "company": "DemoCorp",
+    "file": "report_002.pdf",
+    "report_text": "High Cross-site Scripting vulnerability found on the customer portal. The issue may allow session hijacking and theft of user cookies.",
+    "severity": ["High"],
+    "vulnerabilities": ["Cross-site Scripting"],
+    "cves": [],
+    "impact": ["session hijacking", "theft of user cookies"]
+  },
+  {
+    "company": "DemoCorp",
+    "file": "report_003.pdf",
+    "report_text": "Critical Remote Code Execution vulnerability discovered in the API service. CVE-2025-22222 may allow attackers to execute arbitrary commands.",
+    "severity": ["Critical"],
+    "vulnerabilities": ["Remote Code Execution"],
+    "cves": ["CVE-2025-22222"],
+    "impact": ["execute arbitrary commands"]
+  },
+  {
+    "company": "DemoCorp",
+    "file": "report_004.pdf",
+    "report_text": "Medium Server-Side Request Forgery vulnerability detected in the image import feature. Attackers may access internal services.",
+    "severity": ["Medium"],
+    "vulnerabilities": ["Server-Side Request Forgery"],
+    "cves": [],
+    "impact": ["access internal services"]
+  },
+  {
+    "company": "DemoCorp",
+    "file": "report_005.pdf",
+    "report_text": "High Command Injection vulnerability exists in the diagnostics endpoint. The flaw may allow attackers to execute system commands.",
+    "severity": ["High"],
+    "vulnerabilities": ["Command Injection"],
+    "cves": [],
+    "impact": ["execute system commands"]
+  },
+  {
+    "company": "DemoCorp",
+    "file": "report_006.pdf",
+    "report_text": "Low Open Redirect vulnerability found in the redirect parameter. The issue may allow phishing attacks.",
+    "severity": ["Low"],
+    "vulnerabilities": ["Open Redirect"],
+    "cves": [],
+    "impact": ["phishing attacks"]
+  },
+  {
+    "company": "DemoCorp",
+    "file": "report_007.pdf",
+    "report_text": "Critical Insecure Deserialization vulnerability identified in the session handler. CVE-2024-54321 may allow remote code execution.",
+    "severity": ["Critical"],
+    "vulnerabilities": ["Insecure Deserialization"],
+    "cves": ["CVE-2024-54321"],
+    "impact": ["remote code execution"]
+  },
+  {
+    "company": "DemoCorp",
+    "file": "report_008.pdf",
+    "report_text": "Medium XML External Entity vulnerability discovered in the XML parser. The issue may allow file disclosure.",
+    "severity": ["Medium"],
+    "vulnerabilities": ["XML External Entity"],
+    "cves": [],
+    "impact": ["file disclosure"]
+  },
+  {
+    "company": "DemoCorp",
+    "file": "report_009.pdf",
+    "report_text": "High Path Traversal vulnerability found in the download endpoint. Attackers may read arbitrary files from the server.",
+    "severity": ["High"],
+    "vulnerabilities": ["Path Traversal"],
+    "cves": [],
+    "impact": ["read arbitrary files"]
+  },
+  {
+    "company": "DemoCorp",
+    "file": "report_010.pdf",
+    "report_text": "Critical Authentication Bypass vulnerability detected in the admin panel. CVE-2025-33333 may allow unauthorized access to privileged functions.",
+    "severity": ["Critical"],
+    "vulnerabilities": ["Authentication Bypass"],
+    "cves": ["CVE-2025-33333"],
+    "impact": ["unauthorized access to privileged functions"]
+  }
+]

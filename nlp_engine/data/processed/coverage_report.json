@@ -1,0 +1,11 @@
+{
+  "total_records": 10,
+  "used": 10,
+  "skipped_no_text": [],
+  "skipped_low_alignment": [],
+  "by_source": {
+    "json_field": 10
+  },
+  "unmatched_labels": [],
+  "examples_built": 10
+}

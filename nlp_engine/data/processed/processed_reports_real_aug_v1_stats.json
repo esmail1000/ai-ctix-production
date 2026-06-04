@@ -1,0 +1,22 @@
+{
+  "dataset_version": "processed_reports_real_aug_v1",
+  "real_input": "data\\processed\\processed_reports_real_gold_v1.json",
+  "aug_input": "data\\processed\\processed_reports_augmented.json",
+  "output": "data\\processed\\processed_reports_real_aug_v1.json",
+  "real_records_input": 60,
+  "real_records_after_clean_dedupe": 60,
+  "aug_records_input": 310,
+  "aug_records_after_clean_dedupe": 310,
+  "real_weight": 3,
+  "aug_weight": 1,
+  "merged_records_written": 490,
+  "real_gold_source_files": [
+    "Cure53-1PW17-report.pdf",
+    "Cure53-1PW18-report.pdf",
+    "Doyensec_Gravitational_Teleport_Testing_Q42020.pdf",
+    "HLM-01-report.pdf",
+    "NCC_Group_Zcash_NU5_PublicReportFinal.pdf",
+    "RedSiege-SampleReport.pdf",
+    "pentest-report-amneziavpn.pdf"
+  ]
+}

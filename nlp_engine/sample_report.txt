@@ -1,0 +1,1 @@
+Critical SQL Injection vulnerability found in CVE-2024-12345 affecting https://example.com on 192.168.1.10 port 443 

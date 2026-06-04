@@ -1,0 +1,171 @@
+// This is your Prisma schema file.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                     String   @id
+  username               String   @unique
+  email                  String   @unique
+  phone                  String
+  passwordHash           String
+  emailVerified          Boolean  @default(false)
+  phoneVerified          Boolean  @default(false)
+  otpCode                String?
+  otpExpiry              DateTime?
+  verificationChannel    String   @default("email")
+  passwordResetTokenHash String?
+  passwordResetExpiry    DateTime?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  analysisReports        AnalysisReport[]
+  analysisFindings       AnalysisFinding[]
+  analysisRuns           AnalysisRun[]
+  analysisSummaries      AnalysisSummary[]
+  analysisRiskScores     AnalysisRiskScore[]
+
+  @@index([email])
+  @@index([username])
+  @@index([passwordResetTokenHash])
+}
+
+model AnalysisReport {
+  id                  String   @id
+  userId              String
+  slug                String?
+  name                String
+  type                String
+  uploadedAt          String
+  owner               String   @default("AI CTIX")
+  status              String
+  findingCount        Int      @default(0)
+  critical            Int      @default(0)
+  high                Int      @default(0)
+  medium              Int      @default(0)
+  low                 Int      @default(0)
+  summary             String   @default("")
+  content             String   @default("")
+  sourceFileName      String?
+  parsingStatus       String   @default("parsed")
+  analysisVersion     Int      @default(1)
+  parserVersion       Int?
+  parsingNotesJson    String   @default("[]")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  findings            AnalysisFinding[]
+  runs                AnalysisRun[]
+  summaries           AnalysisSummary[]
+  riskScores          AnalysisRiskScore[]
+
+  @@index([userId])
+  @@index([uploadedAt])
+  @@index([status])
+  @@index([slug])
+}
+
+model AnalysisFinding {
+  id                    String   @id
+  userId                String
+  reportId              String
+  reportName            String
+  slug                  String?
+  title                 String
+  cve                   String   @default("")
+  severity              String
+  asset                 String
+  score                 Int      @default(0)
+  status                String
+  detectedAt            String
+  summary               String   @default("")
+  impact                String   @default("")
+  evidence              String   @default("")
+  remediation           String   @default("")
+  evidenceSentenceIndex Int?
+  historyJson           String   @default("[]")
+  reportedJson          String   @default("{}")
+  normalizationJson     String   @default("{}")
+  provenanceJson        String   @default("{}")
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  user                  User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  report                AnalysisReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([reportId])
+  @@index([severity])
+  @@index([status])
+  @@index([asset])
+  @@index([cve])
+  @@index([slug])
+}
+
+model AnalysisRun {
+  id        String   @id @default(cuid())
+  userId    String
+  reportId  String
+  runJson   String   @default("{}")
+  createdAt DateTime @default(now())
+
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  report    AnalysisReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([reportId])
+  @@index([createdAt])
+}
+
+model AnalysisSummary {
+  id              String   @id @default(cuid())
+  userId          String
+  reportId        String
+  summaryJson     String   @default("{}")
+  summaryMetaJson String   @default("{}")
+  generatedAt     DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  report          AnalysisReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([reportId])
+  @@index([generatedAt])
+}
+
+model AnalysisRiskScore {
+  id               String   @id @default(cuid())
+  userId           String
+  reportId         String
+  overallRiskScore Int?
+  overallRiskBand  String?
+  riskJson         String   @default("{}")
+  riskMetaJson     String   @default("{}")
+  generatedAt      DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  report           AnalysisReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([reportId])
+  @@index([overallRiskBand])
+  @@index([generatedAt])
+}
+model RateLimitBucket {
+  key       String   @id
+  count     Int      @default(0)
+  resetAt   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([resetAt])
+}

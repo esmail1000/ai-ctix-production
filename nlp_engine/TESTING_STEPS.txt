@@ -1,0 +1,55 @@
+AI-Powered Cyber Threat Intelligence Extractor — Test Checklist
+================================================================================
+
+1) Open a terminal in the project folder
+   cd "...\NLP_AI\project"
+
+2) Optional virtual environment
+   python -m venv .venv
+   .\.venv\Scripts\activate          (Windows PowerShell)
+   source .venv/bin/activate          (macOS/Linux)
+
+3) Lightweight smoke test, no ML dependencies required
+   python self_test.py
+
+4) Syntax check
+   python -m py_compile labels.py utils.py regex_extractor.py span_matching.py text_loader.py preprocessing.py train.py inference.py prepare_data.py self_test.py
+
+5) Test fallback inference without a model
+   Create a sample text file, then run:
+   python inference.py --mode auto --report_text_file sample_report.txt --output_json outputs\prediction.json
+
+   Expected:
+   - JSON is written successfully.
+   - meta.model_loaded = false if models\cyberbert-ner is missing.
+   - meta.fallback_used = true.
+   - CVEs, IPs, URLs, domains, ports, common severity, vulnerability types, and impacts are extracted by deterministic rules.
+
+6) Prepare real raw report text from PDFs
+   Put PDF files in: data\pdf\
+   Run:
+   python prepare_data.py --processed_json "..\processed_reports.json" --raw_pdf_dir data\pdf --raw_text_dir data\raw
+
+7) Quick check that examples load
+   python -c "from pathlib import Path; from preprocessing import load_processed_reports; ex=load_processed_reports(Path(r'..\processed_reports.json'), Path('data/raw'), Path('data/pdf')); print('examples:', len(ex))"
+
+8) Train with real text
+   python train.py --processed_json "..\processed_reports.json" --raw_text_dir data\raw --raw_pdf_dir data\pdf --coverage_report data\processed\coverage_report.json
+
+9) Last resort only: smoke train with synthetic labels
+   python train.py --processed_json "..\processed_reports.json" --allow_synthetic_fallback
+
+10) Strict model inference after training
+   python inference.py --mode model --model_dir models\cyberbert-ner --report_text_file sample_report.txt --output_json outputs\prediction.json
+
+================================================================================
+Fixes included in this package
+================================================================================
+- Fixed CVE regex RuntimeError in span_matching.py.
+- Fixed missing Tuple import in regex_extractor.py.
+- Added safe inference fallback when torch/transformers/model files are missing.
+- Made utils/preprocessing/train imports safer so non-ML smoke tests can run without heavy dependencies.
+- Added deterministic extraction for common severity, vulnerability type, and impact phrases.
+- Included URL hostnames in extracted domains.
+- Added meta output with engine/mode/model/fallback diagnostics.
+- Added self_test.py for quick regression checks.

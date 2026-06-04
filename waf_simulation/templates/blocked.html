@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Access Denied - WAF</title>
+    <style>
+        body { background-color: #b71c1c; color: white; font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .box { background: rgba(0,0,0,0.3); padding: 3rem; border-radius: 8px; text-align: center; max-width: 600px; }
+        h1 { font-size: 3rem; margin-bottom: 0.5rem; }
+        p { font-size: 1.2rem; line-height: 1.5; }
+        .reason { background: #ffebee; color: #b71c1c; padding: 0.5rem 1rem; border-radius: 4px; display: inline-block; font-weight: bold; margin-top: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1>403 Forbidden</h1>
+        <p>Your request has been blocked by the Web Application Firewall.</p>
+        <div class="reason">Reason: {{ reason }}</div>
+        <p style="margin-top: 2rem; font-size: 0.9rem; color: #ffcdd2;">
+            Your IP has been logged. An incident report (PDF/JSON) has been generated in the <code>waf_reports/</code> folder.
+        </p>
+        <br>
+        <a href="/admin/reports" style="color: white; text-decoration: underline;">View Reports in Admin Panel</a>
+    </div>
+</body>
+</html>

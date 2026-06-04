@@ -1,0 +1,162 @@
+{
+  "dataset_version": "processed_reports_real_gold_v1",
+  "input_dir": "..\\data\\gold_reports_v1",
+  "records_written": 60,
+  "files_used": [
+    "Cure53-1PW17-report.pdf",
+    "Cure53-1PW18-report.pdf",
+    "Doyensec_Gravitational_Teleport_Testing_Q42020.pdf",
+    "HLM-01-report.pdf",
+    "NCC_Group_Zcash_NU5_PublicReportFinal.pdf",
+    "RedSiege-SampleReport.pdf",
+    "pentest-report-amneziavpn.pdf"
+  ],
+  "missing_files": [],
+  "excluded": [],
+  "per_file": [
+    {
+      "file": "HLM-01-report.pdf",
+      "expected_findings": 1,
+      "actual_findings": 1,
+      "count_ok": true,
+      "text_len": 31726,
+      "method": "pdfminer",
+      "warnings": [],
+      "titles": [
+        "Packaging: Denial-of-Service via Symbolic Links"
+      ],
+      "decision": "gold"
+    },
+    {
+      "file": "NCC_Group_Zcash_NU5_PublicReportFinal.pdf",
+      "expected_findings": 3,
+      "actual_findings": 3,
+      "count_ok": true,
+      "text_len": 60402,
+      "method": "pdfminer",
+      "warnings": [],
+      "titles": [
+        "Insufficient Checks in Unified Address Parser",
+        "Incorrect Random Point Generation and Decoding on Isogenous Curves",
+        "Non-Constant-Time Operations in Pasta Curves"
+      ],
+      "decision": "gold"
+    },
+    {
+      "file": "Cure53-1PW17-report.pdf",
+      "expected_findings": 6,
+      "actual_findings": 6,
+      "count_ok": true,
+      "text_len": 32687,
+      "method": "pdfminer",
+      "warnings": [],
+      "titles": [
+        "Reusable authorization token in localStorage",
+        "Missing check allows spoofing of Activity Logs",
+        "DoS against other users via blocklist",
+        "Client-side DoS via invalid encrypted data in vaults",
+        "Inconsistent check leads to faulty Activity Logs",
+        "Information disclosure via WebSocket channel"
+      ],
+      "decision": "gold"
+    },
+    {
+      "file": "Cure53-1PW18-report.pdf",
+      "expected_findings": 6,
+      "actual_findings": 6,
+      "count_ok": true,
+      "text_len": 32169,
+      "method": "pdfminer",
+      "warnings": [],
+      "titles": [
+        "Windows malware can trivially backdoor .html and .js",
+        "Malware can trivially intercept URL handler",
+        "Insufficient validation of emails in onepassword URL",
+        "Missing deprovisioning of TPM enclave key",
+        "DoS for update via Windows registry deletion",
+        "Outdated Electron version used"
+      ],
+      "decision": "gold"
+    },
+    {
+      "file": "pentest-report-amneziavpn.pdf",
+      "expected_findings": 16,
+      "actual_findings": 16,
+      "count_ok": true,
+      "text_len": 68048,
+      "method": "pdfminer",
+      "warnings": [],
+      "titles": [
+        "Possible Weaknesses via Insecure Function Usage",
+        "Linux/Mac root PrivEsc via insecure Permissions",
+        "Possible Android/iOS Leaks via Missing Security Screen",
+        "Possible Phishing via StrandHogg 2.0 on Android",
+        "VPN Config Access via Android & iOS Backups",
+        "Config Access via incorrect Android Keystore Usage",
+        "Linux VPN Config Access via Insecure Permissions",
+        "Linux/Mac/Win DoS via Predictable Port Usage",
+        "Linux/Mac/Win PrivEsc via IPC Design Flaw",
+        "Linux/Mac/Win RCE as root via Malicious Share Link",
+        "Config Access via missing iOS KeyChain usage",
+        "Config Access via missing iOS Data Protection",
+        "Android Application Hardening Recommendations",
+        "Missing Android root & iOS Jailbreak Detection",
+        "Android Binary Hardening Recommendations",
+        "Possible Theft of Credentials via Plaintext Storage"
+      ],
+      "decision": "gold"
+    },
+    {
+      "file": "RedSiege-SampleReport.pdf",
+      "expected_findings": 10,
+      "actual_findings": 10,
+      "count_ok": true,
+      "text_len": 70350,
+      "method": "pdfminer",
+      "warnings": [],
+      "titles": [
+        "Low Risk Findings Directory Indexing",
+        "SMB Null Sessions Enabled",
+        "HSTS Not Enabled",
+        "Excessive Administrator Permissions",
+        "PowerShell Version 2 Available",
+        "Successful Pretext Call",
+        "Weak Password Policy",
+        "LLMNR and NBNS Poisoning",
+        "Unpatched Software",
+        "Cross-Site Scripting"
+      ],
+      "decision": "gold"
+    },
+    {
+      "file": "Doyensec_Gravitational_Teleport_Testing_Q42020.pdf",
+      "expected_findings": 18,
+      "actual_findings": 18,
+      "count_ok": true,
+      "text_len": 118194,
+      "method": "pdfminer",
+      "warnings": [],
+      "titles": [
+        "Decompression Bomb In Decompress Functions",
+        "Unsafely Deferred Close Call On *os.File",
+        "Cluster IP Leakage Through",
+        "Existence Leak of Label-restricted Resources",
+        "Insecure Default TLSClientConfig In Dial Function",
+        "Login CrossSite Request Forgery On Application Access",
+        "Missing Applications Session Invalidation On Parent",
+        "Systemic Server-Side Request Forgery in Single Sign-On",
+        "CLI Content Spoofing Through Request Reason",
+        "Unprotected Prometheus Diagnostic Endpoint",
+        "CA Pinning Does Not Check Certificate Expiration Date",
+        "Unauthenticated OOM DoS in ReadJSON",
+        "Token Exposure Through Open Redirect Bypass In AAP",
+        "Weak Content-Security-Policy Directives",
+        "Content Spoofing Abusing Error Pages",
+        "Parameter Injection In Install App Script",
+        "AAP Headers Injection",
+        "Multiple Unhandled Errors"
+      ],
+      "decision": "gold"
+    }
+  ]
+}

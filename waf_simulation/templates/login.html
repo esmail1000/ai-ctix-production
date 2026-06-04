@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Customer Login</h1>
+    <p>Please enter your credentials to access your account.</p>
+    
+    <form action="/login" method="POST" style="max-width: 400px; margin-top: 2rem;">
+        <input type="hidden" name="csrf_token" value="dummy_safe_token">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" placeholder="e.g. admin' OR 1=1 --">
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter password">
+        </div>
+        
+        <button type="submit" class="btn">Secure Login</button>
+    </form>
+{% endblock %}

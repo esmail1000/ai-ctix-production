@@ -1,0 +1,72 @@
+[
+  {
+    "id": 1,
+    "category": "SQL Injection (SQLi)",
+    "payload": "admin' OR '1'='1",
+    "test_url": "http://localhost:5050/?username=admin' OR '1'='1",
+    "ui_location": "Type in the 'Username' field of the Login page (http://localhost:5050/login) and hit submit."
+  },
+  {
+    "id": 2,
+    "category": "Cross-Site Scripting (XSS)",
+    "payload": "<script>alert('XSS-Test')</script>",
+    "test_url": "http://localhost:5050/?xss=<script>alert('XSS-Test')</script>",
+    "ui_location": "Type in the 'Username' field of the Login page (http://localhost:5050/login) and hit submit."
+  },
+  {
+    "id": 3,
+    "category": "Remote Code Execution (RCE)",
+    "payload": "; whoami",
+    "test_url": "http://localhost:5050/?cmd=; whoami",
+    "ui_location": "Type in the 'Username' field of the Login page (http://localhost:5050/login) and hit submit."
+  },
+  {
+    "id": 4,
+    "category": "Path Traversal / LFI",
+    "payload": "../../../../etc/passwd",
+    "test_url": "http://localhost:5050/?file=../../../../etc/passwd",
+    "ui_location": "Type in the 'Username' field of the Login page (http://localhost:5050/login) and hit submit."
+  },
+  {
+    "id": 5,
+    "category": "Security Misconfiguration",
+    "payload": "/.git/config",
+    "test_url": "http://localhost:5050/.git/config",
+    "ui_location": "Type directly in the browser's address bar after the port."
+  },
+  {
+    "id": 6,
+    "category": "XML External Entity (XXE)",
+    "payload": "<!DOCTYPE x [<!ENTITY xxe SYSTEM 'file:///etc/passwd'>]><scan>&xxe;</scan>",
+    "test_url": "http://localhost:5050/",
+    "ui_location": "Submit this exact text as the request body (POST) to the home page using Postman or cURL."
+  },
+  {
+    "id": 7,
+    "category": "Cryptographic Weakness",
+    "payload": "md5",
+    "test_url": "http://localhost:5050/?cipher=md5",
+    "ui_location": "Type directly in the browser's address bar."
+  },
+  {
+    "id": 8,
+    "category": "Reconnaissance Attack (Bad Bot)",
+    "payload": "User-Agent: sqlmap/1.4.12",
+    "test_url": "http://localhost:5050/",
+    "ui_location": "Send a request to the home page with the User-Agent header set to 'sqlmap/1.4.12'."
+  },
+  {
+    "id": 9,
+    "category": "Denial of Service (DoS)",
+    "payload": "Rapid HTTP Requests Flood",
+    "test_url": "http://localhost:5050/",
+    "ui_location": "Refresh the homepage (http://localhost:5050/) rapidly 25 times in a row."
+  },
+  {
+    "id": 10,
+    "category": "Race Condition Anomaly",
+    "payload": "Concurrent Transfer Transactions",
+    "test_url": "http://localhost:5050/transfer",
+    "ui_location": "Go to http://localhost:5050/transfer, enter an amount, and click the Transfer button multiple times as fast as possible."
+  }
+]

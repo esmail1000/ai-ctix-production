@@ -1,0 +1,83 @@
+# Dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# Build outputs
+build/
+dist/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+
+# Runtime data
+.data/users.json
+nlp_engine/outputs/*
+!nlp_engine/outputs/.gitkeep
+
+# WAF generated reports
+waf_simulation/waf_reports/*
+!waf_simulation/waf_reports/.gitkeep
+waf_simulation/waf_pdf_reports/
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+/lib/generated/prisma
+# Prisma local database
+prisma/dev.db
+prisma/dev.db-journal
+prisma/*.db
+prisma/*.db-journal
+prisma/*.db-wal
+prisma/*.db-shm
+
+# Local database backups
+backup-auth-flow-*
+.data/users.json
+
+# Prisma generated client
+lib/generated/prisma
+.env
+.env.local
+.env.*.local
+
+dev.db
+dev.db-journal
+dev.db-wal
+dev.db-shm
+*.db-wal
+*.db-shm
+
+.data/
+project-audit/
+audit-*.bat
+audit-*.ps1
+heavy-paste-report.txt
+apply-auth-flow.ps1
+legacy-storage/
+source-snapshot/

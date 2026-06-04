@@ -1,0 +1,16 @@
+{
+  "default_tenant": {
+    "name": "AI-CTI Main Suite",
+    "domain": "localhost",
+    "backend_url": "http://localhost:3000",
+    "it_email": "admin@aictix.com",
+    "security_level": "MAXIMUM"
+  },
+  "test_sec": {
+    "name": "Global Security Test Portal",
+    "domain": "test.localhost",
+    "backend_url": "http://localhost:5001",
+    "it_email": "test-it@securesite.com",
+    "security_level": "HIGH"
+  }
+}

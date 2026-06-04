@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WAF Defense Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --panel-bg: rgba(30, 41, 59, 0.7);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --success: #10b981;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at top left, #1e293b, var(--bg-color));
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-weight: 800;
+            font-size: 2.5rem;
+            background: -webkit-linear-gradient(45deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .glass-panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .panel-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .attack-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.8rem;
+        }
+
+        button {
+            font-family: 'Inter', sans-serif;
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        button.attack-btn {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        button.attack-btn:hover {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+
+        .normal-btn {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #6ee7b7;
+            margin-bottom: 1.5rem;
+        }
+        
+        .normal-btn:hover {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        .report-card {
+            background: rgba(0, 0, 0, 0.2);
+            border-left: 4px solid var(--danger);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px 8px 8px 4px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .report-title {
+            color: #fca5a5;
+            font-weight: 600;
+        }
+
+        .report-meta {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .report-details {
+            font-size: 0.9rem;
+            background: rgba(0,0,0,0.3);
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-family: monospace;
+            margin-bottom: 0.8rem;
+            word-wrap: break-word;
+        }
+
+        .mitigation-list {
+            font-size: 0.85rem;
+            color: #93c5fd;
+            padding-left: 1.2rem;
+        }
+
+        .ip-list {
+            list-style: none;
+        }
+
+        .ip-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            background: rgba(0,0,0,0.2);
+            margin-bottom: 0.5rem;
+            border-radius: 4px;
+        }
+
+        .unblock-btn {
+            padding: 0.3rem 0.6rem;
+            font-size: 0.8rem;
+            background: var(--text-muted);
+            width: auto;
+        }
+
+        .unblock-btn:hover {
+            background: #cbd5e1;
+            color: #000;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        #status-toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .toast-success { background: var(--success); }
+        .toast-error { background: var(--danger); }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Shield WAF Testing Dashboard</h1>
+        <p class="subtitle">Simulate, Detect, and Prevent the Top 10 Attack Vectors</p>
+    </header>
+
+    <div class="container">
+        <!-- Left Panel: Attack Simulation -->
+        <div class="glass-panel">
+            <div class="panel-title">
+                Attack Simulator
+            </div>
+            
+            <button class="normal-btn" style="width: 100%" onclick="sendNormalRequest()">
+                ✅ Send Normal Safe Request
+            </button>
+
+            <div class="attack-grid">
+                <button class="attack-btn" onclick="simulateAttack('SQL Injection')">1. SQL Injection</button>
+                <button class="attack-btn" onclick="simulateAttack('Cross-Site Scripting (XSS)')">2. Cross-Site Scripting (XSS)</button>
+                <button class="attack-btn" onclick="simulateAttack('Remote Code Execution (RCE)')">3. Remote Code Execution (RCE)</button>
+                <button class="attack-btn" onclick="simulateAttack('Sensitive Data Exposure')">4. Sensitive Data Exp. (Path Traversal)</button>
+                <button class="attack-btn" onclick="simulateAttack('Security Misconfiguration')">5. Security Misconfiguration</button>
+                <button class="attack-btn" onclick="simulateAttack('Memory Corruption')">6. Memory Corruption (Buffer Overflow)</button>
+                <button class="attack-btn" onclick="simulateAttack('Cryptographic Weakness')">7. Cryptographic Weakness</button>
+                <button class="attack-btn" onclick="simulateAttack('Cross-Site Request Forgery (CSRF)')">8. CSRF (Missing Token)</button>
+                <button class="attack-btn" onclick="simulateAttack('Race Condition')">9. Race Condition (Rapid Trans.)</button>
+                <button class="attack-btn" onclick="simulateAttack('Denial of Service (DoS)')">10. Denial of Service (DoS)</button>
+            </div>
+        </div>
+
+        <!-- Right Panel: Reports & IP Management -->
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
+            
+            <div class="glass-panel">
+                <div class="panel-title">
+                    Blocked IPs
+                    <span id="blocked-count" style="font-size: 0.9rem; background: var(--danger); padding: 0.2rem 0.6rem; border-radius: 12px;">0</span>
+                </div>
+                <ul class="ip-list" id="blocked-ips-container">
+                    <li style="color: var(--text-muted); font-size: 0.9rem;">No IPs blocked currently.</li>
+                </ul>
+            </div>
+
+            <div class="glass-panel" style="flex-grow: 1; overflow-y: auto; max-height: 600px;">
+                <div class="panel-title">
+                    Incident Reports
+                    <button style="width: auto; padding: 0.3rem 0.8rem; background: transparent; border: 1px solid var(--accent); font-size: 0.8rem;" onclick="refreshData()">Refresh</button>
+                </div>
+                <div id="reports-container">
+                    <div style="color: var(--text-muted); font-size: 0.9rem; text-align: center; margin-top: 2rem;">
+                        Waiting for incidents...
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="status-toast"></div>
+
+    <script>
+        function showToast(message, isError=false) {
+            const toast = document.getElementById('status-toast');
+            toast.textContent = message;
+            toast.className = isError ? 'toast-error' : 'toast-success';
+            toast.style.opacity = 1;
+            setTimeout(() => { toast.style.opacity = 0; }, 3000);
+        }
+
+        async function fetchWrapper(url, options) {
+            try {
+                const res = await fetch(url, options);
+                if (res.status === 403) {
+                    const data = await res.json();
+                    showToast(`Blocked! WAF Detected: ${data.reason}`, true);
+                } else if (res.ok) {
+                    showToast(`Success! Request passed.`, false);
+                }
+            } catch(e) {
+                showToast("Connection Error", true);
+            }
+            // Give server a moment to log, then refresh UI
+            setTimeout(refreshData, 300);
+        }
+
+        function sendNormalRequest() {
+            fetchWrapper('/search?q=hello', { method: 'GET' });
+        }
+
+        function simulateAttack(type) {
+            const payloads = {
+                'SQL Injection': () => fetchWrapper('/search?q=UNION SELECT * FROM users', { method: 'GET' }),
+                'Cross-Site Scripting (XSS)': () => fetchWrapper('/search?q=<script>alert(1)<\\/script>', { method: 'GET' }),
+                'Remote Code Execution (RCE)': () => fetchWrapper('/api/data', { method: 'POST', body: 'cmd=; ls -la' }),
+                'Sensitive Data Exposure': () => fetchWrapper('/api/data?file=../../../../etc/passwd', { method: 'GET' }),
+                'Security Misconfiguration': () => fetchWrapper('/login', { method: 'POST', headers: {'X-Debug-Mode': 'True'} }),
+                'Memory Corruption': () => fetchWrapper('/upload', { method: 'POST', body: 'A'.repeat(15000) }),
+                'Cryptographic Weakness': () => fetchWrapper('/login', { method: 'POST', body: 'password=admin' }), // Plain text pass
+                'Cross-Site Request Forgery (CSRF)': () => fetchWrapper('/transfer', { method: 'POST', body: 'amount=1000' }), // No token
+                'Race Condition': () => {
+                    for(let i=0; i<5; i++) fetch('/transfer', { method: 'POST', headers: {'X-CSRFToken': 'valid'} });
+                    setTimeout(refreshData, 1000);
+                },
+                'Denial of Service (DoS)': () => {
+                    for(let i=0; i<15; i++) fetch('/api/data', { method: 'GET' });
+                    setTimeout(refreshData, 1000);
+                }
+            };
+
+            if(payloads[type]) payloads[type]();
+        }
+
+        async function unblockIp(ip) {
+            await fetch('/api/unblock', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ip})
+            });
+            refreshData();
+        }
+
+        async function refreshData() {
+            // Fetch Blocked IPs
+            const ipRes = await fetch('/api/blocked_ips');
+            const ips = await ipRes.json();
+            
+            document.getElementById('blocked-count').textContent = ips.length;
+            const ipContainer = document.getElementById('blocked-ips-container');
+            if (ips.length === 0) {
+                ipContainer.innerHTML = '<li style="color: var(--text-muted); font-size: 0.9rem;">No IPs blocked currently.</li>';
+            } else {
+                ipContainer.innerHTML = ips.map(ip => `
+                    <li class="ip-item">
+                        <span style="font-family: monospace; color: #fca5a5;">${ip}</span>
+                        <button class="unblock-btn" onclick="unblockIp('${ip}')">Unblock</button>
+                    </li>
+                `).join('');
+            }
+
+            // Fetch Reports
+            const repRes = await fetch('/api/reports');
+            const reports = await repRes.json();
+            const repContainer = document.getElementById('reports-container');
+            
+            if (reports.length === 0) {
+                repContainer.innerHTML = '<div style="color: var(--text-muted); font-size: 0.9rem; text-align: center; margin-top: 2rem;">Waiting for incidents...</div>';
+            } else {
+                repContainer.innerHTML = reports.map(r => `
+                    <div class="report-card">
+                        <div class="report-header">
+                            <span class="report-title">${r.attack_type}</span>
+                            <span class="report-meta">${r.timestamp}</span>
+                        </div>
+                        <div class="report-details">
+                            <div><strong>IP:</strong> ${r.source_ip} | <strong>Path:</strong> ${r.target_path}</div>
+                            <div style="margin-top: 0.3rem; color: #fbbf24;"><strong>Evidence:</strong> ${r.evidence}</div>
+                        </div>
+                        <div>
+                            <strong style="font-size: 0.85rem;">WAF Action:</strong> <span style="color: var(--success); font-size: 0.85rem;">${r.action_taken} (Success)</span>
+                        </div>
+                        <div style="margin-top: 0.5rem;">
+                            <strong style="font-size: 0.85rem;">Recommended Mitigations:</strong>
+                            <ul class="mitigation-list">
+                                ${r.mitigation_recommendations.map(m => `<li>${m}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Auto refresh every 5 seconds
+        setInterval(refreshData, 5000);
+        refreshData();
+    </script>
+</body>
+</html>
