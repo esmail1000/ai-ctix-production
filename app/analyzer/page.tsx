@@ -143,6 +143,7 @@ export default function AnalyzerPage() {
   const [inputMode, setInputMode] = useState<InputMode>('file')
   const [isDragging, setIsDragging] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [analysisProgress, setAnalysisProgress] = useState(0)
   const [activeStep, setActiveStep] = useState(0)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -262,36 +263,76 @@ export default function AnalyzerPage() {
   }
 
   async function handleAnalyze() {
+    let progressTimer: number | undefined
+
     try {
       setError('')
       setSuccess('')
       setCreatedReport(null)
       setCreatedFindings([])
       setIsSubmitting(true)
+      setAnalysisProgress(1)
       setActiveStep(0)
+
+      progressTimer = window.setInterval(() => {
+        setAnalysisProgress((current) => {
+          if (current >= 95) return current
+          return current + 1
+        })
+      }, 250)
 
       const formData = new FormData()
       if (pastedText.trim()) formData.append('text', pastedText)
       if (selectedFile) formData.append('file', selectedFile)
 
       const response = await fetch('/api/analyze', { method: 'POST', body: formData })
-      const data = await response.json()
+      const responseText = await response.text()
+
+      let data: {
+        error?: string
+        report?: Report
+        findings?: Finding[]
+      } = {}
+
+      try {
+        data = responseText ? JSON.parse(responseText) : {}
+      } catch {
+        throw new Error(
+          response.ok
+            ? 'Analysis returned an invalid response.'
+            : 'Analysis service returned an HTML error page instead of JSON. Check Render logs.'
+        )
+      }
 
       if (!response.ok) {
         throw new Error(data.error ?? 'Analysis failed.')
       }
 
+      if (!data.report) {
+        throw new Error('Analysis completed but no report was returned.')
+      }
+
+      setAnalysisProgress(100)
       setCreatedReport(data.report)
       setCreatedFindings(data.findings ?? [])
       setSuccess('Report analyzed successfully and saved to the workspace.')
       setRecentReports((current) =>
-        [data.report, ...current.filter((item) => item.id !== data.report.id)].slice(0, 3)
+        [data.report as Report, ...current.filter((item) => item.id !== data.report?.id)].slice(0, 3)
       )
       router.refresh()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Analysis failed.')
     } finally {
-      setIsSubmitting(false)
+      if (progressTimer) {
+        window.clearInterval(progressTimer)
+      }
+
+      setAnalysisProgress(100)
+
+      window.setTimeout(() => {
+        setIsSubmitting(false)
+        setAnalysisProgress(0)
+      }, 500)
     }
   }
 
@@ -479,7 +520,7 @@ persisted report and linked findings through the existing backend.
                     disabled={isSubmitting || Boolean(error) || !canAnalyze}
                     className="rounded-2xl bg-[#087a3a] px-6 py-3 text-sm font-semibold text-white shadow-[0_16px_32px_rgba(8,122,58,0.18)] transition hover:bg-[#066b33] disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {isSubmitting ? 'Analyzing report...' : 'Analyze Report'}
+                    {isSubmitting ? `Analyzing ${analysisProgress}%` : 'Analyze Report'}
                   </button>
 
                   <button
@@ -680,6 +721,64 @@ persisted report and linked findings through the existing backend.
         </section>
       </section>
 
+      {isSubmitting ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/85 px-6 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-[32px] border border-[#dceee3] bg-white p-8 text-center shadow-[0_28px_90px_rgba(15,43,29,0.18)]">
+            <div className="relative mx-auto h-36 w-36">
+              <svg
+                className={`h-36 w-36 ${analysisProgress >= 95 ? 'analyzer-progress-spin' : '-rotate-90'}`}
+                viewBox="0 0 120 120"
+                aria-hidden="true"
+              >
+                <circle
+                  cx="60"
+                  cy="60"
+                  r="52"
+                  stroke="currentColor"
+                  strokeWidth="10"
+                  fill="none"
+                  className="text-emerald-100"
+                />
+                <circle
+                  cx="60"
+                  cy="60"
+                  r="52"
+                  stroke="currentColor"
+                  strokeWidth="10"
+                  fill="none"
+                  strokeLinecap="round"
+                  className="text-[#087a3a] transition-all duration-300"
+                  strokeDasharray={2 * Math.PI * 52}
+                  strokeDashoffset={
+                    2 * Math.PI * 52 - (analysisProgress / 100) * (2 * Math.PI * 52)
+                  }
+                />
+              </svg>
+
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-3xl font-black tracking-[-0.04em] text-[#0d2217]">
+                  {analysisProgress}%
+                </span>
+              </div>
+            </div>
+
+            <p className="mt-6 text-lg font-bold text-[#0d2217]">Analyzing report...</p>
+            <p className="mt-2 text-sm leading-6 text-[#5a7668]">
+              Please wait while the report is being processed and saved.
+            </p>
+
+            <div className="mt-5 rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-3 text-left">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#087a3a]">
+                Current step
+              </p>
+              <p className="mt-1 text-sm font-semibold text-[#173128]">
+                {processingSteps[activeStep] ?? 'Processing'}
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       <style>{`
         @keyframes analyzer-orbit-spin {
           0% { transform: rotate(0deg); }
@@ -691,12 +790,22 @@ persisted report and linked findings through the existing backend.
           50% { transform: translateY(-12px) rotate(2deg); }
         }
 
+        @keyframes analyzer-progress-spin {
+          0% { transform: rotate(-90deg); }
+          100% { transform: rotate(270deg); }
+        }
+
         .analyzer-orbit {
           animation: analyzer-orbit-spin 14s linear infinite;
         }
 
         .analyzer-orbit > div:first-child {
           animation: analyzer-logo-float 6s ease-in-out infinite;
+        }
+
+        .analyzer-progress-spin {
+          animation: analyzer-progress-spin 1.1s linear infinite;
+          transform-origin: center;
         }
 
         .analyzer-platform {
