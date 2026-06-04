@@ -1699,7 +1699,7 @@ def proxy(path):
         return blocked_page()
 
     tenant_id = g.get('tenant_id', 'default_tenant')
-    backend_url = "http://localhost:3000"
+    backend_url = "http://127.0.0.1:3000"
     tenant_name = "AI-CTI Main Suite"
     clients_file = Path(__file__).resolve().parent / "clients.json"
     if clients_file.exists():
@@ -1759,11 +1759,31 @@ def proxy(path):
             'upgrade',
             'proxy-connection'
         ]
-        headers_list = [(name, value) for name, value in resp.headers.items()
-                        if name.lower() not in excluded_headers]
+      headers_list = []
 
-        response = Response(resp.iter_content(chunk_size=1024), resp.status_code, headers_list)
-        return response
+for name, value in resp.headers.items():
+    lower_name = name.lower()
+    if lower_name in excluded_headers or lower_name == 'set-cookie':
+        continue
+    headers_list.append((name, value))
+
+set_cookie_headers = []
+raw_headers = getattr(resp.raw, "headers", None)
+
+if raw_headers is not None:
+    if hasattr(raw_headers, "get_all"):
+        set_cookie_headers = raw_headers.get_all("Set-Cookie") or []
+    elif hasattr(raw_headers, "getlist"):
+        set_cookie_headers = raw_headers.getlist("Set-Cookie") or []
+
+if not set_cookie_headers and 'set-cookie' in resp.headers:
+    set_cookie_headers = [resp.headers['set-cookie']]
+
+for cookie_header in set_cookie_headers:
+    headers_list.append(('Set-Cookie', cookie_header))
+
+response = Response(resp.iter_content(chunk_size=1024), resp.status_code, headers_list)
+return response
     except requests.exceptions.ConnectionError:
         if tenant_id != 'default_tenant':
             return render_tenant_sandbox(tenant_name, tenant_id, path)

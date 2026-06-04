@@ -17,70 +17,29 @@ function countFindingsBySeverity(
   return findings.filter((finding) => finding.severity === severity).length
 }
 
-/**
- * كل user ليه sequence مستقل:
- *
- * User A:
- * R-001-USERAA
- * R-002-USERAA
- *
- * User B:
- * R-001-USERBB
- *
- * suffix مهم عشان database id يفضل unique.
- */
-function getUserReportSuffix(userId: string) {
-  const cleaned = String(userId)
-    .replace(/[^a-zA-Z0-9]/g, '')
-    .toUpperCase()
-
-  return cleaned.slice(-6) || 'USER'
-}
-
 function extractReportNumber(reportId: string): number {
-  /**
-   * يدعم الشكل القديم والجديد:
-   * R-001
-   * R-088
-   * R-001-ABC123
-   * R-088-ABC123
-   */
-  const match = /^R-(\d+)(?:-[A-Z0-9]+)?$/i.exec(reportId)
-
-  if (!match) return 0
-
-  const value = Number(match[1])
-
-  return Number.isFinite(value) ? value : 0
+  const match = /^R-(\d+)$/.exec(reportId)
+  return match ? Number(match[1]) || 0 : 0
 }
 
-async function getNextAnalysisReportId(userId: string): Promise<string> {
+async function getNextAnalysisReportId(): Promise<string> {
   const reports = await prisma.analysisReport.findMany({
-    where: {
-      userId,
-    },
-    select: {
-      id: true,
-    },
+    select: { id: true },
   })
 
-  const lastNumber = reports.reduce((max, report) => {
-    return Math.max(max, extractReportNumber(report.id))
-  }, 0)
+  const nextNumber =
+    reports.reduce(
+      (max, report) => Math.max(max, extractReportNumber(report.id)),
+      0
+    ) + 1
 
-  const nextNumber = lastNumber + 1
-  const displayNumber = String(nextNumber).padStart(3, '0')
-  const userSuffix = getUserReportSuffix(userId)
-
-  return `R-${displayNumber}-${userSuffix}`
+  return `R-${String(nextNumber).padStart(3, '0')}`
 }
 
-function refreshReportCounts<
-  T extends Pick<
-    StoredReport,
-    'findings' | 'critical' | 'high' | 'medium' | 'low' | 'status'
-  >,
->(report: T, findings: StoredFinding[]): T {
+function refreshReportCounts<T extends Pick<StoredReport, 'findings' | 'critical' | 'high' | 'medium' | 'low' | 'status'>>(
+  report: T,
+  findings: StoredFinding[]
+): T {
   return {
     ...report,
     findings: findings.length,
@@ -106,7 +65,7 @@ export async function ingestAnalysisReport(params: {
   content: string
   sourceFileName?: string
 }) {
-  const reportId = await getNextAnalysisReportId(params.userId)
+  const reportId = await getNextAnalysisReportId()
   const uploadedAt = nowIso()
 
   let { pipeline, report, findings } = analyzeContent({
@@ -140,7 +99,6 @@ export async function ingestAnalysisReport(params: {
     if (useNlpOnly) {
       findings = nlpFindings
       report = refreshReportCounts(report, findings)
-
       report = {
         ...report,
         parsingNotes: [
@@ -154,7 +112,6 @@ export async function ingestAnalysisReport(params: {
     } else {
       findings = heuristicFindings
       report = refreshReportCounts(report, findings)
-
       report = {
         ...report,
         parsingNotes: [
@@ -170,7 +127,6 @@ export async function ingestAnalysisReport(params: {
     }
   } else {
     report = refreshReportCounts(report, findings)
-
     report = {
       ...report,
       parsingNotes: [
@@ -191,7 +147,6 @@ export async function ingestAnalysisReport(params: {
 
   const storedReport: StoredReport = {
     ...report,
-    id: reportId,
     content: params.content,
     sourceFileName: params.sourceFileName,
     createdAtIso: timestamp,

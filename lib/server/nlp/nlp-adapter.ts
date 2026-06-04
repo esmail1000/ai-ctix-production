@@ -1905,14 +1905,7 @@ function signalCount(finding: StoredFinding): number {
   score += (evidence.match(/\b(?:CVE-|CWE-|CVSS|URLs:|Domains:|IPs:|File paths:|Hashes:|Products:|Components:)\b/g) ?? []).length;
   return score;
 }
-function reportKeyForFindingId(reportId: string) {
-  return (
-    reportId
-      .replace(/^R-/i, '')
-      .replace(/[^a-zA-Z0-9]+/g, '-')
-      .replace(/^-|-$/g, '') || 'report'
-  )
-}
+
 function toStoredFinding(params: {
   source: FindingSource;
   result: NlpEngineResult;
@@ -1936,7 +1929,7 @@ function toStoredFinding(params: {
   const evidence = buildEvidence(params.source, params.result, params.input);
   const references = buildReferences(params.source, params.result);
   const findingNumber = params.index + 1;
-  const reportSuffix = reportKeyForFindingId(params.reportId);
+  const reportSuffix = params.reportId.split("-")[1] || params.reportId.replace(/\W+/g, "");
   const sourceTitle = sourceSectionTitle(params.source);
   const sourceText = sourceRawSection(params.source) || evidence;
 
@@ -2019,7 +2012,7 @@ function dedupeFindings(findings: StoredFinding[]): StoredFinding[] {
 
   return order.map((key, index) => {
     const finding = byKey.get(key) as StoredFinding;
-    const reportSuffix = reportKeyForFindingId(finding.reportId);
+    const reportSuffix = finding.reportId.split("-")[1] || finding.reportId.replace(/\W+/g, "");
     return { ...finding, id: `F-${reportSuffix}-${String(index + 1).padStart(3, "0")}` };
   });
 }
