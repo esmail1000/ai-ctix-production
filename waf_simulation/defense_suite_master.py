@@ -1751,39 +1751,40 @@ def proxy(path):
         resp = requests.request(**proxy_kwargs)
 
         excluded_headers = [
-            'content-encoding', 
-            'content-length', 
-            'transfer-encoding', 
-            'connection', 
-            'keep-alive', 
+            'content-encoding',
+            'content-length',
+            'transfer-encoding',
+            'connection',
+            'keep-alive',
             'upgrade',
             'proxy-connection'
         ]
-      headers_list = []
 
-for name, value in resp.headers.items():
-    lower_name = name.lower()
-    if lower_name in excluded_headers or lower_name == 'set-cookie':
-        continue
-    headers_list.append((name, value))
+        headers_list = []
 
-set_cookie_headers = []
-raw_headers = getattr(resp.raw, "headers", None)
+        for name, value in resp.headers.items():
+            lower_name = name.lower()
+            if lower_name in excluded_headers or lower_name == 'set-cookie':
+                continue
+            headers_list.append((name, value))
 
-if raw_headers is not None:
-    if hasattr(raw_headers, "get_all"):
-        set_cookie_headers = raw_headers.get_all("Set-Cookie") or []
-    elif hasattr(raw_headers, "getlist"):
-        set_cookie_headers = raw_headers.getlist("Set-Cookie") or []
+        set_cookie_headers = []
+        raw_headers = getattr(resp.raw, "headers", None)
 
-if not set_cookie_headers and 'set-cookie' in resp.headers:
-    set_cookie_headers = [resp.headers['set-cookie']]
+        if raw_headers is not None:
+            if hasattr(raw_headers, "get_all"):
+                set_cookie_headers = raw_headers.get_all("Set-Cookie") or []
+            elif hasattr(raw_headers, "getlist"):
+                set_cookie_headers = raw_headers.getlist("Set-Cookie") or []
 
-for cookie_header in set_cookie_headers:
-    headers_list.append(('Set-Cookie', cookie_header))
+        if not set_cookie_headers and 'set-cookie' in resp.headers:
+            set_cookie_headers = [resp.headers['set-cookie']]
 
-response = Response(resp.iter_content(chunk_size=1024), resp.status_code, headers_list)
-return response
+        for cookie_header in set_cookie_headers:
+            headers_list.append(('Set-Cookie', cookie_header))
+
+        response = Response(resp.iter_content(chunk_size=1024), resp.status_code, headers_list)
+        return response
     except requests.exceptions.ConnectionError:
         if tenant_id != 'default_tenant':
             return render_tenant_sandbox(tenant_name, tenant_id, path)
