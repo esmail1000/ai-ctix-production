@@ -759,7 +759,7 @@ def _sliding_windows(
         stride=stride,
         return_overflowing_tokens=True,
         return_offsets_mapping=True,
-        padding=False,
+        padding=true,
         return_tensors="pt",
     )
 
