@@ -10,21 +10,21 @@ A single, self-contained, elite security suite combining:
 6. Administrative CLI Dashboard: Comprehensive console utility to manage, list, and unblock IPs.
 """
 
-import os
-import sys
-import re
-import urllib
-import urllib.parse
-import json
 import base64
-import time
-import math
-import struct
 import datetime
 import hashlib
+import json
+import math
+import os
+import re
+import struct
+import sys
 import threading
+import time
+import urllib
+import urllib.parse
 import warnings
-from collections import defaultdict, Counter
+from collections import Counter, defaultdict
 from pathlib import Path
 
 # Programmatic dependency resolution for 'requests'
@@ -43,9 +43,10 @@ except ImportError:
 
 
 # Core Third-Party Dependencies
-from flask import Flask, request, jsonify, redirect, url_for, render_template_string, Response, g
-from watchdog.observers import Observer
+from flask import (Flask, Response, g, jsonify, redirect,
+                   render_template_string, request, url_for)
 from watchdog.events import FileSystemEventHandler
+from watchdog.observers import Observer
 
 # ReportLab Layout & PDF Compiler Elements
 try:
@@ -56,16 +57,17 @@ try:
 except ImportError:
     HAS_FPDF = False
 
-from reportlab.lib.pagesizes import A4
-from reportlab.lib import colors
-from reportlab.lib.units import cm
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
-from reportlab.platypus.flowables import HRFlowable
-
 # Data Telemetry Visualization Elements
 import matplotlib
+from reportlab.lib import colors
+from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+from reportlab.lib.units import cm
+from reportlab.platypus import (Paragraph, SimpleDocTemplate, Spacer, Table,
+                                TableStyle)
+from reportlab.platypus.flowables import HRFlowable
+
 matplotlib.use('Agg')  # Thread-safe headless GUI rendering
 import matplotlib.pyplot as plt
 import numpy as np
@@ -1561,7 +1563,16 @@ def waf_middleware():
 
     # Save to Flask global context
     g.tenant_id = tenant_id
+def get_client_ip():
+    forwarded_for = request.headers.get("X-Forwarded-For", "")
+    if forwarded_for:
+        return forwarded_for.split(",")[0].strip()
 
+    real_ip = request.headers.get("X-Real-IP", "")
+    if real_ip:
+        return real_ip.strip()
+
+    return request.remote_addr or "unknown"
     ip = request.remote_addr
     method = request.method
     path = request.full_path
@@ -1803,7 +1814,7 @@ def proxy(path):
 
 def run_flask_server():
     import logging
-    
+
     # 🪵 Professional Filter to ignore Webpack HMR dev noise from the logs
     class NoHMRFilter(logging.Filter):
         def filter(self, record):
@@ -1975,6 +1986,7 @@ def main():
                 print("[*] Stopping NextJS background server...")
                 try:
                     import subprocess
+
                     # On Windows, kill the process tree of npm run dev
                     subprocess.run(["taskkill", "/F", "/T", "/PID", str(nextjs_process.pid)], 
                                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
