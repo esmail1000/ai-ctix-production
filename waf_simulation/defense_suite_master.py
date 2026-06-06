@@ -382,8 +382,12 @@ class WAFCore:
         with open(report_file, "w", encoding="utf-8") as f:
             json.dump(report_data, f, indent=4)
             
-        # Update public/waf-report.json in nextjs project
-        nextjs_waf_json = BASE_DIR / "fianl-submit" / "public" / "waf-report.json"
+        # Update public/waf-report.json in the Next.js project when available.
+        # In Render the repository root is /app, while BASE_DIR is /app/waf_simulation.
+        nextjs_waf_json = Path(os.environ.get(
+            "NEXT_PUBLIC_WAF_REPORT_PATH",
+            str(BASE_DIR.parent / "public" / "waf-report.json")
+        ))
         try:
             if nextjs_waf_json.exists():
                 with open(nextjs_waf_json, "r", encoding="utf-8") as f:
@@ -1346,32 +1350,224 @@ T_TRANSFER = """
 
 T_BLOCKED = """
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>🚨 ACCESS DENIED - WAFCore v2.0</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Request Blocked - AI-CTIX WAF</title>
     <style>
-        """ + CSS_STYLE + """
-        .glass-card {
-            border-color: #ef4444;
-            max-width: 550px;
+        :root {
+            --bg: #f7fbf8;
+            --surface: #ffffff;
+            --ink: #0f2b1d;
+            --muted: #5a7668;
+            --line: #cbe8d6;
+            --green: #15803d;
+            --red: #dc2626;
+            --red-soft: #fff1f2;
+            --amber-soft: #fffbeb;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 28px;
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 15% 10%, rgba(21, 128, 61, 0.12), transparent 34%),
+                radial-gradient(circle at 85% 0%, rgba(220, 38, 38, 0.10), transparent 30%),
+                var(--bg);
+        }
+        .shell {
+            width: min(980px, 100%);
+            overflow: hidden;
+            border: 1px solid var(--line);
+            border-radius: 34px;
+            background: rgba(255, 255, 255, 0.94);
+            box-shadow: 0 24px 70px rgba(15, 43, 29, 0.14);
+        }
+        .header {
+            display: grid;
+            gap: 18px;
+            padding: 34px;
+            border-bottom: 1px solid #e4f4ea;
+            background: linear-gradient(135deg, #ffffff 0%, #f1fff6 100%);
+        }
+        .kicker {
+            display: inline-flex;
+            width: fit-content;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #fecdd3;
+            border-radius: 999px;
+            background: var(--red-soft);
+            padding: 8px 12px;
+            color: #be123c;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+        h1 {
+            margin: 0;
+            max-width: 760px;
+            font-size: clamp(34px, 5vw, 56px);
+            line-height: 0.96;
+            letter-spacing: -0.04em;
+        }
+        .subtitle {
+            margin: 0;
+            max-width: 760px;
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.7;
+        }
+        .body { padding: 28px 34px 34px; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+        .item {
+            border: 1px solid #e4f4ea;
+            border-radius: 20px;
+            background: #fbfffc;
+            padding: 16px;
+        }
+        .label {
+            margin: 0 0 8px;
+            color: #6b8277;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.13em;
+            text-transform: uppercase;
+        }
+        .value {
+            margin: 0;
+            overflow-wrap: anywhere;
+            font-size: 15px;
+            font-weight: 700;
+        }
+        .reason { color: var(--red); }
+        .countdown {
+            color: #92400e;
+            font-variant-numeric: tabular-nums;
+        }
+        .note {
+            margin-top: 18px;
+            border: 1px solid #fde68a;
+            border-radius: 22px;
+            background: var(--amber-soft);
+            padding: 16px;
+            color: #713f12;
+            font-size: 14px;
+            line-height: 1.65;
+        }
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 22px;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 44px;
+            border-radius: 14px;
+            padding: 0 18px;
+            font-size: 14px;
+            font-weight: 800;
+            text-decoration: none;
+        }
+        .btn-primary { background: var(--green); color: white; }
+        .btn-secondary { border: 1px solid var(--line); background: white; color: var(--ink); }
+        .footer {
+            border-top: 1px solid #e4f4ea;
+            background: #f7fbf8;
+            padding: 18px 34px;
+            color: #6b8277;
+            font-size: 12px;
+        }
+        @media (max-width: 720px) {
+            .grid { grid-template-columns: 1fr; }
+            .header, .body, .footer { padding-left: 22px; padding-right: 22px; }
         }
     </style>
 </head>
 <body>
-    <div class="glass-card">
-        <h1 style="color:#ef4444; background:none; -webkit-text-fill-color:initial;">🚨 EXPLOIT DETECTED & BLOCKED</h1>
-        <p>Your connection has been flagged and temporarily blacklisted by WAFCore v2.0 due to a severe security violation.</p>
-        
-        <div class="alert-box">
-            <strong>Violation Category:</strong> {{ reason }}<br/>
-            <strong>WAF Policy Triggered:</strong> Immediate Request Block & IP Quarantine.<br/>
-            <strong>Incident Reference:</strong> INC-SYSTEM-AUTOGEN<br/>
-            <strong>Mitigation Status:</strong> PDF incident report compiled and sent to SOC admin.
-        </div>
-        
-        <p style="font-size:0.8rem; color:#64748b;">If you believe this is a false positive, please contact the network administrator with your Reference ID.</p>
-        <a href="/" class="btn" style="text-decoration:none; display:inline-block; padding-top:0.6rem; height:2rem; width:150px; margin-top:1rem; background:#334155;">Return Home</a>
-    </div>
+    <main class="shell">
+        <section class="header">
+            <span class="kicker">AI-CTIX WAF · Request Blocked</span>
+            <h1>Malicious traffic was stopped before reaching the application.</h1>
+            <p class="subtitle">
+                The AI-CTIX Web Application Firewall detected a request that matches an active security rule. The request was blocked, evidence was logged, and a SOC incident report was generated for the site owner.
+            </p>
+        </section>
+
+        <section class="body">
+            <div class="grid">
+                <div class="item">
+                    <p class="label">Violation Category</p>
+                    <p class="value reason">{{ reason }}</p>
+                </div>
+                <div class="item">
+                    <p class="label">Incident Reference</p>
+                    <p class="value">{{ incident_id }}</p>
+                </div>
+                <div class="item">
+                    <p class="label">Source IP</p>
+                    <p class="value">{{ client_ip }}</p>
+                </div>
+                <div class="item">
+                    <p class="label">Protected Portal</p>
+                    <p class="value">{{ tenant_name }}</p>
+                </div>
+                <div class="item">
+                    <p class="label">Quarantine Status</p>
+                    <p class="value">Temporary IP quarantine</p>
+                </div>
+                <div class="item">
+                    <p class="label">Access Restores In</p>
+                    <p class="value countdown" id="countdown" data-seconds="{{ seconds_left }}">{{ countdown_label }}</p>
+                </div>
+            </div>
+
+            <div class="note">
+                <strong>What happened?</strong><br />
+                Your request matched a WAF signature or behavioral rule. If this was a legitimate action, contact the administrator and share the incident reference above. The admin can review the JSON/PDF evidence and release the IP from the WAF Security Center.
+            </div>
+
+            <div class="actions">
+                <a href="{{ return_url }}" class="btn btn-primary">Return Home</a>
+                <a href="mailto:{{ tenant_email }}?subject=AI-CTIX WAF False Positive {{ incident_id }}" class="btn btn-secondary">Request Review</a>
+            </div>
+        </section>
+
+        <footer class="footer">
+            Action taken: blocked and logged · PDF incident report dispatched to {{ tenant_email }} · Tenant: {{ tenant_id }}
+        </footer>
+    </main>
+
+    <script>
+        (function () {
+            var el = document.getElementById('countdown');
+            if (!el) return;
+            var seconds = parseInt(el.getAttribute('data-seconds') || '0', 10);
+            if (!seconds || seconds < 0) return;
+            function render() {
+                var m = Math.floor(seconds / 60);
+                var s = seconds % 60;
+                el.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+                if (seconds > 0) seconds -= 1;
+            }
+            render();
+            setInterval(render, 1000);
+        })();
+    </script>
 </body>
 </html>
 """
@@ -1534,8 +1730,10 @@ def waf_middleware():
     if request.path.startswith('/static') or request.path == '/blocked':
         return
 
-    # Bypass signature inspection for the threat log ingestion and onboarding endpoints
-    if request.path in ['/api/analyze', '/api/onboard']:
+    # Bypass signature inspection for trusted internal/admin endpoints.
+    # /api/admin/waf/* is protected by WAF_ADMIN_TOKEN in Next.js and must remain reachable
+    # even while the admin's IP is quarantined, otherwise the UI cannot release false positives.
+    if request.path in ['/api/analyze', '/api/onboard'] or request.path.startswith('/api/admin/waf/'):
         return
 
     # Dynamic tenant resolution for multi-tenant protection
@@ -1682,40 +1880,68 @@ def transfer():
 def blocked_page():
     reason = request.args.get('reason', 'Security Policy Violation')
     tenant_id = request.args.get('tenant', 'default_tenant')
-    
+
     tenant_name = "AI-CTI Main Suite"
     tenant_email = "admin@aictix.com"
-    
-    # Dynamically resolve return URL to preserve the exact gateway host/port
+    client_ip = get_client_ip()
+    incident_id = "INC-SYSTEM-AUTOGEN"
+    seconds_left = 0
+    countdown_label = "Temporary"
+
+    # Dynamically resolve return URL to preserve the exact gateway host/port.
     host = request.headers.get('Host', 'localhost:5050')
     scheme = request.scheme
-    if tenant_id == 'default_tenant':
-        backend_url = f"{scheme}://{host}/"
-    else:
-        backend_url = f"{scheme}://{host}/?tenant={tenant_id}"
-        
+    return_url = f"{scheme}://{host}/" if tenant_id == 'default_tenant' else f"{scheme}://{host}/?tenant={tenant_id}"
+
     clients_file = Path(__file__).resolve().parent / "clients.json"
     if clients_file.exists():
         try:
             with open(clients_file, "r", encoding="utf-8") as f:
                 clients = json.load(f)
                 if tenant_id in clients:
-                    tenant_name = clients[tenant_id]["name"]
-                    tenant_email = clients[tenant_id]["it_email"]
-        except:
+                    tenant_name = clients[tenant_id].get("name", tenant_name)
+                    tenant_email = clients[tenant_id].get("it_email", tenant_email)
+        except Exception:
             pass
-            
-    custom_blocked = T_BLOCKED.replace(
-        "<strong>Incident Reference:</strong> INC-SYSTEM-AUTOGEN<br/>",
-        f"<strong>Target Protected Portal:</strong> {tenant_name}<br/><strong>Incident Reference:</strong> INC-SYSTEM-AUTOGEN<br/>"
-    ).replace(
-        "<strong>Mitigation Status:</strong> PDF incident report compiled and sent to SOC admin.",
-        f"<strong>Mitigation Status:</strong> PDF report compiled and dispatched to IT SOC team ({tenant_email})."
-    ).replace(
-        'href="/"',
-        f'href="{backend_url}"'
-    )
-    return render_template_string(custom_blocked, reason=reason), 403
+
+    # Show a useful countdown by reading the live quarantine record.
+    try:
+        blocked_record = waf._load_blocked_ips().get(client_ip, {})
+        expiry = float(blocked_record.get("expiry", 0) or 0)
+        if expiry:
+            seconds_left = max(0, int(expiry - time.time()))
+            countdown_label = f"{seconds_left // 60:02d}:{seconds_left % 60:02d}"
+    except Exception:
+        pass
+
+    # Resolve the most recent incident for this IP so the blocked page is useful.
+    try:
+        report_files = sorted(waf.reports_dir.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+        for report_file in report_files[:50]:
+            with open(report_file, "r", encoding="utf-8") as f:
+                item = json.load(f)
+            if item.get("source_ip") == client_ip:
+                incident_id = item.get("id", incident_id)
+                if item.get("tenant_name"):
+                    tenant_name = item.get("tenant_name")
+                if item.get("tenant_email"):
+                    tenant_email = item.get("tenant_email")
+                break
+    except Exception:
+        pass
+
+    return render_template_string(
+        T_BLOCKED,
+        reason=reason,
+        tenant_id=tenant_id,
+        tenant_name=tenant_name,
+        tenant_email=tenant_email,
+        client_ip=client_ip,
+        incident_id=incident_id,
+        return_url=return_url,
+        seconds_left=seconds_left,
+        countdown_label=countdown_label,
+    ), 403
 
 # Catch-all route for proxying
 @app.route('/', defaults={'path': ''}, methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'])
