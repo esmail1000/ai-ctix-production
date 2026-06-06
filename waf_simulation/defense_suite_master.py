@@ -1727,24 +1727,25 @@ waf = WAFCore()
 
 @app.before_request
 def waf_middleware():
-    if (
-        request.path.startswith('/static')
-        or request.path.startswith('/_next')
-        or request.path.startswith('/api/admin/waf')
-        or request.path.startswith('/dashboard/waf')
-        or request.path == '/blocked'
-        or request.path == '/favicon.ico'
-        or request.path == '/icon.png'
-        or request.path == '/apple-icon.png'
-    ):
-        return
-    if request.path.startswith('/static') or request.path == '/blocked':
-        return
+    # Always allow framework assets, WAF admin center, and trusted internal/admin APIs.
+    # This must run before IP quarantine checks so the owner can release blocked IPs.
+    bypass_prefixes = (
+        '/static',
+        '/_next',
+        '/api/admin/waf',
+        '/dashboard/waf',
+    )
 
-    # Bypass signature inspection for trusted internal/admin endpoints.
-    # /api/admin/waf/* is protected by WAF_ADMIN_TOKEN in Next.js and must remain reachable
-    # even while the admin's IP is quarantined, otherwise the UI cannot release false positives.
-    if request.path in ['/api/analyze', '/api/onboard'] or request.path.startswith('/api/admin/waf/'):
+    bypass_exact = {
+        '/blocked',
+        '/favicon.ico',
+        '/icon.png',
+        '/apple-icon.png',
+        '/api/analyze',
+        '/api/onboard',
+    }
+
+    if request.path in bypass_exact or any(request.path.startswith(prefix) for prefix in bypass_prefixes):
         return
 
     # Dynamic tenant resolution for multi-tenant protection
@@ -1779,16 +1780,16 @@ def waf_middleware():
     path = request.full_path
     headers = dict(request.headers)
 
-    body_str = ""
+    body_str = ''
     try:
         if request.form:
             body_str = str(request.form.to_dict())
         else:
             body_str = request.get_data(as_text=True)
     except Exception:
-        body_str = ""
+        body_str = ''
 
-    inspection_text = f"{path}\n{body_str}"
+    inspection_text = f'{path}\n{body_str}'
 
     is_attack, attack_type = waf.analyze_request(
         ip,
@@ -1804,15 +1805,17 @@ def waf_middleware():
 
 
 def get_client_ip():
-    forwarded_for = request.headers.get("X-Forwarded-For", "")
+    forwarded_for = request.headers.get('X-Forwarded-For', '')
     if forwarded_for:
-        return forwarded_for.split(",")[0].strip()
+        return forwarded_for.split(',')[0].strip()
 
-    real_ip = request.headers.get("X-Real-IP", "")
+    real_ip = request.headers.get('X-Real-IP', '')
     if real_ip:
         return real_ip.strip()
 
-    return request.remote_addr or "unknown"
+    return request.remote_addr or 'unknown'
+
+
 @app.route('/api/onboard', methods=['POST'])
 def onboard_client():
     try:
