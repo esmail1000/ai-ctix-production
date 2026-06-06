@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { getSessionCookieName, readSessionToken } from '@/lib/auth-session'
 
 const publicPages = new Set([
@@ -8,6 +8,7 @@ const publicPages = new Set([
   '/register',
   '/forgot-password',
   '/reset-password',
+  '/waf-admin-control',
 ])
 
 const publicApiRoutes = new Set([
@@ -35,7 +36,13 @@ function isPublicPage(pathname: string) {
 }
 
 function isPublicApi(pathname: string) {
-  return publicApiRoutes.has(pathname)
+  if (publicApiRoutes.has(pathname)) return true
+
+  // WAF owner APIs are protected by their own WAF admin cookie/token.
+  // They must not require a normal application user account.
+  if (pathname.startsWith('/api/admin/waf')) return true
+
+  return false
 }
 
 export async function middleware(request: NextRequest) {
@@ -49,6 +56,12 @@ export async function middleware(request: NextRequest) {
   }
 
   if (isPublicPage(pathname)) {
+    // Owner-only WAF page must remain outside normal user auth redirects.
+    // The page itself shows the owner token login if no WAF admin session exists.
+    if (pathname === '/waf-admin-control') {
+      return applySecurityHeaders(NextResponse.next())
+    }
+
     if (session && (pathname === '/login' || pathname === '/register')) {
       const url = request.nextUrl.clone()
       url.pathname = '/dashboard'
@@ -76,6 +89,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|icon.png|apple-icon.png|.*\\.(?:png|jpg|jpeg|gif|svg|ico|css|js|map|txt)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|icon.png|apple-icon.png|.*\.(?:png|jpg|jpeg|gif|svg|ico|css|js|map|txt)$).*)',
   ],
 }
