@@ -1727,6 +1727,17 @@ waf = WAFCore()
 
 @app.before_request
 def waf_middleware():
+    if (
+        request.path.startswith('/static')
+        or request.path.startswith('/_next')
+        or request.path.startswith('/api/admin/waf')
+        or request.path.startswith('/dashboard/waf')
+        or request.path == '/blocked'
+        or request.path == '/favicon.ico'
+        or request.path == '/icon.png'
+        or request.path == '/apple-icon.png'
+    ):
+        return
     if request.path.startswith('/static') or request.path == '/blocked':
         return
 
