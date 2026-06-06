@@ -1,0 +1,20 @@
+{
+  "id": "blaze-annihilatio-smart-contract-security-review-1-0",
+  "expectedCount": 3,
+  "expectedSeverityCounts": {
+    "Critical": 1,
+    "High": 0,
+    "Medium": 1,
+    "Low": 1
+  },
+  "notes": [
+    "Promoted from verified Stage 4 V4 review queue.",
+    "Source review id: blazeinformationsecurity-annihilatio-smart-contract-security-review-1-0-final-7d20eeac",
+    "Source path: BlazeInformationSecurity/Annihilatio smart contract security review 1.0 final.pdf",
+    "Info / Informational / Note / Minor findings are normalized to Low by the current app model.",
+    "Major findings are normalized to High by the current app model.",
+    "Requires ENABLE_NLP=true and ENABLE_GENERIC_INDEX_ALIGNMENT=true.",
+    "7ASecurity reports also require ENABLE_7ASECURITY_INDEX_ALIGNMENT=true.",
+    "Do not promote the excluded research / expert-witness / manual-hold reports without separate manual review."
+  ]
+}

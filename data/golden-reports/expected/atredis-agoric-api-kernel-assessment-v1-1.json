@@ -1,0 +1,20 @@
+{
+  "id": "atredis-agoric-api-kernel-assessment-v1-1",
+  "expectedCount": 5,
+  "expectedSeverityCounts": {
+    "Critical": 0,
+    "High": 1,
+    "Medium": 2,
+    "Low": 2
+  },
+  "notes": [
+    "Promoted from verified Stage 4 V4 review queue.",
+    "Source review id: atredis-final-atredis-agoric-api-kernel-assessment-report-v1-1-730f54ee",
+    "Source path: Atredis/Final-Atredis-Agoric-API-Kernel-Assessment-Report-V1.1.pdf",
+    "Info / Informational / Note / Minor findings are normalized to Low by the current app model.",
+    "Major findings are normalized to High by the current app model.",
+    "Requires ENABLE_NLP=true and ENABLE_GENERIC_INDEX_ALIGNMENT=true.",
+    "7ASecurity reports also require ENABLE_7ASECURITY_INDEX_ALIGNMENT=true.",
+    "Do not promote the excluded research / expert-witness / manual-hold reports without separate manual review."
+  ]
+}

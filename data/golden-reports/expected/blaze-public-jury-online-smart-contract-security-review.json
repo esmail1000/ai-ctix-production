@@ -1,0 +1,20 @@
+{
+  "id": "blaze-public-jury-online-smart-contract-security-review",
+  "expectedCount": 1,
+  "expectedSeverityCounts": {
+    "Critical": 0,
+    "High": 0,
+    "Medium": 0,
+    "Low": 1
+  },
+  "notes": [
+    "Promoted from verified Stage 4 V4 review queue.",
+    "Source review id: blazeinformationsecurity-public-jury-online-smart-contract-security-review-a25375fa",
+    "Source path: BlazeInformationSecurity/Public Jury.Online Smart Contract Security Review.pdf",
+    "Info / Informational / Note / Minor findings are normalized to Low by the current app model.",
+    "Major findings are normalized to High by the current app model.",
+    "Requires ENABLE_NLP=true and ENABLE_GENERIC_INDEX_ALIGNMENT=true.",
+    "7ASecurity reports also require ENABLE_7ASECURITY_INDEX_ALIGNMENT=true.",
+    "Do not promote the excluded research / expert-witness / manual-hold reports without separate manual review."
+  ]
+}

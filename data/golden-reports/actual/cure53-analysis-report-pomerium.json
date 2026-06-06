@@ -1,0 +1,376 @@
+{
+  "manifest": {
+    "id": "cure53-analysis-report-pomerium",
+    "vendor": "Cure53",
+    "family": "cure53",
+    "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+    "sourcePath": "Cure53/analysis-report_Pomerium.pdf",
+    "textPath": "data/golden-reports/extracted-text/cure53-analysis-report-pomerium.txt",
+    "expectedPath": "data/golden-reports/expected/cure53-analysis-report-pomerium.json"
+  },
+  "expected": {
+    "id": "cure53-analysis-report-pomerium",
+    "expectedCount": 5,
+    "expectedSeverityCounts": {
+      "Critical": 0,
+      "High": 2,
+      "Medium": 1,
+      "Low": 2
+    },
+    "notes": [
+      "Promoted from verified Stage 6 V7 Cure53 review queue.",
+      "Source review id: cure53-analysis-report-pomerium-f9038a95",
+      "Requires ENABLE_GENERIC_INDEX_ALIGNMENT=true for generic official index / Cure53 official ID recovery gates.",
+      "Cure53 severity labels are normalized into Critical, High, Medium, and Low. Info/Informational/Note are normalized to Low only when they are official severity-rated entries."
+    ]
+  },
+  "report": {
+    "id": "G-cure53-analysis-report-pomerium",
+    "slug": "cure53-analysis-report-pomerium",
+    "name": "cure53-analysis-report-pomerium",
+    "type": "PDF",
+    "uploadedAt": "2026-06-05T23:33:30.188Z",
+    "owner": "AI CTIX Analyzer",
+    "status": "Ready",
+    "findings": 5,
+    "critical": 0,
+    "high": 2,
+    "medium": 1,
+    "low": 2,
+    "summary": "Mario Heiderich, Cure53 Bielefelder Str. “Filedescriptor” Hong Index Introduction Scope Test Methodology WP1: Thorough Source Code Audits against latest version of Pomerium WP2: Penetration Tests against Pomerium Integration & Setup Identified Vulnerabilities POM-01-001 WP1: JWT leak via Open Redirect in programmatic a",
+    "parsingStatus": "parsed",
+    "analysisVersion": 1,
+    "parserVersion": 1,
+    "parsingNotes": [
+      "Structured parser found no blocks; heuristic fallback was used.",
+      "NLP hybrid extraction produced 5 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+      "Aligned findings with generic official index: 5 -> 5."
+    ],
+    "content": "Dr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nPentest-Report Pomerium 03.2021\nCure53, Dr.-Ing. M. Heiderich, N. Hippert, BSc. B. Walny, BSc. T.-C. “Filedescriptor” Hong\nIndex\nIntroduction\nScope\nTest Methodology\nWP1: Thorough Source Code Audits against latest version of Pomerium\nWP2: Penetration Tests against Pomerium Integration & Setup\nIdentified Vulnerabilities\nPOM-01-001 WP1: JWT leak via Open Redirect in programmatic access (High)\nPOM-01-002 WP1: No verification of pomerium_signature in middleware (High)\nMiscellaneous Issues\nPOM-01-003 WP2: Hardening recommendations for file-handling (Medium)\nPOM-01-004 WP2: Cross-Origin HTTP security headers missing (Info)\nPOM-01-005 WP2: Missing SameSite flag for cookie security (Info)\nConclusions\nCure53, Berlin · 03/31/21 1/13\n\n-- 1 of 13 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nIntroduction\n“Use identity, device-state, and request context to implement zero-trust, achieve\ncompliance, and secure access to your applications, clusters, and servers without a\nVPN.”\nFrom https://www.pomerium.com/\nThis report documents the results of a security assessment targeting the Pomerium\ncomplex. Carried out by Cure53 in 2021, this project entailed a thorough penetration test\nand a dedicated source code audit featuring the Pomerium codebase and a deployed\nsetup running the latest version of Pomerium in a real-life and live environment.\nTo give some context, the work was requested by Pomerium, Inc. in January 2021 and\nthen promptly scheduled. Cure53 has punctually executed the project in March 2021,\nnamely in CW10 and CW11. As for the resources, a total of twenty person-days were\ninvested to reach the coverage expected for this project, which was prepared,\nconducted, documented and finalized by a team of four testers, all selected on the basis\nof their skills and experience matching the Pomerium’s technical traits and objectives.\nIn terms of optimizing structure, the work was split into two separate work packages\n(WPs). In WP1, Cure53 performed a thorough source code audit on the latest version of\nthe Pomerium’s codebase, whereas WP2 focused on penetration tests against the\nPomerium’s integration and broader setup. Methodology-wise, a white-box approach\nwas chosen and deployed. In particular, Cure53 was given access to the deployed\nenvironment as well as all relevant sources and documentation. The environment was\nrolled-out on GCP and Cure53 was furnished with appropriate access instructions and\nsetups.\nThe project moved forward efficiently. All preparations were done in late February and\nearly March 2021, namely in CW08 and CW09, indicating that Cure53 could have a\nsmooth start. Communications during the test were done in a dedicated and shared\nSlack channel which connected the workspaces of Cure53 and Pomerium. All relevant\npersonnel from both teams could partake in the discussion which were very productive.\nSince the scope was well-prepared and clear, no noteworthy roadblocks were\nencountered during the test. Nevertheless, Cure53 relayed frequent status updates\nabout the test and the emerging findings.\nVery good coverage over the WP1-2 scope items was arguably achieved. Five security-\nrelevant issues were spotted and documented: two representing security vulnerabilities\nand three classified as general weaknesses with lower exploitation potential. Live-\nreporting was utilized and the Pomerium team managed to fix the tracked issues while\nCure53, Berlin · 03/31/21 2/13\n\n-- 2 of 13 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nthe test was still ongoing. Moreover, the Cure53 team was given all necessary info to\nalso look at the fixes and either verified them or added remarks about possible bypasses\nand similar problems.\nCommenting on the findings, the overall number of items is rather small, which is a great\nsign for Pomerium and its codebase. However, the severity levels are quite elevated.\nAlthough no issues were marked as Critical, two discoveries were seen as High risks.\nOne of them enveloped a JWT leak and the other pertained to a missing signature\nverification within middleware.\nIn the following sections, the report will first shed light on the scope, material available\nfor testing, key examination parameters, as well as the structure and content of the WPs.\nAfter that, the document offers a distinct section on testing coverage and methodology,\nso as to facilitate tracking of the areas covered during the assessment, even if the tests\nyielded no findings in a given realm.\nNext, all findings will be discussed in grouped vulnerability and miscellaneous\ncategories, then following a chronological order in each array. Alongside technical\ndescriptions, PoC and mitigation advice, as well as fix notes, are supplied when\napplicable. Finally, the report will close with broader conclusions about this March 2021\nproject. Cure53 elaborates on the general impressions and reiterates the verdict based\non the testing team’s observations and collected evidence. Tailored hardening\nrecommendations for the Pomerium complex are also incorporated into the final section.\nCure53, Berlin · 03/31/21 3/13\n\n-- 3 of 13 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nScope\n• Penetration-Tests and Source Code Audits against Pomerium\n◦ Access to rolled out application\n▪ https://verify.audit.pomerium.io/\n◦ GCP Access\n▪ https://console.cloud.google.com/invitation?project=pomerium-audit-2021q1\n◦ Public Source Code Repository\n▪ https://github.com/pomerium/pomerium\n◦ Test-supporting material was shared with Cure53\n◦ All relevant sources were shared with Cure53\nCure53, Berlin · 03/31/21 4/13\n\n-- 4 of 13 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nTest Methodology\nThis section documents the testing methodology applied during this engagement and\nsheds light on various areas of the Pomerium application complex. Tests were\nperformed both in the form of the server-side API, as well as frontend and infrastructure\ncomponents. The section further clarifies which areas were examined by Cure53 but did\nnot yield any findings.\nWP1: Thorough Source Code Audits against latest version of Pomerium\nThe enumeration below describes the tests and coverage areas checked through source\ncode audits and focused on the network-based components of Pomerium. The listed\nareas were investigated through the approaches described per item. Note that the\nspecific commit hash for the version of the Pomerium software examined by Cure53\nwas: 50dc15de283fc0e864e7e96acce3d4acc346e77c\n• Starting with the Pomerium config, the parsing logic was reviewed for potential\ninjections or general unexpected behaviors. The policy from and to routes are\nbeing passed through the whole software complex, so this needed investigation.\nThese and other parsing and path handling routines which, for instance, match\nthe host of requests to the proxy, have been reviewed for parsing differentials. If\nfound, those would lead to a potential proxy bypass.\n• While making requests which go through the proxy, other inputs were reviewed.\nFor example, Cure53 looked at inputs sent through HTTP headers, e.g.\nauthorization or cookie headers.\n• Lua scripts responsible for handling requests, as well as responses from an\nupstream server through the proxy have been reviewed. In scope were mostly\nweaknesses that could leak authorization tokens to upstream services, or\nproblems due to responses of upstream servers being handled in an improper\nmanner.\n• Exposed Pomerium APIs and sites of the proxy, authentication and authorization\nservices have been reviewed for typical web security vulnerabilities like XSS and\nCSRF.\n• The general HTTP security header configuration of the exposed services has\nbeen reviewed.\n• The employed JWT has been checked for common mistakes, such as improper\nsignature verification due to the “None” algorithm, key confusion or signature\nexclusion. Further, handling of JWT parameters, like the expiry time, has been\nchecked.\n• The JWKS implementation was audited for cryptographic issues and proper\nimplementation of the primitives in use.\nCure53, Berlin · 03/31/21 5/13\n\n-- 5 of 13 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\n• The integration of the IdPs has been reviewed. The configurations for identity\nproviders are compliant with the OAuth/OIDC specifications. Sensitive key\ninformation is well-secured.\n• Past vulnerability reports for Pomerium have been checked out to spot\ninteresting areas that suffered in the past and these have been verified again.\nWP2: Penetration Tests against Pomerium Integration & Setup\nThe enumeration below describes the tests and coverage areas checked within\nPomerium’s deployment, both locally and on the provided GKE installation.\n• The startup and initialization phase of the Pomerium all-in-one setup has been\nreviewed and checked for potential misuse by local attackers. The filesystem\naccess routes have been traced and evaluated against potential attack\nscenarios.\n• The configuration stack provided by the Pomerium team, to be used with the\nGKE installation, has been reviewed.\n• Redis configuration and backend used as Databroker were examined for\npotential NoSQL injection attacks from the application’s side, as well as potential\nSSRF targets from the internal network’s side.\n• The network topology and connected parts of the overall architecture were\nexamined. This also included consideration of relevant runtime- and\nenvironment-specifications that are necessary to run Pomerium\n• In terms of security, Pomerium provides the means to configure TLS for the\nconnections between the individual nodes. Due to the requirement of having valid\ncertificates, it is hard to offer this feature by default. However, the documentation\non how TLS needs to be configured presented on the website is fairly simple and\nstraightforward. As such, it should be considered by everyone using Pomerium\nacross untrusted networks.\n• The authentication flows were checked in detail. The programmatic access\nfeature was found to accept any URL, which led to an Open Redirect and JWT\nleak (see POM-01-001).\nCure53, Berlin · 03/31/21 6/13\n\n-- 6 of 13 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nIdentified Vulnerabilities\nThe following sections list both vulnerabilities and implementation issues spotted during\nthe testing period. Note that findings are listed in chronological order rather than by their\ndegree of severity and impact. The aforementioned severity rank is simply given in\nbrackets following the title heading for each vulnerability. Each vulnerability is\nadditionally given a unique identifier (e.g. POM-01-001) for the purpose of facilitating any\nfuture follow-up correspondence.\nPOM-01-001 WP1: JWT leak via Open Redirect in programmatic access (High)\nUsing programmatic access on verify.audit.pomerium.io, one can get a signed login URL\nwith pomerium_redirect_uri set to an arbitrary URL. Then, if the user has already logged\ninto Pomerium, they will be redirected to the specified pomerium_redirect_uri with a JWT\nattached. This allows an outside attacker to get a signed login URL that, upon visiting,\nwill redirect a victim to the attacker’s site. This creates an issue of Open Redirect and an\neven more serious problem in the form of JWT leakage.\nSample leaked JWT (decoded):\n{\n\"aud\": [\n\"authenticate.audit.pomerium.io\",\n\"evil.com\",\n\"verify.audit.pomerium.io\"\n],\n\"exp\": 1615442162,\n\"iat\": 1615392513,\n\"iss\": \"authenticate.audit.pomerium.io\",\n\"jti\": \"ID.OqUbtelP7ce6do2Q2DJJj_9htFFpSl8XQEFa-ku95Ks\",\n\"nbf\": 1615392513,\n\"programmatic\": true,\n\"sub\": \"00u2f6thmxCSSqF104x7\",\n\"ver\": \"15750195866874303488\"\n}\nWith the leaked JWT, the attacker will be able to unveil the victim’s identity (e.g., an\nemail address) by supplying the JWT to authenticate.audit.pomerium.io or\nverify.audit.pomerium.io. In addition, if an application integrating Pomerium only verifies\nthe iss claim but not the aud claim, the attacker will be able to access it as the victim.\nSteps to reproduce:\n1. Navigate to https://verify.audit.pomerium.io/.pomerium/api/v1/login?\npomerium_redirect_uri=http://evil.com in order to get a signed login URL\n2. Navigate to the login URL\nCure53, Berlin · 03/31/21 7/13\n\n-- 7 of 13 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\n3. Sign in via Okta if this has not already been done\n4. Observe being redirected to evil.com with a pomerium_jwt in the URL\n5. Replace the _pomerium cookie in https://verify.audit.pomerium.io with the one\nfrom Step 4\n6. Refresh https://verify.audit.pomerium.io and confirm the JWT is valid as\ninformation is returned\nCurrently, the programmatic access feature does not restrict what the\npomerium_redirect_uri can be. It is recommended to implement an allow-list mechanism\nto prevent its usage in scenarios linked to Open Redirect and leaking JWTs.\nFix Notes: This issue was addressed by Pomerium and the deployed fix was verified by\nCure53.\nPOM-01-002 WP1: No verification of pomerium_signature in middleware (High)\nIt was found that some API endpoints under /.pomerium/ do not verify parameters with\npomerium_signature. This could allow modifying parameters intended to be trusted by\nPomerium. During communication with the Pomerium team, it was determined that it\nwas caused by a regression that accidentally removed a line of code that enforced the\nsignature check in middleware.\nAffected file:\nhttps://github.com/pomerium/pomerium/blob/\nd653b0156f4a01ea81901bfbdb3bd7c101a16e4f/authenticate/handlers.go#L69\nAffected code:\nv.Use(middleware.ValidateSignature(a.sharedKey))\nThe above code was not found in the master branch. The issue mainly affects routes\nresponsible for sign in/out, but does not introduce an authentication bypass. For\nexample, the issue mentioned in POM-01-001 would still work even if that issue was\nfixed with the help of this problem.\nIt is recommended to reintroduce the removed line of code and add a relevant test-case\nto prevent accidentally deleting critical lines of code.\nFix Notes: This issue was addressed by Pomerium and the deployed fix was verified by\nCure53.\nCure53, Berlin · 03/31/21 8/13\n\n-- 8 of 13 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nMiscellaneous Issues\nThis section covers those noteworthy findings that did not lead to an exploit but might aid\nan attacker in achieving their malicious goals in the future. Most of these results are\nvulnerable code snippets that did not provide an easy way to be called. Conclusively,\nwhile a vulnerability is present, an exploit might not always be possible.\nPOM-01-003 WP2: Hardening recommendations for file-handling (Medium)\nWhile auditing the initialization process of an all-in-one installation, it was observed how\nthe envoy binary is being placed inside a temporary directory with a fixed filename on\nthe filesystem. Here no checks are being made to ensure this directory is owned by the\nsame user the Pomerium application is running with. A series of other checks is\nperformed but they can all be bypassed due to TOCTOU races. Ultimately, the binary is\nexecuted.\nSince the attacker model does not include a local attacker, the severity is kept rather\nlow. A sample exploit strategy has been shared with the developers to further increase\nthe awareness of such issues. It is recommended to use random temporary directory\nnames. Paired with the correct access permissions, random temporary directory names\nwould prevent other local users from creating the directory and filling it with malicious\ncontents.\nPOM-01-004 WP2: Cross-Origin HTTP security headers missing (Info)\nIt was found that the platform is missing certain newer1 HTTP security headers in HTTP\nresponses. This does not directly lead to a security issue, yet it might aid attackers in\ntheir efforts to exploit other problems. The following list enumerates the headers that\nneed to be reviewed to prevent flaws linked to headers.\n• Cross-Origin Resource Policy (CORP) and Fetch Metadata Request headers\nallow developers to control which sites can embed their resources, such as\nimages or scripts. They prevent data from being delivered to an attacker-\ncontrolled browser-renderer process, as seen in resourcepolicy.fyi and\nweb.dev/fetch-metadata.\n• Cross-Origin Opener Policy (COOP) lets developers ensure that their\napplication window will not receive unexpected interactions from other websites,\nallowing the browser to isolate it in its own process. This adds an important\nprocess-level protection, particularly in browsers which do not enable full Site\nIsolation; see web.dev/coop-coep.\n1 https://security.googleblog.com/2020/07/towards-native-security-defenses-for.html\nCure53, Berlin · 03/31/21 9/13\n\n-- 9 of 13 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\n• Cross-Origin Embedder Policy (COEP) ensures that any authenticated\nresources requested by the application have explicitly opted-in to being loaded.\nToday, to guarantee process-level isolation for highly sensitive applications in\nChrome or Firefox, applications must enable both COEP and COOP; see\nweb.dev/coop-coep.\n• While the application does use the X-Frame-Options header, it should be noted\nthat the CSP framework offers a similar protection to X-Frame-Options in ways\nthat overcome some of the shortcomings of the aforementioned header. To\noptimally protect users of older browsers and modern browsers at the same time,\nit is recommended to consider deploying the Content-Security-Policy: frame-\nancestors 'none'; header as well.\nOverall, missing security headers is a bad practice that should be avoided. It is\nrecommended to add the following headers to every server response, including error\nresponses like 4xx items. More broadly, it is recommended to reiterate the importance of\nhaving all HTTP headers set at a specific, shared and central place rather than setting\nthem randomly. This should either be handled by a load balancing server or a similar\ninfrastructure. If the latter is not possible, mitigation can be achieved by using the web\nserver configuration and a matching module.\nIn the specific case of Pomerium, it is recommended to advise the users about the\nexistence of those headers and document how they can be used to mitigate side-\nchannels the Pomerium setup might inadvertently expose in case those headers are not\nset correctly. Resources explaining those headers are available online, explaining both\nthe proper header setup2 as well as the possible consequences of not setting them after\nall3.\n2 https://scotthelme.co.uk/coop-and-coep/\n3 https://web.dev/coop-coep/\nCure53, Berlin · 03/31/21 10/13\n\n-- 10 of 13 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nPOM-01-005 WP2: Missing SameSite flag for cookie security (Info)\nDuring the analysis of the security flags set for cookies, it was noticed that the SameSite\nflag is only used for the CSRF cookie, but it is not used for the cookie containing the\nJWT token. This behavior could not be turned into an exploitable scenario, however,\ngiven the limited demo installation, larger installations might benefit from the additional\nsecurity provided by properly using the SameSite attribute.\nAffected cookie:\n• _Pomerium\n◦ Missing SameSite flag\nIt is recommended to offer an option to add the SameSite flag with strict settings to all\ncookies that contain critical data, for instance JWT tokens or other similarly sensitive\ndata. It must be noted however that setting this cookie flag without checking expected\nfunctionality afterwards might lead to faulty application behavior, i.e in situations where a\nredirect is happening as part of the authentication procedure4.\n4 https://www.ubisecure.com/technical-announcements/samesite-cookies-changes/\nCure53, Berlin · 03/31/21 11/13\n\n-- 11 of 13 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nConclusions\nDuring this March 2021 project, Cure53 examined the Pomerium codebase and a\ndeployed setup running the latest version of Pomerium in a real-life and live\nenvironment. As a result, mostly positive conclusions have been reached when it comes\nto security of the Pomerium application stack. After spending twenty days on the scope\nin March 2021, the Cure53 team members can conclude that the various examined\ncomponents and aspects of the applications mostly withstood their scrutiny in regard to\nsecurity premise. At the same time, two rather severe vulnerabilities were discovered on\nthe scope and should not be disregarded.\nAs for the general setup and procedures of the test, communication was done using a\nshared Slack channel and greatly aided the coverage levels and discovery potential of\nthis examination. Questions regarding certain findings and functionality were promptly\nanswered and the engineering team made sure to pass along information to make\nCure53’s life easier when stumbling onto difficult to understand application flows or\ncertain technical problems. In doing so, the in-house team positively contributed to the\noverall success of this assignment.\nFrom a meta-level perspective, the overall attack surface related to the usage of the\nPomerium software complex is quite small. However, when one looks into details, a\npotential local privilege escalation was found (see POM-01-003). Fixing this issue further\nhardens the attack surface against attackers having an advantageous local position.\nThe security recommendations for the setup and configuration for other third-party\nsoftware was found to be solid and secure, removing potential threats, such as Redis as\nan SSRF target. The handling of requests and responses to the proxy was found to be\nsecure and no wiggle room for attacks on the HTTP layer has been found. The Identity\nProvider Integration appears sound as well. The configurations for identity providers\ncomply with OAuth/OIDC specifications, while sensitive key information is well-secured.\nThe state parameter is correctly verified in the corresponding callback.\nRegarding the authentication flow, the programmatic access feature was found to accept\nany URL, which leads to Open Redirect and JWT leakage described in POM-01-001. It\nwas determined to be a serious (High) issue, given the fact that the JWT unveiled the\nvictim’s identity and potentially allowed bypassing access control. During the verification\nof the fix deployed by the Pomerium team, an additional security problem was spotted in\nthe fix implementation. The fault was in trying to maintain backward compatibility with\nprevious local deployments. However, the issue was spotted and rectified quickly with a\nsecond patch.\nCure53, Berlin · 03/31/21 12/13\n\n-- 12 of 13 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nMoreover, it was found that the middleware did not verify the HMAC signature for certain\nendpoints (POM-01-002) due to regressions in previous versions, offering more potential\nfor exploiting POM-01-001. Simultaneously, the verification of the JWT and parsing of\nthe URL were found solid thanks to the use of good standard libraries, characterized by\na proven track record of security consciousness. General client-side security was\nexamined and no issues like XSS, CSRF or insecure HTTP headers were spotted.\nHowever, there is some room for improvement, as stated in POM-01-004.\nAll in all, only two exploitable issues were spotted and none of them would have Critical\nimplications. While the Pomerium project should look into improving their automated\nregression testing, which could have prevented POM-01-002 from being released, the\nsecurity dedication of the in-house team is praiseworthy, as also evidenced from swift\nand mostly correct fixes of the problems spotted by Cure53 during this March 2021\ninspection. As a consequence, Cure53 sees the application as being on the right track to\ndelivering a proper foundation from a security perspective.\nCure53 would like to thank Bobby DeSimone, Travis Groth, Denis Mishin, Caleb Doxsey\nand Nathan Hayfield from the Pomerium team for their excellent project coordination,\nsupport and assistance, both before and during this assignment.\nCure53, Berlin · 03/31/21 13/13\n\n-- 13 of 13 --",
+    "sourceFileName": "analysis-report_Pomerium.pdf",
+    "createdAtIso": "2026-06-05T23:33:36.524Z",
+    "updatedAtIso": "2026-06-05T23:33:36.524Z"
+  },
+  "findings": [
+    {
+      "id": "F-cure53-001",
+      "slug": "jwt-leak-via-redirect-in-programmatic-access-investigation-scope",
+      "reportId": "G-cure53-analysis-report-pomerium",
+      "reportName": "cure53-analysis-report-pomerium",
+      "title": "JWT leak via Open Redirect in programmatic access",
+      "cve": "—",
+      "severity": "High",
+      "asset": "investigation-scope",
+      "score": 84,
+      "status": "Open",
+      "detectedAt": "2026-06-05T23:33:30.188Z",
+      "summary": "JWT leak via Redirect in programmatic access affecting investigation-scope; extractor found type Open Redirect.",
+      "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+      "evidence": "Finding IDs: POM-01-001",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:36.513Z",
+          "status": "Open",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "JWT leak via Redirect in programmatic access",
+        "severity": "High",
+        "asset": "investigation-scope",
+        "status": "Open",
+        "summary": "JWT leak via Redirect in programmatic access affecting investigation-scope; extractor found type Open Redirect.",
+        "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+        "evidence": "Finding IDs: POM-01-001",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "jwt leak via redirect in programmatic access",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "POM-01-001|jwt leak via open redirect in programmatic access|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "JWT leak via Open Redirect in programmatic access",
+        "sourceText": "POM-01-001 WP1: JWT leak via Open Redirect in programmatic access (High)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "JWT leak via Open Redirect in programmatic access",
+      "canonicalKey": "POM-01-001|jwt leak via open redirect in programmatic access|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-002",
+      "slug": "no-verification-of-pomerium-signature-in-middleware-investigation-scope",
+      "reportId": "G-cure53-analysis-report-pomerium",
+      "reportName": "cure53-analysis-report-pomerium",
+      "title": "No verification of pomerium_signature in middleware",
+      "cve": "—",
+      "severity": "High",
+      "asset": "investigation-scope",
+      "score": 84,
+      "status": "Open",
+      "detectedAt": "2026-06-05T23:33:30.188Z",
+      "summary": "No verification of pomerium_signature in middleware affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+      "evidence": "Finding IDs: POM-01-002",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:36.513Z",
+          "status": "Open",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "No verification of pomerium_signature in middleware",
+        "severity": "High",
+        "asset": "investigation-scope",
+        "status": "Open",
+        "summary": "No verification of pomerium_signature in middleware affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+        "evidence": "Finding IDs: POM-01-002",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "no verification of pomerium_signature in middleware",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "POM-01-002|no verification of pomerium signature in middleware|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "No verification of pomerium_signature in middleware",
+        "sourceText": "POM-01-002 WP1: No verification of pomerium_signature in middleware (High)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "No verification of pomerium_signature in middleware",
+      "canonicalKey": "POM-01-002|no verification of pomerium signature in middleware|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-003",
+      "slug": "hardening-recommendations-for-file-handling-investigation-scope",
+      "reportId": "G-cure53-analysis-report-pomerium",
+      "reportName": "cure53-analysis-report-pomerium",
+      "title": "Hardening recommendations for file-handling",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:30.188Z",
+      "summary": "Hardening recommendations for file-handling affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: POM-01-003",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:36.513Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "Hardening recommendations for file-handling",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Hardening recommendations for file-handling affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: POM-01-003",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "hardening recommendations for file-handling",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "POM-01-003|hardening recommendations for file handling|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Hardening recommendations for file-handling",
+        "sourceText": "POM-01-003 WP2: Hardening recommendations for file-handling (Medium)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Hardening recommendations for file-handling",
+      "canonicalKey": "POM-01-003|hardening recommendations for file handling|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-004",
+      "slug": "cross-origin-http-security-headers-missing-investigation-scope",
+      "reportId": "G-cure53-analysis-report-pomerium",
+      "reportName": "cure53-analysis-report-pomerium",
+      "title": "Cross-Origin HTTP security headers missing",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:30.188Z",
+      "summary": "Cross-Origin HTTP security headers missing affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: POM-01-004",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:36.513Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "Cross-Origin HTTP security headers missing",
+        "severity": "Low",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Cross-Origin HTTP security headers missing affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: POM-01-004",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "cross-origin http security headers missing",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "POM-01-004|cross origin http security headers missing|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Cross-Origin HTTP security headers missing",
+        "sourceText": "POM-01-004 WP2: Cross-Origin HTTP security headers missing (Info)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Cross-Origin HTTP security headers missing",
+      "canonicalKey": "POM-01-004|cross origin http security headers missing|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-005",
+      "slug": "missing-samesite-flag-for-cookie-security-investigation-scope",
+      "reportId": "G-cure53-analysis-report-pomerium",
+      "reportName": "cure53-analysis-report-pomerium",
+      "title": "Missing SameSite flag for cookie security",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:30.188Z",
+      "summary": "Missing SameSite flag for cookie security affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: POM-01-005",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:36.513Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "Missing SameSite flag for cookie security",
+        "severity": "Low",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Missing SameSite flag for cookie security affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: POM-01-005",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "missing samesite flag for cookie security",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "POM-01-005|missing samesite flag for cookie security|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Missing SameSite flag for cookie security",
+        "sourceText": "POM-01-005 WP2: Missing SameSite flag for cookie security (Info)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Missing SameSite flag for cookie security",
+      "canonicalKey": "POM-01-005|missing samesite flag for cookie security|investigation scope||||||"
+    }
+  ],
+  "eval": {
+    "enableNlp": true,
+    "expectedCount": 5,
+    "actualCount": 5,
+    "expectedSeverityCounts": {
+      "Critical": 0,
+      "High": 2,
+      "Medium": 1,
+      "Low": 2
+    },
+    "actualSeverityCounts": {
+      "Critical": 0,
+      "High": 2,
+      "Medium": 1,
+      "Low": 2
+    },
+    "duplicates": 0,
+    "negativeHits": 0,
+    "pass": true
+  }
+}

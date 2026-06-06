@@ -1,0 +1,16 @@
+{
+  "id": "consensys-diligence-omisego-morevp-audit-2019-10",
+  "expectedCount": 20,
+  "expectedSeverityCounts": {
+    "Critical": 1,
+    "High": 2,
+    "Medium": 3,
+    "Low": 14
+  },
+  "notes": [
+    "Promoted from verified Stage 5 V5 review queue.",
+    "Source review id: consensys-diligence-omisego-morevp-audit-2019-10-f8f81482",
+    "Requires ENABLE_GENERIC_INDEX_ALIGNMENT=true for generic official index / table recovery gates.",
+    "Major is normalized to High. Minor, Info, Informational, and Note are normalized to Low."
+  ]
+}

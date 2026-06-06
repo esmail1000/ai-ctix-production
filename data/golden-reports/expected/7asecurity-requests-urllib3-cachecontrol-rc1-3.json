@@ -1,0 +1,20 @@
+{
+  "id": "7asecurity-requests-urllib3-cachecontrol-rc1-3",
+  "expectedCount": 11,
+  "expectedSeverityCounts": {
+    "Critical": 0,
+    "High": 3,
+    "Medium": 4,
+    "Low": 4
+  },
+  "notes": [
+    "Promoted from verified Stage 4 V4 review queue.",
+    "Source review id: 7asecurity-pentest-report-requests-urllib3-cachecontrol-rc1-3-a09c24cc",
+    "Source path: 7ASecurity/pentest-report-requests-urllib3-cachecontrol-RC1.3.pdf",
+    "Info / Informational / Note / Minor findings are normalized to Low by the current app model.",
+    "Major findings are normalized to High by the current app model.",
+    "Requires ENABLE_NLP=true and ENABLE_GENERIC_INDEX_ALIGNMENT=true.",
+    "7ASecurity reports also require ENABLE_7ASECURITY_INDEX_ALIGNMENT=true.",
+    "Do not promote the excluded research / expert-witness / manual-hold reports without separate manual review."
+  ]
+}

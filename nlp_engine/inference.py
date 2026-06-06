@@ -32,8 +32,8 @@ except ImportError:
 
 try:
     from transformers import AutoModelForTokenClassification  # type: ignore
-    from transformers import (AutoTokenizer,  # type: ignore
-                              PreTrainedTokenizerBase)
+    from transformers import AutoTokenizer  # type: ignore
+    from transformers import PreTrainedTokenizerBase
 except ImportError:
     AutoModelForTokenClassification = None  # type: ignore
     AutoTokenizer = None  # type: ignore
@@ -759,7 +759,7 @@ def _sliding_windows(
         stride=stride,
         return_overflowing_tokens=True,
         return_offsets_mapping=True,
-        padding=True,
+        padding="max_length",
         return_tensors="pt",
     )
 
@@ -767,8 +767,6 @@ def _sliding_windows(
     enc.pop("overflow_to_sample_mapping", None)
 
     return enc, offsets_batches
-
-
 def predict_entities(
     model: Any,
     tokenizer: PreTrainedTokenizerBase,

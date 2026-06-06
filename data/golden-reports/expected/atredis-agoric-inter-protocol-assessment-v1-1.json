@@ -1,0 +1,20 @@
+{
+  "id": "atredis-agoric-inter-protocol-assessment-v1-1",
+  "expectedCount": 3,
+  "expectedSeverityCounts": {
+    "Critical": 0,
+    "High": 0,
+    "Medium": 0,
+    "Low": 3
+  },
+  "notes": [
+    "Promoted from verified Stage 4 V4 review queue.",
+    "Source review id: atredis-final-atredis-partners-agoric-inter-protocol-assessment-v1-1-3dd6e0e6",
+    "Source path: Atredis/Final-Atredis-Partners-Agoric-Inter-Protocol-Assessment-v1.1.pdf",
+    "Info / Informational / Note / Minor findings are normalized to Low by the current app model.",
+    "Major findings are normalized to High by the current app model.",
+    "Requires ENABLE_NLP=true and ENABLE_GENERIC_INDEX_ALIGNMENT=true.",
+    "7ASecurity reports also require ENABLE_7ASECURITY_INDEX_ALIGNMENT=true.",
+    "Do not promote the excluded research / expert-witness / manual-hold reports without separate manual review."
+  ]
+}

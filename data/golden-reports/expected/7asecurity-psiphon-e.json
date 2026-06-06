@@ -1,0 +1,16 @@
+{
+  "id": "7asecurity-psiphon-e",
+  "expectedCount": 5,
+  "expectedSeverityCounts": {
+    "Critical": 0,
+    "High": 0,
+    "Medium": 0,
+    "Low": 5
+  },
+  "notes": [
+    "Promoted from verified 7ASecurity review queue.",
+    "Source review id: 7asecurity-pentest-report-psiphon-e-1b1b75d1",
+    "Info / Informational findings are normalized to Low by the current app model.",
+    "Requires ENABLE_7ASECURITY_INDEX_ALIGNMENT=true for 7ASecurity index recovery gates."
+  ]
+}

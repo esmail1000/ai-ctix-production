@@ -1,0 +1,800 @@
+{
+  "manifest": {
+    "id": "bishop-fox-adobe-coldfusion-security-assessment-2016",
+    "vendor": "Bishop Fox",
+    "family": "bishop-fox",
+    "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+    "sourcePath": "Bishop Fox/Adobe Systems - Coldfusion Security Assessment - Executive Report - 2016.pdf",
+    "textPath": "data/golden-reports/extracted-text/bishop-fox-adobe-coldfusion-security-assessment-2016.txt",
+    "expectedPath": "data/golden-reports/expected/bishop-fox-adobe-coldfusion-security-assessment-2016.json"
+  },
+  "expected": {
+    "id": "bishop-fox-adobe-coldfusion-security-assessment-2016",
+    "expectedCount": 12,
+    "expectedSeverityCounts": {
+      "Critical": 2,
+      "High": 5,
+      "Medium": 5,
+      "Low": 0
+    },
+    "notes": [
+      "Promoted from verified Stage 4 V4 review queue.",
+      "Source review id: bishop-fox-adobe-systems-coldfusion-security-assessment-executive-report-2016-e90a190b",
+      "Source path: Bishop Fox/Adobe Systems - Coldfusion Security Assessment - Executive Report - 2016.pdf",
+      "Info / Informational / Note / Minor findings are normalized to Low by the current app model.",
+      "Major findings are normalized to High by the current app model.",
+      "Requires ENABLE_NLP=true and ENABLE_GENERIC_INDEX_ALIGNMENT=true.",
+      "7ASecurity reports also require ENABLE_7ASECURITY_INDEX_ALIGNMENT=true.",
+      "Do not promote the excluded research / expert-witness / manual-hold reports without separate manual review."
+    ]
+  },
+  "report": {
+    "id": "G-bishop-fox-adobe-coldfusion-security-assessment-2016",
+    "slug": "bishop-fox-adobe-coldfusion-security-assessment-2016",
+    "name": "bishop-fox-adobe-coldfusion-security-assessment-2016",
+    "type": "PDF",
+    "uploadedAt": "2026-06-05T23:30:31.802Z",
+    "owner": "AI CTIX Analyzer",
+    "status": "Ready",
+    "findings": 12,
+    "critical": 2,
+    "high": 5,
+    "medium": 5,
+    "low": 0,
+    "summary": "COLDFUSION SECURITY ASSESSMENT Bishop Fox™ Confidential 2016/02/18 2 This engagement was performed in accordance with the Statement of Work, and the procedures were limited to those described in that agreement. The findings and recommendations resulting from the assessment are provided in the attached report.",
+    "parsingStatus": "parsed",
+    "analysisVersion": 1,
+    "parserVersion": 1,
+    "parsingNotes": [
+      "Structured parser found no blocks; heuristic fallback was used.",
+      "NLP hybrid extraction produced 3 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+      "Aligned findings with generic official index: 3 -> 12."
+    ],
+    "content": "EXECUTIVE REPORT\nADOBE SYSTEMS, INC.\nCOLDFUSION SECURITY ASSESSMENT\nFEBRUARY 18, 2016\n\n-- 1 of 7 --\n\nBishop Fox™ Confidential 2016/02/18 2\nThis engagement was performed in accordance with the Statement of Work, and the procedures were limited\nto those described in that agreement. The findings and recommendations resulting from the assessment are\nprovided in the attached report. Given the time-boxed scope of this assessment and its reliance on client-\nprovided information, the findings in this report should not be taken as a comprehensive listing of all security\nissues.\nThis report is intended solely for the information and use of Adobe Systems, Inc.\nBishop Fox Contact Information:\n+1 (480) 621-8967\ncontact@bishopfox.com\n8240 S. Kyrene Road\nSuite A-113\nTempe, AZ 85284\n\n-- 2 of 7 --\n\nBishop Fox™ Confidential 2016/02/18 3\nTABLE OF CONTENTS\nTable of Contents.................................................................................................................... 3\nExecutive Summary ................................................................................................................ 4\nProject Overview.................................................................................................................................. 4\nSummary of Findings .......................................................................................................................... 4\nDetailed List of Findings ..................................................................................................................... 5\nRecommendations .............................................................................................................................. 6\nAppendix A – Measurement Scales ...................................................................................... 7\nFinding Severity ................................................................................................................................... 7\n\n-- 3 of 7 --\n\nBishop Fox™ Confidential 2016/02/18 4\nEXECUTIVE SUMMARY\nProject Overview\nAdobe Systems, Inc. engaged Bishop Fox to assess the\nsecurity of the ColdFusion (2016 release) and API Manager\napplications. The following report details the findings\nidentified during the course of the engagement, which started\non November 23, 2015.\nGoals\n Understand the ColdFusion (2016 release) and API\nManager applications’ security posture\n Identify as many security issues as possible in the\ndesignated time and scope\n Identify and plan to manage previously unknown risks\n Comply with a customer’s request for a third-party\nsecurity assessment\nApproach\nThe Bishop Fox team conducted a thorough Hybrid\nApplication Assessment the ColdFusion (2016 release) and\nAPI Manager applications. The assessment activities included,\nbut were not limited to:\n Automated static code analysis\n Manual penetration testing\n Candidate-point source code review\n Assessment of auxiliary installed services for best\npractices\nFinding Counts\n2 Critical\n5 High\n5 Medium\n0 Low\n0 Informational\n12 Total findings\nRemediation\n12 Total findings fixed\nScope\nColdFusion (2016\nrelease) (build 297727)\nColdFusion API Manager\n(build 297727)\nDates\n11/23/2015\nKickoff\n11/23/2015 – 12/29/2015\nActive testing\n02/18/2016\nReport delivery\nSummary of Findings\nIn aggregate, the ColdFusion (2016 release) and API Manager applications meet their\nsecurity objectives.\nSeven high- and critical-risk vulnerabilities were identified during the assessment. The\nColdFusion development team made significant efforts to remediate the findings or\notherwise mitigate the issues. After remediation testing, the Bishop Fox team\nverified that all findings had been remediated or sufficiently mitigated.\n\n-- 4 of 7 --\n\nBishop Fox™ Confidential 2016/02/18 5\nDetailed List of Findings\nThe following tables outline the engagement findings and their remediation status.\nActivity Identified Vulnerabilities Fixed Vulnerabilities\nHybrid Application Assessment 12 12\nRemediated findings\nPlease refer to the Appendix for explanations of finding severity ratings.\nCRITICAL\nSEVERITY\nActivity Finding ID Vulnerability Identified Fixed\nHybrid\nApplication\nAssessment\n1 Cross-site\nRequest Forgery 1 1\n2 XML External\nEntity (XXE) 1 1\nHIGH\nSEVERITY\nActivity Finding ID Vulnerability Identified Fixed\nHybrid\nApplication\nAssessment\n3 Insecure File\nUpload 1 1\n4\nServer-side\nRequest\nForgery\n1 1\n5\nArbitrary\nRemote Code\nExecution\n1 1\n6\nInsecure\nDefault\nConfigurations\n5 5\n7\nSensitive\nInformation\nDisclosure\n3 3\n\n-- 5 of 7 --\n\nBishop Fox™ Confidential 2016/02/18 6\nMEDIUM\nSEVERITY\nActivity Finding ID Vulnerability Identified Fixed\nHybrid\nApplication\nAssessment\n8\nInsufficient\nAnti-\nAutomation\n2 2\n9 User Interface\nRedress 1 1\n10\nWeak\nPassword\nComplexity\nRequirements\n4 4\n11 Vulnerable\nSoftware 2 2\n12\nIneffective\nAccess\nControls\n1 1\nRecommendations\nThe Bishop Fox team performed remediation testing and noted that all issues have been\nsuccessfully remediated or otherwise mitigated. Following the tactical steps in the next\nsection will further reduce the attack surface of the ColdFusion (2016 release) and API\nManager applications.\nTA C TI C A L N E X T S TE P S\n Increase Client Security Awareness: Improve visibility of the ColdFusion security\nlockdown guides. These guides include a wealth of information to help customers\nimprove the security baseline of their ColdFusion deployments.\n\n-- 6 of 7 --\n\nBishop Fox™ Confidential 2016/02/18 7\nAPPENDIX A – MEASUREMENT SCALES\nThe Bishop Fox team used the following criteria to rate the findings in this report.\nFinding Severity\nThe severity of each finding in this report is independent. Finding severity ratings combine\ndirect technical and business impact with the worst-case scenario in an attack chain. The\nmore significant the impact and the fewer vulnerabilities that must be exploited to achieve\nthat impact, the higher the severity.\nCritical Vulnerability is an otherwise high-severity issue with additional security\nimplications that could lead to exceptional business impact. Examples include\ntrivial exploit difficulty, business-critical data compromised, bypass of multiple\nsecurity controls, direct violation of communicated security objectives, and large-\nscale vulnerability exposure.\nHigh Vulnerability may result in direct exposure including, but not limited to: the loss\nof application control, execution of malicious code, or compromise of underlying\nhost systems. The issue may also create a breach in the confidentiality or\nintegrity of sensitive business data, customer information, and administrative\nand user accounts. In some instances, this exposure may extend farther into the\ninfrastructure beyond the data and systems associated with the application.\nExamples include parameter injection, denial-of-service, and cross-site scripting.\nMedium Vulnerability does not lead directly to the exposure of critical application\nfunctionality, sensitive business and customer data, or application credentials.\nHowever, it can be executed multiple times or leveraged in conjunction with\nanother issue to cause direct exposure. Examples include brute-forcing and\nclient-side input validation.\nLow Vulnerability may result in limited exposure of application control, sensitive\nbusiness and customer data, or system information. This type of issue only\nprovides value when combined with one or more issues of a higher risk\nclassification. Examples include overly detailed error messages, the disclosure of\nsystem versioning information, and minor reliability issues.\nInformational Finding does not have a direct security impact but represents an opportunity to\nadd an additional layer of security, is considered a best practice, or has the\npossibility of turning into an issue over time. Finding is a security-relevant\nobservation that has no direct business impact or exploitability, but may lead to\nexploitable vulnerabilities. Examples include poor communication between\nengineering organizations, documentation that encourages poor security\npractices, and lack of security training for developers.\n\n-- 7 of 7 --",
+    "sourceFileName": "Adobe Systems - Coldfusion Security Assessment - Executive Report - 2016.pdf",
+    "createdAtIso": "2026-06-05T23:30:38.688Z",
+    "updatedAtIso": "2026-06-05T23:30:38.688Z"
+  },
+  "findings": [
+    {
+      "id": "F-G-bishop-fox-adobe-coldfusion-security-assessment-2016-GIDX-001",
+      "slug": "1-cross-site-investigation-scope",
+      "reportId": "G-bishop-fox-adobe-coldfusion-security-assessment-2016",
+      "reportName": "bishop-fox-adobe-coldfusion-security-assessment-2016",
+      "title": "Cross-site Request Forgery",
+      "cve": "—",
+      "severity": "Critical",
+      "asset": "investigation-scope",
+      "score": 94,
+      "status": "Open",
+      "detectedAt": "2026-06-05T23:30:31.802Z",
+      "summary": "Cross-site Request Forgery affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+      "evidence": "1 Cross-site\nRequest Forgery 1 1\n2 XML External\nEntity (XXE) 1 1\nHIGH\nSEVERITY\nActivity Finding ID Vulnerability Identified Fixed\nHybrid\nApplication\nAssessment",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:30:38.686Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "1 Cross-site",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "1 Cross-site affecting investigation-scope; extractor found type Cross-Site Request Forgery.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "1 Cross-site\nRequest Forgery 1 1\n2 XML External\nEntity (XXE) 1 1\nHIGH\nSEVERITY\nActivity Finding ID Vulnerability Identified Fixed\nHybrid\nApplication\nAssessment",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "1 cross-site",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "BF-CF-001|cross site request forgery|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "Cross-site Request Forgery",
+        "sourceText": "BF-CF-001 Cross-site Request Forgery Critical",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Cross-site Request Forgery",
+      "canonicalKey": "BF-CF-001|cross site request forgery|investigation scope||||||"
+    },
+    {
+      "id": "F-G-bishop-fox-adobe-coldfusion-security-assessment-2016-GIDX-002",
+      "slug": "1-cross-site-investigation-scope",
+      "reportId": "G-bishop-fox-adobe-coldfusion-security-assessment-2016",
+      "reportName": "bishop-fox-adobe-coldfusion-security-assessment-2016",
+      "title": "XML External Entity (XXE)",
+      "cve": "—",
+      "severity": "Critical",
+      "asset": "investigation-scope",
+      "score": 94,
+      "status": "Open",
+      "detectedAt": "2026-06-05T23:30:31.802Z",
+      "summary": "XML External Entity (XXE) affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+      "evidence": "1 Cross-site\nRequest Forgery 1 1\n2 XML External\nEntity (XXE) 1 1\nHIGH\nSEVERITY\nActivity Finding ID Vulnerability Identified Fixed\nHybrid\nApplication\nAssessment",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:30:38.686Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "1 Cross-site",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "1 Cross-site affecting investigation-scope; extractor found type Cross-Site Request Forgery.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "1 Cross-site\nRequest Forgery 1 1\n2 XML External\nEntity (XXE) 1 1\nHIGH\nSEVERITY\nActivity Finding ID Vulnerability Identified Fixed\nHybrid\nApplication\nAssessment",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "1 cross-site",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "BF-CF-002|xml external entity xxe|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "XML External Entity (XXE)",
+        "sourceText": "BF-CF-002 XML External Entity (XXE) Critical",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "XML External Entity (XXE)",
+      "canonicalKey": "BF-CF-002|xml external entity xxe|investigation scope||||||"
+    },
+    {
+      "id": "F-G-bishop-fox-adobe-coldfusion-security-assessment-2016-GIDX-003",
+      "slug": "1-cross-site-investigation-scope",
+      "reportId": "G-bishop-fox-adobe-coldfusion-security-assessment-2016",
+      "reportName": "bishop-fox-adobe-coldfusion-security-assessment-2016",
+      "title": "Insecure File Upload",
+      "cve": "—",
+      "severity": "High",
+      "asset": "investigation-scope",
+      "score": 84,
+      "status": "Open",
+      "detectedAt": "2026-06-05T23:30:31.802Z",
+      "summary": "Insecure File Upload affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+      "evidence": "1 Cross-site\nRequest Forgery 1 1\n2 XML External\nEntity (XXE) 1 1\nHIGH\nSEVERITY\nActivity Finding ID Vulnerability Identified Fixed\nHybrid\nApplication\nAssessment",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:30:38.686Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "1 Cross-site",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "1 Cross-site affecting investigation-scope; extractor found type Cross-Site Request Forgery.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "1 Cross-site\nRequest Forgery 1 1\n2 XML External\nEntity (XXE) 1 1\nHIGH\nSEVERITY\nActivity Finding ID Vulnerability Identified Fixed\nHybrid\nApplication\nAssessment",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "1 cross-site",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "BF-CF-003|insecure file upload|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "Insecure File Upload",
+        "sourceText": "BF-CF-003 Insecure File Upload High",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Insecure File Upload",
+      "canonicalKey": "BF-CF-003|insecure file upload|investigation scope||||||"
+    },
+    {
+      "id": "F-G-bishop-fox-adobe-coldfusion-security-assessment-2016-GIDX-004",
+      "slug": "1-cross-site-investigation-scope",
+      "reportId": "G-bishop-fox-adobe-coldfusion-security-assessment-2016",
+      "reportName": "bishop-fox-adobe-coldfusion-security-assessment-2016",
+      "title": "Server-side Request Forgery",
+      "cve": "—",
+      "severity": "High",
+      "asset": "investigation-scope",
+      "score": 84,
+      "status": "Open",
+      "detectedAt": "2026-06-05T23:30:31.802Z",
+      "summary": "Server-side Request Forgery affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+      "evidence": "1 Cross-site\nRequest Forgery 1 1\n2 XML External\nEntity (XXE) 1 1\nHIGH\nSEVERITY\nActivity Finding ID Vulnerability Identified Fixed\nHybrid\nApplication\nAssessment",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:30:38.686Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "1 Cross-site",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "1 Cross-site affecting investigation-scope; extractor found type Cross-Site Request Forgery.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "1 Cross-site\nRequest Forgery 1 1\n2 XML External\nEntity (XXE) 1 1\nHIGH\nSEVERITY\nActivity Finding ID Vulnerability Identified Fixed\nHybrid\nApplication\nAssessment",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "1 cross-site",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "BF-CF-004|server side request forgery|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "Server-side Request Forgery",
+        "sourceText": "BF-CF-004 Server-side Request Forgery High",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Server-side Request Forgery",
+      "canonicalKey": "BF-CF-004|server side request forgery|investigation scope||||||"
+    },
+    {
+      "id": "F-G-bishop-fox-adobe-coldfusion-security-assessment-2016-GIDX-005",
+      "slug": "1-cross-site-investigation-scope",
+      "reportId": "G-bishop-fox-adobe-coldfusion-security-assessment-2016",
+      "reportName": "bishop-fox-adobe-coldfusion-security-assessment-2016",
+      "title": "Arbitrary Remote Code Execution",
+      "cve": "—",
+      "severity": "High",
+      "asset": "investigation-scope",
+      "score": 84,
+      "status": "Open",
+      "detectedAt": "2026-06-05T23:30:31.802Z",
+      "summary": "Arbitrary Remote Code Execution affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+      "evidence": "1 Cross-site\nRequest Forgery 1 1\n2 XML External\nEntity (XXE) 1 1\nHIGH\nSEVERITY\nActivity Finding ID Vulnerability Identified Fixed\nHybrid\nApplication\nAssessment",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:30:38.686Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "1 Cross-site",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "1 Cross-site affecting investigation-scope; extractor found type Cross-Site Request Forgery.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "1 Cross-site\nRequest Forgery 1 1\n2 XML External\nEntity (XXE) 1 1\nHIGH\nSEVERITY\nActivity Finding ID Vulnerability Identified Fixed\nHybrid\nApplication\nAssessment",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "1 cross-site",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "BF-CF-005|arbitrary remote code execution|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "Arbitrary Remote Code Execution",
+        "sourceText": "BF-CF-005 Arbitrary Remote Code Execution High",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Arbitrary Remote Code Execution",
+      "canonicalKey": "BF-CF-005|arbitrary remote code execution|investigation scope||||||"
+    },
+    {
+      "id": "F-G-bishop-fox-adobe-coldfusion-security-assessment-2016-GIDX-006",
+      "slug": "1-cross-site-investigation-scope",
+      "reportId": "G-bishop-fox-adobe-coldfusion-security-assessment-2016",
+      "reportName": "bishop-fox-adobe-coldfusion-security-assessment-2016",
+      "title": "Insecure Default Configurations",
+      "cve": "—",
+      "severity": "High",
+      "asset": "investigation-scope",
+      "score": 84,
+      "status": "Open",
+      "detectedAt": "2026-06-05T23:30:31.802Z",
+      "summary": "Insecure Default Configurations affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+      "evidence": "1 Cross-site\nRequest Forgery 1 1\n2 XML External\nEntity (XXE) 1 1\nHIGH\nSEVERITY\nActivity Finding ID Vulnerability Identified Fixed\nHybrid\nApplication\nAssessment",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:30:38.686Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "1 Cross-site",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "1 Cross-site affecting investigation-scope; extractor found type Cross-Site Request Forgery.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "1 Cross-site\nRequest Forgery 1 1\n2 XML External\nEntity (XXE) 1 1\nHIGH\nSEVERITY\nActivity Finding ID Vulnerability Identified Fixed\nHybrid\nApplication\nAssessment",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "1 cross-site",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "BF-CF-006|insecure default configurations|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "Insecure Default Configurations",
+        "sourceText": "BF-CF-006 Insecure Default Configurations High",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Insecure Default Configurations",
+      "canonicalKey": "BF-CF-006|insecure default configurations|investigation scope||||||"
+    },
+    {
+      "id": "F-G-bishop-fox-adobe-coldfusion-security-assessment-2016-GIDX-007",
+      "slug": "1-cross-site-investigation-scope",
+      "reportId": "G-bishop-fox-adobe-coldfusion-security-assessment-2016",
+      "reportName": "bishop-fox-adobe-coldfusion-security-assessment-2016",
+      "title": "Sensitive Information Disclosure",
+      "cve": "—",
+      "severity": "High",
+      "asset": "investigation-scope",
+      "score": 84,
+      "status": "Open",
+      "detectedAt": "2026-06-05T23:30:31.802Z",
+      "summary": "Sensitive Information Disclosure affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+      "evidence": "1 Cross-site\nRequest Forgery 1 1\n2 XML External\nEntity (XXE) 1 1\nHIGH\nSEVERITY\nActivity Finding ID Vulnerability Identified Fixed\nHybrid\nApplication\nAssessment",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:30:38.686Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "1 Cross-site",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "1 Cross-site affecting investigation-scope; extractor found type Cross-Site Request Forgery.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "1 Cross-site\nRequest Forgery 1 1\n2 XML External\nEntity (XXE) 1 1\nHIGH\nSEVERITY\nActivity Finding ID Vulnerability Identified Fixed\nHybrid\nApplication\nAssessment",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "1 cross-site",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "BF-CF-007|sensitive information disclosure|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "Sensitive Information Disclosure",
+        "sourceText": "BF-CF-007 Sensitive Information Disclosure High",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Sensitive Information Disclosure",
+      "canonicalKey": "BF-CF-007|sensitive information disclosure|investigation scope||||||"
+    },
+    {
+      "id": "F-G-bishop-fox-adobe-coldfusion-security-assessment-2016-GIDX-008",
+      "slug": "1-cross-site-investigation-scope",
+      "reportId": "G-bishop-fox-adobe-coldfusion-security-assessment-2016",
+      "reportName": "bishop-fox-adobe-coldfusion-security-assessment-2016",
+      "title": "Insufficient Anti-Automation",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:30:31.802Z",
+      "summary": "Insufficient Anti-Automation affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "1 Cross-site\nRequest Forgery 1 1\n2 XML External\nEntity (XXE) 1 1\nHIGH\nSEVERITY\nActivity Finding ID Vulnerability Identified Fixed\nHybrid\nApplication\nAssessment",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:30:38.686Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "1 Cross-site",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "1 Cross-site affecting investigation-scope; extractor found type Cross-Site Request Forgery.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "1 Cross-site\nRequest Forgery 1 1\n2 XML External\nEntity (XXE) 1 1\nHIGH\nSEVERITY\nActivity Finding ID Vulnerability Identified Fixed\nHybrid\nApplication\nAssessment",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "1 cross-site",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "BF-CF-008|insufficient anti automation|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "Insufficient Anti-Automation",
+        "sourceText": "BF-CF-008 Insufficient Anti-Automation Medium",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Insufficient Anti-Automation",
+      "canonicalKey": "BF-CF-008|insufficient anti automation|investigation scope||||||"
+    },
+    {
+      "id": "F-G-bishop-fox-adobe-coldfusion-security-assessment-2016-GIDX-009",
+      "slug": "1-cross-site-investigation-scope",
+      "reportId": "G-bishop-fox-adobe-coldfusion-security-assessment-2016",
+      "reportName": "bishop-fox-adobe-coldfusion-security-assessment-2016",
+      "title": "User Interface Redress",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:30:31.802Z",
+      "summary": "User Interface Redress affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "1 Cross-site\nRequest Forgery 1 1\n2 XML External\nEntity (XXE) 1 1\nHIGH\nSEVERITY\nActivity Finding ID Vulnerability Identified Fixed\nHybrid\nApplication\nAssessment",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:30:38.686Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "1 Cross-site",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "1 Cross-site affecting investigation-scope; extractor found type Cross-Site Request Forgery.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "1 Cross-site\nRequest Forgery 1 1\n2 XML External\nEntity (XXE) 1 1\nHIGH\nSEVERITY\nActivity Finding ID Vulnerability Identified Fixed\nHybrid\nApplication\nAssessment",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "1 cross-site",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "BF-CF-009|user interface redress|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "User Interface Redress",
+        "sourceText": "BF-CF-009 User Interface Redress Medium",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "User Interface Redress",
+      "canonicalKey": "BF-CF-009|user interface redress|investigation scope||||||"
+    },
+    {
+      "id": "F-G-bishop-fox-adobe-coldfusion-security-assessment-2016-GIDX-010",
+      "slug": "1-cross-site-investigation-scope",
+      "reportId": "G-bishop-fox-adobe-coldfusion-security-assessment-2016",
+      "reportName": "bishop-fox-adobe-coldfusion-security-assessment-2016",
+      "title": "Weak Password Complexity Requirements",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:30:31.802Z",
+      "summary": "Weak Password Complexity Requirements affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "1 Cross-site\nRequest Forgery 1 1\n2 XML External\nEntity (XXE) 1 1\nHIGH\nSEVERITY\nActivity Finding ID Vulnerability Identified Fixed\nHybrid\nApplication\nAssessment",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:30:38.686Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "1 Cross-site",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "1 Cross-site affecting investigation-scope; extractor found type Cross-Site Request Forgery.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "1 Cross-site\nRequest Forgery 1 1\n2 XML External\nEntity (XXE) 1 1\nHIGH\nSEVERITY\nActivity Finding ID Vulnerability Identified Fixed\nHybrid\nApplication\nAssessment",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "1 cross-site",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "BF-CF-010|weak password complexity requirements|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "Weak Password Complexity Requirements",
+        "sourceText": "BF-CF-010 Weak Password Complexity Requirements Medium",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Weak Password Complexity Requirements",
+      "canonicalKey": "BF-CF-010|weak password complexity requirements|investigation scope||||||"
+    },
+    {
+      "id": "F-G-bishop-fox-adobe-coldfusion-security-assessment-2016-GIDX-011",
+      "slug": "1-cross-site-investigation-scope",
+      "reportId": "G-bishop-fox-adobe-coldfusion-security-assessment-2016",
+      "reportName": "bishop-fox-adobe-coldfusion-security-assessment-2016",
+      "title": "Vulnerable Software",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:30:31.802Z",
+      "summary": "Vulnerable Software affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "1 Cross-site\nRequest Forgery 1 1\n2 XML External\nEntity (XXE) 1 1\nHIGH\nSEVERITY\nActivity Finding ID Vulnerability Identified Fixed\nHybrid\nApplication\nAssessment",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:30:38.686Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "1 Cross-site",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "1 Cross-site affecting investigation-scope; extractor found type Cross-Site Request Forgery.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "1 Cross-site\nRequest Forgery 1 1\n2 XML External\nEntity (XXE) 1 1\nHIGH\nSEVERITY\nActivity Finding ID Vulnerability Identified Fixed\nHybrid\nApplication\nAssessment",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "1 cross-site",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "BF-CF-011|vulnerable software|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "Vulnerable Software",
+        "sourceText": "BF-CF-011 Vulnerable Software Medium",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Vulnerable Software",
+      "canonicalKey": "BF-CF-011|vulnerable software|investigation scope||||||"
+    },
+    {
+      "id": "F-G-bishop-fox-adobe-coldfusion-security-assessment-2016-GIDX-012",
+      "slug": "1-cross-site-investigation-scope",
+      "reportId": "G-bishop-fox-adobe-coldfusion-security-assessment-2016",
+      "reportName": "bishop-fox-adobe-coldfusion-security-assessment-2016",
+      "title": "Ineffective Access Controls",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:30:31.802Z",
+      "summary": "Ineffective Access Controls affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "1 Cross-site\nRequest Forgery 1 1\n2 XML External\nEntity (XXE) 1 1\nHIGH\nSEVERITY\nActivity Finding ID Vulnerability Identified Fixed\nHybrid\nApplication\nAssessment",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:30:38.686Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "1 Cross-site",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "1 Cross-site affecting investigation-scope; extractor found type Cross-Site Request Forgery.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "1 Cross-site\nRequest Forgery 1 1\n2 XML External\nEntity (XXE) 1 1\nHIGH\nSEVERITY\nActivity Finding ID Vulnerability Identified Fixed\nHybrid\nApplication\nAssessment",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "1 cross-site",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "BF-CF-012|ineffective access controls|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "Ineffective Access Controls",
+        "sourceText": "BF-CF-012 Ineffective Access Controls Medium",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Ineffective Access Controls",
+      "canonicalKey": "BF-CF-012|ineffective access controls|investigation scope||||||"
+    }
+  ],
+  "eval": {
+    "enableNlp": true,
+    "expectedCount": 12,
+    "actualCount": 12,
+    "expectedSeverityCounts": {
+      "Critical": 2,
+      "High": 5,
+      "Medium": 5,
+      "Low": 0
+    },
+    "actualSeverityCounts": {
+      "Critical": 2,
+      "High": 5,
+      "Medium": 5,
+      "Low": 0
+    },
+    "duplicates": 0,
+    "negativeHits": 0,
+    "pass": true
+  }
+}

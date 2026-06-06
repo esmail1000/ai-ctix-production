@@ -1,0 +1,676 @@
+{
+  "manifest": {
+    "id": "cure53-b5-1pw-06-report-v2",
+    "vendor": "Cure53",
+    "family": "cure53",
+    "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+    "sourcePath": "Cure53/Cure53-B5_1PW-06-report.v2.pdf",
+    "textPath": "data/golden-reports/extracted-text/cure53-b5-1pw-06-report-v2.txt",
+    "expectedPath": "data/golden-reports/expected/cure53-b5-1pw-06-report-v2.json"
+  },
+  "expected": {
+    "id": "cure53-b5-1pw-06-report-v2",
+    "expectedCount": 10,
+    "expectedSeverityCounts": {
+      "Critical": 0,
+      "High": 1,
+      "Medium": 2,
+      "Low": 7
+    },
+    "notes": [
+      "Promoted from verified Stage 6 V7 Cure53 review queue.",
+      "Source review id: cure53-cure53-b5-1pw-06-report-v2-6a6f5640",
+      "Requires ENABLE_GENERIC_INDEX_ALIGNMENT=true for generic official index / Cure53 official ID recovery gates.",
+      "Cure53 severity labels are normalized into Critical, High, Medium, and Low. Info/Informational/Note are normalized to Low only when they are official severity-rated entries."
+    ]
+  },
+  "report": {
+    "id": "G-cure53-b5-1pw-06-report-v2",
+    "slug": "cure53-b5-1pw-06-report-v2",
+    "name": "cure53-b5-1pw-06-report-v2",
+    "type": "PDF",
+    "uploadedAt": "2026-06-05T23:33:36.529Z",
+    "owner": "AI CTIX Analyzer",
+    "status": "Ready",
+    "findings": 10,
+    "critical": 0,
+    "high": 1,
+    "medium": 2,
+    "low": 7,
+    "summary": "Mario Heiderich, Cure53 Bielefelder Str. Kobeissi Index Introduction Scope Identified Vulnerabilities 1PW-06-003 API: Blocking users from registration through rate-limiting (Low) 1PW-06-004 API: Lack of ACL on endpoints returning user-data (Low) 1PW-06-007 API: Joining members can add arbitrary vaults to account (High)",
+    "parsingStatus": "parsed",
+    "analysisVersion": 1,
+    "parserVersion": 1,
+    "parsingNotes": [
+      "Structured parser found no blocks; heuristic fallback was used.",
+      "NLP hybrid extraction produced 11 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+      "Aligned findings with generic official index: 11 -> 10."
+    ],
+    "content": "Dr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nPentest-Report 1Password B5 & Permissions 10.2020\nCure53, Dr.-Ing. M. Heiderich, MSc. S. Moritz, MSc. R. Peraglie, Dr. N. Kobeissi\nIndex\nIntroduction\nScope\nIdentified Vulnerabilities\n1PW-06-003 API: Blocking users from registration through rate-limiting (Low)\n1PW-06-004 API: Lack of ACL on endpoints returning user-data (Low)\n1PW-06-007 API: Joining members can add arbitrary vaults to account (High)\n1PW-06-008 Crypto: Insufficient public key validation criteria (Low)\n1PW-06-009 Crypto: UKS attack potential on public key operations (Info)\nMiscellaneous Issues\n1PW-06-001 Web: Blocklist bypassable via X-Forwarded-For header (Low)\n1PW-06-002 Web: Faulty CORS configuration (Info)\n1PW-06-005 Crypto: Private key remains static after vault password reset (Medium)\n1PW-06-006 Crypto: 1Password vaults vulnerable to server compromise (Medium)\n1PW-06-010 Crypto: Malfunctioning and unused cryptography components (Info)\nConclusions\nCure53, Berlin · 12/10/20 1/19\n\n-- 1 of 19 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nIntroduction\n“The easiest and safest way to share logins, passwords, credit cards and more, with the\npeople that matter most. Go ahead, forget your passwords – 1Password remembers\nthem all for you.”\nFrom https://1password.com/\nThis report presents the results of a security assessment targeting the 1Password B5\nfeature compound, which essentially describes the 1Password web application. Carried\nout by Cure53 in October 2020, the project encompassed a penetration test and a\nsource code audit. Ten discoveries, including one marked as High severity, have been\nmade on the 1Password’s scope during this assignment.\nTo give some context, the project was requested by 1Password and executed by four\nmembers of the Cure53 team in Calendar Weeks 43 and 44 of 2020. The 1Password B5\nweb application was tested by Cure53 before, indicating that the project has been\ncompleted in the frames of broader cooperation centered on security aspects. Since\n1PW-01, which took place in early 2019, most of subsequent tests focused on the client\nsoftware or specifically chosen features. In this test, the focus was solidly placed on the\nB5 web application itself and, most importantly, on the 1Password permission\nenforcement utilized by the B5 web application in both frontend and backend.\nMaking sure that the work can be properly structured and cover all relevant aspects of\nthe scope, Cure53 worked with two work packages (WPs) with the following contents:\n• WP1: Penetration-Tests & Audits against 1Password B5 Web Application UI;\n• WP2: Penetration-Tests & Audits against 1Password B5 Web Backend & API.\nThe scope was well-prepared by 1Password and the Cure53 team can make good\nprogress during fourteen person-days dedicated to this project. Good coverage levels\nand proper research depth were achieved. As usual for engagements carried out by\nCure53 for 1Password, a dedicated, private Slack channel was used to connect all\ninvolved staff in real-time exchanges. Communications were productive and helpful with\nall Cure53’s questions answered in a prompt and comprehensive manner. Status details\nand information about the spotted findings, as well as the resulting possible attack\nscenarios, were shared once confirmed.\nMoving on to results, the Cure53 team managed to spot a total of ten findings, as\nmentioned above. More specifically, five problems were classified to be security\nvulnerabilities of varying severity levels. The remaining five items can be seen as\ngeneral weaknesses, typically - but not entirely in this case- characterized by lower\nCure53, Berlin · 12/10/20 2/19\n\n-- 2 of 19 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nexploitation potential. Of note is the fact that one item overall received marks linked to\nelevated seriousness. The presence of severe problems among Miscellaneous issues\ncan be explained by them being reported before in PW-01. Since they have not been\nfully addressed, Crue53 lists them for completeness’ sake. Despite the number and\nscope of findings, the results are leaning to a positive verdict. This is driven by the fact\nthat especially the focal areas, meaning the enforcement of the 1Password permissions.\nstood strong against the approach attempted by Cure53.\nIn the following sections, the report will first shed light on the scope and key test\nparameters. Next, all findings will be discussed in grouped vulnerability and\nmiscellaneous categories, then following a chronological order. Alongside technical\ndescriptions, PoC and mitigation advice are supplied when applicable. Finally, the report\nwill close with broader conclusions about this autumn 2020 project. Cure53 elaborates\non the general impressions and reiterates the verdict based on the testing team’s\nobservations and collected evidence. Tailored hardening recommendations for\n1Password B5 web application and 1Password permission enforcement are also\nincorporated into the final section.\nNote: This report was updated in early December and notes were added to several\ntickets to reflect the state of updated severities after the tickets have been reported to\nand discussed with the 1Password team.\nCure53, Berlin · 12/10/20 3/19\n\n-- 3 of 19 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nScope\n• Penetration-Tests & Source Code Audits against 1Password B5 Web Application\n◦ WP1: Penetration-Tests & Audits against 1Password B5 Web Application UI\n▪ Tests performed locally on https://my.b5local.com:3000\n▪ The application must, therefore, be built on the test-machine from the supplied\nsources to be able to run it locally.\n▪ More information can be found in the provided instructions.md from the B5\nsources\n◦ WP2: Penetration-Tests & Audits against 1Password B5 Web Backend & API\n▪ Tests performed locally on https://my.b5local.com:3000\n▪ Note that this engagement aimed at a holistic and thorough review of the\n1Password permission enforcement, covering the review of cryptography-,\nserver-, and client-enforced policies\n◦ Sources were shared with Cure53\n◦ Test-supporting material was shared with Cure53\nCure53, Berlin · 12/10/20 4/19\n\n-- 4 of 19 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nIdentified Vulnerabilities\nThe following sections list both vulnerabilities and implementation issues spotted during\nthe testing period. Note that findings are listed in chronological order rather than by their\ndegree of severity and impact. The aforementioned severity rank is simply given in\nbrackets following the title heading for each vulnerability. Each vulnerability is\nadditionally given a unique identifier (e.g. 1PW-06-001) for the purpose of facilitating any\nfuture follow-up correspondence.\n1PW-06-003 API: Blocking users from registration through rate-limiting (Low)\nNote: Upon review 1Password disagreed with Cure53's description of the working of the\nrate limiting. As a result, 1Password believes the presented risk for brute force attacks is\nsignificantly lower than originally presented and requested the severity to be set to low.\n1Password will take Cure53's assessment into account to further improve its rate limiting\nand blocking infrastructure in the future.\nDuring the assessment of the B5 web application, it was found that the implemented\nprotection against brute-force attacks on the sign-up verification endpoint could be used\nto prevent users from registering with the application. If more than 25 requests are sent\nto the endpoint within a short amount of time, the server responds with the status 429\nToo many Requests (see below).\nAt first glance, it appears to be a normal rate-limiting but, in fact, the limit is not bound to\nthe IP of the client but rather to the email address sent in the request. This makes it\npossible for an attacker to prevent other users from finishing the verification step while\nsending more than 25 requests with one email address to the affected endpoint.\nAfter the unlock time has passed, the attacker can still send new requests to\npermanently prevent users from registering with the application. Please note that this\nissue is reproducible on both the test- and the production environments.\nAffected File:\nb5/server/src/logic/action/signup.go\nAffected Code:\nfunc GetSignupDetails(acs *access.UnverifiedAccess, param string, email string,\naccountType string, domain string) (*api.Signup, api.StatusCode) {\n[...]\nrecentSignups, err := acs.SelectRecentSignupsForEmail(email)\n[...]\nfor _, recentSignup := range recentSignups {\nif recentSignup.Attempts >= constraints.MaxCurrentSignupTokenAttempts {\n[...]\nCure53, Berlin · 12/10/20 5/19\n\n-- 5 of 19 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nacs.LogError(\"GetSignupDetails attempt blocked due to too many signup\nattempts\", util.ObfuscateEmail(email))\nreturn nil, api.StatusTooManyRequests\nPoC Request:\nGET /api/v2/signup/000024?email=seba%2B1pwtest5%40cure53.de&account-type=I HTTP/\n1.1\nHost: my.b5local.com:3000\n[...]\nResponse (after 25 requests):\nHTTP/1.1 429 Too Many Requests\n[...]\n{\"errorCode\":121,\"errorMessage\":\"Too many requests\",\"requestId\":277195}\nSteps to reproduce on production environment:\n1. Open https://start.1password.com/sign-up and enter the email address to block.\n2. Then, intercept the verification request (see PoC above) and repeat it several\ntimes with randomly created 6-digit codes in a short amount of time until status\ncode 429 is returned.\n3. With a new IP address, open https://start.1password.com/sign-up again and\nenter the related email to get a verification code.\n4. In the final step, enter and send the newly received verification code. The API will\nrespond with status code 429: Too Many Requests.\nIt is recommended to stop binding rate-limiting to the email received via the affected\nrequest. Instead, it is advised to bind it to the client’s IP address. Additionally, a captcha\ncan be considered to diminish the efficiency of this attack.\n1PW-06-004 API: Lack of ACL on endpoints returning user-data (Low)\nDuring the assessment of the B5 web application, it was found that several endpoints\nthat return user-data are missing additional access control checks. The first affected\nendpoint on /api/v2/users permits querying user-data for different contexts via additional\nGET parameters, such as vault or group. For example, it is possible to query members\nfrom a vault that the authorized user does not belong to (see PoC #1 below). In addition,\nthe endpoint facilitates obtaining all members from a group via the GET parameter\ngroup (see PoC #2).\nIn combination with the third affected endpoint on /api/v2/account (see PoC #3 below),\nwhich allows all users and groups of a company or team account to be queried, an\nCure53, Berlin · 12/10/20 6/19\n\n-- 6 of 19 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nattacker can create parts from the \"People\" function, even though they are only available\nto administrators. This enables an attacker to get sensitive information - such as email\naddresses - from user-accounts if 2FA is enabled. This also concerns account-types and\nrelated UUIDs. The data can be used by an attacker for further exploitation, such as for\nPhishing campaigns or in combination with other vulnerabilities. The following PoC\nshows how users from a vault can be requested with the user seba+4pw@cure53.de\nwho does not belong to the vault.\nPoC Request #1 for getting vault members:\nGET /api/v2/users?vault=2gpmbr7ch7a4xv4ual3y5u37pu HTTP/1.1\nHost: my.b5local.com:3000\nX-AgileBits-MAC: v1|17|YiaQSlScyEoqALex\nX-AgileBits-Session-ID: FOV5OIOE2RHGPD5KDSVLMUBZCM\n[...]\nResponse:\nHTTP/1.1 200 OK\n[...]\nDecrypted data:\nusers: Array(2)\n0:\navatar: \"\"\nemail: \"seba+1pw6@cure53.de\"\nfirstName: \"seba6 (admin)\"\nlastName: \"\"\nname: \"seba6 (admin)\"\nstate: \"A\"\ntype: \"R\"\nuuid: \"WZBPR7QGWFAGVHGI72XOULQ3IY\"\n1:\navatar: \"\"\nemail: \"seba+1pw7@cure53.de\"\nfirstName: \"seba7\"\nlastName: \"\"\nname: \"seba7\"\nstate: \"A\"\ntype: \"R\"\nuuid: \"WGT67JA3IFASNCMTE5NKK7QGXY\"\nPoC Request #2 for getting group members from administrator group:\nGET /api/v2/users?group=vrgt4leuc7nvcijewwn5vfqvwu&attrs=combined-permissions\nHTTP/1.1\nHost: my.b5local.com:3000\nX-AgileBits-MAC: v1|41|ILn6rfYkSuoN3UZ3\nX-AgileBits-Session-ID: O3Q3P5EJF5HK5OETLNG3XZF2TE\nCure53, Berlin · 12/10/20 7/19\n\n-- 7 of 19 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\n[...]\nDecrypted Response:\nusers: Array(1)\n0:\navatar: \"\"\ncombinedPermissions: 6665789243175\nemail: \"seba+1pw6@cure53.de\"\nfirstName: \"seba6 (admin)\"\nlastName: \"\"\nname: \"seba6 (admin)\"\nstate: \"A\"\ntype: \"R\"\nuuid: \"WZBPR7QGWFAGVHGI72XOULQ3IY”\nPoC Request #3 for getting all users and groups from a company account:\nGET /api/v2/account?attrs=users,groups HTTP/1.1\nHost: my.b5local.com:3000\n[...]\nDecrypted Response:\n{uuid: \"ESJTLEZDVJHEXNQLETI75LKNHM\", name: \"cure53test\", type: \"B\", state: \"A\",\navatar: \"\"}\ndomain: \"cure53test-team\"\n[...]\ngroups: Array(7)\n[...]\n2:\nactiveKeysetUuid: \"i5h4zy3cxthaoloyw4kejapxwq\"\nattrVersion: 1\ncreatedAt: \"2020-10-21T08:16:05Z\"\ndesc: \"Administration of users, groups, and vaults.\"\nname: \"Administrators\"\npermissions: 268435204\nstate: \"A\"\ntype: \"A\"\nupdatedAt: \"2020-10-21T12:11:59Z\"\nuuid: \"vrgt4leuc7nvcijewwn5vfqvwu\"\n[...]\nusers: Array(3)\n[...]\n0:\nactivities: null\nattrVersion: 3\ncombinedPermissions: 6665789243191\ncreatedAt: \"2020-10-21T08:16:04Z\"\ndevices: null\nemail: \"seba+1pw6@cure53.de\"\nCure53, Berlin · 12/10/20 8/19\n\n-- 8 of 19 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nfirstName: \"seba6 (admin)\"\nhasMFAEnabled: false\nkeysetVersion: 7\nkeysets: null\nlanguage: \"en\"\nlastAuthAt: \"2020-10-23T12:58:09Z\"\nlastName: \"\"\nmemberships: null\nname: \"seba6 (admin)\"\nnewsletterPrefs: 0\npersonalItemsCount: null\npreferences: 16\nstate: \"A\"\ntype: \"R\"\nupdatedAt: \"2020-10-21T12:22:22Z\"\nuuid: \"WZBPR7QGWFAGVHGI72XOULQ3IY\"\nvaultAccess: null\n[...]\nIt is recommended to make sure that contents can be obtained only by the properly\nauthorized users. This means that implementing further checks is unavoidable. Revised\napproaches should examine if a user with the requested session is allowed to get the\ncontents of an entry via the specified requests. If this is not the case, the backend should\nreturn a corresponding error code.\n1PW-06-007 API: Joining members can add arbitrary vaults to account (High)\nNote: Upon review 1Password determined that this was a high priority issue. Despite\nthe attack requiring high pre-existing privileges on behalf of the attacker as well as minor\ncorporation by the victim, even complicated social engineering opportunities must be\nclosed with priority. 1Password resolved the issue immediately.\nIt was found that non-guest users that are joining an account via PUT /api/v1/person/join\ncould supply a vault, including offering the vault access. The restrictions of the vault and\nthe associated accesses are more relaxed than those applied in the CreateVault action\nthat can be triggered by the POST /api/v{1,2}/vault endpoints. When joining an account,\na personal vault could be added to the account that grants multiple access routes to that\nvault.\nThis increases the risk of attackers adding a personal vault to a guest-user's dashboard\nthat is marked as private. At the same time, malicious team members can have access\nto that personal vault. Guest-users trust 1Passwords hint in that only they have access\nto their private vault, thus deciding to store sensitive information within that vault. As a\nresult, attackers could steal this sensitive information in plain-text, hence the High rating\nCure53, Berlin · 12/10/20 9/19\n\n-- 9 of 19 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nof this finding. Note that the exploit does not require administrators to confirm the\nattacker but necessitates userIDs in advance.\nSteps To reproduce:\n1. Invite a guest user and a team user by email.\n2. Sign up and confirm the guest user until enrolled.\n3. Adjust the exploit script https://cure53.de/exchange/57958324957752/1PW-06-\n007.js:\n1. The TARGET_UUID variable should match the targeted user ID.\n4. Click on the team user’s invite link as the attacker and run the exploit script in the\nwindow (Paste into F12->Developers Console), tested on Firefox 81 - 1PW v899.\n5. Proceed to sign up in the same window.\n6. The personal vault should be created with both parties having vault access.\nIt is recommended that the JoinAccount action that can be triggered by the PUT /api/v1/\nperson/join endpoint is improved and calls for strict restrictions on the supplied vault.\nThe restrictions should be at least as tight as applied by the CreateVault action. Further,\nit is advisable that the JoinAccount action only allows creation of personal/private vaults.\nGenerally, when adding a vault through any action, exactly one immutable vault access\nshould be allowed on a personal/private vault. This should grant only the requesting\nuser-access to the vault. By doing so, the attackers cannot create a private vault with\nmultiple access routes for other people and are limited by constant restrictions that\ncannot be bypassed when joining an account.\n1PW-06-008 Crypto: Insufficient public key validation criteria (Low)\nNote: Upon review 1Password noted that its security design does not permit tampering\nwith these keys to mount subsequent attacks. However, 1Password considers proper\nvalidation of security parameters important hygiene and has resolved this issue.\nThe 1Password server codebase performs a series of public key validation checks for\nboth RSA and EC-based public key-types used by 1Password clients for operations\nsuch as vault sharing. However, it was observed that the extent of public key validation\nwas limited to checking whether keys had “key IDs” that corresponded to a particular\nlength (in the case of RSA) and, in the case of EC-based keys, whether the points were\nencoded as strings of a particular length as well.\nThese checks are not sufficient for the mitigation of a host of invalid public keys, which\ncould result in security degradations. For example, elliptic curve Diffie-Hellman is\nCure53, Berlin · 12/10/20 10/19\n\n-- 10 of 19 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nnotoriously susceptible to small subgroup and invalid curve attacks1, which require\nmitigation through public key validation. Similarly, RSA public keys could be substituted\nwith invalid keys that do not result as the product of two primes, leading to degradations\nto the scheme’s effective security.\nFurthermore, the lack of checks for the validation of key ownership by clients is also\nresponsible for ceding potential for the occurrence of unknown key share attacks, as\ndiscussed in 1PW-06-009.\nAffected File:\nserver/src/constraints/validator.go\nAffected Code:\n// InspectPubKey returns true if the Pub Key is valid\nfunc (v *Validator) InspectPubKey(objectName string, attrName string, value\nmap[string]interface{}) bool {\nswitch kid := value[\"kid\"].(type) {\n[...]\n}\n// We could do more here\nreturn true\n}\n// InspectECPubKey returns true if the EC Pub Key is valid\nfunc (v *Validator) InspectECPubKey(objectName string, attrName string, value\nmap[string]interface{}) bool {\nkid, isString := value[\"kid\"].(string)\nif !isString {\n[...]\n}\nif len(kid) != UUIDLength {\n[...]\n}\nx, isString := value[\"x\"].(string)\nif !isString {\n[...]\n}\nif len(x) == 0 {\n[...]\n}\ny, isString := value[\"y\"].(string)\nif !isString {\n[...]\n}\nif len(y) == 0 {\n1 https://eprint.iacr.org/2019/526\nCure53, Berlin · 12/10/20 11/19\n\n-- 11 of 19 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\n[...]\n}\n// We could do more here\nreturn true\n}\nIt is recommended to supplement both RSA and elliptic-curve public key validation\nalgorithms with supplementary checks, preferably performed on both client and server.\nThese need to account for the particularities of those public key cryptography schemes.\n1PW-06-009 Crypto: UKS attack potential on public key operations (Info)\nNote: After reviewing this issue 1Password does not believe this issue can be presently\nused to attack customers. 1Password looking to implement mitigations against key\nsharing in a future version of our API design and implementation as part of its hygiene.\nWhenever a 1Password client uploads an RSA or EC public key to the 1Password\nserver, they are capable of claiming ownership of it. They can also associate them with\ntheir account without proving ownership of the key to the server, for example, a\nchallenge-response protocol. Since client public keys are used in sensitive contexts such\nas vault sharing, the lack of key ownership verification could let a malicious user claim\nthe ownership of another user’s public key. This can be done by uploading it as their\nown, thereby forcing the sharing of vaults with unintended parties.\nWhile the scope of exploitation of this vulnerability appears to be restricted in real-world\nscenarios, it is nevertheless recommended to impose a quick, nonce-based challenge-\nresponse protocol where the server chooses a nonce and requires either a signing or\nauthenticated-encryption-based operation on the nonce. This needs to be performed\nprior to a key being accepted by the server belonging to a particular client.\nCure53, Berlin · 12/10/20 12/19\n\n-- 12 of 19 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nMiscellaneous Issues\nThis section covers those noteworthy findings that did not lead to an exploit but might aid\nan attacker in achieving their malicious goals in the future. Most of these results are\nvulnerable code snippets that did not provide an easy way to be called. Conclusively,\nwhile a vulnerability is present, an exploit might not always be possible.\n1PW-06-001 Web: Blocklist bypassable via X-Forwarded-For header (Low)\nIt was discovered that the B5 web application’s blocklist mechanism relies on the content\nreceived from the X-Forwarded-For header. For each request to the server, the URL\npath is filtered and checked if it contains strings that are stored in a blocklist and blocks\nthe client in case of a match. In particular, this can lead to a bypass of the implemented\nmechanism if the app runs in an environment without a properly configured reverse\nproxy and thus the app takes the last IP from the spoofed X-Forwarded-For header (see\nbelow).\nAffected Request:\nGET / HTTP/1.1\nHost: my.b5local.com:3000\nX-Forwarded-For: 127.1.2.3\n[...]\nResponse:\nHTTP/1.1 200 OK\n[...]\nDuring the assessment, it only was reproducible on the local web application, hence the\nMiscellaneous classification. Under certain circumstances, this can lead to a bypass of\nthe blocklist function and it is, therefore, recommended to run the application only behind\na well-configured reverse-proxy.\n1PW-06-002 Web: Faulty CORS configuration (Info)\nNote: After reviewing this issue 1Password does not believe this issue can be presently\nused to attack customers. 1Password is looking to improve CORS hardening in the\nfuture.\nIt was found that some endpoints on accounts.b5local.com are running with an overly lax\nand unrestricted configuration of a Cross-Origin Resource Sharing (CORS) rule. The\nrules receive the content from the origin’s request header and add it to the response\nheader called Access-Control-Allow-Origin without any checks (see below). As a result,\nan external site running on a subdomain is able to send requests via JavaScript to the\nAPI. The problem lies in the faulty configuration.\nCure53, Berlin · 12/10/20 13/19\n\n-- 13 of 19 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nA malicious user might leverage this for information leaks or to alter data, in case the\nauthentication mechanism from the API is based on session-data that is sent via\ncookies. This might be possible because the Access-Control-Allow-Credentials header is\nset to true and is also returned from the API. Based on these settings, browsers will\ninclude authentication data - like related cookies - into the request aimed at the API.\nHowever, for a successfully authorized request, a subdomain from 1password.com must\nbe taken over to exploit the improper configuration. Please note that this issue is also\nreproducible in production environments.\nExample Request:\nGET /api/v1/accountcookies HTTP/1.1\nHost: accounts.b5local.com:3000\nOrigin: https://attacker-controlled.b5local.com:3000\nCookie: b5a-l-\nOQXNGQOND5H3NDHDY5JPTICPGY=eyJ0IjoiSSIsIm4iOiJzZWJhYSIsImQiOiJteS5iNWxvY2FsLmNvb\nTozMDAwIiwiYSI6IiIsInMiOiIifQ; [...]\nResponse:\nHTTP/1.1 200 OK\nAccess-Control-Allow-Credentials: true\nAccess-Control-Allow-Origin: https://attacker-controlled.b5local.com:3000\n[...]\n[{\"userUuid\":\"5SLSYUHKG5HTJANPYRU2DOMV3Y\",\"userEmail\":\"seba+1pw@cure53.de\",\"user\nName\":\"sebaa\",\"userAvatarURL\":\"\",\"usingMyDomain\":true,\"accountUuid\":\"OQXNGQOND5H\n3NDHDY5JPTICPGY\",\"accountType\":\"I\",\"accountName\":\"sebaa\",\"accountDomain\":\"my.b5l\nocal.com:3000\",\"accountAvatarURL\":\"\",\"hasPrioritySupport\":false}]\nWhile this poses no danger at present, it is nevertheless recommended to rethink the\nneed for deploying the CORS headers with this configuration. One possible measure is\nto restrict access via an allow-list-based filter. Therefore, the relevant CORS header\nshould only be returned if the origin of a request matches an allow-listed domain.\n1PW-06-005 Crypto: Private key remains static after vault password reset (Medium)\nNote: 1Password is aware of this issue and has previously documented it. 1Password\nconsiders this an issue that is important for protecting customers in the future, but\nconsiders the present day impact of this issue to be limited. Mitigating and resolving this\nissue is being worked on as part of future 1Password security designs.\nThis issue is re-filed from the 1PW-01 audit due to its continued pertinence to\n1Password. It is being cited in other parts of this report because no remediation took\nCure53, Berlin · 12/10/20 14/19\n\n-- 14 of 19 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nplace since the original filing date. Due to the issue’s lack of novelty, it is here included\nas a miscellaneous item.\nIt was found that changing the master password for the 1Password vault does not reset\nits underlying RSA key-pair. The latter provides the set of secret keys used to encrypt\nindividual vault items. Therefore, this flaw means that in the event of a vault RSA key\ncompromise (to which multiple vectors are offered through 1PW-01-015), it is impossible\nto restore the vault to a “safe” state.\nIt is recommended to ensure that changes to user-passwords made for the vault\npermeate across the vault’s key space. In other words, all keys that could be leaked\nduring a compromise should be rotated out of usage in future editions of the vault in\nquestion.\n1PW-06-006 Crypto: 1Password vaults vulnerable to server compromise (Medium)\nNote: 1Password is aware of this issue and has previously documented it. 1Password\nconsiders this an issue that is important for protecting customers in the future, but\nconsiders the present day impact of this issue to be limited. Mitigating and resolving this\nissue is being worked on as part of future 1Password security designs.\nThis issue is re-filed from the 1PW-01 audit due to its continued pertinence to\n1Password today. It is being cited in other parts of this report since no remediation took\nplace since the original filing date. Due to the issue’s lack of novelty, it is here included\nas a miscellaneous issue.\nIt was found that almost all of the protocols outside of the main 1Password vault\nencryption and synchronization protocol use non-authenticated Diffie-Hellman key\nexchanges. This includes:\n• Vault Sharing, which allows 1Password users to share access to vaults with\nteam members or other 1Password users.\n• Recovery Contacts, which allows 1Password users to specify other users that,\nin case of an emergency, can obtain access to the 1Password vault.\n• User Transfer, which allows 1Password users to transfer account data to\nanother account.\nAs such, it is possible for a malicious or compromised 1Password server to obtain\ndecryption keys for 1Password vaults, allowing decryption not only of past vault items,\nbut also of future vault items. The latter is possible due to 1PW-01-014.\nCure53, Berlin · 12/10/20 15/19\n\n-- 15 of 19 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\n1PW-06-010 Crypto: Malfunctioning and unused cryptography components (Info)\nIt was observed that the 1Password Go codebase contained a “dhke” submodule that,\nwhile unused, might offer risky and malfunctioning cryptographic components,\nspecifically in the event that it is used again in the future. Some examples of the relevant\nscenarios can be found below.\n• The module implements a broken signature API in signature.go which does not\nperform signature checks.\n• The module implements “key verification” functionality in keyverify.go that\nappears to intend the mitigation of Man-in-the-Middle attacks on keys but which\nwould not accomplish any improvement in that respect.\n• The module appears to re-implement secure CSPRNG functionality in a way that\nends in a conflict and is redundant with the crypto/rand module offered by the Go\nstandard library.\nAffected Path:\nb5/vendor/go.1password.io/xplatform-security/dhke\nIt is recommended to simply delete the dhke module from the codebase. The only two\nfunctions used from the dhke module are:\n• dhke.Base64URLToBig\n• dhke.BigToBase64URL\nThese functions can be migrated into the namespace of a utility functions submodule, as\nthey have nothing to do with Diffie-Hellman key exchange. The rest of the dhke module\nmay then be safely deleted from the codebase.\nCure53, Berlin · 12/10/20 16/19\n\n-- 16 of 19 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nConclusions\nAs noted in the Introduction, Cure53 needs to emphasize a lot of strength and positive\nindicators observed on the 1Password B5 web application and permission enforcement\ncomponents. While ten findings, including the High severity flaw, cannot be disregarded,\nfour members of the Cure53 team confirm that the examined application made a strong\nimpression with regard to security. Across the respective WPs completed over the\ncourse of fourteen days in October 2020, the 1Password B5 complex seems to have\nsuccessfully reached the key security milestones.\nThorough and full coverage resulted in five vulnerabilities and five general weaknesses\nconfirmed and documented. The issue which received High impact markers illustrates\nthat not all areas of the application are stable against more complex attack scenarios.\nHowever, its existence does not indicate that the application is in a bad or unstable\nstate. On the contrary, the 1Passwod B5 application makes a very capable impression\nand withstands common attack-types. This is also reflected in the result of the audit,\nwhich mainly consists of findings that could be uncovered through deeper analyses only.\nCommenting on the detailed procedures, the main priority was assigned to tests\nfocusing on the identification of the web application- and server-side problems affecting\nthe B5 application. An explicit focus was placed on possible ACL implementation flaws\nwithin the tested compound, while possible leaking of potentially sensitive information\nand parsing issues were also addressed in great depth. The basic idea behind this\nCure53 investigation was to find out whether the existing functionality of the endpoints\nand its environment can be deemed healthy enough to withstand attacks by malicious\nusers.\nWith the focus on typical modern application problems, the issues connected with\nvarious types of injection attacks, which could compromise the server part of the\napplication, were investigated without significant success. Also, Cure53 explored the\nrelevant API and functionality. A special focus was also given to the authentication and\nauthorization of vault accesses. In this realm, adding the access type to almost all\nfunction prototypes makes malicious cross-account accesses very unlikely. In contrast, it\nwas found that 1Password is more prone to inner-account accesses that translated to\nthe finding in 1PW-06-007.\nOn the one hand, Cure53 is happy to report that the general audibility of 1Password is -\ndue to the transparent code and well-written source code - very good. On the other\nhand, the overwhelming complexity of all functionality accommodates a lot of exploit\npotential. This fact is underlined by the presence of multiple actions that partially perform\nthe same work with different restrictions, as seen in 1PW-06-007. It is advisable to\nCure53, Berlin · 12/10/20 17/19\n\n-- 17 of 19 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nfurther increase the code reuse and keep up the strict separation between safe and\nunsafe actions. It could be helpful to include the restrictions of an action within that\naction whenever possible.\nAlthough it is possible to break single primitives of the 1Password’s security concept, the\noverall security level remains strong because:\n• Passwords in a safely established vault are very hard to compromise for external\nattackers.\n• Vulnerabilities in the access control cannot leak the vault’s encryption key.\n• An exposed vaults encryption key requires proper access control to expose the\nindividual items.\nAt the same time, the test revealed weaknesses in API endpoints that return user-data.\nThe affected endpoints expose sensitive information from users, such as email\naddresses, UUIDs, or info on whether 2fA is enabled (see 1PW-06-004). Additionally,\ninformation about groups and vault memberships of users is revealed, which is very\nuseful for further attacks, such as 1PW-06-007. It is paramount that the data should only\nbe available for administrators.\nThe newly implemented brute-force protection in the verification step from the user-\nregistration is bound to the sent email address. This can be used by attackers to prevent\nusers from finishing the registration process and, thus, making it impossible for them to\nuse the 1Password service more broadly (see 1PW-06-003). This risk should also be\nresolved as a priority, so that new users can no longer be excluded from the platform.\nCure53 needs to underscore the absence of a number of issues connected with injection\nattacks, which could compromise the client-side part of the platform. This is a quite\nrarely found positive indicator. The client-side benefits from the properly used React\nframework and DOMPurify, so no issues were found in these realms. As a result, the B5\nweb application made a robust impression with regard to client-side vulnerabilities.\nA comprehensive review was conducted of the cryptographic implementations and\noperations performed on both the client and server side of B5. Due to the frequency of\n1Password cryptography audits, the expectation was to find only minor issues (if any)\nand this expectation was generally met. Unfortunately, 1Password continues to neglect\nissues reported in its public key cryptography-based functionalities in the past, for\ninstance as regards vault sharing. This leads to the re-reporting of 1PW-06-006 and\n1PW-06-005.\nCure53, Berlin · 12/10/20 18/19\n\n-- 18 of 19 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nNew albeit related issues linked to public key cryptography in 1Password were also\ndiscovered. Both 1PW-06-008 and 1PW-06-009 stem from insufficient client- and server-\nside public key validation, which happens before those public keys are allowed to be\nused for sensitive features such as vault sharing. Finally, unused but potentially\ndangerous cryptographic code was found within the 1Password shared codebase. It is\nrecommended to simply remove this code, as documented in 1PW-06-010.\nAll new issues were reported, discussed and confirmed with the 1Password team during\nthe completion of this report. While the 1Password cryptography stack may be\nconsidered mature, the 1Password’s approach to public key cryptography remains\nsuboptimal in the long-discussed respects. It is recommended to invest more effort in\naddressing these issues.\nTo conclude, the application has accomplished security at a high level. This has two\nmain causes. First, very good security architecture and well-implemented defense\nmechanisms manage to fend off attacks and prevent problems by default, Second, the\nstrength comes from the continuous execution of audits. This is an especially good two-\npronged approach because this password manager has a high degree of complexity and\noffers many functionalities, which can also lead to more complex problems that are not\nvisible at first glance. This conclusion applies to the High severity finding, which should\nbe treated as a matter of urgency to make sure that guest users can be protected from\ndata theft in future releases.\nThe structure of the source code is also particularly praiseworthy. This not only leads to\ngood readability, but also demonstrates the experience and expertise of the software\narchitects, developers and security engineers involved. All in all, very few exploitable\nissues were spotted beyond the resurfacing cryptography-related findings. Cure53 sees\nthe 1Password B5 application complex as being still on the right track to deliver a secure\nfoundation in their customer services. At the same time, this project draws attention to\ncertain aspects where work still needs to be done in order to move the platform forward\nto an even better security premise.\nCure53 would like to thank Mahdi Yusuf, David Girvin, Adam Caudill, Rick Fillon, Rob\nYoder and Cyrus Lee from the 1Password team for their excellent project coordination,\nsupport and assistance, both before and during this assignment.\nCure53, Berlin · 12/10/20 19/19\n\n-- 19 of 19 --",
+    "sourceFileName": "Cure53-B5_1PW-06-report.v2.pdf",
+    "createdAtIso": "2026-06-05T23:33:43.147Z",
+    "updatedAtIso": "2026-06-05T23:33:43.147Z"
+  },
+  "findings": [
+    {
+      "id": "F-cure53-001",
+      "slug": "api-blocking-users-from-registration-through-rate-limiting-investigation-scope",
+      "reportId": "G-cure53-b5-1pw-06-report-v2",
+      "reportName": "cure53-b5-1pw-06-report-v2",
+      "title": "API: Blocking users from registration through rate-limiting",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:36.529Z",
+      "summary": "API: Blocking users from registration through rate-limiting affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: 1PW-06-003",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:43.131Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "API: Blocking users from registration through rate-limiting",
+        "severity": "Low",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "API: Blocking users from registration through rate-limiting affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: 1PW-06-003",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "api: blocking users from registration through rate-limiting",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "1PW-06-003|api blocking users from registration through rate limiting|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "API: Blocking users from registration through rate-limiting",
+        "sourceText": "1PW-06-003 API: Blocking users from registration through rate-limiting (Low)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "API: Blocking users from registration through rate-limiting",
+      "canonicalKey": "1PW-06-003|api blocking users from registration through rate limiting|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-002",
+      "slug": "api-lack-of-acl-on-endpoints-returning-user-data-investigation-scope",
+      "reportId": "G-cure53-b5-1pw-06-report-v2",
+      "reportName": "cure53-b5-1pw-06-report-v2",
+      "title": "API: Lack of ACL on endpoints returning user-data",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:36.529Z",
+      "summary": "API: Lack of ACL on endpoints returning user-data affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: 1PW-06-004",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:43.131Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "API: Lack of ACL on endpoints returning user-data",
+        "severity": "Low",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "API: Lack of ACL on endpoints returning user-data affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: 1PW-06-004",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "api: lack of acl on endpoints returning user-data",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "1PW-06-004|api lack of acl on endpoints returning user data|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "API: Lack of ACL on endpoints returning user-data",
+        "sourceText": "1PW-06-004 API: Lack of ACL on endpoints returning user-data (Low)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "API: Lack of ACL on endpoints returning user-data",
+      "canonicalKey": "1PW-06-004|api lack of acl on endpoints returning user data|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-003",
+      "slug": "api-joining-members-can-add-arbitrary-vaults-to-account-investigation-scope",
+      "reportId": "G-cure53-b5-1pw-06-report-v2",
+      "reportName": "cure53-b5-1pw-06-report-v2",
+      "title": "API: Joining members can add arbitrary vaults to account",
+      "cve": "—",
+      "severity": "High",
+      "asset": "investigation-scope",
+      "score": 84,
+      "status": "Open",
+      "detectedAt": "2026-06-05T23:33:36.529Z",
+      "summary": "API: Joining members can add arbitrary vaults to account affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+      "evidence": "Finding IDs: 1PW-06-007",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:43.132Z",
+          "status": "Open",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "API: Joining members can add arbitrary vaults to account",
+        "severity": "High",
+        "asset": "investigation-scope",
+        "status": "Open",
+        "summary": "API: Joining members can add arbitrary vaults to account affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+        "evidence": "Finding IDs: 1PW-06-007",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "api: joining members can add arbitrary vaults to account",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "1PW-06-007|api joining members can add arbitrary vaults to account|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "API: Joining members can add arbitrary vaults to account",
+        "sourceText": "1PW-06-007 API: Joining members can add arbitrary vaults to account (High)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "API: Joining members can add arbitrary vaults to account",
+      "canonicalKey": "1PW-06-007|api joining members can add arbitrary vaults to account|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-004",
+      "slug": "crypto-insufficient-public-key-validation-criteria-investigation-scope",
+      "reportId": "G-cure53-b5-1pw-06-report-v2",
+      "reportName": "cure53-b5-1pw-06-report-v2",
+      "title": "Crypto: Insufficient public key validation criteria",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:36.529Z",
+      "summary": "Crypto: Insufficient public key validation criteria affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: 1PW-06-008",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:43.132Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "Crypto: Insufficient public key validation criteria",
+        "severity": "Low",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Crypto: Insufficient public key validation criteria affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: 1PW-06-008",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "crypto: insufficient public key validation criteria",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "1PW-06-008|crypto insufficient public key validation criteria|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Crypto: Insufficient public key validation criteria",
+        "sourceText": "1PW-06-008 Crypto: Insufficient public key validation criteria (Low)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Crypto: Insufficient public key validation criteria",
+      "canonicalKey": "1PW-06-008|crypto insufficient public key validation criteria|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-005",
+      "slug": "crypto-uks-attack-potential-on-public-key-operations-investigation-scope",
+      "reportId": "G-cure53-b5-1pw-06-report-v2",
+      "reportName": "cure53-b5-1pw-06-report-v2",
+      "title": "Crypto: UKS attack potential on public key operations",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:36.529Z",
+      "summary": "Crypto: UKS attack potential on public key operations affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: 1PW-06-009",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:43.132Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "Crypto: UKS attack potential on public key operations",
+        "severity": "Low",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Crypto: UKS attack potential on public key operations affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: 1PW-06-009",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "crypto: uks attack potential on public key operations",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "1PW-06-009|crypto uks attack potential on public key operations|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Crypto: UKS attack potential on public key operations",
+        "sourceText": "1PW-06-009 Crypto: UKS attack potential on public key operations (Info)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Crypto: UKS attack potential on public key operations",
+      "canonicalKey": "1PW-06-009|crypto uks attack potential on public key operations|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-006",
+      "slug": "web-blocklist-bypassable-via-x-forwarded-for-header-investigation-scope",
+      "reportId": "G-cure53-b5-1pw-06-report-v2",
+      "reportName": "cure53-b5-1pw-06-report-v2",
+      "title": "Web: Blocklist bypassable via X-Forwarded-For header",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:36.529Z",
+      "summary": "Web: Blocklist bypassable via X-Forwarded-For header affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: 1PW-06-001",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:43.132Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "Web: Blocklist bypassable via X-Forwarded-For header",
+        "severity": "Low",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Web: Blocklist bypassable via X-Forwarded-For header affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: 1PW-06-001",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "web: blocklist bypassable via x-forwarded-for header",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "1PW-06-001|web blocklist bypassable via x forwarded for header|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Web: Blocklist bypassable via X-Forwarded-For header",
+        "sourceText": "1PW-06-001 Web: Blocklist bypassable via X-Forwarded-For header (Low)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Web: Blocklist bypassable via X-Forwarded-For header",
+      "canonicalKey": "1PW-06-001|web blocklist bypassable via x forwarded for header|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-007",
+      "slug": "web-faulty-cors-configuration-investigation-scope",
+      "reportId": "G-cure53-b5-1pw-06-report-v2",
+      "reportName": "cure53-b5-1pw-06-report-v2",
+      "title": "Web: Faulty CORS configuration",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:36.529Z",
+      "summary": "Web: Faulty CORS configuration affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: 1PW-06-002",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:43.132Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "Web: Faulty CORS configuration",
+        "severity": "Low",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Web: Faulty CORS configuration affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: 1PW-06-002",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "web: faulty cors configuration",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "1PW-06-002|web faulty cors configuration|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Web: Faulty CORS configuration",
+        "sourceText": "1PW-06-002 Web: Faulty CORS configuration (Info)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Web: Faulty CORS configuration",
+      "canonicalKey": "1PW-06-002|web faulty cors configuration|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-008",
+      "slug": "crypto-private-key-remains-static-after-vault-password-reset-investigation-scope",
+      "reportId": "G-cure53-b5-1pw-06-report-v2",
+      "reportName": "cure53-b5-1pw-06-report-v2",
+      "title": "Crypto: Private key remains static after vault password reset",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:36.529Z",
+      "summary": "Crypto: Private key remains static after vault password reset affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: 1PW-06-005",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:43.133Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "Crypto: Private key remains static after vault password reset",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Crypto: Private key remains static after vault password reset affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: 1PW-06-005",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "crypto: private key remains static after vault password reset",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "1PW-06-005|crypto private key remains static after vault password reset|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Crypto: Private key remains static after vault password reset",
+        "sourceText": "1PW-06-005 Crypto: Private key remains static after vault password reset (Medium)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Crypto: Private key remains static after vault password reset",
+      "canonicalKey": "1PW-06-005|crypto private key remains static after vault password reset|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-009",
+      "slug": "crypto-1password-vaults-vulnerable-to-server-compromise-investigation-scope",
+      "reportId": "G-cure53-b5-1pw-06-report-v2",
+      "reportName": "cure53-b5-1pw-06-report-v2",
+      "title": "Crypto: 1Password vaults vulnerable to server compromise",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:36.529Z",
+      "summary": "Crypto: 1Password vaults vulnerable to server compromise affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: 1PW-06-006",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:43.133Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "Crypto: 1Password vaults vulnerable to server compromise",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Crypto: 1Password vaults vulnerable to server compromise affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: 1PW-06-006",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "crypto: 1password vaults vulnerable to server compromise",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "1PW-06-006|crypto 1password vaults vulnerable to server compromise|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Crypto: 1Password vaults vulnerable to server compromise",
+        "sourceText": "1PW-06-006 Crypto: 1Password vaults vulnerable to server compromise (Medium)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Crypto: 1Password vaults vulnerable to server compromise",
+      "canonicalKey": "1PW-06-006|crypto 1password vaults vulnerable to server compromise|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-010",
+      "slug": "crypto-malfunctioning-and-unused-cryptography-components-investigation-scope",
+      "reportId": "G-cure53-b5-1pw-06-report-v2",
+      "reportName": "cure53-b5-1pw-06-report-v2",
+      "title": "Crypto: Malfunctioning and unused cryptography components",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:36.529Z",
+      "summary": "Crypto: Malfunctioning and unused cryptography components affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: 1PW-06-010",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:43.133Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "Crypto: Malfunctioning and unused cryptography components",
+        "severity": "Low",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Crypto: Malfunctioning and unused cryptography components affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: 1PW-06-010",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "crypto: malfunctioning and unused cryptography components",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "1PW-06-010|crypto malfunctioning and unused cryptography components|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Crypto: Malfunctioning and unused cryptography components",
+        "sourceText": "1PW-06-010 Crypto: Malfunctioning and unused cryptography components (Info)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Crypto: Malfunctioning and unused cryptography components",
+      "canonicalKey": "1PW-06-010|crypto malfunctioning and unused cryptography components|investigation scope||||||"
+    }
+  ],
+  "eval": {
+    "enableNlp": true,
+    "expectedCount": 10,
+    "actualCount": 10,
+    "expectedSeverityCounts": {
+      "Critical": 0,
+      "High": 1,
+      "Medium": 2,
+      "Low": 7
+    },
+    "actualSeverityCounts": {
+      "Critical": 0,
+      "High": 1,
+      "Medium": 2,
+      "Low": 7
+    },
+    "duplicates": 0,
+    "negativeHits": 0,
+    "pass": true
+  }
+}

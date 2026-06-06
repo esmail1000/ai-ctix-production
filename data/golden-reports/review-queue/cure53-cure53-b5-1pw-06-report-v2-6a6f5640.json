@@ -1,0 +1,193 @@
+{
+  "id": "cure53-cure53-b5-1pw-06-report-v2-6a6f5640",
+  "status": "ready_for_review",
+  "source": {
+    "sourcePath": "Cure53/Cure53-B5_1PW-06-report.v2.pdf",
+    "absolutePath": "C:\\Users\\Esmail Azoz\\Downloads\\public-pentesting-reports-master\\public-pentesting-reports-master\\Cure53\\Cure53-B5_1PW-06-report.v2.pdf",
+    "fileName": "Cure53-B5_1PW-06-report.v2.pdf",
+    "vendorGuess": "Cure53",
+    "sizeMb": 0.26,
+    "extractionMethod": "pdf-parse",
+    "textPath": "data/golden-reports/review-queue-text/cure53-cure53-b5-1pw-06-report-v2-6a6f5640.txt"
+  },
+  "modelRun": {
+    "enableNlp": true,
+    "actualFindings": 10,
+    "severityCounts": {
+      "Critical": 0,
+      "High": 1,
+      "Medium": 2,
+      "Low": 7
+    },
+    "warnings": [
+      "Structured parser found no blocks; heuristic fallback was used.",
+      "NLP hybrid extraction produced 11 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+      "Aligned findings with generic official index: 11 -> 10."
+    ]
+  },
+  "reviewChecklist": {
+    "expectedCount": null,
+    "expectedSeverityCounts": {
+      "Critical": null,
+      "High": null,
+      "Medium": null,
+      "Low": null
+    },
+    "reviewerNotes": [],
+    "promoteToGolden": false,
+    "promoteToTraining": false,
+    "rejectedReason": null
+  },
+  "findings": [
+    {
+      "id": "F-cure53-001",
+      "title": "API: Blocking users from registration through rate-limiting",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "cve": "—",
+      "score": 35,
+      "status": "In Review",
+      "summary": "API: Blocking users from registration through rate-limiting affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "API: Blocking users from registration through rate-limiting",
+      "canonicalKey": "1PW-06-003|api blocking users from registration through rate limiting|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-002",
+      "title": "API: Lack of ACL on endpoints returning user-data",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "cve": "—",
+      "score": 35,
+      "status": "In Review",
+      "summary": "API: Lack of ACL on endpoints returning user-data affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "API: Lack of ACL on endpoints returning user-data",
+      "canonicalKey": "1PW-06-004|api lack of acl on endpoints returning user data|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-003",
+      "title": "API: Joining members can add arbitrary vaults to account",
+      "severity": "High",
+      "asset": "investigation-scope",
+      "cve": "—",
+      "score": 84,
+      "status": "Open",
+      "summary": "API: Joining members can add arbitrary vaults to account affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "API: Joining members can add arbitrary vaults to account",
+      "canonicalKey": "1PW-06-007|api joining members can add arbitrary vaults to account|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-004",
+      "title": "Crypto: Insufficient public key validation criteria",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "cve": "—",
+      "score": 35,
+      "status": "In Review",
+      "summary": "Crypto: Insufficient public key validation criteria affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Crypto: Insufficient public key validation criteria",
+      "canonicalKey": "1PW-06-008|crypto insufficient public key validation criteria|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-005",
+      "title": "Crypto: UKS attack potential on public key operations",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "cve": "—",
+      "score": 35,
+      "status": "In Review",
+      "summary": "Crypto: UKS attack potential on public key operations affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Crypto: UKS attack potential on public key operations",
+      "canonicalKey": "1PW-06-009|crypto uks attack potential on public key operations|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-006",
+      "title": "Web: Blocklist bypassable via X-Forwarded-For header",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "cve": "—",
+      "score": 35,
+      "status": "In Review",
+      "summary": "Web: Blocklist bypassable via X-Forwarded-For header affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Web: Blocklist bypassable via X-Forwarded-For header",
+      "canonicalKey": "1PW-06-001|web blocklist bypassable via x forwarded for header|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-007",
+      "title": "Web: Faulty CORS configuration",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "cve": "—",
+      "score": 35,
+      "status": "In Review",
+      "summary": "Web: Faulty CORS configuration affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Web: Faulty CORS configuration",
+      "canonicalKey": "1PW-06-002|web faulty cors configuration|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-008",
+      "title": "Crypto: Private key remains static after vault password reset",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "cve": "—",
+      "score": 64,
+      "status": "In Review",
+      "summary": "Crypto: Private key remains static after vault password reset affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Crypto: Private key remains static after vault password reset",
+      "canonicalKey": "1PW-06-005|crypto private key remains static after vault password reset|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-009",
+      "title": "Crypto: 1Password vaults vulnerable to server compromise",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "cve": "—",
+      "score": 64,
+      "status": "In Review",
+      "summary": "Crypto: 1Password vaults vulnerable to server compromise affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Crypto: 1Password vaults vulnerable to server compromise",
+      "canonicalKey": "1PW-06-006|crypto 1password vaults vulnerable to server compromise|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-010",
+      "title": "Crypto: Malfunctioning and unused cryptography components",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "cve": "—",
+      "score": 35,
+      "status": "In Review",
+      "summary": "Crypto: Malfunctioning and unused cryptography components affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Crypto: Malfunctioning and unused cryptography components",
+      "canonicalKey": "1PW-06-010|crypto malfunctioning and unused cryptography components|investigation scope||||||"
+    }
+  ]
+}

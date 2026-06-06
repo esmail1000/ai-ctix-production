@@ -1,0 +1,841 @@
+{
+  "manifest": {
+    "id": "assuredab-mullvad-api-audit-2022",
+    "vendor": "AssuredAB",
+    "family": "assuredab",
+    "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+    "sourcePath": "AssuredAB/Assured_Mullvad_API_audit_report_2022.pdf",
+    "textPath": "data/golden-reports/extracted-text/assuredab-mullvad-api-audit-2022.txt",
+    "expectedPath": "data/golden-reports/expected/assuredab-mullvad-api-audit-2022.json"
+  },
+  "expected": {
+    "id": "assuredab-mullvad-api-audit-2022",
+    "expectedCount": 12,
+    "expectedSeverityCounts": {
+      "Critical": 0,
+      "High": 0,
+      "Medium": 0,
+      "Low": 12
+    },
+    "notes": [
+      "Promoted from verified Stage 4 V4 review queue.",
+      "Source review id: assuredab-assured-mullvad-api-audit-report-2022-6fdec33a",
+      "Source path: AssuredAB/Assured_Mullvad_API_audit_report_2022.pdf",
+      "Info / Informational / Note / Minor findings are normalized to Low by the current app model.",
+      "Major findings are normalized to High by the current app model.",
+      "Requires ENABLE_NLP=true and ENABLE_GENERIC_INDEX_ALIGNMENT=true.",
+      "7ASecurity reports also require ENABLE_7ASECURITY_INDEX_ALIGNMENT=true.",
+      "Do not promote the excluded research / expert-witness / manual-hold reports without separate manual review."
+    ]
+  },
+  "report": {
+    "id": "G-assuredab-mullvad-api-audit-2022",
+    "slug": "assuredab-mullvad-api-audit-2022",
+    "name": "assuredab-mullvad-api-audit-2022",
+    "type": "PDF",
+    "uploadedAt": "2026-06-05T23:29:48.865Z",
+    "owner": "AI CTIX Analyzer",
+    "status": "Ready",
+    "findings": 12,
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 12,
+    "summary": "Report Mullvad API pentest Emilie Barse, Benjamin Svensson Project Version Date MUL007 v1.3 2022-12-20 REPORT Project Version Date",
+    "parsingStatus": "parsed",
+    "analysisVersion": 1,
+    "parserVersion": 1,
+    "parsingNotes": [
+      "Structured parser found no blocks; heuristic fallback was used.",
+      "NLP hybrid extraction produced 9 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+      "Aligned findings with generic official index: 9 -> 12."
+    ],
+    "content": "Report\nMullvad API pentest\nEmilie Barse, Benjamin Svensson\nProject Version Date\nMUL007 v1.3 2022-12-20\n\n-- 1 of 25 --\n\nREPORT\nProject Version Date\nMUL007 v1.3 2022-12-20\nExecutive summary\nBetween 2022-11-07 and 2022-11-29 Assured Security Consultants performed an API\npenetration test on behalf of Mullvad VPN.\nThe in-scope items are the API published on api.mullvad.net, its related services\nand configuration. A testing environment was installed on [REDACTED HOSTNAME] to\nperform the test against. The test was performed with access to the API source\ncode and with shell access to the installed test environment.\nNo critical, high or medium rated issues were identified during the penetration\ntest and the overall security of the API is deemed good. We identified one issue\nrelated to how secrets are managed in the docker environment, which could expose\nunnecessary secrets if an attacker identifies a way to read environment\nvariables. All other issues are related to the API implementation. There are a\nfew issues where an attacker could send the API input which is passed directly\nto a function without being filtered for any unexpected characters. Even though\nwe weren’t successful in exploiting these issues, it’s good practice to verify\nuser input before passing it to functions.\nThis report is listing the security issues found, along with recommendations for\nfixing or mitigating them. In our conclusions we discuss the issues and address\napparent patterns in areas where security is lacking.\nIssues were found with the following risk severity assessments (number of\nissues):\nCritical 0 High 0 Medium 0 Low 7 Note 5\nWe recommend to\n• Implement Hashicorp Vault to manage secrets in Docker\n• Remove unnecessary read-write permissions on bind-mounts in docker\n• Implement encryption in transit for the Redis serivce\n• Verify user input and only accept expected data. If any special characters\nis required these should be handled with extra care\n• Remove account numbers from GET request URLs\n• Handle the unexpected error in /app/v1/replace−wireguard−key\n• Use the same type of throttling with IP-blocking for both authentication\nendpoints. Or use the same authentication endpoint for both use cases\ni\n\n-- 2 of 25 --\n\nREPORT\nProject Version Date\nMUL007 v1.3 2022-12-20\n• Enforce increased complexity and length of the admin passwords, implement\nblacklist.\nAssured would like to thank Simon, Alexander, Grégoire, Michal and Richard for\ntheir support during this penetration test. We are happy to answer any questions\nand provide further advice.\nii\n\n-- 3 of 25 --\n\nREPORT\nProject Version Date\nMUL007 v1.3 2022-12-20\nContents\n1 Introduction 1\n1.1 Background . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1\n1.2 Constraints and disclaimer . . . . . . . . . . . . . . . . . . . . . 1\n1.3 Project period and staffing . . . . . . . . . . . . . . . . . . . . 1\n1.4 Risk rating . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1\n2 Scope and methodology 3\n2.1 Scope . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3\n2.2 Methodology . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3\n2.2.1 Tools used . . . . . . . . . . . . . . . . . . . . . . . . . 4\n2.3 Limitations . . . . . . . . . . . . . . . . . . . . . . . . . . . . 5\n3 Observations - Docker 6\n3.1 Low Unencrypted network traffic to Redis . . . . . . . . . . . . . 6\n3.2 Note Unnecessary read-write permissions on bind-mounts . . . . . . 7\n3.3 Note Secrets in docker-compose.yml and environment variables . . . 8\n4 Observations - API 10\n4.1 Low HTML injection in email . . . . . . . . . . . . . . . . . . . . 10\n4.2 Low Unverified user input . . . . . . . . . . . . . . . . . . . . . 10\n4.3 Low IP blocking can be circumvented . . . . . . . . . . . . . . . . 11\n4.4 Low Sensitive information in URL . . . . . . . . . . . . . . . . . 12\n4.5 Low Admin password change does not enforce policy . . . . . . . . . 12\n4.6 Low Potential Slowloris attack (DoS) . . . . . . . . . . . . . . . 13\n4.7 Note Unexpected behaviour of refund with amount zero . . . . . . . 14\n4.8 Note Recent actions shows wrong amount on refunds . . . . . . . . . 15\n4.9 Note Unhandled error . . . . . . . . . . . . . . . . . . . . . . . 16\n5 Conclusions and recommendations 17\niii\n\n-- 4 of 25 --\n\nREPORT\nProject Version Date\nMUL007 v1.3 2022-12-20\n1 Introduction\n1.1 Background\nAssured AB (Assured) was contracted by Mullvad VPN to perform a security\nassessment on their API and related source code.\n1.2 Constraints and disclaimer\nThis report contains a summary of the findings found during the project period.\nThis report should not be considered as a complete list of all vulnerabilities,\nsecurity flaws and/or misconfigurations.\n1.3 Project period and staffing\nAssured started the project on 2022-11-07 and finished on 2022-11-29.\nThis report was last reviewed on 2022-12-20.\nInvolved in the penetration testing were Assured consultants Emilie Barse and\nBenjamin Svensson.\n1.4 Risk rating\nIn this report we have assessed the severity of issues and identified\nvulnerabilities. The levels of severity are rated according to the OWASP Risk\nRating Methodology [1].\nTable 1: OWASP Risk Rating overall severity model\nOverall risk severity\nHIGH Medium High Critical\nMEDIUM Low Medium High\nLOW Note Low Medium\nImpact\nLOW MEDIUM HIGH\nLikelihood\nAs Table 1 visualizes, the overall risk assessment is determined from a combined\nlikelihood and impact of an identified vulnerability or security issue. A value\nfrom 0 to 9 is assessed for each variable, where 0-2 is determined LOW, 3-5 is\nMEDIUM and 6-9 is HIGH.\nLikelihood is dependant on attributes related to threat actors and the\nidentified vulnerability, with factors such as: the skill level and motivations\n1\n\n-- 5 of 25 --\n\nREPORT\nProject Version Date\nMUL007 v1.3 2022-12-20\nof the threat agents; how easily the vulnerability can be found and exploited,\nand; how likely an exploit may be detected.\nImpact depends on technical and business factors, such as: level of loss of\nconfidentiality, integrity, availability and accountability; potential financial\ndamage; potential brand damage, and; potential violations of privacy.\nPlease note that the severity assessment is made by Assured consultants and\nratings may differ from the resource owners’ ratings.\n2\n\n-- 6 of 25 --\n\nREPORT\nProject Version Date\nMUL007 v1.3 2022-12-20\n2 Scope and methodology\n2.1 Scope\nThe API (api.mullvad.net) and all its related functions are in-scope for this\nassessment. A test environment was installed and configured to be used as a\ntarget for the assessment. Part of the test was also the message-queue,\ndns-janitor functions and the docker configuration.\nThe test was done as a white-box test with access to code, credentials for the\ndifferent business roles, and ssh access into the test system host. The\nenvironment was setup with access to third party test environment and related\nAPI keys, for services such as Stripe and Paypal.\n2.2 Methodology\nThe test was performed using primarily dynamic testing and source code review.\nThe source code was mainly used as a support in the dynamic testing and a full\ncode review has not been performed.\nNetwork traffic and logs were examined during the test to understand the\napplication flow and to check the management of events in the backend as well as\nto identify any personal identifiable information (PII).\nMullvad API The API was tested using static source code analysis for Python\ncalled bandit to find common security issues in Python code. The source code was\nalso used to aid in the dynamic testing to setup and execute functional API\nrequests and understanding the business flow of the API.\nAll endpoints in the API was tested dynamically using Burp Suite Pro.\nWe followed the OWASP API Security project top 10 list [2] to ensure good\ncoverage during the test, the list includes the following items:\n• API1 Broken Object Level Authorization\n• API2 Broken User Authentication\n• API3 Excessive Data Exposure\n• API4 Lack of Resources & Rate Limiting\n• API5 Broken Function Level Authorization\n• API6 Mass Assignment\n3\n\n-- 7 of 25 --\n\nREPORT\nProject Version Date\nMUL007 v1.3 2022-12-20\n• API7 Security Misconfiguration\n• API8 Injection\n• API9 Improper Assets Management\n• API10 Insufficient Logging & Monitoring\nIn addition to this list we examined other areas of importance described in the\nOWASP testing guide [3] and not covered by the API top 10 list:\n• Business logic\n• Error handling\n• Weak cryptography\nThe API is implemented on the Django framework. We investigated the code and\nconfiguration for common security issues related to Django and lack of security\nbest practices.\nDocker The docker configuration was analyzed in runtime using trivy, and\nthrough source code review, identifying configuration issues in the docker\nenvironment.\nmessage-queue The message-queue has one external endpoint which implements a\nwebsocket managing different channels. In this case, only the ”wireguard”\nchannel exists which is used by relay servers to subscribe to messages about\nchanges in peer devices. This endpoint was dynamically tested for\nauthentication/authorization and injection. The code was reviewed and the\nnetwork traffic examined to verify how it handles messages.\ndns-janitor We performed static code analysis on the source code using gosec to\nidentify possible issues in the code and analyzed the result.\n2.2.1 Tools used\n• gosec\n• bandit\n• Burp Suite Pro\n• trivy\n4\n\n-- 8 of 25 --\n\nREPORT\nProject Version Date\nMUL007 v1.3 2022-12-20\n2.3 Limitations\nSince throttling is implemented in the API we decided to patch the settings for\nthrottling allowing us to be more efficient in our dynamic testing.\n5\n\n-- 9 of 25 --\n\nREPORT\nProject Version Date\nMUL007 v1.3 2022-12-20\n3 Observations - Docker\n3.1 Low Unencrypted network traffic to Redis\nLikelihood: LOW (2), Impact: MEDIUM (3)\nThe network traffic to the Redis backend is sent in plaintext from an\napplication layer point of view. However, the network traffic between hosts are\nsent in VPN tunnels.\nAn attacker who is able to intercept the network traffic in the VPN protected\nnetwork can get hold of the Redis password and all traffic sent to Redis. The\nattacker can use the password to edit any information in Redis which could cause\nDenial-of-Service. Plaintext application layer traffic also makes it easier to\nperform man-in-the-middle attacks.\nSeveral docker instances are communicating with the Redis backend and some\ninteresting information is sent over the network.\nFigure [REDACTED SCREENSHOT] shows a network packet where the redis password is\nsent from the API host ([REDACTED IP]) to the redis_exporter instance ([REDACTED\nHOSTNAME]).\n[REDACTED SCREENSHOT]\nFigure [REDACTED SCREENSHOT] shows the packet sent from the mullvad-api\n([REDACTED IP]) to redis ([REDACTED IP]) after a wireguard pubkey is added with\nthe request POST /www/wg−pubkeys/add/.\n[REDACTED SCREENSHOT]\nFigure [REDACTED SCREENSHOT] shows the network packet where the paypal\nauthentication token is updated.\n[REDACTED SCREENSHOT]\nSecurity best practice is to encrypt traffic to backend databases and other\nservices and encrypt traffic where credentials are sent, to implement a\ndefence-in-depth solution.\nOther services communicating between docker instances are also using plaintext\nprotcols. However, as long as the docker instances are located in the same host\nand only communicating on host-local interfaces, this is not an issue.\nWe recommend using end-to-end TLS encryption on the traffic to redis. If the\ninfrastructure is changed in the future so that docker instances may end up on\ndifferent hosts, be careful to check that any communication between services is\n6\n\n-- 10 of 25 --\n\nREPORT\nProject Version Date\nMUL007 v1.3 2022-12-20\nencrypted.\n3.2 Note Unnecessary read-write permissions on bind-mounts\nMultiple docker containers bind-mount filesystems from the host. The docker\ncontainers have excessive read-write permissions to some of these mount\npoints.\nThe following examples show multiple docker containers where we find the mount\npermissions to be excessive. If an attacker identifies a way to breach the\ndocker container they could write to these directories or files.\nExample 1: celery_worker_api-standalone-2\n[\n{\n”Type”: ”bind”,\n”Source”: ”/home/mad/api_data”,\n”Destination”: ”/var/lib/api/data”,\n”Mode”: ”rw”,\n”RW”: true,\n”Propagation”: ”rprivate”\n}\n]\nExample 2: monitor_api-standalone-2\n[\n{\n”Type”: ”bind”,\n”Source”: ”/home/mad/api_cluster/monitor/telegraf.conf”,\n”Destination”: ”/etc/telegraf/telegraf.conf”,\n”Mode”: ”rw”,\n”RW”: true,\n”Propagation”: ”rprivate”\n}\n]\nExample 3: api_api-standalone-2\n[\n{\n”Type”: ”bind”,\n”Source”: ”/home/mad/api_data”,\n”Destination”: ”/var/lib/api/data”,\n”Mode”: ”rw”,\n”RW”: true,\n”Propagation”: ”rprivate”\n}\n]\n7\n\n-- 11 of 25 --\n\nREPORT\nProject Version Date\nMUL007 v1.3 2022-12-20\nExample 4: dns-janitor_api-standalone-2\n[\n{\n”Type”: ”bind”,\n”Source”: ”/home/mad/api_cluster/dns−janitor”,\n”Destination”: ”/etc/dns−janitor”,\n”Mode”: ”rw”,\n”RW”: true,\n”Propagation”: ”rprivate”\n}\n]\nOur recommendations is to add :ro to all above bind mounts if write permission is\nnot necessary for the function of the docker container.\nNOTE: This issue was reported as fixed by Mullvad prior to the release of this\nreport.\n3.3 Note Secrets in docker-compose.yml and environment variables\nWe identified that the Mullvad API cluster is storing secrets using environment\nvariables and as clear-text in the docker-compose file. The secrets are placed\nin clear-text in a file which is loaded to environment variables when the docker\ncontainers are started.\nThe following example shows a container with a clear-text password in\ndocker−compose.yml.\nExample 5: Clear-text password in docker-compose.yml\nredis−exporter:\ncontainer_name: ’redis_exporter_api−standalone−2’\nimage: bitnami/redis−exporter:1.45.0@sha256:25\neb538edfab6a96cdc4011acfd9cc316ad227aa907f4151efe0de28d2ae8dab\ncommand:\n− −−redis.addr=redis://[REDACTED HOSTNAME]\n− −−redis.user=[REDACTED USERNAME]\n− −−redis.password=[REDACTED PASSWORD]\nports:\n− ’[REDACTED IP]:9121:9121’\nnetworks:\nnginx:\nDocker swarm provides a secret management layer called ”docker secrets”, however\ndocker swarm orchestration is not used in Mullvads docker setup.\nDocker-compose has a simpler implementation of secrets, where the container\nmounts a file from the host to use as a secret. Example:\n8\n\n-- 12 of 25 --\n\nREPORT\nProject Version Date\nMUL007 v1.3 2022-12-20\nservices:\nfrontend:\nimage: awesome/webapp\nsecrets:\n− server−certificate\nsecrets:\nserver−certificate:\nfile: ./server.cert\nStill, this implementation would require the secrets to be stored in files on\nthe host.\nAfter discussions with the Mullvad team we understood that Mullvad is\nimplementing a Hashicorp Vault instance in their environment to manage secrets\nfor their services which would be a much better way to include secrets in their\nservice since Vault will provide encryption at rest, in transit and audit trails\nfor access to the secrets.\nWe recommend Mullvad to configure and implement a solution to use Hashicorp\nVault to be leveraged for secrets for their API service.\n9\n\n-- 13 of 25 --\n\nREPORT\nProject Version Date\nMUL007 v1.3 2022-12-20\n4 Observations - API\n4.1 Low HTML injection in email\nLikelihood: MEDIUM (4), Impact: LOW (2)\nAs described in section 4.2, users should not be able to input arbitrary data to\nfunctions in the API. We discovered that an unauthenticated user can POST to the\nendpoint [REDACTED URL] which allows for any user input. This input constructs an\nemail, as seen in example [REDACTED CODE EXAMPLE], and sends it to\nsupport@mullvad.net.\n[REDACTED CODE EXAMPLE]\nFigure [REDACTED SCREENSHOT] shows an example request and response which\nresulted in a email being sent to support@mullvad.net.\n[REDACTED URL]\nDjangos EmailMessage parameter message defaults to content-type text/plain. Therefore\nthe only way this issue could be exploited requires the receiving e-mail client\nto not respect the content-type specified by the sender which is deemed unlikely\nsince the Mullvad team have internal policies addressing secure e-mail\nsettings.\nWe recommend to make sure to filter the user input and verify it only allows for\nthe expected format for the different email fields. For the message field at\nleast HTML tag characters should be encoded.\nNOTE: This issue was reported as fixed by Mullvad prior to the release of this\nreport.\n4.2 Low Unverified user input\nLikelihood: MEDIUM (3), Impact: LOW (1)\nAll input coming from untrusted sources (such as VPN users) should be used with\nextra care in any system. Using unfiltered data from untrusted sources creates\nunnecessary attack surfaces. We identified that the endpoint [REDACTED URL] picks\nthe platform and version as strings from the URL and looks up the values in the\nbackend database. However, before the values are looked up they are sent as part\nof a string to statsd and they are also used for a lookup in the cache\nimplemented in Redis.\nThe following code is handling this request:\n10\n\n-- 14 of 25 --\n\nREPORT\nProject Version Date\nMUL007 v1.3 2022-12-20\n[REDACTED CODE EXAMPLE]\nWe have not seen that the releases parameters can be exploited, and the network\ntraffic shows that dangerous characters in the parameters are exchanged for ”_”\nbefore they are forwarded to the telegraf docker instance.\n0000 02 42 ac 13 00 02 02 42 ac 13 00 04 08 00 45 00 .B.....B......E.\n0010 00 7d 2f bd 40 00 40 11 b2 86 ac 13 00 04 ac 13 .}/.@.@.........\n0020 00 02 81 a0 1f bd 00 69 58 a7 61 70 70 2e 61 70 .......iX.app.ap\n0030 70 5f 76 65 72 73 69 6f 6e 5f 63 68 65 63 6b 3a p_version_check:\n0040 31 7c 63 7c 23 70 6c 61 74 66 6f 72 6d 3a 32 32 1|c|#platform:22\n0050 32 32 2c 76 65 72 73 69 6f 6e 3a 73 65 6c 66 2e 22,version:self.\n0060 5f 5f 69 6e 69 74 5f 5f 2e 5f 5f 67 6c 6f 62 61 __init__.__globa\n0070 6c 73 5f 5f 2c 70 6c 61 74 66 6f 72 6d 5f 76 65 ls__,platform_ve\n0080 72 73 69 6f 6e 3a 4e 6f 6e 65 0a rsion:None.\nWe recommend to make sure to filter the user input as soon as possible in the\ncode and verify it only allows for the expected format used in the URL.\nNOTE: This issue was reported as fixed by Mullvad prior to the release of this\nreport.\n4.3 Low IP blocking can be circumvented\nLikelihood: MEDIUM (3), Impact: LOW (2)\nThe endpoints [REDACTED URL] and [REDACTED URL] produce the same type of\nauthorization token which can be used interchangeably for access to the /app/ and\n/accounts/ endpoints. The difference is that [REDACTED URL] will block the IP after\nsome failed attempts and [REDACTED URL] only implements rate-limiting.\nAn attacker who discovers that both of these endpoints exist, can easily\ncircumvent the IP blocking. Figure [REDACTED SCREENSHOT] and [REDACTED\nSCREENSHOT] show the two usage of the two auth endpoints.\n[REDACTED SCREENSHOT]\n[REDACTED SCREENSHOT]\nThe Mullvad team have made an active choice to implement IP-blocking for their\nweb authentication endpoint. An mobile app endpoint used for the same purpose\nshould be considered to be implemented with the same precaution since it exposes\nthe same functionality.\nThough this is not a critical functionality for the security of the API, it is\nbad security practice to have to have different functions with different policy\nto generate the same authorization token.\n11\n\n-- 15 of 25 --\n\nREPORT\nProject Version Date\nMUL007 v1.3 2022-12-20\nWe recommend to either remove one of the endpoints or differentiate the\nfunctionality so that the tokens cannot be used interchangeably.\n4.4 Low Sensitive information in URL\nLikelihood: LOW (2), Impact: MEDIUM (3)\nThe account number is included in some [REDACTED URL] GET requests. The account\nnumber is considered sensitive because it is the value used for authentication\nand can be compared to a password.\nPlacing sensitive information in the URL makes it easier for an attacker to get\naccess to it, than if it is sent in a POST request. The URL with the account\nnumber is stored in the web server logs, it may be stored in the user’s browser\nor sent to other sites in the Referer header. In this case, the account number\nwill at least end up in the nginx access.log. This log is however deleted with a\nshort interval.\nThe following GET requests with account number in the URL have been found:\nhttps://[REDACTEDURL]/admin/accounts/account/2245202913091650/change/\nhttps://[REDACTEDURL]/admin/accounts/partneraccount/\nde6ccbeccfe74a6ea7aadcd0827e7b52/change/\nhttps://[REDACTEDURL]/admin/accounts/wireguardpeer/?device__account__token_\n_exact=2245202913091650\n[REDACTED URL]\nWe recommend to use POST request for all requests handling account numbers, and\nto place the account number in the body of the request instead of in the\nURL.\n4.5 Low Admin password change does not enforce policy\nLikelihood: LOW (2), Impact: MEDIUM (3)\nThere are password policy rules presented on the Password change page in the\nadmin application which is deemed insufficient for administration services.\nFigure [REDACTED FIGURE] shows the rules. It is possible to change to passwords\nsuch as Sommar2022! or the username repeated (<username><username>).\nSommar2022! is a commonly used password, and the username repeated should be\nconsidered to similar to personal information.\n12\n\n-- 16 of 25 --\n\nREPORT\nProject Version Date\nMUL007 v1.3 2022-12-20\n[REDACTED SCREENSHOT]\nThe admin functionality is restricted to the Mullvad internal network, which\nreduces the impact.\nOur recommendation is to implement a blacklist approach when setting\nadministrators passwords. Using for example\nhttps://github.com/danielmiessler/SecLists/tree/master/Passwords to check for\ncommonly used passwords, a more extensive list than the one included in Django.\nThe password blacklist used should also include Swedish words normally used in\npasswords such as Sommar, Vinter, Mullvad, etc. The path to the password\nblacklist can be defined with the parameter password_list_path for the validator\nCommonPasswordValidator. Since the password can be set to the username repeated\ntwice, it would be a good idea to increase the max_similarity for the validator\nUserAttributeSimilarityValidator to force the users to create password similar to\ntheir user attributes (username, email, etc).\nAn example implementation can be seen in the example below.\nExample 6: Recommended settings for Password Validators in Django\nAUTH_PASSWORD_VALIDATORS = [\n{\n’NAME’: ’django.contrib.auth.password_validation.UserAttributeSimilarityValidator’,\n’OPTIONS’: {\n’max_similarity’: 0.1,\n}\n},\n{\n’NAME’: ’django.contrib.auth.password_validation.MinimumLengthValidator’,\n},\n{\n’NAME’: ’django.contrib.auth.password_validation.CommonPasswordValidator’,\n’OPTIONS’: {\n’password_list_path’: ’/path/’,\n}\n},\n{\n’NAME’: ’django.contrib.auth.password_validation.NumericPasswordValidator’,\n},\n]\nNOTE: This issue was reported as fixed by Mullvad prior to the release of this\nreport.\n4.6 Low Potential Slowloris attack (DoS)\nLikelihood: LOW (2), Impact: MEDIUM (3)\n13\n\n-- 17 of 25 --\n\nREPORT\nProject Version Date\nMUL007 v1.3 2022-12-20\nThree issues were found using the SAST tool gosec which noted that no timeout\nwas set when setting up the http server in both dns-janitor and message-queue.\nWithout a timeout this could lead to a DoS.\nExample 7: gosec result\nmessage−queue−main/main.go:154−157 − G112 (CWE−400): Potential Slowloris Attack because\nReadHeaderTimeout is not configured in the http.Server (Confidence: LOW, Severity: MEDIUM)\n153:\n> 154: server := &http.Server{\n> 155: Addr: ∗listen,\n> 156: Handler: api.Router(),\n> 157: }\n158:\nExample 8: dns-janitor: gosec result\nsrc/dns−janitor−main/main.go:56] − G114 (CWE−676): Use of net/http serve function that has no\nsupport for setting timeouts (Confidence: HIGH, Severity: MEDIUM)\n55: http.Handle(”/metrics”, promhttp.Handler())\n> 56: go func() { log.Fatal(http.ListenAndServe(conf.Metrics, nil)) }()\n57:\nExample 9: message-queue:gosec result\nsrc/message−queue−main/main.go:148 − G114 (CWE−676): Use of net/http serve function that has\nno support for setting timeouts (Confidence: HIGH, Severity: MEDIUM)\n147: server.Handle(”/metrics”, promhttp.Handler())\n> 148: log.Fatal(http.ListenAndServe(”:9999”, server))\n149: }()\nWe recommend to add the parameter ReadHeaderTimeout to your http.server\ndeclaration, see Example 4.6.\nserver := &http.Server{\nAddr: ∗listen,\nHandler: api.Router(),\nReadHeaderTimeout: 3 ∗ time.Second,\n}\nNOTE: This issue was reported as fixed by Mullvad prior to the release of this\nreport.\n4.7 Note Unexpected behaviour of refund with amount zero\nThe endpoint [REDACTED URL] handles the amount of 0 as a refund of the whole\npayment amount. There is no information about this in the user interface and no\ncomment in the code. This may be intended behaviour.\nFigure [REDACTED SCREENSHOT], [REDACTED SCREENSHOT] and [REDACTED SCREENSHOT]\nshows the procedure of adding the 0 refund and the resulting refund page.\n14\n\n-- 18 of 25 --\n\nREPORT\nProject Version Date\nMUL007 v1.3 2022-12-20\n[REDACTED SCREENSHOT]\n[REDACTED SCREENSHOT]\n[REDACTED SCREENSHOT]\nFigure [REDACTED SCREENSHOT] shows the refund in the database.\n[REDACTED SCREENSHOT]\nExample 10: payments/models.py, class Refund\n292 @classmethod\n293 def create_object(cls, payment, amount=None, support_user=None, comment=None):\n294 if payment.is_refunded():\n295 raise exceptions.PaymentAlreadyRefunded\n296 if payment.amount < 0 or (amount is not None and amount < 0):\n297 raise exceptions.RefundNegativeAmountError\n298 if amount and amount > payment.amount:\n299 raise exceptions.RefundGreaterError\n300\n301 try:\n302 amount = amount if amount else payment.amount\n303 extra_kwargs = cls.before_create_object(payment, amount)\n304\n305 return cls.objects.create(\n306 payment=payment,\n307 amount=amount,\n308 support_user=support_user if support_user else ’’,\n309 comment=comment,\n310 ∗∗extra_kwargs,\n311 )\nWe recommend to add a comment to the web page and in the code that amount 0 can\nbe used to refund the whole payment. If it is not intended, the code should be\ncorrected to give an error for 0 refunds.\nNOTE: This issue was reported as fixed by Mullvad prior to the release of this\nreport.\n4.8 Note Recent actions shows wrong amount on refunds\nThe ”Recent actions” list on the main admin page does not show the correct\namount for 0 refunds, and shows refunds which were not carried through because\nof errors.\nA refund with amount 0.00000000, where actually the whole payment is refunded,\nis shown as 0E-8. A very big refund amount or a negative refund amount, which\nwere not refunded, are shown like they were refunded.\n15\n\n-- 19 of 25 --\n\nREPORT\nProject Version Date\nMUL007 v1.3 2022-12-20\n[REDACTED SCREENSHOT]\nAs discussed with the developers, the ”Recent actions” amounts are not the ones\nused for accounting, and this may not have much impact.\nWe recommend correcting the messages to show the actual refund amount, to avoid\nconfusion for the administrators.\nNOTE: This issue was reported as fixed by Mullvad prior to the release of this\nreport.\n4.9 Note Unhandled error\nLikelihood: LOW (2), Impact: LOW (2)\nThe endpoint /app/v1/replace−wireguard−key triggers an internal server error if the\nfollowing series of requests are performed:\n1. Create a device on an account (with no previous devices) using the\n/app/v1/replace−wireguard−key endpoint.\n2. Remove the device with the request DELETE /accounts/v1/devices/<device ID>\n3. Repeat the same /app/v1/replace−wireguard−key request again.\nThe endpoint response does not give any detailed information more than ”Internal\nserver error” to the end user, but the log says:\n{”levelname”: ”ERROR”, ”asctime”: ”2022−11−18 14:58:20,049”, ”name”: ”core.api.exceptions”, ”\nfuncName”: ”exception_handler”, ”lineno”: 50, ”message”: ””, ”exc_info”: ”Traceback (most\nrecent call last):\\n File \\”/usr/local/lib/python3.8/site−packages/rest_framework/views.py\n\\”, line 506, in dispatch\\n response = handler(request, ∗args, ∗∗kwargs)\\n File \\”/mullvad−\napi/app/views.py\\”, line 311, in post\\n new_device = register_device(\\n File \\”/usr/local/\nlib/python3.8/contextlib.py\\”, line 75, in inner\\n return funcargs,\n∗∗kwds)\\n File \\”/mullvad−api/accounts/services.py\\”, line 37, in register_device\\n\n_check_pubkey(pubkey)\\n File \\”/mullvad−api/accounts/services.py\\”, line 116, in\n_check_pubkey\\n raise PubkeyAlreadyInUse()\\naccounts.exceptions.PubkeyAlreadyInUse”}\nThis is not a security issue in itself, but proper error handling makes the code\nmore robust and can prevent security problems caused by future changes of the\ncode.\nWe recommend adding error handling in the function register_device(), to handle\nthis case.\nNOTE: This issue was reported as fixed by Mullvad prior to the release of this\nreport.\n16\n\n-- 20 of 25 --\n\nREPORT\nProject Version Date\nMUL007 v1.3 2022-12-20\n5 Conclusions and recommendations\nAssured have performed an API penetration test against the test environment\n[REDACTED HOSTNAME] which implements the same functionality as api.mullvad.net. The\ntest was performed using white-box methodology together with source code for the\nAPI and related services and with shell access to the environment.\nWe followed the OWASP API Security project top 10 list to ensure good coverage\nduring the test, the list includes the following items:\n• API1 Broken Object Level Authorization\n• API2 Broken User Authentication\n• API3 Excessive Data Exposure\n• API4 Lack of Resources & Rate Limiting\n• API5 Broken Function Level Authorization\n• API6 Mass Assignment\n• API7 Security Misconfiguration\n• API8 Injection\n• API9 Improper Assets Management\n• API10 Insufficient Logging & Monitoring\nWe tested the message-queue functionality and we can connect to the websocket\nand receive messages using the proper authentication. However, the websocket\ndoes not accept any incoming messages, which was verified during code\nreview.\nWe reviewed the dns-janitor application using a SAST tool (gosec) and brief\nmanual review. The dns-janitor component does not parse any external user input\nand is not possible to interact with from an attackers point. Unless an attacker\ncompromises the API for remote code execution we couldn’t identify any possible\nattack vector introduced by this component.\nAll objects or UUID we discovered have been tightly related to the users token\nand/or groups assigned to the user object.\nAPI1: Objects in the API are referred to using GUIDs, the account number or the\nWireGuard public key. These IDs cannot be guessed. In addition, only objects\nbelonging to the authenticated user can be accessed, even if the ID is known. In\n17\n\n-- 21 of 25 --\n\nREPORT\nProject Version Date\nMUL007 v1.3 2022-12-20\nthis case, the objects are mainly the WireGuard public keys and devices.\nAPI2: User authentication is based only on the account number. This is\nconsidered sufficient, since no sensitive information is stored about the user.\nA low risk vulnerability found is that two different endpoints exist for\ngenerating authorization tokens for users, where one will block the IP if too\nmany account number guesses are done and the other will only throttle the\nrequests. However, it is still unlikely that a user will guess an existing\naccount number even without IP blocking, and the reward is low. Django’s user\nauthentication functionality is used, while the authorization token handling is\na custom implementation.\nAPI3: The data exposed by the API endpoints is minimal and no personal\ninformation is stored in the backend. No vulnerabilities have been found in this\narea.\nAPI4: Rate limiting and throttling are implemented for endpoints where it’s\nreasonable. We couldn’t identify any way to bypass throttling in an exploitable\nway for any endpoint.\nAPI5: Authorization of all endpoints in the API has been tested, and no\nvulnerabilities have been found. Some endpoints can be accessed without\nauthorization, but these are intended to be publicly accessible. Different roles\n(user, partner, admin) have access to different endpoints, and the access\ncontrol for the roles is implemented correctly.\nAPI6: No objects other than the ones expected by the endpoints were processed by\nthe API. No vulnerabilities have been found in this area.\nAPI7: Django configuration of the API was analyzed and checked against common\nsecurity issues. No vulnerabilities have been found in this area.\nAPI8: We aimed to cover all endpoints which take some kind of user input,\nstarting with the most exposed ones. Some issues were identified in this area.\nUser input is in some cases not filtered or verified to be as expected by the\nAPI and an attacker could include arbitrary data in the fields. We didn’t manage\nto exploit any of these issues.\nAPI9: OpenAPI documentation exists for all public endpoints. However the\ninternal endpoints lacks documentation and we recommend Mullvad to implement\ndocumentation for those as well.\nAPI10: The logging is minimal in the API and other services. This is by design\nto avoid storing any personal information. There is some error logging of events\nsuch as erroneous payment requests. The logging is considered adequate.\n18\n\n-- 22 of 25 --\n\nREPORT\nProject Version Date\nMUL007 v1.3 2022-12-20\nSummary of recommendations:\n• Implement Hashicorp Vault to manage secrets in Docker\n• Remove unnecessary read-write permissions on bind-mounts in docker\n• Implement encryption in transit for the Redis serivce\n• Verify user input and only accept expected data. If any special characters\nis required these should be handled with extra care\n• Remove account numbers from GET request URLs\n• Handle the unexpected error in /app/v1/replace−wireguard−key\n• Use the same type of throttling with IP-blocking for both authentication\nendpoints. Or use the same authentication endpoint for both use cases\n• Enforce increased complexity and length of the admin passwords, implement\nblacklist.\n19\n\n-- 23 of 25 --\n\nREPORT\nProject Version Date\nMUL007 v1.3 2022-12-20\nReferences\n[1] OWASP, “OWASP Risk Rating Methodology.”\nhttps://www.owasp.org/index.php/OWASP_Risk_Rating_Methodology, 2019.\n[2] OWASP, “OWASP API Security Project.”\nhttps://owasp.org/www-project-api-security/, 2022.\n[3] OWASP, “OWASP Testing Guide v4.”\nhttps://www.owasp.org/index.php/OWASP_Testing_Guide_v4_Table_of_Contents,\n2016.\n20\n\n-- 24 of 25 --\n\n\n-- 25 of 25 --",
+    "sourceFileName": "Assured_Mullvad_API_audit_report_2022.pdf",
+    "createdAtIso": "2026-06-05T23:29:57.018Z",
+    "updatedAtIso": "2026-06-05T23:29:57.018Z"
+  },
+  "findings": [
+    {
+      "id": "F-G-assuredab-mullvad-api-audit-2022-GIDX-001",
+      "slug": "3-1-low-unencrypted-network-traffic-to-redis-docker-compose-yml",
+      "reportId": "G-assuredab-mullvad-api-audit-2022",
+      "reportName": "assuredab-mullvad-api-audit-2022",
+      "title": "Unencrypted network traffic to Redis",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:29:48.865Z",
+      "summary": "Unencrypted network traffic to Redis affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: docker | Versions: Date | Components: docker-compose.yml | Assets: docker-compose.yml | Services: Redis, Docker | Domains: docker-compose.yml | File paths: docker-compose.yml | File names: docker-compose.yml",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:29:57.005Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3.1 Low Unencrypted network traffic to Redis",
+        "severity": "Medium",
+        "asset": "docker-compose.yml",
+        "status": "In Review",
+        "summary": "3.1 Low Unencrypted network traffic to Redis affecting docker-compose.yml; extractor found type Denial of Service, product docker, version Date.",
+        "impact": "Potential impact includes increased attacker opportunity against docker-compose.yml if this signal is not reviewed.",
+        "evidence": "Products: docker | Versions: Date | Components: docker-compose.yml | Assets: docker-compose.yml | Services: Redis, Docker | Domains: docker-compose.yml | File paths: docker-compose.yml | File names: docker-compose.yml",
+        "remediation": "Add input validation, resource limits, timeout controls, and safe file or network handling, then retest the denial-of-service scenario.",
+        "references": [
+          "docker-compose.yml"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "3.1 low unencrypted network traffic to redis",
+        "normalizedAsset": "docker-compose.yml",
+        "canonicalKey": "3.1|unencrypted network traffic to redis|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 89,
+        "sourceSectionTitle": "Unencrypted network traffic to Redis",
+        "sourceText": "3.1 Unencrypted network traffic to Redis Low",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Unencrypted network traffic to Redis",
+      "canonicalKey": "3.1|unencrypted network traffic to redis|investigation scope||||||"
+    },
+    {
+      "id": "F-G-assuredab-mullvad-api-audit-2022-GIDX-002",
+      "slug": "3-1-low-unencrypted-network-traffic-to-redis-docker-compose-yml",
+      "reportId": "G-assuredab-mullvad-api-audit-2022",
+      "reportName": "assuredab-mullvad-api-audit-2022",
+      "title": "Unnecessary read-write permissions on bind-mounts",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:29:48.865Z",
+      "summary": "Unnecessary read-write permissions on bind-mounts affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: docker | Versions: Date | Components: docker-compose.yml | Assets: docker-compose.yml | Services: Redis, Docker | Domains: docker-compose.yml | File paths: docker-compose.yml | File names: docker-compose.yml",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:29:57.005Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3.1 Low Unencrypted network traffic to Redis",
+        "severity": "Medium",
+        "asset": "docker-compose.yml",
+        "status": "In Review",
+        "summary": "3.1 Low Unencrypted network traffic to Redis affecting docker-compose.yml; extractor found type Denial of Service, product docker, version Date.",
+        "impact": "Potential impact includes increased attacker opportunity against docker-compose.yml if this signal is not reviewed.",
+        "evidence": "Products: docker | Versions: Date | Components: docker-compose.yml | Assets: docker-compose.yml | Services: Redis, Docker | Domains: docker-compose.yml | File paths: docker-compose.yml | File names: docker-compose.yml",
+        "remediation": "Add input validation, resource limits, timeout controls, and safe file or network handling, then retest the denial-of-service scenario.",
+        "references": [
+          "docker-compose.yml"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "3.1 low unencrypted network traffic to redis",
+        "normalizedAsset": "docker-compose.yml",
+        "canonicalKey": "3.2|unnecessary read write permissions on bind mounts|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 89,
+        "sourceSectionTitle": "Unnecessary read-write permissions on bind-mounts",
+        "sourceText": "3.2 Unnecessary read-write permissions on bind-mounts Note",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Unnecessary read-write permissions on bind-mounts",
+      "canonicalKey": "3.2|unnecessary read write permissions on bind mounts|investigation scope||||||"
+    },
+    {
+      "id": "F-assuredab-005",
+      "slug": "secrets-in-docker-compose-yml-and-environment-variables-docker-compose-yml",
+      "reportId": "G-assuredab-mullvad-api-audit-2022",
+      "reportName": "assuredab-mullvad-api-audit-2022",
+      "title": "Secrets in docker-compose.yml and environment variables",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "docker-compose.yml",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:29:48.865Z",
+      "summary": "Secrets in docker-compose.yml and environment variables affecting docker-compose.yml; extractor found type Malware Indicator, product environment, version Date.",
+      "impact": "Potential impact includes credential theft, command-and-control communication, lateral movement, or unauthorized remote execution involving docker-compose.yml.",
+      "evidence": "Products: environment | Versions: Date | Components: docker-compose.yml, compose.yml | Assets: docker-compose.yml | Endpoints: s, _name, NAME, mounts, .cert | Services: Docker, Redis, Nginx, Vault | Domains: docker-compose.yml, compose.yml, redis.addr, redis.user, redis.password, server.cert | File paths: docker-compose.yml, compose.yml | File names: docker-compose.yml, compose.yml",
+      "remediation": "Isolate affected endpoints, remove malicious files, rotate exposed credentials, block related C2 infrastructure, and validate containment with EDR and network telemetry.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:29:57.010Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "Secrets in docker-compose.yml and environment variables",
+        "severity": "Medium",
+        "asset": "docker-compose.yml",
+        "status": "In Review",
+        "summary": "Secrets in docker-compose.yml and environment variables affecting docker-compose.yml; extractor found type Malware Indicator, product environment, version Date.",
+        "impact": "Potential impact includes credential theft, command-and-control communication, lateral movement, or unauthorized remote execution involving docker-compose.yml.",
+        "evidence": "Products: environment | Versions: Date | Components: docker-compose.yml, compose.yml | Assets: docker-compose.yml | Endpoints: s, _name, NAME, mounts, .cert | Services: Docker, Redis, Nginx, Vault | Domains: docker-compose.yml, compose.yml, redis.addr, redis.user, redis.password, server.cert | File paths: docker-compose.yml, compose.yml | File names: docker-compose.yml, compose.yml",
+        "remediation": "Isolate affected endpoints, remove malicious files, rotate exposed credentials, block related C2 infrastructure, and validate containment with EDR and network telemetry.",
+        "references": [
+          "docker-compose.yml",
+          "compose.yml",
+          "redis.addr",
+          "redis.user",
+          "redis.password",
+          "server.cert"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "secrets in docker-compose.yml and environment variables",
+        "normalizedAsset": "docker-compose.yml",
+        "canonicalKey": "3.3|secrets in docker compose yml and environment variables|docker compose yml||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "Secrets in docker-compose.yml and environment variables",
+        "sourceText": "3.3 Secrets in docker-compose.yml and environment variables Note",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Secrets in docker-compose.yml and environment variables",
+      "canonicalKey": "3.3|secrets in docker compose yml and environment variables|docker compose yml||||||"
+    },
+    {
+      "id": "F-G-assuredab-mullvad-api-audit-2022-GIDX-004",
+      "slug": "3-1-low-unencrypted-network-traffic-to-redis-docker-compose-yml",
+      "reportId": "G-assuredab-mullvad-api-audit-2022",
+      "reportName": "assuredab-mullvad-api-audit-2022",
+      "title": "HTML injection in email",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:29:48.865Z",
+      "summary": "HTML injection in email affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: docker | Versions: Date | Components: docker-compose.yml | Assets: docker-compose.yml | Services: Redis, Docker | Domains: docker-compose.yml | File paths: docker-compose.yml | File names: docker-compose.yml",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:29:57.005Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3.1 Low Unencrypted network traffic to Redis",
+        "severity": "Medium",
+        "asset": "docker-compose.yml",
+        "status": "In Review",
+        "summary": "3.1 Low Unencrypted network traffic to Redis affecting docker-compose.yml; extractor found type Denial of Service, product docker, version Date.",
+        "impact": "Potential impact includes increased attacker opportunity against docker-compose.yml if this signal is not reviewed.",
+        "evidence": "Products: docker | Versions: Date | Components: docker-compose.yml | Assets: docker-compose.yml | Services: Redis, Docker | Domains: docker-compose.yml | File paths: docker-compose.yml | File names: docker-compose.yml",
+        "remediation": "Add input validation, resource limits, timeout controls, and safe file or network handling, then retest the denial-of-service scenario.",
+        "references": [
+          "docker-compose.yml"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "3.1 low unencrypted network traffic to redis",
+        "normalizedAsset": "docker-compose.yml",
+        "canonicalKey": "4.1|html injection in email|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 89,
+        "sourceSectionTitle": "HTML injection in email",
+        "sourceText": "4.1 HTML injection in email Low",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "HTML injection in email",
+      "canonicalKey": "4.1|html injection in email|investigation scope||||||"
+    },
+    {
+      "id": "F-G-assuredab-mullvad-api-audit-2022-GIDX-005",
+      "slug": "3-1-low-unencrypted-network-traffic-to-redis-docker-compose-yml",
+      "reportId": "G-assuredab-mullvad-api-audit-2022",
+      "reportName": "assuredab-mullvad-api-audit-2022",
+      "title": "Unverified user input",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:29:48.865Z",
+      "summary": "Unverified user input affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: docker | Versions: Date | Components: docker-compose.yml | Assets: docker-compose.yml | Services: Redis, Docker | Domains: docker-compose.yml | File paths: docker-compose.yml | File names: docker-compose.yml",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:29:57.005Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3.1 Low Unencrypted network traffic to Redis",
+        "severity": "Medium",
+        "asset": "docker-compose.yml",
+        "status": "In Review",
+        "summary": "3.1 Low Unencrypted network traffic to Redis affecting docker-compose.yml; extractor found type Denial of Service, product docker, version Date.",
+        "impact": "Potential impact includes increased attacker opportunity against docker-compose.yml if this signal is not reviewed.",
+        "evidence": "Products: docker | Versions: Date | Components: docker-compose.yml | Assets: docker-compose.yml | Services: Redis, Docker | Domains: docker-compose.yml | File paths: docker-compose.yml | File names: docker-compose.yml",
+        "remediation": "Add input validation, resource limits, timeout controls, and safe file or network handling, then retest the denial-of-service scenario.",
+        "references": [
+          "docker-compose.yml"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "3.1 low unencrypted network traffic to redis",
+        "normalizedAsset": "docker-compose.yml",
+        "canonicalKey": "4.2|unverified user input|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 89,
+        "sourceSectionTitle": "Unverified user input",
+        "sourceText": "4.2 Unverified user input Low",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Unverified user input",
+      "canonicalKey": "4.2|unverified user input|investigation scope||||||"
+    },
+    {
+      "id": "F-G-assuredab-mullvad-api-audit-2022-GIDX-006",
+      "slug": "3-1-low-unencrypted-network-traffic-to-redis-docker-compose-yml",
+      "reportId": "G-assuredab-mullvad-api-audit-2022",
+      "reportName": "assuredab-mullvad-api-audit-2022",
+      "title": "IP blocking can be circumvented",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:29:48.865Z",
+      "summary": "IP blocking can be circumvented affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: docker | Versions: Date | Components: docker-compose.yml | Assets: docker-compose.yml | Services: Redis, Docker | Domains: docker-compose.yml | File paths: docker-compose.yml | File names: docker-compose.yml",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:29:57.005Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3.1 Low Unencrypted network traffic to Redis",
+        "severity": "Medium",
+        "asset": "docker-compose.yml",
+        "status": "In Review",
+        "summary": "3.1 Low Unencrypted network traffic to Redis affecting docker-compose.yml; extractor found type Denial of Service, product docker, version Date.",
+        "impact": "Potential impact includes increased attacker opportunity against docker-compose.yml if this signal is not reviewed.",
+        "evidence": "Products: docker | Versions: Date | Components: docker-compose.yml | Assets: docker-compose.yml | Services: Redis, Docker | Domains: docker-compose.yml | File paths: docker-compose.yml | File names: docker-compose.yml",
+        "remediation": "Add input validation, resource limits, timeout controls, and safe file or network handling, then retest the denial-of-service scenario.",
+        "references": [
+          "docker-compose.yml"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "3.1 low unencrypted network traffic to redis",
+        "normalizedAsset": "docker-compose.yml",
+        "canonicalKey": "4.3|ip blocking can be circumvented|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 89,
+        "sourceSectionTitle": "IP blocking can be circumvented",
+        "sourceText": "4.3 IP blocking can be circumvented Low",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "IP blocking can be circumvented",
+      "canonicalKey": "4.3|ip blocking can be circumvented|investigation scope||||||"
+    },
+    {
+      "id": "F-G-assuredab-mullvad-api-audit-2022-GIDX-007",
+      "slug": "3-1-low-unencrypted-network-traffic-to-redis-docker-compose-yml",
+      "reportId": "G-assuredab-mullvad-api-audit-2022",
+      "reportName": "assuredab-mullvad-api-audit-2022",
+      "title": "Sensitive information in URL",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:29:48.865Z",
+      "summary": "Sensitive information in URL affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: docker | Versions: Date | Components: docker-compose.yml | Assets: docker-compose.yml | Services: Redis, Docker | Domains: docker-compose.yml | File paths: docker-compose.yml | File names: docker-compose.yml",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:29:57.005Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3.1 Low Unencrypted network traffic to Redis",
+        "severity": "Medium",
+        "asset": "docker-compose.yml",
+        "status": "In Review",
+        "summary": "3.1 Low Unencrypted network traffic to Redis affecting docker-compose.yml; extractor found type Denial of Service, product docker, version Date.",
+        "impact": "Potential impact includes increased attacker opportunity against docker-compose.yml if this signal is not reviewed.",
+        "evidence": "Products: docker | Versions: Date | Components: docker-compose.yml | Assets: docker-compose.yml | Services: Redis, Docker | Domains: docker-compose.yml | File paths: docker-compose.yml | File names: docker-compose.yml",
+        "remediation": "Add input validation, resource limits, timeout controls, and safe file or network handling, then retest the denial-of-service scenario.",
+        "references": [
+          "docker-compose.yml"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "3.1 low unencrypted network traffic to redis",
+        "normalizedAsset": "docker-compose.yml",
+        "canonicalKey": "4.4|sensitive information in url|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 89,
+        "sourceSectionTitle": "Sensitive information in URL",
+        "sourceText": "4.4 Sensitive information in URL Low",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Sensitive information in URL",
+      "canonicalKey": "4.4|sensitive information in url|investigation scope||||||"
+    },
+    {
+      "id": "F-G-assuredab-mullvad-api-audit-2022-GIDX-008",
+      "slug": "3-1-low-unencrypted-network-traffic-to-redis-docker-compose-yml",
+      "reportId": "G-assuredab-mullvad-api-audit-2022",
+      "reportName": "assuredab-mullvad-api-audit-2022",
+      "title": "Admin password change does not enforce policy",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:29:48.865Z",
+      "summary": "Admin password change does not enforce policy affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: docker | Versions: Date | Components: docker-compose.yml | Assets: docker-compose.yml | Services: Redis, Docker | Domains: docker-compose.yml | File paths: docker-compose.yml | File names: docker-compose.yml",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:29:57.005Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3.1 Low Unencrypted network traffic to Redis",
+        "severity": "Medium",
+        "asset": "docker-compose.yml",
+        "status": "In Review",
+        "summary": "3.1 Low Unencrypted network traffic to Redis affecting docker-compose.yml; extractor found type Denial of Service, product docker, version Date.",
+        "impact": "Potential impact includes increased attacker opportunity against docker-compose.yml if this signal is not reviewed.",
+        "evidence": "Products: docker | Versions: Date | Components: docker-compose.yml | Assets: docker-compose.yml | Services: Redis, Docker | Domains: docker-compose.yml | File paths: docker-compose.yml | File names: docker-compose.yml",
+        "remediation": "Add input validation, resource limits, timeout controls, and safe file or network handling, then retest the denial-of-service scenario.",
+        "references": [
+          "docker-compose.yml"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "3.1 low unencrypted network traffic to redis",
+        "normalizedAsset": "docker-compose.yml",
+        "canonicalKey": "4.5|admin password change does not enforce policy|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 89,
+        "sourceSectionTitle": "Admin password change does not enforce policy",
+        "sourceText": "4.5 Admin password change does not enforce policy Low",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Admin password change does not enforce policy",
+      "canonicalKey": "4.5|admin password change does not enforce policy|investigation scope||||||"
+    },
+    {
+      "id": "F-G-assuredab-mullvad-api-audit-2022-GIDX-009",
+      "slug": "3-1-low-unencrypted-network-traffic-to-redis-docker-compose-yml",
+      "reportId": "G-assuredab-mullvad-api-audit-2022",
+      "reportName": "assuredab-mullvad-api-audit-2022",
+      "title": "Potential Slowloris attack (DoS)",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:29:48.865Z",
+      "summary": "Potential Slowloris attack (DoS) affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: docker | Versions: Date | Components: docker-compose.yml | Assets: docker-compose.yml | Services: Redis, Docker | Domains: docker-compose.yml | File paths: docker-compose.yml | File names: docker-compose.yml",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:29:57.005Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3.1 Low Unencrypted network traffic to Redis",
+        "severity": "Medium",
+        "asset": "docker-compose.yml",
+        "status": "In Review",
+        "summary": "3.1 Low Unencrypted network traffic to Redis affecting docker-compose.yml; extractor found type Denial of Service, product docker, version Date.",
+        "impact": "Potential impact includes increased attacker opportunity against docker-compose.yml if this signal is not reviewed.",
+        "evidence": "Products: docker | Versions: Date | Components: docker-compose.yml | Assets: docker-compose.yml | Services: Redis, Docker | Domains: docker-compose.yml | File paths: docker-compose.yml | File names: docker-compose.yml",
+        "remediation": "Add input validation, resource limits, timeout controls, and safe file or network handling, then retest the denial-of-service scenario.",
+        "references": [
+          "docker-compose.yml"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "3.1 low unencrypted network traffic to redis",
+        "normalizedAsset": "docker-compose.yml",
+        "canonicalKey": "4.6|potential slowloris attack dos|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 89,
+        "sourceSectionTitle": "Potential Slowloris attack (DoS)",
+        "sourceText": "4.6 Potential Slowloris attack (DoS) Low",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Potential Slowloris attack (DoS)",
+      "canonicalKey": "4.6|potential slowloris attack dos|investigation scope||||||"
+    },
+    {
+      "id": "F-G-assuredab-mullvad-api-audit-2022-GIDX-010",
+      "slug": "3-1-low-unencrypted-network-traffic-to-redis-docker-compose-yml",
+      "reportId": "G-assuredab-mullvad-api-audit-2022",
+      "reportName": "assuredab-mullvad-api-audit-2022",
+      "title": "Unexpected behaviour of refund with amount zero",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:29:48.865Z",
+      "summary": "Unexpected behaviour of refund with amount zero affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: docker | Versions: Date | Components: docker-compose.yml | Assets: docker-compose.yml | Services: Redis, Docker | Domains: docker-compose.yml | File paths: docker-compose.yml | File names: docker-compose.yml",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:29:57.005Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3.1 Low Unencrypted network traffic to Redis",
+        "severity": "Medium",
+        "asset": "docker-compose.yml",
+        "status": "In Review",
+        "summary": "3.1 Low Unencrypted network traffic to Redis affecting docker-compose.yml; extractor found type Denial of Service, product docker, version Date.",
+        "impact": "Potential impact includes increased attacker opportunity against docker-compose.yml if this signal is not reviewed.",
+        "evidence": "Products: docker | Versions: Date | Components: docker-compose.yml | Assets: docker-compose.yml | Services: Redis, Docker | Domains: docker-compose.yml | File paths: docker-compose.yml | File names: docker-compose.yml",
+        "remediation": "Add input validation, resource limits, timeout controls, and safe file or network handling, then retest the denial-of-service scenario.",
+        "references": [
+          "docker-compose.yml"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "3.1 low unencrypted network traffic to redis",
+        "normalizedAsset": "docker-compose.yml",
+        "canonicalKey": "4.7|unexpected behaviour of refund with amount zero|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 89,
+        "sourceSectionTitle": "Unexpected behaviour of refund with amount zero",
+        "sourceText": "4.7 Unexpected behaviour of refund with amount zero Note",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Unexpected behaviour of refund with amount zero",
+      "canonicalKey": "4.7|unexpected behaviour of refund with amount zero|investigation scope||||||"
+    },
+    {
+      "id": "F-G-assuredab-mullvad-api-audit-2022-GIDX-011",
+      "slug": "3-1-low-unencrypted-network-traffic-to-redis-docker-compose-yml",
+      "reportId": "G-assuredab-mullvad-api-audit-2022",
+      "reportName": "assuredab-mullvad-api-audit-2022",
+      "title": "Recent actions shows wrong amount on refunds",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:29:48.865Z",
+      "summary": "Recent actions shows wrong amount on refunds affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: docker | Versions: Date | Components: docker-compose.yml | Assets: docker-compose.yml | Services: Redis, Docker | Domains: docker-compose.yml | File paths: docker-compose.yml | File names: docker-compose.yml",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:29:57.005Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3.1 Low Unencrypted network traffic to Redis",
+        "severity": "Medium",
+        "asset": "docker-compose.yml",
+        "status": "In Review",
+        "summary": "3.1 Low Unencrypted network traffic to Redis affecting docker-compose.yml; extractor found type Denial of Service, product docker, version Date.",
+        "impact": "Potential impact includes increased attacker opportunity against docker-compose.yml if this signal is not reviewed.",
+        "evidence": "Products: docker | Versions: Date | Components: docker-compose.yml | Assets: docker-compose.yml | Services: Redis, Docker | Domains: docker-compose.yml | File paths: docker-compose.yml | File names: docker-compose.yml",
+        "remediation": "Add input validation, resource limits, timeout controls, and safe file or network handling, then retest the denial-of-service scenario.",
+        "references": [
+          "docker-compose.yml"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "3.1 low unencrypted network traffic to redis",
+        "normalizedAsset": "docker-compose.yml",
+        "canonicalKey": "4.8|recent actions shows wrong amount on refunds|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 89,
+        "sourceSectionTitle": "Recent actions shows wrong amount on refunds",
+        "sourceText": "4.8 Recent actions shows wrong amount on refunds Note",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Recent actions shows wrong amount on refunds",
+      "canonicalKey": "4.8|recent actions shows wrong amount on refunds|investigation scope||||||"
+    },
+    {
+      "id": "F-G-assuredab-mullvad-api-audit-2022-GIDX-012",
+      "slug": "3-1-low-unencrypted-network-traffic-to-redis-docker-compose-yml",
+      "reportId": "G-assuredab-mullvad-api-audit-2022",
+      "reportName": "assuredab-mullvad-api-audit-2022",
+      "title": "Unhandled error",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:29:48.865Z",
+      "summary": "Unhandled error affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: docker | Versions: Date | Components: docker-compose.yml | Assets: docker-compose.yml | Services: Redis, Docker | Domains: docker-compose.yml | File paths: docker-compose.yml | File names: docker-compose.yml",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:29:57.005Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3.1 Low Unencrypted network traffic to Redis",
+        "severity": "Medium",
+        "asset": "docker-compose.yml",
+        "status": "In Review",
+        "summary": "3.1 Low Unencrypted network traffic to Redis affecting docker-compose.yml; extractor found type Denial of Service, product docker, version Date.",
+        "impact": "Potential impact includes increased attacker opportunity against docker-compose.yml if this signal is not reviewed.",
+        "evidence": "Products: docker | Versions: Date | Components: docker-compose.yml | Assets: docker-compose.yml | Services: Redis, Docker | Domains: docker-compose.yml | File paths: docker-compose.yml | File names: docker-compose.yml",
+        "remediation": "Add input validation, resource limits, timeout controls, and safe file or network handling, then retest the denial-of-service scenario.",
+        "references": [
+          "docker-compose.yml"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "3.1 low unencrypted network traffic to redis",
+        "normalizedAsset": "docker-compose.yml",
+        "canonicalKey": "4.9|unhandled error|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 89,
+        "sourceSectionTitle": "Unhandled error",
+        "sourceText": "4.9 Unhandled error Note",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Unhandled error",
+      "canonicalKey": "4.9|unhandled error|investigation scope||||||"
+    }
+  ],
+  "eval": {
+    "enableNlp": true,
+    "expectedCount": 12,
+    "actualCount": 12,
+    "expectedSeverityCounts": {
+      "Critical": 0,
+      "High": 0,
+      "Medium": 0,
+      "Low": 12
+    },
+    "actualSeverityCounts": {
+      "Critical": 0,
+      "High": 0,
+      "Medium": 0,
+      "Low": 12
+    },
+    "duplicates": 0,
+    "negativeHits": 0,
+    "pass": true
+  }
+}

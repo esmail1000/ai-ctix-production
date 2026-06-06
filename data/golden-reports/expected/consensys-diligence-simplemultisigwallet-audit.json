@@ -1,0 +1,16 @@
+{
+  "id": "consensys-diligence-simplemultisigwallet-audit",
+  "expectedCount": 8,
+  "expectedSeverityCounts": {
+    "Critical": 0,
+    "High": 0,
+    "Medium": 4,
+    "Low": 4
+  },
+  "notes": [
+    "Promoted from verified Stage 5 V5 review queue.",
+    "Source review id: consensys-diligence-simplemultisigwallet-audit-1d73d666",
+    "Requires ENABLE_GENERIC_INDEX_ALIGNMENT=true for generic official index / table recovery gates.",
+    "Major is normalized to High. Minor, Info, Informational, and Note are normalized to Low."
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "id": "atredis-mullvad-vpn-platform-security-assessment-v1-0",
+  "expectedCount": 5,
+  "expectedSeverityCounts": {
+    "Critical": 0,
+    "High": 0,
+    "Medium": 2,
+    "Low": 3
+  },
+  "notes": [
+    "Promoted from verified Stage 4 V4 review queue.",
+    "Source review id: atredis-atredis-partners-mullvad-vpn-platform-security-assessment-report-v1-0-ace27d5c",
+    "Source path: Atredis/Atredis+Partners+-+Mullvad+VPN+Platform+Security+Assessment+-+Report+v1.0.pdf",
+    "Info / Informational / Note / Minor findings are normalized to Low by the current app model.",
+    "Major findings are normalized to High by the current app model.",
+    "Requires ENABLE_NLP=true and ENABLE_GENERIC_INDEX_ALIGNMENT=true.",
+    "7ASecurity reports also require ENABLE_7ASECURITY_INDEX_ALIGNMENT=true.",
+    "Do not promote the excluded research / expert-witness / manual-hold reports without separate manual review."
+  ]
+}

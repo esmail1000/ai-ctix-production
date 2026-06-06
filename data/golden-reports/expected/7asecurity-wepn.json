@@ -1,0 +1,16 @@
+{
+  "id": "7asecurity-wepn",
+  "expectedCount": 31,
+  "expectedSeverityCounts": {
+    "Critical": 2,
+    "High": 0,
+    "Medium": 7,
+    "Low": 22
+  },
+  "notes": [
+    "Promoted from verified 7ASecurity review queue.",
+    "Source review id: 7asecurity-pentest-report-wepn-4812ff80",
+    "Info / Informational findings are normalized to Low by the current app model.",
+    "Requires ENABLE_7ASECURITY_INDEX_ALIGNMENT=true for 7ASecurity index recovery gates."
+  ]
+}

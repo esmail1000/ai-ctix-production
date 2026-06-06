@@ -1,0 +1,16 @@
+{
+  "id": "consensys-diligence-orchid-audit-2019-10",
+  "expectedCount": 10,
+  "expectedSeverityCounts": {
+    "Critical": 1,
+    "High": 0,
+    "Medium": 2,
+    "Low": 7
+  },
+  "notes": [
+    "Promoted from verified Stage 5 V5 review queue.",
+    "Source review id: consensys-diligence-orchid-audit-2019-10-71138a99",
+    "Requires ENABLE_GENERIC_INDEX_ALIGNMENT=true for generic official index / table recovery gates.",
+    "Major is normalized to High. Minor, Info, Informational, and Note are normalized to Low."
+  ]
+}

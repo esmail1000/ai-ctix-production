@@ -1,0 +1,16 @@
+{
+  "id": "cure53-b5-automations-1pw-14-report",
+  "expectedCount": 7,
+  "expectedSeverityCounts": {
+    "Critical": 0,
+    "High": 0,
+    "Medium": 2,
+    "Low": 5
+  },
+  "notes": [
+    "Promoted from verified Stage 6 V7 Cure53 review queue.",
+    "Source review id: cure53-cure53-b5-automations-1pw-14-report-99945eb6",
+    "Requires ENABLE_GENERIC_INDEX_ALIGNMENT=true for generic official index / Cure53 official ID recovery gates.",
+    "Cure53 severity labels are normalized into Critical, High, Medium, and Low. Info/Informational/Note are normalized to Low only when they are official severity-rated entries."
+  ]
+}

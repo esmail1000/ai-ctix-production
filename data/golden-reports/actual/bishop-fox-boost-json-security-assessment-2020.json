@@ -1,0 +1,140 @@
+{
+  "manifest": {
+    "id": "bishop-fox-boost-json-security-assessment-2020",
+    "vendor": "Bishop Fox",
+    "family": "bishop-fox",
+    "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+    "sourcePath": "Bishop Fox/C Plus Plus Alliance - Boost JSON Security Assessment 2020 - Assessment Report - 20210317.pdf",
+    "textPath": "data/golden-reports/extracted-text/bishop-fox-boost-json-security-assessment-2020.txt",
+    "expectedPath": "data/golden-reports/expected/bishop-fox-boost-json-security-assessment-2020.json"
+  },
+  "expected": {
+    "id": "bishop-fox-boost-json-security-assessment-2020",
+    "expectedCount": 1,
+    "expectedSeverityCounts": {
+      "Critical": 0,
+      "High": 0,
+      "Medium": 0,
+      "Low": 1
+    },
+    "notes": [
+      "Promoted from verified Stage 4 V4 review queue.",
+      "Source review id: bishop-fox-c-plus-plus-alliance-boost-json-security-assessment-2020-assessment-report-2021-b9c3b09d",
+      "Source path: Bishop Fox/C Plus Plus Alliance - Boost JSON Security Assessment 2020 - Assessment Report - 20210317.pdf",
+      "Info / Informational / Note / Minor findings are normalized to Low by the current app model.",
+      "Major findings are normalized to High by the current app model.",
+      "Requires ENABLE_NLP=true and ENABLE_GENERIC_INDEX_ALIGNMENT=true.",
+      "7ASecurity reports also require ENABLE_7ASECURITY_INDEX_ALIGNMENT=true.",
+      "Do not promote the excluded research / expert-witness / manual-hold reports without separate manual review."
+    ]
+  },
+  "report": {
+    "id": "G-bishop-fox-boost-json-security-assessment-2020",
+    "slug": "bishop-fox-boost-json-security-assessment-2020",
+    "name": "bishop-fox-boost-json-security-assessment-2020",
+    "type": "PDF",
+    "uploadedAt": "2026-06-05T23:30:55.047Z",
+    "owner": "AI CTIX Analyzer",
+    "status": "Ready",
+    "findings": 1,
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 1,
+    "summary": "THE C PLUS PLUS ALLIANCE, INC. JSON SECURITY ASSESSMENT 2021 2021/03/17 2 This engagement was performed in accordance with the Statement of Work, and the procedures were limited to those described in that agreement.",
+    "parsingStatus": "parsed",
+    "analysisVersion": 1,
+    "parserVersion": 1,
+    "parsingNotes": [
+      "Structured parser found no blocks; heuristic fallback was used.",
+      "NLP hybrid extraction produced 1 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+      "Aligned findings with generic official index: 1 -> 1."
+    ],
+    "content": "ASSESSMENT REPORT\nTHE C PLUS PLUS ALLIANCE, INC.\nBOOST.JSON SECURITY ASSESSMENT 2021\nMARCH 17, 2021\n\n-- 1 of 12 --\n\n2021/03/17 2\nThis engagement was performed in accordance with the Statement of Work, and the procedures were limited\nto those described in that agreement. The findings and recommendations resulting from the assessment are\nprovided in the attached report. Given the time-boxed scope of this assessment and its reliance on client-\nprovided information, the findings in this report should not be taken as a comprehensive listing of all security\nissues.\nThis report is intended solely for the information and use of The C Plus Plus Alliance, Inc.\nBishop Fox Contact Information:\n+1 (480) 621-8967\ncontact@bishopfox.com\n8240 S. Kyrene Road\nSuite A-113\nTempe, AZ 85284\n\n-- 2 of 12 --\n\n2021/03/17 3\nTABLE OF CONTENTS\nTable of Contents.................................................................................................................... 3\nExecutive Report ..................................................................................................................... 4\nProject Overview.................................................................................................................................. 4\nApproach .............................................................................................................................................. 4\nAssessment Report ................................................................................................................. 9\nHybrid Application Assessment ........................................................................................................ 9\nType representation ............................................................................................................... 9\nAppendix A — Measurement Scales ................................................................................... 11\nFinding Severity .................................................................................................................................11\nAppendix B — Test Plan ....................................................................................................... 12\n\n-- 3 of 12 --\n\n2021/03/17 4\nEXECUTIVE REPORT\nProject Overview\nThe C Plus Plus Alliance, Inc. engaged Bishop Fox to assess the\nsecurity of the Boost.JSON C++ library. The following report\ndetails the findings identified during the course of the\nengagement, which started on February 8, 2021.\nGoals\n• Ensure the Boost.JSON parser is secure against untrusted\ninputs and that undefined behavior and crashing are not\npossible\n• Review the container, as in theory it could be the target of\nalgorithmic complexity attacks\n• Look for buffer overflows and other vulnerabilities in the\nBoost.JSON parser\n• Thoroughly fuzz the Boost.JSON library\n• Provide best practices for users of the Boost.JSON library\nF I N DI NG COU NT S\n1 Low\n1 Total finding\nS COP E\nBoost.JSON library v.1 .75 . 0\nCommit:\nedbf86641b7217676eceb\n6582ee486e31bb42745\nDAT ES\n02/08/2021\nKickoff\n02/08/2021 – 02/23/2021\nActive testing\n03/17/2021\nReport delivery\nApproach\nThe assessment team conducted a hybrid application assessment of the Boost.JSON library.\nBishop Fox’s hybrid application assessment methodology leverages real-world attack\ntechniques of application penetration testing in combination with targeted source code\nreview. These full-knowledge assessments begin with automated scans of the deployed\napplication and source code. Next, analyses of the scan results are combined with manual\nreview to thoroughly identify potential application security vulnerabilities. In addition, the\nteam conducts a review of the application architecture and business logic to locate any\ndesign-level issues. Finally, the team performs manual exploitation and review of these\nissues to validate the findings.\nFor this engagement, the team made use of the current fuzzing implementation, which the\nrepository used with LLVM’s AddressSanitizer (ASAN) and UndefinedBehaviorSanitizer\n(UBSAN) by running the fuzzing tests for extended periods of time. In conjunction with\nLLVM, the team made use of alternate fuzzers such as AFL++ with guidance from a symbolic\nexecution framework, angr, to help extend coverage that was not provided by LLVM. The\n\n-- 4 of 12 --\n\n2021/03/17 5\nuse of these fuzzers in conjunction with manual review helped the team to explore the core\nfunctionality of the library and to identify memory management or corruption issues.\nStrategic Approach\nFuzzing Strategy\nOne of the assessment goals was to identify vulnerabilities that can occur when Boost.JSON\nparses JSON input and serializes to JSON output. The assessment team found that the\nmajority of Boost.JSON fuzzing programs and examples were set up in a similar fashion to\ntackle these ideas. This allowed the team to deploy the already-existing fuzzing harnesses\ninto other fuzzing platforms for extended periods of time. The team modified the examples\nby adding a thread for executing AFL++ in persistent mode. Further modifications allowed\nharnesses to run in LibFuzz, AFL++, and AFL_IJON. All were guided with angr for further\ncode coverage.\nTo fuzz the JSON parser, the team created a fuzzing harness based on the harnesses that\nalready existed in the fuzzing folder within the Boost.JSON repository. This harness, based\non the fuzzer_parse, fuzzer_basic_parser, and fuzzer_parser files in the fuzzing\nfolder, was instrumented with the custom clang compiler afl-clang-fast++ to assist\nwith fuzzing the library with AFL. Parameters such as AFL_PERSISTENT were also\nintroduced into the program to speed up fuzzing cycles.\nThe harnesses read in content from files generated by the fuzzer, then parse, stream parse,\nand validate the given JSON. These programs run until the number of identified paths stops\ngrowing and the number of completed cycles matches the paths discovered. The use of\nangr gave AFL the ability to find more \"interesting\" paths and avoided a \"stuck\" state,\nthereby allowing further code coverage within the library. The team determined that the\nfuzzing conducted was sufficient to produce reliable results in the time provided.\nStatic Source Code Analysis\nThe assessment team used Checkmarx against the Boost.JSON codebase for additional\ncoverage and to supplement the fuzzing and manual code review process. Checkmarx\nflagged 219 issues. However, after review, the team determined that these were negligible\nand irrelevant to the goals of the engagement.\nThe team moved forward to check for known bad code practices, such as the use of\nunconstrained buffers and the use of unsafe execution of calls to the system. The library\nused innovative practices for dynamic memory management and properly deallocated\nmemory created in the JSON objects. Since this library needed only basic functionality, it did\nnot make any calls risky to the OS such as execve or system function.\nA benefit of the Boost.JSON library, as of 1.75.0, is its limited list of dependencies to the\nBoost Library Collection. The only dependencies found were to boost/system,\nboost/assert, boost/exception, boost/container, and boost/align. This helped to\n\n-- 5 of 12 --\n\n2021/03/17 6\nstrengthen the integrity of Boost.JSON, since any potential future vulnerabilities found in\naddition to the Boost Library Collection would not affect the Boost.JSON library. If\nvulnerabilities are found in the general Boost Library Collection, it is recommended to\nensure that boost/system, boost/assert, boost/exception, boost/container,\nand boost/align have not been affected.\nInvestigations of the current bugs and issues posted to the repository indicated that they\nwere negligible to the integrity of the Boost.JSON library. The team built out small programs\nbased on the bugs described and noted the success or failures of each. No failures were\nfound, and the bugs were negligible to the operation and did not cause any undefined\nbehavior. This suggests that the bugs either were patched or had occurred but could not be\nreproduced by the team. Any bugs that are already patched should be documented as such\nin the issues posted to the repository.\nDynamic Source Code Analysis\nAside from static code analysis, the team also took a dynamic approach to finding potential\nissues in the library. The team thoroughly reviewed the library to identify issues relating to\ntype confusion, deserialization attacks, and improper deserialization/serialization of objects.\nThe assessment team found a common issue with JSON parsing that happens with most\nJSON parsers. Deserializing the following string resulted in a type confusion where the\nJSON parser within Boost.JSON interpreted 1E400 as an INF value instead of a semi-precise\ninteger value. The following proof-of-concept code demonstrates an edge-case that users of\nthe Boost.JSON library may run into:\n#include <boost/json.hpp>\n#include <iostream>\nusing namespace boost::json;\nint main() {\n// Testing some type confusion issues\nstd::string experiment = \"{\\\"description\\\": \\\"Float (exp)\\\", \\\"test\\\": 1E400}\";\nvalue test = parse(experiment);\nstd::string real = serialize(test);\nstd::cout << \"[!] EXPECTED: \" << experiment << std::endl;\nstd::cout << \"[-] Result: \" << real << std::endl;\n}\nFIGURE 1 - Demo code to show potential type representation issues\nThere is a potential for this use-case to cause issues in developer implementations. RFC\n8259 section 6 specifies that the use of values such as INF, pi, or 1E400 may cause\n\"interoperability problems,\" and the receiver may not be able to properly interpret the data\nsent by the sender. This would need to be verified by the user of the Boost.JSON library.\nSecurity Considerations\n\n-- 6 of 12 --\n\n2021/03/17 7\nThe assessment team found that Boost.JSON was a mature and stable library. The security\nissues that are most likely to emerge with the library relate to several key areas that are\noutside of the scope that Boost.JSON can provide the developer.\nThe following sections address some of the more pertinent issues and provide examples of\nwhat developers should be aware of.\nData/Input Validation\nThe Boost.JSON library has two unique ways of handling user input. The first way is using\nthe API to catch error codes, which should be done when the user input is coming from a\ntrusted or untrusted source. The Boost.JSON error codes are defined in error.hpp, which\ninherits from std::error_code. These error codes are returned when a problem occurs in\nfunctions such as write or serialize, as shown in the pretty and validate example files. Error\ncodes are lighter on resources than using exceptions, which is beneficial for programs that\nneed to be as efficient as possible. To properly make use of the error codes, the user's\nprogram should read the error code value, which will be a 0 or a non-zero value. The user's\nprogram should then pass this error code to the error::make_error_code() function\nand print the results, which will inform the user what the error is.\nThe second way of handling user input is by utilizing exceptions. Exceptions should not be\nused when the user input is coming from an untrusted source as the exception will\nterminate the program. Users should throw an exception when the program can identity an\nexternal problem that prevents execution. The exception mechanism has a minimal\nperformance cost if no exception is thrown. If an exception is thrown, the cost of the stack\ntraversal and unwinding is roughly comparable to the cost of a function call. It is ultimately\nup to the user to handle data input validation.\nThe assessment team identified that it was possible for deserialization attacks to occur if an\nobject was mishandled after being parsed whenever the input was trusted by the user. This\nimplementation was specific to the developer using the library and by default, was not a\nsecurity risk within the library itself. Developers should validate objects that are being\nparsed with the Boost.JSON library.\nGeneral Guidance\nThe validation and parsing of JSON can be implemented with the Boost.JSON library in a\nsafe and secure fashion. As previously mentioned, developers should be aware of the\nlimitations on the range of representable values for integer and floating-point types. This\ncould cause implementation issues and undefined behavior for programs that use the JSON\nparser within their project.\nAlthough the team did not find any crashes, the CI system for the library should fuzz for\nlonger durations, potentially allowing for additional vulnerabilities to be identified during\nthe fuzzing sessions. The current configuration in the Boost.JSON repository runs the built-\n\n-- 7 of 12 --\n\n2021/03/17 8\nin Clang LibFuzz for 30 seconds. It is recommended to run for longer periods of time\n(greater than an hour if possible) to get the most benefit from fuzzing.\nSummary of Findings\nThe assessment team identified one low-risk issue during the time-boxed assessment of\nBoost.JSON library version 1.75.0. The team identified a type representation vulnerability\nthat may cause issues in implementations by users of the library. The team found that the\nBoost.JSON library was resilient to the memory attacks that can plague native libraries.\nStatic analysis returned negligible informational results that did not warrant reporting.\nThe sections below detail the strategy used by Bishop Fox during the assessment, as well as\nother security considerations and recommendations for the production use of the\nBoost.JSON library.\nRECOM M EN DATI ON S\n• Users must decide how to handle errors returned by the parser upon receiving\ninvalid JSON. The user must check for the errors, then handle them or allow the\nlibrary to throw an exception and terminate the program.\n• Users should be aware of the limitations with numeric representation for integers\nand floating-point values used by the library.\n\n-- 8 of 12 --\n\n2021/03/17 9\nASSESSMENT REPORT\nHybrid Application Assessment\nThe assessment team performed an application penetration test with the following target\nin scope:\n• Boost.JSON v.1.75.0:\nhttps://github.com/boostorg/json/commit/edbf86641b7217676eceb6582\nee486e31bb42745\nIdentified Issues\n1 TYPE REPRESENTATION LOW\nDefinition\nThe representation of numbers is like that used in most programming languages. A\nnumber is represented in base 10 using decimal digits. It contains an integer component\nthat may be prefixed with an optional minus sign, which may be followed by a fraction\npart and/or an exponent part. Leading zeros are not allowed.\nDetails\nThe assessment team identified a common issue with JSON parsing that happens with\nmost JSON parsers. When deserializing a user given input, a type-confusion can happen\nwhen the JSON parser within Boost.JSON interprets 1E400 as an INF value instead of a\nsemi-precise integer value. The following proof-of-concept code demonstrates an edge-\ncase that users of the Boost.JSON library may run into:\n#include <boost/json.hpp>\n#include <iostream>\nusing namespace boost::json;\nint main() {\nstd::string experiment =\n\"{\\\"description\\\": \\\"Float (exp)\\\", \\\"test\\\": 1E400}\";\nvalue test = parse(experiment);\nstd::string real = serialize(test);\nstd::cout << \"[!] EXPECTED: \" << experiment << std::endl;\nstd::cout << \"[-] Result: \" << real << std::endl;\n}\nFIGURE 2 – Demo code to show potential type representation issues\n\n-- 9 of 12 --\n\n2021/03/17 10\nThe output of running the above code is shown below:\n[!] EXPECTED: {\"description\": \"Float (exp)\", \"test\": 1E400}\n[-] Result: {\"description\": \"Float (exp)\",\"test\": Infinity}\nFIGURE 3 – Demo code output\nThere is a potential for this use-case to cause issues in developer implementations. RFC\n8259 section 6 specifies that the use of values such as INF, pi, or 1E400 may cause\n\"interoperability problems,\" and the receiver may not be able to properly interpret the\ndata sent by the sender. This would need to be verified by the implementor of the\nBoost.JSON library.\nAffected Locations\nApplication\nBoost.JSON v. 1.75.0\nTotal Instances 1\nRecommendations\nTo mitigate the risk of type representation, the assessment team recommends the\nfollowing actions:\n• Integrate a type check between values fed into the JSON parser to verify there no\nvalue was interpreted differently.\n• Make use of exceptions when an INF value is found within the JSON. Per RFC 8259\nmentioned below, this should not exist within the JSON spec.\nAdditional Resources\nThe JavaScript Object Notation (JSON) Data Interchange Format\nhttps://tools.ietf.org/html/rfc8259#section-6\nRFC 8259\nhttps://tools.ietf.org/html/rfc8259\n\n-- 10 of 12 --\n\n2021/03/17 11\nAPPENDIX A — MEASUREMENT SCALES\nFinding Severity\nBishop Fox determines severity ratings using in-house expertise and industry-standard\nrating methodologies such as the Open Web Application Security Project (OWASP) and the\nCommon Vulnerability Scoring System (CVSS).\nThe severity of each finding in this report was determined independently of the severity of\nother findings. Vulnerabilities assigned a higher severity have more significant technical\nand business impact and achieve that impact through fewer dependencies on other flaws.\nCritical Vulnerability is an otherwise high-severity issue with additional security\nimplications that could lead to exceptional business impact. Findings are marked\nas critical severity to communicate an exigent need for immediate remediation.\nExamples include threats to human safety, permanent loss or compromise of\nbusiness-critical data, and evidence of prior compromise.\nHigh Vulnerability introduces significant technical risk to the system that is not\ncontingent on other issues being present to exploit. Examples include creating a\nbreach in the confidentiality or integrity of sensitive business data, customer\ninformation, or administrative and user accounts.\nMedium Vulnerability does not in isolation lead directly to the exposure of sensitive\nbusiness data. However, it can be leveraged in conjunction with another issue to\nexpose business risk. Examples include insecurely storing user credentials,\ntransmitting sensitive data unencrypted, and improper network segmentation.\nLow Vulnerability may result in limited risk or require the presence of multiple\nadditional vulnerabilities to become exploitable. Examples include overly\nverbose error messages, insecure TLS configurations, and detailed banner\ninformation disclosure.\nInformational Finding does not have a direct security impact but represents an opportunity to\nadd an additional layer of security, is a deviation from best practices, or is a\nsecurity-relevant observation that may lead to exploitable vulnerabilities in the\nfuture. Examples include vulnerable yet unused source code and missing HTTP\nsecurity headers.\n\n-- 11 of 12 --\n\n2021/03/17 12\nAPPENDIX B — TEST PLAN\nThe following section contains the test cases completed for each methodology in scope.\nHAA METHODOLOGY\nCOMPLETED TEST CASES\nTEST CASE DESCRIPTION\nPerform dynamic testing\nfor memory management\nvulnerabilities\nAttempt to identify user-supplied inputs that are unsafely\nloaded into memory or that unsafely reference existing\nmemory.\nPerform dynamic testing\nfor object deserialization\nissues\nIdentify whether user-supplied inputs are used as serialized\nobjects and sent to an unsafe deserialization routine.\nConduct dynamic testing\nfor known vulnerabilities\nAttempt to find known vulnerabilities in components of the\nsystem.\nManually review source\ncode\nExamine the application source code to find errors\noverlooked in the initial development phase.\nRun static analyzers and\nreview the results\nRun Checkmarx and cppcheck against the Boost.JSON 1.75.0.\nlibrary.\nReview the bugs attached\nto the Boost.JSON GitHub\nand identify if any of\nthem are security related.\nIdentify bugs that are listed on the Boost.JSON GitHub and\ndetermine if they are valid.\n\n-- 12 of 12 --",
+    "sourceFileName": "C Plus Plus Alliance - Boost JSON Security Assessment 2020 - Assessment Report - 20210317.pdf",
+    "createdAtIso": "2026-06-05T23:31:02.887Z",
+    "updatedAtIso": "2026-06-05T23:31:02.887Z"
+  },
+  "findings": [
+    {
+      "id": "F-G-bishop-fox-boost-json-security-assessment-2020-GIDX-001",
+      "slug": "bishop-fox-determines-severity-ratings-using-in-house-expertise-and-industry-standard-in-house-exper",
+      "reportId": "G-bishop-fox-boost-json-security-assessment-2020",
+      "reportName": "bishop-fox-boost-json-security-assessment-2020",
+      "title": "Type Representation",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:30:55.047Z",
+      "summary": "Type Representation affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: in-house expertise and industry-standard | Assets: in-house expertise and industry-standard",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:31:02.885Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "Bishop Fox determines severity ratings using in-house expertise and industry-standard",
+        "severity": "Medium",
+        "asset": "in-house expertise and industry-standard",
+        "status": "In Review",
+        "summary": "Bishop Fox determines severity ratings using in-house expertise and industry-standard affecting in-house expertise and industry-standard; extractor found product in-house expertise and industry-standard.",
+        "impact": "Potential impact includes increased attacker opportunity against in-house expertise and industry-standard if this signal is not reviewed.",
+        "evidence": "Products: in-house expertise and industry-standard | Assets: in-house expertise and industry-standard",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "bishop fox determines severity ratings using in-house expertise and industry-standard",
+        "normalizedAsset": "in-house expertise and industry-standard",
+        "canonicalKey": "BF-BOOSTJSON-001|type representation|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 89,
+        "sourceSectionTitle": "Type Representation",
+        "sourceText": "BF-BOOSTJSON-001 Type Representation Low",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Type Representation",
+      "canonicalKey": "BF-BOOSTJSON-001|type representation|investigation scope||||||"
+    }
+  ],
+  "eval": {
+    "enableNlp": true,
+    "expectedCount": 1,
+    "actualCount": 1,
+    "expectedSeverityCounts": {
+      "Critical": 0,
+      "High": 0,
+      "Medium": 0,
+      "Low": 1
+    },
+    "actualSeverityCounts": {
+      "Critical": 0,
+      "High": 0,
+      "Medium": 0,
+      "Low": 1
+    },
+    "duplicates": 0,
+    "negativeHits": 0,
+    "pass": true
+  }
+}

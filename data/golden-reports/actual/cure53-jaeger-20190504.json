@@ -1,0 +1,256 @@
+{
+  "manifest": {
+    "id": "cure53-jaeger-20190504",
+    "vendor": "Cure53",
+    "family": "cure53",
+    "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+    "sourcePath": "Cure53/Jaeger_Cure53_20190504.pdf",
+    "textPath": "data/golden-reports/extracted-text/cure53-jaeger-20190504.txt",
+    "expectedPath": "data/golden-reports/expected/cure53-jaeger-20190504.json"
+  },
+  "expected": {
+    "id": "cure53-jaeger-20190504",
+    "expectedCount": 3,
+    "expectedSeverityCounts": {
+      "Critical": 0,
+      "High": 0,
+      "Medium": 0,
+      "Low": 3
+    },
+    "notes": [
+      "Promoted from verified Stage 6 V7 Cure53 review queue.",
+      "Source review id: cure53-jaeger-cure53-20190504-5a1e085f",
+      "Requires ENABLE_GENERIC_INDEX_ALIGNMENT=true for generic official index / Cure53 official ID recovery gates.",
+      "Cure53 severity labels are normalized into Critical, High, Medium, and Low. Info/Informational/Note are normalized to Low only when they are official severity-rated entries."
+    ]
+  },
+  "report": {
+    "id": "G-cure53-jaeger-20190504",
+    "slug": "cure53-jaeger-20190504",
+    "name": "cure53-jaeger-20190504",
+    "type": "PDF",
+    "uploadedAt": "2026-06-05T23:34:00.342Z",
+    "owner": "AI CTIX Analyzer",
+    "status": "Ready",
+    "findings": 3,
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 3,
+    "summary": "Mario Heiderich, Cure53 Bielefelder Str. Hector Index Introduction Scope Test Methodology Part 1. Manual Code Auditing Part 2.",
+    "parsingStatus": "parsed",
+    "analysisVersion": 1,
+    "parserVersion": 1,
+    "parsingNotes": [
+      "Structured parser found no blocks; heuristic fallback was used.",
+      "NLP hybrid extraction produced 3 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+      "Aligned findings with generic official index: 3 -> 3."
+    ],
+    "content": "Dr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nPentest-Report CNCF Jaeger 04.-05.2019\nCure53, Dr.-Ing. M. Heiderich, M. Wege, MSc. N. Krein, MSc. D. Weißer, J. Larsson,\nBSc. J. Hector\nIndex\nIntroduction\nScope\nTest Methodology\nPart 1. Manual Code Auditing\nPart 2. Code-Assisted Penetration Testing\nFocus Areas and General Recommendations\nInput Manipulation and Code Injection Attacks\nLogic Bugs, ACL & Integrity Tests, Privilege Escalation\nSecurity aspects of the general Kubernetes deployment\nProgrammatic DoS Attacks, Memory Exhaustion\nWeb-User Interface Security\nService Robustness & Proneness to Crashes\nMiscellaneous Issues\nJT-01-001 Collector: Missing authentication on data submission (Info)\nJT-01-002 UI: DoS on Elasticsearch due to large input values (Info)\nJT-01-003 K8s: Missing defense-in-depth procedures (Info)\nConclusions\nCure53, Berlin · 05/14/19 1/12\n\n-- 1 of 12 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nIntroduction\n“As on-the-ground microservice practitioners are quickly realizing, the majority of\noperational problems that arise when moving to a distributed architecture are ultimately\ngrounded in two areas: networking and observability. It is simply an orders of magnitude\nlarger problem to network and debug a set of intertwined distributed services versus a\nsingle monolithic application.”\nFrom https://www.jaegertracing.io/\nThis report documents the findings of a security assessment targeting the CNCF Jaeger\nsoftware, a distributed Tracing System released as open source by Uber. Carried out by\nCure53 in spring 2019, this project entailed a source code audit and a penetration test.\nAs for the resources, six members of the Cure53 took part in the project. The allocated\ntime budget was eighteen days and these were all dedicated to project tasks and\nobjectives in late April and early May of 2019. The targeted release - equating to the\nscope of this examination - was CNCF Jaeger 1.11.0. It can be noted that the source\ncode was taken from the publicly available Github repository, as the project has an open\nsource character. Consequently, the chosen methodology was white-box and paired a\ncomprehensive code audit with a classic penetration testing against a system put\nforward by the maintainers of the scoped Jaeger version.\nBesides the actual software, several of the available clients were in scope as well. Note\nthat given the time available to the testers, not all clients could be audited. In addition,\nthe Kubernetes-related code and configuration files were also inspected. All in all,\nCure53 did not manage to find any notable threats. Only a very small array of three\ngeneral weaknesses with negligible risk potential could be distinguished. Nevertheless,\neven though the threat model for CNCF Jaeger is rather “generous” and not many items\ncould be pointed out as “risks”, experience has shown that attackers, once a system like\nCNCF Jaeger is exposed to the public Internet, benefit from missing security controls.\nTherefore, Cure53 found it crucial to also focus on hardening strategies that can make\nthe software even better and safer.\nThe next section in this report will elaborate on the scope details, list the release version\nand repositories in scope. Next, the report will detail the chosen methodology and\ndescribes various testing approaches, tasks and strategies to illuminate the span and\nscope of the coverage reached by this Cure53 assessment. This means that a checklist\nof the analyzed items is included to document the baseline of this evaluation of the\nCNCF Jaeger security posture. The ensuing section is linked with the above statements\nabout the hardening needs, as the report furnishes on general advice and hardening\nrecommendation across the areas possibly prone to attacks. A detailed discussion of the\nCure53, Berlin · 05/14/19 2/12\n\n-- 2 of 12 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\naforementioned three findings follows. Last but not least, the report closes with a\nconclusion, in which Cure53 summarizes their overall impressions about the CNCF\nJaeger’s general security posture.\nScope\n• CNCF Jaeger\n◦ In scope was the core system for CNCF Jaeger (1.11.0)\n▪ https://github.com/jaegertracing/jaeger/releases\n◦ Also investigated were the relevant client libraries (a selection done by Cure53)\n▪ https://github.com/jaegertracing/jaeger-client-python\n▪ https://github.com/jaegertracing/jaeger-client-node\n▪ https://github.com/jaegertracing/jaeger-client-go\n▪ https://github.com/jaegertracing/jaeger-client-cpp\n◦ Kubernetes-related code and config\n▪ https://github.com/jaegertracing/jaeger-kubernetes\n◦ Cure53 was given access to a dedicated setup for the purpose of completing the\npenetration test\nTest Methodology\nThe following paragraphs describe the testing methodology used during the audit of the\nJaeger codebase and its related client-libraries. The test was divided into two phases,\neach fulfilling different goals. In the first phase, the focus was on manual source code\nreviews needed to spot insecure code patterns. In this realm, issues around memory\ncorruption, information leakage or similar flaws can be found. During the second phase,\nit was evaluated whether the stated security goals and premise can, in fact, withstand\nreal-life attack scenarios.\nPart 1. Manual Code Auditing\nThis section lists the steps that were undertaken during the first phase of the audit\nagainst the Jager software compound. It describes the key aspects of the manual code\naudit. Since no major issues were spotted, the list portraits the thoroughness of the\npenetration test and attests a high quality of the project.\n• The Jaeger codebase was checked for potentially vulnerable sinks in the\nlocations were user-input is parsed and handled.\n• Client-libraries were audited to check how a connection is established to either\nthe agent daemon or the collector. The polling of the sampling strategy and\nsubmitting of trace data were examined.\nCure53, Berlin · 05/14/19 3/12\n\n-- 3 of 12 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\n• Additionally, the code for creating spans and tags was audited to ensure that the\ndata is stored in a safe manner. Flaws in this area could otherwise lead to\ninjection-based attacks.\n• Client libraries were also checked for OS interactions (e.g. logging or binary\nexecution), however, the logging was either to null or console. No further OS\ninteractions were found.\n• Special attention was given to the C++ client library (due to the nature of the C++\nlanguage). Dynamic memory allocations, unsafe use of typical C APIs and\npossible integer overflows were checked. However, the strict use of modern C++\nconstructs prevents common pitfalls on the CNCF Jaeger scope.\n• HTTP handler functions of the collector and agent daemon were audited for\nlogical flaws and general handling of untrusted input. Additionally, it was checked\nwhether proper ACL checks were in place. More information on this subject can\nbe found in JT-01-001.\nPart 2. Code-Assisted Penetration Testing\nThe following list documents the distinguishable steps taken during the second part of\nthe test. A code-assisted penetration test was executed against the pre-configured\nJaeger cluster provided by the development team. Since only a few miscellaneous\nissues were found during the first part of the audit, this additional approach was used to\nensure maximum coverage of the originally defined attack surface.\n• The admin web interface - which allows to view and submit traces - was tested\nfor common, web-related server and client issues like CSRF, XSS and injections.\nBesides a minor DoS issue, no problems with the handling of user-input have\nbeen found.\n• The accepted Content-Types were evaluated for possibly exploitable avenues.\nThe gzip Content-Type was examined in relation to the so-called gzip-bombs but\nno such weaknesses could be identified.\n• The JSON upload feature was examined for XSS vulnerabilities with the use of\nmaliciously formatted JSON files. It has become apparent that all content is being\nescaped properly and therefore no such weaknesses seem to exist.\n• The default set of tests for discovering problems in the web security area was\napplied. This included general fuzzing and attempts at a targeted injection of\ncontent to appear in log-files or OS-level system calls. No such problems were\nfound.\nCure53, Berlin · 05/14/19 4/12\n\n-- 4 of 12 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nFocus Areas and General Recommendations\nThe following section talks about the focus areas previously discussed by Cure53 with\nthe maintainers and overall outlined by the development team. Recommendations for\nfurther improving the security of the software are given due to the already noted\ngenerous nature of the threat model. In that sense, Cure53 comments on the fact that\nresponsibility for security measures is allocated to other stakeholders in the stack and\nargues that this might have certain security-implications in various realms. This is paired\nwith an emphasis on hardening advice.\nInput Manipulation and Code Injection Attacks\nDuring the audit of Jaeger, considerable attention centered on common security issues\nthat are usually related to server-side software. In essence, any functionality that\nprocesses user-input was analyzed and checked for consequences of malicious input.\nThe testing methodology entailed extensive code assisted manual input manipulation\ntests reliant on functionality exposed by the web UI or reachable with the Jaeger clients\nin scope.\nIt was quickly noticed that the Jaeger codebase clearly avoids common programming\nmistakes, such as having the user-controlled arguments that are passed to calls through\nos.exec or ioutils.ReadFile. These easily result in command execution of file disclosure if\ndone incorrectly and here were eliminated successfully.\nThe general programming style was found to be very defensive. Error codes are\nchecked thoroughly, parsing (for example for JSON Content-Types) is done with care\nand bailouts are done early. Nearly all models implement extensive unit-tests that cover\nmultiple forms of unconventional input and make sure that the defined methods work as\nexpected. This extends to unmarshaling of common data-types but also thoroughly tests\nthe unpacking of specially implemented formats such as trace-IDs and similar.\nGenerally, Jaegers codebase does not leave much room for errors, which is reflected in\nthe low number of vulnerabilities found by Cure53.\nConcerning the given client-side software, Cure53 conducted audits of the client-libraries\nas well. They use a straightforward and simple interface to communicate either with the\nlocal agent or the collector itself. The communication consists of reporting spans and\npolling the sampling strategy provided by the collector. Given the simple design, not\nmuch room for errors is left. Furthermore, the client-libraries provide an API to associate\ntags with span data; these were audited to ensure that malicious input-data does not\nallow for an attack corrupting the span data. The client-libraries use the proper\nstructures, provided by the implementation language, to store key and value pairs.\nCure53, Berlin · 05/14/19 5/12\n\n-- 5 of 12 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nMoreover, the code is well-written and follows a clean coding style which further reduces\ncommon pitfalls.\nLogic Bugs, ACL & Integrity Tests, Privilege Escalation\nOne major aspect specified by the development team as a priority was the verification of\naccess controls. This warranted checking their integrity and locating logic bugs that\nwould allow for escalating privileges.\nSurprisingly, it was found that there are no access controls in the analyzed source code.\nWhile there are access roles defined in the Kubernetes configuration, these were not\nfound to be applied anywhere. Similarly, there were no message integrity checks in the\nimplementation. Since there was no application of such tests, in turn, no logic bugs\nbypassing the probes could be identified.\nThe exposed service hosting the Jaeger API was analyzed for potential privilege\nescalation issues that could reside within the service itself, as well as in the hosting\ninfrastructure. However, no privilege escalation issues were discovered: neither in the\nrealm of the service nor through pod-to-pod execution. At the same time, the current\nconfiguration raised some concerns for the testers due to the adopted network topology.\nThe Kubernetes cluster has no network policy object configured and relies on a very lax\nnetwork separation design. The defense-in-depth ticket JT-01-003 was created to shed\nlight on these aspects.\nThe further possible shortcoming was encountered while investigating the authentication\nscheme adopted by Jaeger. As of now, the only way to support authentication is to rely\non third-party services such as Oauth-proxies or native Kubernetes authentication. The\nlack of a natively supported authentication mechanism is considered a bad security\npractice and should be rectified by the Jaeger maintainers. JT-01-001 was created to\naddress this.\nSecurity aspects of the general Kubernetes deployment\nDuring this audit, the overall security aspects of the current Kubernetes orchestration\nwere analyzed. The focus was placed on discovering weak configurations that could be\nleveraged by an attacker to gain unwanted access to the deployment pipelines, the\nKubernetes cluster, as well as to running pods and services.\nThe images used throughout the configuration are handled in a safe manner: all images\nare downloaded from reputable sources and have the appropriate signatures in place so\nthat the authenticity of the downloaded image is always validated.\nCure53, Berlin · 05/14/19 6/12\n\n-- 6 of 12 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nThe Kubernetes cluster configuration was analyzed as regards known security issues\nthat reside in the Kubernetes master and corresponding nodes. The configuration used\nby Jaeger is more or less a standard installation of Kubernetes. The configured\nnamespaces and the attached pods were checked for common pod-to-pod execution\nissues as well as pod-to-master vectors, which could be leveraged by an attacker who\nhas gained an initial foothold in either a service or a pod inside of the cluster. No\nimmediate weak configuration issues were discovered apart from the miscellaneous\nticket described in JT-01-003.\nProgrammatic DoS Attacks, Memory Exhaustion\nAnother relevant part of the audit against Jaeger revolved around potential sinks that\ncould cause the Jaeger setup to crash and become unrecoverable. Generally, this was\nalso covered by further input manipulation tests, especially on areas that can allow\nsubmission of large values for input variables, files and compressed data. However, it\nwas quickly found that, for example for gzip-compression, standard libraries were in\nplace and prevented such issues on their own already.\nStill, the testers managed to find a minor DoS issue concerning the bindings for the\nElasticsearch service, as described in JT-01-002. Although Jaeger uses a robust\narchitecture that takes care of all services to be restarted consequently, this was still\ntreated as an input-validation issue that was worth reporting. Even with the focus on\nmore configurational issues, the auditors were not able to uncover methods to\ndeterministically cause a Denial-of-Service in the provided Jaeger setup.\nWeb-User Interface Security\nSince Jaeger offers an administrative web interface, this item had to be analyzed from a\nsecurity perspective. Although it is deployed without any form of authentication where\nthe end user is expected to sufficiently shield it from outside attackers, malicious vectors\nmay still exist. This concerns reflected XSS, code injection issues and other common\nvulnerabilities that are typically present in web applications. As such, the testers\nconducted extensive fuzzing and input-manipulation tests to spot such issues, for\nexample in the rendered templates and other areas that receive user-input, such as the\nREST API.\nEspecially the trace data import via JSON files received considerable attention as it\nallows arbitrarily chosen values for each field. When displaying the data, it was found\nthat the UI encodes all characters correctly in their HTML entities, which leaves no room\nfor further exploitation. As the UI is kept rather simple and does not implement any other\ncomplex logic, not much other attack surface existed. The auditors further looked for\nCure53, Berlin · 05/14/19 7/12\n\n-- 7 of 12 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nplaces where user-input could end up in files residing in the file-systems and checked\nhow these could interfere with other services or applications.\nAnother integral part of the UI security penetration test was the REST API which is used\nto fetch data. Except for the minor issues around the absence of rate-limiting and the\nleakage of internal IPs in verbose error messages, the testers could not determine any\nserious web security issues.\nService Robustness & Proneness to Crashes\nDuring the audit, the testers assessed the overall robustness and scalability of all\ncomponents attached to the Jaeger scope, in order to discover potential issues that\ncould possibly lead to unexpected crashes or similar unwanted behavior.\nIn order to achieve good coverage, all services were analyzed by looking for common\nmisconfigurations that could eventually lead to Denial-of-Service issues or over-\nallocation of resources within the Kubernetes cluster. No configuration issues were\ndiscovered to affect the robustness and scalability of the orchestration used by Jaeger.\nThe discovered DoS (filed as JT-01-002) did not affect the overall performance of the\ncluster and triggered no scaling issues that would render the entire cluster unstable.\nMiscellaneous Issues\nThis section covers those noteworthy findings that did not lead to an exploit but might aid\nan attacker in achieving their malicious goals in the future. Most of these results are\nvulnerable code snippets that did not provide an easy way to be called. Conclusively,\nwhile the vulnerability is present, an exploit might not always be possible.\nJT-01-001 Collector: Missing authentication on data submission (Info)\nA central component of the Jaeger architecture is the collector. It receives the trace\nreports from all agents/micro services and stores the data into a data store. The collector\nexposes multiple HTTP endpoints, for example /api/traces or /api/v1/spans. The\nendpoints are used directly by the agent daemon or micro-services to submit trace data.\nThese endpoints, however, do not perform any kind of authentication. Thus, a micro-\nservice that is vulnerable to a sophisticated Server-Side Request Forgery (SSRF)1\nattack, can be abused to submit malicious trace data to the collector.\nAlthough the developers encourage the end-users to take the appropriate steps based\non their deployment, it is still recommended to implement some form of authentication.\nFor example, token-based access, to restrict collector access to only authenticated\n1 https://www.owasp.org/index.php/Server_Side_Request_Forgery\nCure53, Berlin · 05/14/19 8/12\n\n-- 8 of 12 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nagents/micro-services, could be added. A default authentication can also be\nimplemented as an opt-out feature, which gives users the freedom to go with a different\nroute.\nJT-01-002 UI: DoS on Elasticsearch due to large input values (Info)\nThe UI relies on an Elasticsearch instance to query for trace data. A user can supply a\nloopback or start and end params, which will determine which time span the search\nshould cover. It was found that by supplying large values for the loopback param or by\ncreating a big timespan, one can cause the underlying elasticsearch crashes. Illustrative\nrequests can be seen below.\nExample Request 1:\nGET /api/traces?start=1&end=1556624710030000&operation=multiRead&service=jaeger-\nquery HTTP/1.1\nHost: 139.178.82.82:31112\nConnection: close\nResponse:\nHTTP/1.1 500 Internal Server Error\nContent-Type: text/plain; charset=utf-8\nContent-Length: 450726\n{\"data\":null,\"total\":0,\"limit\":0,\"offset\":0,\"errors\":[{\"code\":500,\"msg\":\"Search\nservice failed: Post http://elasticsearch:9200/jaeger-span-2019-04-30%2Cjaeger-\nspan-2019-04-29[...]%2Cjaeger-span-1970-01-01/span/_search?\nignore_unavailable=true: net/http: HTTP/1.x transport connection broken: write\ntcp 10.233.70.27:49502-\\u003e10.233.65.22:9200: write: connection reset by\npeer\"}]}\nExample Request 2:\nGET /api/dependencies?endTs=1&lookback=9218999999999 HTTP/1.1\nHost: 139.178.82.82:31112\nResponse:\nHTTP/1.1 500 Internal Server Error\nContent-Type: text/plain; charset=utf-8\nContent-Length: 3521520\n{\"data\":null,\"total\":0,\"limit\":0,\"offset\":0,\"errors\":[{\"code\":500,\"msg\":\"Failed\nto search for dependencies: Post http://elasticsearch:9200/jaeger-dependencies-\n1970-01-01%2Cjaeger-dependencies-1969-12-31%2C[...]%2Cjaeger-dependencies-1677-\n11-10/dependencies/_search?ignore_unavailable=true: net/http: HTTP/1.x transport\nconnection broken: write tcp 10.233.70.27:33606-\\u003e10.233.65.22:9200: write:\nconnection reset by peer\"}]}\nCure53, Berlin · 05/14/19 9/12\n\n-- 9 of 12 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nSample DoS Response:\nHTTP/1.1 500 Internal Server Error\nContent-Type: text/plain; charset=utf-8\nContent-Length: 157\nConnection: close\n{\"data\":null,\"total\":0,\"limit\":0,\"offset\":0,\"errors\":[{\"code\":500,\"msg\":\"Search\nservice failed: no available connection: no Elasticsearch node available\"}]}\nAs seen above, subsequent requests will be denied until the Elasticsearch instance is up\nagain. Due to its integration into K8s, this period of downtime, however, is only a matter\nof seconds. Despite not having a direct security impact, the Jaeger team deemed this\nfind useful. It is recommended to add further sanitization methods to ensure that all\nsupplied values are sufficiently bound-checked.\nJT-01-003 K8s: Missing defense-in-depth procedures (Info)\nThe analysis of the Kubernetes cluster showed that the orchestration topology lacks\ndefense-in-depth concepts. The current orchestration has a traditional inside vs. outside\ndefense boundary defined. Running this topology design is not considered a sound\nsecurity practice. If an attacker was to gain a foothold into the Kubernetes cluster\nthrough a compromised pod, there is no segmentation in place to limit ingress/egress\ntraffic. The analyzed orchestration has multiple namespaces configured but there is no\nlimiting configuration in place to aid network or services segmentation.\nAs an example, the Elasticsearch pod that runs in the namespace storage is able to\nreach all internal pods defined within the cluster, as well as reaching the public Internet.\nIf this pod was to be compromised, it could be used as a pivot point for further attacks\nthroughout the cluster and infrastructure.\nExcerpt from the elasticsearch-0 pod:\nAn internal resource using the “example” namespace is reachable from the “storage”\nnamespace.\nShell excerpt:\n$ curl -L 10.233.29.206:8080\nHello from Vert.x!\nExternal resources are available from within the Elasticsearch pod.\nShell excerpt:\n$ curl -L https://cure53.de\n<!doctype html><!--\nCure53, Berlin · 05/14/19 10/12\n\n-- 10 of 12 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\n-->\n<html lang=\"en-US\">\n<head>\n<script src=\"/all.js\"></script>[...]\nIt is recommended to inform and educate end-users on how to harden and secure their\nrespective infrastructure when Jaeger is deployed into a running Kubernetes cluster. In\norder to properly protect all components used by Jaeger, ingress/egress traffic\nconfigurations should be implemented by default or as a network policy that the end-user\ncan select to either apply or opt out from.\nConclusions\nIn light of the findings stemming from this 2019 assessment of the Jaeger Tracing\nsystem, Cure53 has gained a mixed impression of the examined scope. To give some\ndetails, the Cure53 investigation of the Jaeger Tracing system was generously financed\nby The Linux Foundation / Cloud Native Computing Foundation, which enabled a team\nconsisting of six Cure53 testers to investigate the software system over the course of\neighteen days in April and May of 2019. Though a good coverage of almost all\ncomponents and areas has been achieved, Cure53 was unable to pinpoint any real\nvulnerabilities in the codebase. At the same time, the general approach to security\ndisplayed by the development team has been evaluated as somewhat lacking in the\nCure53 team’s expert opinion.\nOn one hand, the general indicators analyzed during the project are very good. In\nparticular, no actual security threats have been identified and only a handful of\nmiscellaneous issues could be spotted. This can be attributed to the high code quality\nand a well-chosen implementation language, as well as libraries. In addition, positive\noutcomes can be linked to the characteristics of the deployment and execution\nenvironment. On the other hand, the auditors are somewhat concerned about the\napparent dismissal of all security mechanisms within the implementation itself. In that\nsense, the Jaeger project appears nearly void of actual security measures. Everywhere\nin the codebase and in terms of key properties, a correct and complete configuration of\nthe deployment and execution environment is a precondition and main approach. Such a\ncomplete reliance on perimeter-security calls the generally accepted industry practice of\ndefense-in-depth into question. Moreover, it does not signify a capacity to cover possible\nmisconfigurations and the yet unknown, emerging risks.\nAs already acknowledged above, many positive conclusions can be drawn about the\nJaeger Tracing project. Especially the proper design and the clean implementation of the\nconcepts required for a system addressing this particular problem area must be praised.\nWhile it was possible to produce a temporary Denial-of-Service state, all attempts at a\nCure53, Berlin · 05/14/19 11/12\n\n-- 11 of 12 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\ncomplete shutdown of the system were futile. It is theoretically possible to forge trace\ndata, as well as exfiltrate data from any system within a cluster that an attacker may\nhave accessed in some way or another. However, the default configuration makes any\nfurther success of the adversaries highly unlikely and quite unfeasible.\nThe auditors hope that the recommendation of implementing additional defense-in-depth\nfeatures will be taken to heart. This would make the entire Jaeger system more resilient\nand can serve as an inspiration for the continued development of the software\ncompound. The testers strongly believe that the well-accepted industry-wide concept\nthat entails moving away from solely relying on perimeter security will be beneficial for\nthe project. As such, it will help achieve a secure system, making Jaeger an even better\nproduct. Taking into consideration various non-default deployment scenarios can shift\nresponsibility for the security traits of an installation from the end-users. In any way,\nprofound expertise of the end-users should not be an assumption made lightly by the\ndevelopment team. If no additions to the system are made, at least the documentation\nshould be adjusted to warn the users about the possible, harmful side-effects.\nCure53 would like to thank Gary Brown, Juraci Paixao Kroehling, Kevin Earls, Prithvi Raj\nand Yuri Shkuro from the CNCF Jaeger team as well as Chris Aniszczyk of The Linux\nFoundation, for their excellent project coordination, support and assistance, both before\nand during this assignment. Special gratitude needs to be extended to The Linux\nFoundation for sponsoring this project.\nCure53, Berlin · 05/14/19 12/12\n\n-- 12 of 12 --",
+    "sourceFileName": "Jaeger_Cure53_20190504.pdf",
+    "createdAtIso": "2026-06-05T23:34:06.726Z",
+    "updatedAtIso": "2026-06-05T23:34:06.726Z"
+  },
+  "findings": [
+    {
+      "id": "F-cure53-001",
+      "slug": "collector-missing-authentication-on-data-submission-investigation-scope",
+      "reportId": "G-cure53-jaeger-20190504",
+      "reportName": "cure53-jaeger-20190504",
+      "title": "Collector: Missing authentication on data submission",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:34:00.342Z",
+      "summary": "Collector: Missing authentication on data submission affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: JT-01-001",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:34:06.716Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "Collector: Missing authentication on data submission",
+        "severity": "Low",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Collector: Missing authentication on data submission affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: JT-01-001",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "collector: missing authentication on data submission",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "JT-01-001|collector missing authentication on data submission|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Collector: Missing authentication on data submission",
+        "sourceText": "JT-01-001 Collector: Missing authentication on data submission (Info)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Collector: Missing authentication on data submission",
+      "canonicalKey": "JT-01-001|collector missing authentication on data submission|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-002",
+      "slug": "ui-dos-on-elasticsearch-due-to-large-input-values-investigation-scope",
+      "reportId": "G-cure53-jaeger-20190504",
+      "reportName": "cure53-jaeger-20190504",
+      "title": "UI: DoS on Elasticsearch due to large input values",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:34:00.342Z",
+      "summary": "UI: DoS on Elasticsearch due to large input values affecting investigation-scope; extractor found type Denial of Service.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: JT-01-002",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:34:06.716Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "UI: DoS on Elasticsearch due to large input values",
+        "severity": "Low",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "UI: DoS on Elasticsearch due to large input values affecting investigation-scope; extractor found type Denial of Service.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: JT-01-002",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "ui: dos on elasticsearch due to large input values",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "JT-01-002|ui dos on elasticsearch due to large input values|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "UI: DoS on Elasticsearch due to large input values",
+        "sourceText": "JT-01-002 UI: DoS on Elasticsearch due to large input values (Info)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "UI: DoS on Elasticsearch due to large input values",
+      "canonicalKey": "JT-01-002|ui dos on elasticsearch due to large input values|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-003",
+      "slug": "k8s-missing-defense-in-depth-procedures-investigation-scope",
+      "reportId": "G-cure53-jaeger-20190504",
+      "reportName": "cure53-jaeger-20190504",
+      "title": "K8s: Missing defense-in-depth procedures",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:34:00.342Z",
+      "summary": "K8s: Missing defense-in-depth procedures affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: JT-01-003",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:34:06.717Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "K8s: Missing defense-in-depth procedures",
+        "severity": "Low",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "K8s: Missing defense-in-depth procedures affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: JT-01-003",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "k8s: missing defense-in-depth procedures",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "JT-01-003|k8s missing defense in depth procedures|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "K8s: Missing defense-in-depth procedures",
+        "sourceText": "JT-01-003 K8s: Missing defense-in-depth procedures (Info)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "K8s: Missing defense-in-depth procedures",
+      "canonicalKey": "JT-01-003|k8s missing defense in depth procedures|investigation scope||||||"
+    }
+  ],
+  "eval": {
+    "enableNlp": true,
+    "expectedCount": 3,
+    "actualCount": 3,
+    "expectedSeverityCounts": {
+      "Critical": 0,
+      "High": 0,
+      "Medium": 0,
+      "Low": 3
+    },
+    "actualSeverityCounts": {
+      "Critical": 0,
+      "High": 0,
+      "Medium": 0,
+      "Low": 3
+    },
+    "duplicates": 0,
+    "negativeHits": 0,
+    "pass": true
+  }
+}

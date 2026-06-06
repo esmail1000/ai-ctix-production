@@ -1,0 +1,1160 @@
+{
+  "manifest": {
+    "id": "consensys-diligence-0x-v3-staking-audit-2019-10",
+    "vendor": "Consensys",
+    "family": "consensys",
+    "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+    "sourcePath": "Consensys/Diligence/0x-v3-staking-audit-2019-10.pdf",
+    "textPath": "data/golden-reports/extracted-text/consensys-diligence-0x-v3-staking-audit-2019-10.txt",
+    "expectedPath": "data/golden-reports/expected/consensys-diligence-0x-v3-staking-audit-2019-10.json"
+  },
+  "expected": {
+    "id": "consensys-diligence-0x-v3-staking-audit-2019-10",
+    "expectedCount": 18,
+    "expectedSeverityCounts": {
+      "Critical": 0,
+      "High": 2,
+      "Medium": 5,
+      "Low": 11
+    },
+    "notes": [
+      "Promoted from verified Stage 4 V4 review queue.",
+      "Source review id: consensys-diligence-0x-v3-staking-audit-2019-10-70f54aa4",
+      "Source path: Consensys/Diligence/0x-v3-staking-audit-2019-10.pdf",
+      "Info / Informational / Note / Minor findings are normalized to Low by the current app model.",
+      "Major findings are normalized to High by the current app model.",
+      "Requires ENABLE_NLP=true and ENABLE_GENERIC_INDEX_ALIGNMENT=true.",
+      "7ASecurity reports also require ENABLE_7ASECURITY_INDEX_ALIGNMENT=true.",
+      "Do not promote the excluded research / expert-witness / manual-hold reports without separate manual review."
+    ]
+  },
+  "report": {
+    "id": "G-consensys-diligence-0x-v3-staking-audit-2019-10",
+    "slug": "consensys-diligence-0x-v3-staking-audit-2019-10",
+    "name": "consensys-diligence-0x-v3-staking-audit-2019-10",
+    "type": "PDF",
+    "uploadedAt": "2026-06-05T23:32:09.648Z",
+    "owner": "AI CTIX Analyzer",
+    "status": "Ready",
+    "findings": 18,
+    "critical": 0,
+    "high": 2,
+    "medium": 5,
+    "low": 11,
+    "summary": "setParams bypasses safety checks made by standard StakingProxy upgrade path. 11 Recommendation: remove complicating getters from MixinStakingPoolRewards Minor Won't Fix 13 Misleading MoveStake event when moving stake from UNDELEGATED to",
+    "parsingStatus": "parsed",
+    "analysisVersion": 1,
+    "parserVersion": 1,
+    "parsingNotes": [
+      "Structured parser found no blocks; heuristic fallback was used.",
+      "NLP hybrid extraction produced 7 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+      "Aligned findings with generic official index: 7 -> 18."
+    ],
+    "content": "Date October 2019\nLead Auditor Steve Marx\nCo-auditors Alex Wade\n0x v3 Staking Audit\n1 Summary\n2 Audit Scope\n3 System Overview\n4 Risk Assessment\n5 Issues\n5.1 Anyone can remove a maker’s pending pool join status Major ✓ Fixed\n5.2 Delegated stake weight reduction can be bypassed by using an external\ncontract Major Won't Fix\n5.3 MixinParams.setParams bypasses safety checks made by standard\nStakingProxy upgrade path. Medium ✓ Fixed\n5.4 Authorized addresses can inde\u0000nitely stall ZrxVaultBackstop catastrophic\nfailure mode Medium ✓ Fixed\n5.5 Pool 0 can be used to temporarily prevent makers from joining another pool\nMedium ✓ Fixed\n5.6 Recommendation: Fix weak assertions in MixinStakingPool stemming from\nuse of NIL_POOL_ID Medium ✓ Fixed\n5.7 LibFixedMath functions fail to catch a number of over\u0000ows Medium\n✓ Fixed\n5.8 Recommendation: Remove MixinAbstract and fold\nMixinStakingPoolRewards into MixinFinalizer and MixinStake Minor\nWon't Fix\n5.9 Recommendation: remove confusing access to activePoolsThisEpoch\nMinor ✓ Fixed\n5.10 Recommendation: remove\nMixinFinalizer._getUnfinalizedPoolRewardsFromState Minor Won't Fix\n5.11 Recommendation: remove complicating getters from\nMixinStakingPoolRewards Minor Won't Fix\n\n-- 1 of 50 --\n\n5.12 Recommendation: remove unneeded dependency on MixinStakeBalances\nMinor Won't Fix\n5.13 Misleading MoveStake event when moving stake from UNDELEGATED to\nUNDELEGATED Minor ✓ Fixed\n5.14 The staking contracts contain several artifacts of a quickly-changing\ncodebase Minor ✓ Fixed\n5.15 Remove unneeded \u0000elds from StoredBalance and Pool structs Minor\n✓ Fixed\n5.16 Remove unnecessary fallback function in Staking contract Minor ✓ Fixed\n5.17 Pool IDs can just be incrementing integers Minor ✓ Fixed\n5.18 LibProxy.proxyCall() may overwrite important memory Minor ✓ Fixed\n6 Tool-Based Analysis\n6.1 MythX\n6.2 Surya\nAppendix 1 - Disclosure\n1 Summary\nConsenSys Diligence conducted a security audit on the 0x staking contracts. These\ncontracts control the distribution of fees collected by the 0x Exchange to ZRX stakers.\nThe 0x v3 Exchange audit is good background reading to understand this report.\n2 Audit Scope\nThe scope of this audit was the staking project within the 0x monorepo.\nThis audit covered the following \u0000les from commit b8e01d7 of the 0xProject/0x-monorepo:\nFile Name SHA-1 Hash\nReadOnlyProxy.sol 6ec64526446ebff87ec5528ee3b2786338cc4fa0\nStaking.sol 67ddcb9ab75e433882e28d9186815990b7084c61\nStakingProxy.sol 248f562d014d0b1ca6de3212966af3e52a7deef1\nZrxVault.sol 6c3249314868a2f5d0984122e8ab1413a5b521c9\nfees/MixinExchangeFees.sol 9ac3b696baa8ba09305cfc83d3c08f17d9d528e1\n\n-- 2 of 50 --\n\nFile Name SHA-1 Hash\nfees/MixinExchangeManager.sol 46f48136a49919cdb5588dc1b3d64c977c3367f2\nimmutable/MixinConstants.sol 97c2ac83ef97a09cfd485cb0d4b119ba0902cc79\nimmutable/MixinDeploymentConstants.sol 424f22c45df8e494c4a78f239ea07ff0400d694b\nimmutable/MixinStorage.sol 8ad475b0e424e7a3ff65eedf2e999cba98f414c8\ninterfaces/IStaking.sol ec1d7f214e3fd40e14716de412deee9769359bc0\ninterfaces/IStakingEvents.sol 25f16b814c4df9d2002316831c3f727d858456c4\ninterfaces/IStakingProxy.sol 02e35c6b51e08235b2a01d30a8082d60d9d61bee\ninterfaces/IStorage.sol eeaa798c262b46d1874e904cf7de0423d4132cee\ninterfaces/IStorageInit.sol b9899b03e474ea5adc3b4818a4357f71b8d288d4\ninterfaces/IStructs.sol fee17d036883d641afb1222b75eec8427f3cdb96\ninterfaces/IZrxVault.sol 9067154651675317e000cfa92de9741e50c1c809\nlibs/LibCobbDouglas.sol 242d62d71cf8bc09177d240c0db59b83f9bb4e96\nlibs/LibFixedMath.sol 36311e7be09a947fa4e6cd8c544cacd13d65833c\nlibs/LibFixedMathRichErrors.sol 39cb3e07bbce3272bbf090e87002d5834d288ec2\nlibs/LibProxy.sol 29abe52857a782c8da39b053cc54e02e295c1ae2\nlibs/LibSafeDowncast.sol ae16ed2573d64802793320253b060b9507729c3d\nlibs/LibStakingRichErrors.sol f5868ef6066a18277c932e59c0a516ec58920b00\nstake/MixinStake.sol ade59ed356fe72521ffd2ef12ff8896c852f11f8\nstake/MixinStakeBalances.sol cde6ca1a6200570ba18dd6d392ffabf68c2bb464\nstake/MixinStakeStorage.sol cadf34d9d341efd2a85dd13ec3cd4ce8383e0f73\nstaking_pools/MixinCumulativeRewards.sol 664ea3e35376c81492457dc17832a4d0d602c8ae\nstaking_pools/MixinStakingPool.sol 74ba9cb2db29b8dd6376d112e9452d117a391b18\nstaking_pools/MixinStakingPoolRewards.sol a3b4e5c9b1c3568c94923e2dd9a93090ebdf8536\nsys/MixinAbstract.sol 99fd4870c20d8fa03cfa30e8055d3dfb348ed5cd\nsys/MixinFinalizer.sol cc658ed07241c1804cec75b12203be3cd8657b9b\nsys/MixinParams.sol 7b395f4da7ed787d7aa4eb915f15377725ff8168\nsys/MixinScheduler.sol 2fab6b83a6f9e1d0dd1b1bdcea4b129d166aef1d\n\n-- 3 of 50 --\n\nThe audit activities can be grouped into the following three broad categories:\n1. Security: Identifying security related issues within the contract.\n2. Architecture: Evaluating the system architecture through the lens of established\nsmart contract best practices.\n3. Code quality: A full review of the contract source code. The primary areas of focus\ninclude:\nCorrectness\nReadability\nScalability\nCode complexity\nQuality of test coverage\n3 System Overview\nThe staking contracts are a mechanism for distributed protocol fees collected by the 0x\nExchange. Fees are distributed to pools of ZRX stakeholders according to a formula that\ntakes into account:\n1. how much ZRX is being staked by the pool and\n2. the amount of protocol fees generated by liquidity providers (“makers”) in that pool.\nThe v3 staking speci\u0000cation is the best available documentation for understanding how\nthe staking contract system works.\n4 Risk Assessment\nThe code that handles staking is very complex. We remain uncomfortable with parts of the\ncode that were too di\u0000cult to audit effectively. That said, this doesn’t mean it’s unsafe to\ninteract with the contract. There are three types of interactions where funds are potentially\nat risk:\n1. ZRX deposits and withdrawals by stakers.\n2. The staking contracts hold WETH (wrapped ether) that is collected as protocol fees\nfrom the Exchange contracts.\n3. Collected WETH is distributed to stakers according to the internal logic of the staking\ncontract.\n\n-- 4 of 50 --\n\nWe can assess the risk associated with all three:\n1. ZRX deposits and withdrawals make use of a fairly simple ZrxVault contract, which\nincludes a fail-safe mechanism which can be triggered by 0x if needed to allow stakers\nto directly withdraw their ZRX. Excluding malicious action by 0x themselves, ZRX\ndeposits and withdrawals have low risk of fund loss.\n2. Although WETH needs to be approved to the staking contracts, the only WETH\nactually held by the staking contracts is what is collected in payProtocolFee , which\nis invoked by the Exchange. There’s low risk of WETH being inappropriately transferred\nfrom users.\n3. Most of the complexity of the staking contracts deals with how the collected fees are\ndistributed. This is the part of the code the audit team has less con\u0000dence in, meaning\nthere’s a relatively higher risk of errors being made here.\nThis risk assessment means that the most likely type of bug to encounter is one where\nrewards are paid out incorrectly, or a bug prevents paying out rewards altogether. Those\noutcomes are no worse for stakers than simply not staking at all.\n5 Issues\nEach issue has an assigned severity:\nMinor issues are subjective in nature. They are typically suggestions around best\npractices or readability. Code maintainers should use their own judgment as to\nwhether to address such issues.\nMedium issues are objective in nature but are not security vulnerabilities. These\nshould be addressed unless there is a clear reason not to.\nMajor issues are security vulnerabilities that may not be directly exploitable or may\nrequire certain conditions in order to be exploited. All major issues should be\naddressed.\nCritical issues are directly exploitable security vulnerabilities that need to be \u0000xed.\n5.1 Anyone can remove a maker’s pending pool join status Major\n✓ Fixed\nResolution\n\n-- 5 of 50 --\n\nThis is \u0000xed in 0xProject/0x-monorepo#2250 by removing the two-step handshake for\na maker to join a pool.\nDescription\nUsing behavior described in issue 5.6, it is possible to delete the pending join status of any\nmaker in any pool by passing in NIL_POOL_ID to removeMakerFromStakingPool . Note\nthat the attacker in the following example must not be a con\u0000rmed member of any pool:\n1. The attacker calls addMakerToStakingPool(NIL_POOL_ID, makerAddress) . In this\ncase, makerAddress can be almost any address, as long as it has not called\njoinStakingPoolAsMaker (an easy example is address(0) ). The key goal of this\ncall is to increment the number of makers in pool 0:\ncode/contracts/staking/contracts/src/staking_pools/MixinStakingPool.sol:L262\n2. The attacker calls removeMakerFromStakingPool(NIL_POOL_ID, targetAddress) .\nThis function queries getStakingPoolIdOfMaker(targetAddress) and compares it\nto the passed-in pool id. Because the target is an uncon\u0000rmed maker, their staking\npool id is NIL_POOL_ID :\ncode/contracts/staking/contracts/src/staking_pools/MixinStakingPool.sol:L166-\nL173\nThe check passes, and the target’s _poolJoinedByMakerAddress struct is deleted.\nAdditionally, the number of makers in pool 0 is decreased:\n_poolById[poolId].numberOfMakers = uint256(pool.numberOfMakers).safeAdd(1)\nbytes32 makerPoolId = getStakingPoolIdOfMaker(makerAddress);\nif (makerPoolId != poolId) {\nLibRichErrors.rrevert(LibStakingRichErrors.MakerPoolAssignmentError(\nLibStakingRichErrors.MakerPoolAssignmentErrorCodes.MakerAddressNot\nmakerAddress,\nmakerPoolId\n));\n}\n\n-- 6 of 50 --\n\ncode/contracts/staking/contracts/src/staking_pools/MixinStakingPool.sol:L176-L177\nThis can be used to prevent any makers from being con\u0000rmed into a pool.\nRecommendation\nSee issue 5.6.\ndelete _poolJoinedByMakerAddress[makerAddress];\n_poolById[poolId].numberOfMakers = uint256(_poolById[poolId].numberOfMakers).s\n5.2 Delegated stake weight reduction can be bypassed by using an\nexternal contract Major Won't Fix\nResolution\nFrom the development team:\nAlthough it is possible to bypass the weight reduction via external smart\ncontracts, we believe there is some value to having a lower delegated stake\nweight as the default behavior. This can still approximate the intended\nbehavior and should give a very slight edge to pool operators that own their\nstake.\nDescription\nStaking pools allow ZRX holders to delegate their staked ZRX to a market maker in\nexchange for a con\u0000gurable percentage of the stake reward (accrued over time through\nexchange fees). When staking as expected through the 0x contracts, the protocol favors\nZRX staked directly by the operator of the pool, assigning a lower weight (90%) to ZRX\nstaked by delegation. In return, delegated members receive a con\u0000gurable portion of the\noperator’s stake reward.\nUsing a smart contract, it is possible to represent ZRX owned by any number of parties as\nZRX staked by a single party. This contract can serve as the operator of a pool with a single\nmember—itself. The advantages are clear for ZRX holders:\n\n-- 7 of 50 --\n\nZRX staked through this contract will be given full (100%) stake weight.\nBecause stake weight is a factor in reward allocation, the ZRX staked through this\ncontract receives a higher proportion of the stake reward.\nRecommendation\nRemove stake weight reduction for delegated stake.\n5.3 MixinParams.setParams bypasses safety checks made by\nstandard StakingProxy upgrade path. Medium ✓ Fixed\nResolution\nThis is \u0000xed in 0xProject/0x-monorepo#2279. Now the parameter validity is asserted\nin setParams() .\nDescription\nThe staking contracts use a set of con\u0000gurable parameters to determine the behavior of\nvarious parts of the system. The parameters dictate the duration of epochs, the ratio of\ndelegated stake weight vs operator stake, the minimum pool stake, and the Cobb-Douglas\nnumerator and denominator. These parameters can be con\u0000gured in two ways:\n1. An authorized address can deploy a new Staking contract (perhaps with altered\nparameters), and con\u0000gure the StakingProxy to delegate to this new contract. This\nis done by calling\nStakingProxy.detachStakingContract :\ncode/contracts/staking/contracts/src/StakingProxy.sol:L82-L90\n/// @dev Detach the current staking contract.\n/// Note that this is callable only by an authorized address.\nfunction detachStakingContract()\nexternal\nonlyAuthorized\n{\nstakingContract = NIL_ADDRESS;\n\n-- 8 of 50 --\n\nemit StakingContractDetachedFromProxy();\n}\nStakingProxy.attachStakingContract(newContract) :\ncode/contracts/staking/contracts/src/StakingProxy.sol:L72-L80\nDuring the latter call, the StakingProxy performs a delegatecall to Staking.init ,\nthen checks the values of the parameters set during initialization:\ncode/contracts/staking/contracts/src/StakingProxy.sol:L208-L219\n2. An authorized address can call MixinParams.setParams at any time and set the\ncontract’s parameters to arbitrary values.\n/// @dev Attach a staking contract; future calls will be delegated to\n/// Note that this is callable only by an authorized address.\n/// @param _stakingContract Address of staking contract.\nfunction attachStakingContract(address _stakingContract)\nexternal\nonlyAuthorized\n{\n_attachStakingContract(_stakingContract);\n}\n// Call `init()` on the staking contract to initialize storage.\n(bool didInitSucceed, bytes memory initReturnData) = stakingContract.deleg\nabi.encodeWithSelector(IStorageInit(0).init.selector)\n);\nif (!didInitSucceed) {\nassembly {\nrevert(add(initReturnData, 0x20), mload(initReturnData))\n}\n}\n// Assert initialized storage values are valid\n_assertValidStorageParams();\n\n-- 9 of 50 --\n\nThe latter method introduces the possibility of setting unsafe or nonsensical values for the\ncontract parameters: epochDurationInSeconds can be set to 0,\ncobbDouglassAlphaNumerator can be larger than cobbDouglassAlphaDenominator ,\nrewardDelegatedStakeWeight can be set to a value over 100% of the staking reward, and\nmore.\nNote, too, that by using MixinParams.setParams to set all parameters to 0, the Staking\ncontract can be re-initialized by way of Staking.init . Additionally, it can be re-attached\nby way of StakingProxy.attachStakingContract , as the delegatecall to Staking.init\nwill succeed.\nRecommendation\nEnsure that calls to setParams check that the provided values are within the same range\ncurrently enforced by the proxy.\n5.4 Authorized addresses can inde\u0000nitely stall ZrxVaultBackstop\ncatastrophic failure mode Medium ✓ Fixed\nResolution\nThis is \u0000xed in 0xProject/0x-monorepo#2295 by removing the ZrxVaultBackstop\nand read-only mode altogether.\nDescription\nThe ZrxVaultBackstop contract was added to allow anyone to activate the staking\nsystem’s “catastrophic failure” mode if the StakingProxy is in “read-only” mode for at\nleast 40 days. To enable this behavior, the StakingProxy contract was modi\u0000ed to track\nthe last timestamp at which “read-only” mode was activated. This is done by way of\nStakingProxy.setReadOnlyMode :\ncode/contracts/staking/contracts/src/StakingProxy.sol:L92-L104\n/// @dev Set read-only mode (state cannot be changed).\nfunction setReadOnlyMode(bool shouldSetReadOnlyMode)\nexternal\n\n-- 10 of 50 --\n\nonlyAuthorized\n{ \n// solhint-disable-next-line not-rely-on-time\nuint96 timestamp = block.timestamp.downcastToUint96();\nif (shouldSetReadOnlyMode) {\nstakingContract = readOnlyProxy;\nreadOnlyState = IStructs.ReadOnlyState({\nisReadOnlyModeSet: true,\nlastSetTimestamp: timestamp\n});\nBecause the timestamp is updated even if “read-only” mode is already active, any\nauthorized address can prevent ZrxVaultBackstop from activating catastrophic failure\nmode by repeatedly calling setReadOnlyMode .\nRecommendation\nIf “read-only” mode is already active, setReadOnlyMode(true) should result in a no-op.\n5.5 Pool 0 can be used to temporarily prevent makers from joining\nanother pool Medium ✓ Fixed\nResolution\nThis is \u0000xed in 0xProject/0x-monorepo#2250. Pool IDs now start at 1.\nDescription\nremoveMakerFromStakingPool reverts if the number of makers currently in the pool is 0,\ndue to safeSub catching an under\u0000ow:\ncode/contracts/staking/contracts/src/staking_pools/MixinStakingPool.sol:L177\nBecause of this, edge behavior described in issue 5.6 can allow an attacker to temporarily\nprevent makers from joining a pool:\n_poolById[poolId].numberOfMakers = uint256(_poolById[poolId].numberOfMakers).s\n\n-- 11 of 50 --\n\n1. The attacker calls addMakerToStakingPool(NIL_POOL_ID, victimAddress) . This\nsets the victim’s MakerPoolJoinStatus.confirmed \u0000eld to true and increases the\nnumber of makers in pool 0 to 1:\ncode/contracts/staking/contracts/src/staking_pools/MixinStakingPool.sol:L257-\nL262\n2. The attacker calls removeMakerFromStakingPool(NIL_POOL_ID, randomAddress) .\nThe net effect of this call simply decreases the number of makers in pool 0 by 1, back\nto 0:\ncode/contracts/staking/contracts/src/staking_pools/MixinStakingPool.sol:L176-\nL177\nTypically, the victim should be able to remove themselves from pool 0 by calling\nremoveMakerFromStakingPool(NIL_POOL_ID, victimAddress) , but because the attacker\ncan set the pool’s number of makers to 0, the aforementioned under\u0000ow causes this call to\nfail. The victim must \u0000rst understand what is happening in MixinStakingPool before they\nare able to remedy the situation:\n1. The victim must call addMakerToStakingPool(NIL_POOL_ID, randomAddress2) to\nincrease pool 0’s number of makers back to 1.\n2. The victim can now call removeMakerFromStakingPool(NIL_POOL_ID,\nvictimAddress) , and remove their con\u0000rmed status.\nAdditionally, if the victim in question currently has a pending join, the attacker can use\nissue 5.1 to \u0000rst remove their pending status before locking them in pool 0.\npoolJoinStatus = IStructs.MakerPoolJoinStatus({\npoolId: poolId,\nconfirmed: true\n});\n_poolJoinedByMakerAddress[makerAddress] = poolJoinStatus;\n_poolById[poolId].numberOfMakers = uint256(pool.numberOfMakers).safeAdd(1)\ndelete _poolJoinedByMakerAddress[makerAddress];\n_poolById[poolId].numberOfMakers = uint256(_poolById[poolId].numberOfMaker\n\n-- 12 of 50 --\n\nRecommendation\nSee issue 5.1.\n5.6 Recommendation: Fix weak assertions in MixinStakingPool\nstemming from use of NIL_POOL_ID Medium ✓ Fixed\nResolution\nThis is \u0000xed in 0xProject/0x-monorepo#2250. Pool IDs now start at 1.\nDescription\nThe modi\u0000er onlyStakingPoolOperatorOrMaker(poolId) is used to authorize actions\ntaken on a given pool. The sender must be either the operator or a con\u0000rmed maker of the\npool in question. However, the modi\u0000er queries getStakingPoolIdOfMaker(maker) , which\nreturns NIL_POOL_ID if the maker’s MakerPoolJoinStatus struct is not con\u0000rmed. This\nimplicitly makes anyone a maker of the nonexistent “pool 0”:\ncode/contracts/staking/contracts/src/staking_pools/MixinStakingPool.sol:L189-L200\njoinStakingPoolAsMaker(poolId) makes no existence checks on the provided pool id,\nand allows makers to become pending makers in nonexistent pools.\nfunction getStakingPoolIdOfMaker(address makerAddress)\npublic\nview\nreturns (bytes32)\n{\nIStructs.MakerPoolJoinStatus memory poolJoinStatus = _poolJoinedByMakerAdd\nif (poolJoinStatus.confirmed) {\nreturn poolJoinStatus.poolId;\n} else {\nreturn NIL_POOL_ID;\n}\n}\n\n-- 13 of 50 --\n\naddMakerToStakingPool(poolId, maker) makes no existence checks on the provided\npool id, allowing makers to be added to nonexistent pools (as long as the sender is an\noperator or maker in the pool).\nRecommendation\n1. Avoid use of 0x00...00 for NIL_POOL_ID . Instead, use 2**256 - 1 .\n2. Implement stronger checks for pool existence. Each time a pool id is supplied, it\nshould be checked that the pool id is between 0 and nextPoolId .\n3. onlyStakingPoolOperatorOrMaker should revert if poolId == NIL_POOL_ID or if\npoolId is not in the valid range: (0, nextPoolId).\n5.7 LibFixedMath functions fail to catch a number of over\u0000ows\nMedium ✓ Fixed\nResolution\nThis is \u0000xed in 0xProject/0x-monorepo#2255 and 0xProject/0x-monorepo#2311.\nDescription\nThe __add() , __mul() , and __div() functions perform arithmetic on 256-bit signed\nintegers, and they all miss some speci\u0000c over\u0000ows.\nAddition Over\u0000ows\ncode/contracts/staking/contracts/src/libs/LibFixedMath.sol:L359-L376\n/// @dev Adds two numbers, reverting on overflow.\nfunction _add(int256 a, int256 b) private pure returns (int256 c) {\nc = a + b;\nif (c > 0 && a < 0 && b < 0) {\nLibRichErrors.rrevert(LibFixedMathRichErrors.BinOpError(\nLibFixedMathRichErrors.BinOpErrorCodes.SUBTRACTION_OVERFLOW,\na,\nb\n));\n\n-- 14 of 50 --\n\n}\nif (c < 0 && a > 0 && b > 0) {\nLibRichErrors.rrevert(LibFixedMathRichErrors.BinOpError(\nLibFixedMathRichErrors.BinOpErrorCodes.ADDITION_OVERFLOW,\na,\nb\n));\n}\n}\nThe two over\u0000ow conditions it tests for are:\n1. Adding two positive numbers shouldn’t result in a negative number.\n2. Adding two negative numbers shouldn’t result in a positive number.\n__add(-2**255, -2**255) returns 0 without reverting because the over\u0000ow didn’t\nmatch either of the above conditions.\nMultiplication Over\u0000ows\ncode/contracts/staking/contracts/src/libs/LibFixedMath.sol:L332-L345\n/// @dev Returns the multiplication two numbers, reverting on overflow.\nfunction _mul(int256 a, int256 b) private pure returns (int256 c) {\nif (a == 0) {\nreturn 0;\n}\nc = a * b;\nif (c / a != b) {\nLibRichErrors.rrevert(LibFixedMathRichErrors.BinOpError(\nLibFixedMathRichErrors.BinOpErrorCodes.MULTIPLICATION_OVERFLOW,\na,\nb\n));\n}\n}\nThe function checks via division for most types of over\u0000ows, but it fails to catch one\nparticular case. __mul(-2**255, -1) returns -2**255 without error.\n\n-- 15 of 50 --\n\nDivision Over\u0000ows\ncode/contracts/staking/contracts/src/libs/LibFixedMath.sol:L347-L357\nIt does not check for over\u0000ow. Due to this, __div(-2**255, -1) erroneously returns\n-2**255 .\nRecommendation\nFor addition, the speci\u0000c case of __add(-2**255, -2**255) can be detected by using a\n>= 0 check instead of > 0 , but the below seems like a clearer check for all cases:\n// if b is negative, then the result should be less than a\nif (b < 0 && c >= a) {\n/* subtraction overflow */ }\n// if b is positive, then the result should be greater than a\nif (b > 0 && c <= a) {\n/* addition overflow */ }\nFor multiplication and division, the speci\u0000c values of -2**255 and -1 are the only\nmissing cases, so that can be explicitly checked in the __mul() and __div() functions.\n/// @dev Returns the division of two numbers, reverting on division by zero.\nfunction _div(int256 a, int256 b) private pure returns (int256 c) {\nif (b == 0) {\nLibRichErrors.rrevert(LibFixedMathRichErrors.BinOpError(\nLibFixedMathRichErrors.BinOpErrorCodes.DIVISION_BY_ZERO,\na,\nb\n));\n}\nc = a / b;\n}\n5.8 Recommendation: Remove MixinAbstract and fold\nMixinStakingPoolRewards into MixinFinalizer and MixinStake\nMinor Won't Fix\n\n-- 16 of 50 --\n\nResolution\nThe development team investigated this suggestion, but they were ultimately\nuncomfortable making such a large change in this cycle. This can be considered\nagain in a future version of the code.\nDescription\nAfter implementing issue 5.12, issue 5.11, issue 5.10, and issue 5.9, MixinAbstract\nserves little utility except as a way to pull functionality from MixinFinalizer into\nMixinStakingPoolRewards . The abstract pattern adds unnecessary cognitive overhead\nand should be eliminated if possible. One possible method for this is as follows:\n1. Move MixinStakingPoolRewards.withdrawDelegatorRewards into MixinStake . As\nper the comments above this function, its behavior is very similar to functions in\nMixinStake :\ncode/contracts/staking/contracts/src/staking_pools/MixinStakingPoolRewards.sol:L35-\nL56\n/// @dev Syncs rewards for a delegator. This includes transferring WETH\n/// rewards to the delegator, and adding/removing\n/// dependencies on cumulative rewards.\n/// This is used by a delegator when they want to sync their rewards\n/// without delegating/undelegating. It's effectively the same as\n/// delegating zero stake.\n/// @param poolId Unique id of pool.\nfunction withdrawDelegatorRewards(bytes32 poolId)\nexternal\n{\naddress member = msg.sender;\n_withdrawAndSyncDelegatorRewards(\npoolId,\nmember\n);\n// Update stored balance with synchronized version; this prevents\n\n-- 17 of 50 --\n\n2. Move the rest of the MixinStakingPoolRewards functions into MixinFinalizer .\nThis change allows the MixinStakingPoolRewards and MixinAbstract \u0000les to be\nremoved. MixinStakingPool can now inherit directly from MixinFinalizer .\nAfter implementing all recommendations mentioned here, the inheritance graph of the\nstaking contracts is much simpler. The previous graph is pictured here:\nThe new graph is pictured here:\n// redundant withdrawals.\n_delegatedStakeToPoolByOwner[member][poolId] =\n_loadSyncedBalance(_delegatedStakeToPoolByOwner[member][poolId]);\n}\n\n-- 18 of 50 --\n\nFurther improvements may consider:\n1. Having MixinStorage inherit MixinConstants and IStakingEvents\n2. Moving _loadCurrentBalance into MixinStorage . Currently MixinStakeBalances\nonly inherits from MixinStakeStorage because of this function.\n3. After implementing the above, MixinExchangeFees is no longer dependent on\nMixinStakingPool and can inherit directly from MixinExchangeManager\nA sample inheritance graph including the above is pictured below:\n5.9 Recommendation: remove confusing access to\nactivePoolsThisEpoch Minor ✓ Fixed\nResolution\nThis is \u0000xed in 0xProject/0x-monorepo#2276. Along with other state cleanup, these\nfunctions and epoch % 2 indexing altogether were removed.\nDescription\nMixinFinalizer provides two functions to access activePoolsThisEpoch :\n\n-- 19 of 50 --\n\n1. _getActivePoolsFromEpoch returns a storage pointer to the mapping:\ncode/contracts/staking/contracts/src/sys/MixinFinalizer.sol:L211-L225\n2. _getActivePoolFromEpoch invokes _getActivePoolsFromEpoch , then loads an\nActivePool struct from a passed-in poolId :\ncode/contracts/staking/contracts/src/sys/MixinFinalizer.sol:L195-L209\n/// @dev Get an active pool from an epoch by its ID.\n/// @param epoch The epoch the pool was/will be active in.\n/// @param poolId The ID of the pool.\n/// @return pool The pool with ID `poolId` that was active in `epoch`.\nfunction _getActivePoolFromEpoch(\nuint256 epoch,\nbytes32 poolId\n)\ninternal\nview\nreturns (IStructs.ActivePool memory pool)\n{\npool = _getActivePoolsFromEpoch(epoch)[poolId];\n/// @dev Get a mapping of active pools from an epoch.\n/// This uses the formula `epoch % 2` as the epoch index in order\n/// to reuse state, because we only need to remember, at most, two\n/// epochs at once.\n/// @return activePools The pools that were active in `epoch`.\nfunction _getActivePoolsFromEpoch(\nuint256 epoch\n)\ninternal\nview\nreturns (mapping (bytes32 => IStructs.ActivePool) storage activePools)\n{\nactivePools = _activePoolsByEpoch[epoch % 2];\nreturn activePools;\n}\n\n-- 20 of 50 --\n\nreturn pool;\n}\nUltimately, the two functions are syntax sugar for activePoolsThisEpoch[epoch % 2] ,\nwith the latter also accessing a value within the mapping. Because of the naming similarity,\nand because one calls the other, this abstraction is more confusing that simply accessing\nthe state variable directly.\nAdditionally, by removing these functions and adopting the long-form syntax,\nMixinExchangeFees no longer needs to inherit MixinFinalizer .\n5.10 Recommendation: remove\nMixinFinalizer._getUnfinalizedPoolRewardsFromState Minor\nWon't Fix\nResolution\nThe development team decided to keep this function for its optimization on storage\nloads. It’s will still be used internally by getters that are important for client-side code.\nDescription\nMixinFinalizer._getUnfinalizedPoolRewardsFromState is a simple wrapper around the\nlibrary function LibCobbDouglas.cobbDouglas :\ncode/contracts/staking/contracts/src/sys/MixinFinalizer.sol:L250-L286\n/// @dev Computes the reward owed to a pool during finalization.\n/// @param pool The active pool.\n/// @param state The current state of finalization.\n/// @return rewards Unfinalized rewards for this pool.\nfunction _getUnfinalizedPoolRewardsFromState(\nIStructs.ActivePool memory pool,\nIStructs.UnfinalizedState memory state\n)\nprivate\nview\n\n-- 21 of 50 --\n\nAfter implementing issue 5.11, this function is only called a single time, in\nMixinFinalizer.finalizePool :\ncode/contracts/staking/contracts/src/sys/MixinFinalizer.sol:L119-L129\n// Noop if the pool was not active or already finalized (has no fees).\nif (pool.feesCollected == 0) {\nreturn;\n}\n// Clear the pool state so we don't finalize it again, and to recoup\nreturns (uint256 rewards)\n{ \n// There can't be any rewards if the pool was active or if it has\n// no stake.\nif (pool.feesCollected == 0) {\nreturn rewards;\n}\n// Use the cobb-douglas function to compute the total reward.\nrewards = LibCobbDouglas.cobbDouglas(\nstate.rewardsAvailable,\npool.feesCollected,\nstate.totalFeesCollected,\npool.weightedStake,\nstate.totalWeightedStake,\ncobbDouglasAlphaNumerator,\ncobbDouglasAlphaDenominator\n);\n// Clip the reward to always be under\n// `rewardsAvailable - totalRewardsPaid`,\n// in case cobb-douglas overflows, which should be unlikely.\nuint256 rewardsRemaining = state.rewardsAvailable.safeSub(state.totalRewar\nif (rewardsRemaining < rewards) {\nrewards = rewardsRemaining;\n}\n}\n\n-- 22 of 50 --\n\n// some gas.\ndelete _getActivePoolsFromEpoch(prevEpoch)[poolId];\n// Compute the rewards.\nuint256 rewards = _getUnfinalizedPoolRewardsFromState(pool, state);\nBecause it is only used a single time, and because it obfuscates an essential library call\nduring the \u0000nalization process, the function should be removed and folded into\nfinalizePool . Additionally, the \u0000rst check for pool.feesCollected == 0 can be\nremoved, as this case is covered in finalizePool already (see above).\n5.11 Recommendation: remove complicating getters from\nMixinStakingPoolRewards Minor Won't Fix\nResolution\nThese getters are useful for client-side code, such as the staking interface.\nDescription\nMixinStakingPoolRewards has two external view functions that contribute complexity\nto essential functions, as well as the overall inheritance tree:\n1. computeRewardBalanceOfOperator , used to compute the reward balance of a pool’s\noperator on an un\u0000nalized pool:\ncode/contracts/staking/contracts/src/staking_pools/MixinStakingPoolRewards.sol:L55-\nL69\n/// @dev Computes the reward balance in ETH of the operator of a pool.\n/// @param poolId Unique id of pool.\n/// @return totalReward Balance in ETH.\nfunction computeRewardBalanceOfOperator(bytes32 poolId)\nexternal\nview\nreturns (uint256 reward)\n{\n\n-- 23 of 50 --\n\n2. computeRewardBalanceOfDelegator , used to compute the reward balance of a\ndelegator for an un\u0000nalized pool:\ncode/contracts/staking/contracts/src/staking_pools/MixinStakingPoolRewards.sol:L80-\nL99\nThese two functions are the sole reason for the existence of\nMixinFinalizer._getUnfinalizedPoolRewards , one of the two functions in\nMixinAbstract :\n// Because operator rewards are immediately withdrawn as WETH\n// on finalization, the only factor in this function are unfinalized\n// rewards.\nIStructs.Pool memory pool = _poolById[poolId];\n// Get any unfinalized rewards.\n(uint256 unfinalizedTotalRewards, uint256 unfinalizedMembersStake) =\n_getUnfinalizedPoolRewards(poolId);\n/// @dev Computes the reward balance in ETH of a specific member of a pool\n/// @param poolId Unique id of pool.\n/// @param member The member of the pool.\n/// @return totalReward Balance in ETH.\nfunction computeRewardBalanceOfDelegator(bytes32 poolId, address member)\nexternal\nview\nreturns (uint256 reward)\n{\nIStructs.Pool memory pool = _poolById[poolId];\n// Get any unfinalized rewards.\n(uint256 unfinalizedTotalRewards, uint256 unfinalizedMembersStake) =\n_getUnfinalizedPoolRewards(poolId);\n// Get the members' portion.\n(, uint256 unfinalizedMembersReward) = _computePoolRewardsSplit(\npool.operatorShare,\nunfinalizedTotalRewards,\nunfinalizedMembersStake\n);\n\n-- 24 of 50 --\n\ncode/contracts/staking/contracts/src/sys/MixinAbstract.sol:L40-L52\n/// @dev Computes the reward owed to a pool during finalization.\n/// Does nothing if the pool is already finalized.\n/// @param poolId The pool's ID.\n/// @return totalReward The total reward owed to a pool.\n/// @return membersStake The total stake for all non-operator members in\n///\n this pool.\nfunction _getUnfinalizedPoolRewards(bytes32 poolId)\ninternal\nview\nreturns (\nuint256 totalReward,\nuint256 membersStake\n);\nThese functions also necessitate two additional parameters in\nMixinStakingPoolRewards._computeDelegatorReward , which are used a single time to\ncall _computeUnfinalizedDelegatorReward :\ncode/contracts/staking/contracts/src/staking_pools/MixinStakingPoolRewards.sol:L253-\nL259\n// 1/3 Unfinalized rewards earned in `currentEpoch - 1`.\nreward = _computeUnfinalizedDelegatorReward(\ndelegatedStake,\n_currentEpoch,\nunfinalizedMembersReward,\nunfinalizedMembersStake\n);\nNote that computeRewardBalanceOfOperator and computeRewardBalanceOfDelegator\ncontain the only calls to _computeDelegatorReward with nonzero values for the above\nparameters, unfinalizedMembersReward and unfinalizedMembersStake . For all\nessential functions, the call to _computeUnfinalizedDelegatorReward is a no-op.\nBy removing the functions computeRewardBalanceOfOperator and\ncomputeRewardBalanceOfDelegator , the following simpli\u0000cations can be made:\n\n-- 25 of 50 --\n\n_getUnfinalizedPoolRewards can be removed from both MixinAbstract and\nMixinFinalizer\nThe parameters unfinalizedMembersReward and unfinalizedMembersStake can be\nremoved from _computeDelegatorReward\nThe function _computeUnfinalizedDelegatorReward can be removed\nA branch of now-unused logic in _computeDelegatorReward can be removed\n5.12 Recommendation: remove unneeded dependency on\nMixinStakeBalances Minor Won't Fix\nResolution\nFrom the development team:\nWe’re going to keep this abstraction to future-proof balance queries.\nDescription\nMixinStakeBalances has two functions used by inheriting contracts:\n1. getStakeDelegatedToPoolByOwner , which provides shorthand to access\n_delegatedStakeToPoolByOwner :\ncode/contracts/staking/contracts/src/stake/MixinStakeBalances.sol:L84-L95\n/// @dev Returns the stake delegated to a specific staking pool, by a give\n/// @param staker of stake.\n/// @param poolId Unique Id of pool.\n/// @return Stake delegated to pool by staker.\nfunction getStakeDelegatedToPoolByOwner(address staker, bytes32 poolId)\npublic\nview\nreturns (IStructs.StoredBalance memory balance)\n{\nbalance = _loadCurrentBalance(_delegatedStakeToPoolByOwner[staker][poo\n\n-- 26 of 50 --\n\n2. getTotalStakeDelegatedToPool , which provides shorthand to access\n_delegatedStakeByPoolId :\ncode/contracts/staking/contracts/src/stake/MixinStakeBalances.sol:L97-L108\n/// @dev Returns the total stake delegated to a specific staking pool,\n/// across all members.\n/// @param poolId Unique Id of pool.\n/// @return Total stake delegated to pool.\nfunction getTotalStakeDelegatedToPool(bytes32 poolId)\npublic\nview\nreturns (IStructs.StoredBalance memory balance)\n{\nbalance = _loadCurrentBalance(_delegatedStakeByPoolId[poolId]);\nreturn balance;\n}\nEach of these functions is used only a single time:\n1. MixinExchangeFees.payProtocolFee :\ncode/contracts/staking/contracts/src/fees/MixinExchangeFees.sol:L78\n2. MixinExchangeFees._computeMembersAndWeightedStake :\ncode/contracts/staking/contracts/src/fees/MixinExchangeFees.sol:L143-L146\nuint256 operatorStake = getStakeDelegatedToPoolByOwner(\n_poolById[poolId].operator,\npoolId\n).currentEpochBalance;\nreturn balance;\n}\nuint256 poolStake = getTotalStakeDelegatedToPool(poolId).currentEpochBalan\n\n-- 27 of 50 --\n\nBy replacing these function invocations in MixinExchangeFees with the long-form access\nto each state variable, MixinStakeBalances will no longer need to be included in the\ninheritance trees for several contracts.\n5.13 Misleading MoveStake event when moving stake from\nUNDELEGATED to UNDELEGATED Minor ✓ Fixed\nResolution\nThis is \u0000xed in 0xProject/0x-monorepo#2280. If amount is 0 or the move is from\nUNDELEGATED to UNDELEGATED , the function performs an early return.\nDescription\nAlthough moving stake between the same status ( UNDELEGATED <=> UNDELEGATED )\nshould be a no-op, calls to moveStake succeed even for invalid amount and nonsensical\npoolId . The resulting MoveStake event can log garbage, potentially confusing those\nobserving events.\nExamples\nWhen moving between UNDELEGATED and UNDELEGATED , each check and function call\nresults in a no-op, save the \u0000nal event:\n1. Neither from nor to are StakeStatus.DELEGATED , so these checks are passed:\ncode/contracts/staking/contracts/src/stake/MixinStake.sol:L115-L129\nif (from.status == IStructs.StakeStatus.DELEGATED) {\n_undelegateStake(\nfrom.poolId,\nstaker,\namount\n);\n}\nif (to.status == IStructs.StakeStatus.DELEGATED) {\n\n-- 28 of 50 --\n\n_delegateStake(\nto.poolId,\nstaker,\namount\n);\n}\n2. The primary state changing function, _moveStake , immediately returns because the\nfrom and to balance pointers are equivalent:\ncode/contracts/staking/contracts/src/stake/MixinStakeStorage.sol:L47-L49\nif (_arePointersEqual(fromPtr, toPtr)) {\nreturn;\n}\n3. Finally, the MoveStake event is invoked, which can log completely invalid values for\namount , from.poolId , and to.poolId :\ncode/contracts/staking/contracts/src/stake/MixinStake.sol:L141-L148\nemit MoveStake(\nstaker,\namount,\nuint8(from.status),\nfrom.poolId,\nuint8(to.status),\nto.poolId\n);\nRecommendation\nIf amount is 0 or if moving between UNDELEGATED and UNDELEGATED , this function\nshould no-op or revert. An explicit check for this case should be made near the start of the\nfunction.\n\n-- 29 of 50 --\n\n5.14 The staking contracts contain several artifacts of a quickly-\nchanging codebase Minor ✓ Fixed\nResolution\nThese issues were addressed in a variety of \u0000xes, most notably 0xProject/0x-\nmonorepo#2262.\nExamples\n1. address payable is used repeatedly, but payments use WETH:\nMixinStakingPool.createStakingPool :\ncode/contracts/staking/contracts/src/staking_pools/MixinStakingPool.sol:L54\naddress payable operator = msg.sender;\nZrxVault.stakingProxyAddress :\ncode/contracts/staking/contracts/src/ZrxVault.sol:L38\naddress payable public stakingProxyAddress;\nZrxVault.setStakingProxy :\ncode/contracts/staking/contracts/src/ZrxVault.sol:L76\nfunction setStakingProxy(address payable _stakingProxyAddress)\nIZrxVault.setStakingProxy :\ncode/contracts/staking/contracts/src/interfaces/IZrxVault.sol:L53\nfunction setStakingProxy(address payable _stakingProxyAddress)\nstruct IStructs.Pool :\n\n-- 30 of 50 --\n\ncode/contracts/staking/contracts/src/interfaces/IStructs.sol:L114\naddress payable operator;\nMixinStake.stake :\ncode/contracts/staking/contracts/src/stake/MixinStake.sol:L38\naddress payable staker = msg.sender;\nMixinStake.unstake :\ncode/contracts/staking/contracts/src/stake/MixinStake.sol:L63\naddress payable staker = msg.sender;\nMixinStake.moveStake :\ncode/contracts/staking/contracts/src/stake/MixinStake.sol:L119\naddress payable staker = msg.sender;\nMixinStake._delegateStake :\ncode/contracts/staking/contracts/src/stake/MixinStake.sol:L181\naddress payable staker,\nMixinStake._undelegateStake :\ncode/contracts/staking/contracts/src/stake/MixinStake.sol:L210\naddress payable staker,\n2. Some identi\u0000ers are used multiple times for different purposes:\ncurrentEpoch is:\n\n-- 31 of 50 --\n\nA state variable:\ncode/contracts/staking/contracts/src/immutable/MixinStorage.sol:L86\nuint256 public currentEpoch = INITIAL_EPOCH;\nA function parameter:\ncode/contracts/staking/contracts/src/staking_pools/MixinStakingPoolRewards.\nuint256 currentEpoch,\nA struct \u0000eld:\ncode/contracts/staking/contracts/src/interfaces/IStructs.sol:L62\nuint32 currentEpoch;\n3. Several comments are out of date:\nMany struct comments reference fees and rewards denominated in ETH, while\nonly WETH is used:\ncode/contracts/staking/contracts/src/interfaces/IStructs.sol:L36-L38\nUnfinalizedState.totalFeesCollected should specify that it is tracking fees\nattributed to a pool. Fees not attributed to a pool are still collected, but are not\nrecorded:\ncode/contracts/staking/contracts/src/interfaces/IStructs.sol:L41\n/// @param rewardsAvailable Rewards (ETH) available to the epoch\n/// being finalized (the previous epoch). This is simply the ba\n/// of the contract at the end of the epoch.\n/// @param totalFeesCollected The total fees collected for the epoch b\n\n-- 32 of 50 --\n\nUnfinalizedState.totalWeightedStake is copy-pasted from\ntotalFeesCollected :\ncode/contracts/staking/contracts/src/interfaces/IStructs.sol:L42\nPool.initialized seems to be copy-pasted from an older version of the struct\nStoredBalance or StakeBalance :\ncode/contracts/staking/contracts/src/interfaces/IStructs.sol:L108\n/// @param initialized True iff the balance struct is initialized.\n4. The \u0000nal contracts produce several compiler warnings:\nSeveral functions are intentionally marked view to allow overriding\nimplementations to read from state. These can be silenced by adding\nblock.timestamp; or similar statements to the functions.\nOne function is erroneously marked view , and should be changed to pure:\ncode/contracts/staking/contracts/src/staking_pools/MixinStakingPoolRewards.sol:L\nL330\n/// @param totalWeightedStake The total fees collected for the epoch b\n/// @dev Computes the unfinalized rewards earned by a delegator in the\n/// @param unsyncedStake Unsynced delegated stake to pool by staker\n/// @param currentEpoch The epoch in which this call is executing\n/// @param unfinalizedMembersReward Unfinalized total members reward (\n/// @param unfinalizedMembersStake Unfinalized total members stake (if\n/// @return reward Balance in WETH.\nfunction _computeUnfinalizedDelegatorReward(\nIStructs.StoredBalance memory unsyncedStake,\nuint256 currentEpoch,\nuint256 unfinalizedMembersReward,\nuint256 unfinalizedMembersStake\n)\nprivate\nview\n\n-- 33 of 50 --\n\nreturns (uint256)\n{\n5.15 Remove unneeded \u0000elds from StoredBalance and Pool structs\nMinor ✓ Fixed\nResolution\nThis is \u0000xed in 0xProject/0x-monorepo#2248. As part of a larger refactor, these \u0000elds\nwere removed.\nDescription\nBoth structs have \u0000elds that are only written to, and never read:\n1. StoredBalance.isInitialized :\ncode/contracts/staking/contracts/src/interfaces/IStructs.sol:L61\nbool isInitialized;\n2. Pool.initialized :\ncode/contracts/staking/contracts/src/interfaces/IStructs.sol:L113\nbool initialized;\nRecommendation\nThe unused \u0000elds should be removed.\n5.16 Remove unnecessary fallback function in Staking contract Minor\n✓ Fixed\nResolution\n\n-- 34 of 50 --\n\nThis is \u0000xed in 0xProject/0x-monorepo#2277.\nDescription\nThe Staking contract has a payable fallback function that is never used. Because it is\nused with a proxy contract, this pattern introduces silent failures when calls are made to\nthe contract with no matching function selector.\nRecommendation\nRemove the fallback function from Staking .\n5.17 Pool IDs can just be incrementing integers Minor ✓ Fixed\nResolution\nThis is \u0000xed in 0xProject/0x-monorepo#2250. Pool IDs now start at 1 and increment\nby 1 each time.\nDescription\nPool IDs are currently bytes32 values that increment by 2**128 . After discussion with\nthe development team, it seems that this was in preparation for a feature that was\nultimately not used. Pool IDs should instead just be incrementing integers.\nExamples\ncode/contracts/staking/contracts/src/immutable/MixinConstants.sol:L30-L34\ncode/contracts/staking/contracts/src/staking_pools/MixinStakingPool.sol:L271-L280\n// The upper 16 bytes represent the pool id, so this would be pool id 1. See M\nbytes32 constant internal INITIAL_POOL_ID = 0x00000000000000000000000000000001\n// The upper 16 bytes represent the pool id, so this would be an increment of\nuint256 constant internal POOL_ID_INCREMENT_AMOUNT = 0x00000000000000000000000\n\n-- 35 of 50 --\n\n/// @dev Computes the unique id that comes after the input pool id.\n/// @param poolId Unique id of pool.\n/// @return Next pool id after input pool.\nfunction _computeNextStakingPoolId(bytes32 poolId)\ninternal\npure\nreturns (bytes32)\n{\nreturn bytes32(uint256(poolId).safeAdd(POOL_ID_INCREMENT_AMOUNT));\n}\nRecommendation\nMake pool IDs uint256 values and simply add 1 to generate the next ID.\n5.18 LibProxy.proxyCall() may overwrite important memory Minor\n✓ Fixed\nResolution\nThis is \u0000xed in 0xProject/0x-monorepo#2301. This function has been rewritten in\nSolidity and now avoids manual memory management.\nDescription\nLibProxy.proxyCall() copies from call data to memory, starting at address 0:\ncode/contracts/staking/contracts/src/libs/LibProxy.sol:L52-L71\nassembly {\n// store selector of destination function\nlet freeMemPtr := 0\nif gt(customEgressSelector, 0) {\nmstore(0x0, customEgressSelector)\nfreeMemPtr := add(freeMemPtr, 4)\n}\n\n-- 36 of 50 --\n\n// adjust the calldata offset, if we should ignore the selector\nlet calldataOffset := 0\nif gt(ignoreIngressSelector, 0) {\ncalldataOffset := 4\n}\n// copy calldata to memory\ncalldatacopy(\nfreeMemPtr,\ncalldataOffset,\ncalldatasize()\n)\nThe \u0000rst 64 bytes of memory are treated as “scratch space” by the Solidity compiler.\nWriting beyond that point is dangerous, as it will overwrite the free memory pointer and the\n“zero slot” which is where length-0 arrays point.\nAlthough the current callers of proxyCall() don’t appear to use any memory after calling\nproxyCall() , future changes to the code may introduce very serious and subtle bugs due\nto this unsafe handling of memory.\nRecommendation\nUse the actual free memory pointer to determine where it’s safe to write to memory.\n6 Tool-Based Analysis\nSeveral tools were used to perform automated analysis of the reviewed contracts. These\nissues were reviewed by the audit team, and relevant issues are listed in the Issue Details\nsection.\n6.1 MythX\nMythX is a security analysis API for Ethereum smart contracts. It\nperforms multiple types of analysis, including fuzzing and symbolic\nexecution, to detect many common vulnerability types. The tool was\nused for automated vulnerability discovery for all audited contracts and\nlibraries. More details on MythX can be found at mythx.io.\n\n-- 37 of 50 --\n\nThe full set of MythX results for both the exchange and staking contracts are available in a\nseparate report.\n6.2 Surya\nSurya is an utility tool for smart contract systems. It provides a number of visual outputs\nand information about structure of smart contracts. It also supports querying the function\ncall graph in multiple ways to aid in the manual inspection and control \u0000ow analysis of\ncontracts.\nBelow is a complete list of functions with their visibility and modi\u0000ers:\nSūrya’s Description Report\nFiles Description Table\nFile Name SHA-1 Hash\nReadOnlyProxy.sol 6ec64526446ebff87ec5528ee3b2786338cc4fa0\nStaking.sol 67ddcb9ab75e433882e28d9186815990b7084c61\nStakingProxy.sol 248f562d014d0b1ca6de3212966af3e52a7deef1\nZrxVault.sol 6c3249314868a2f5d0984122e8ab1413a5b521c9\nfees/MixinExchangeFees.sol 9ac3b696baa8ba09305cfc83d3c08f17d9d528e1\nfees/MixinExchangeManager.sol 46f48136a49919cdb5588dc1b3d64c977c3367f2\nimmutable/MixinConstants.sol 97c2ac83ef97a09cfd485cb0d4b119ba0902cc79\nimmutable/MixinDeploymentConstants.sol 424f22c45df8e494c4a78f239ea07ff0400d694b\nimmutable/MixinStorage.sol 8ad475b0e424e7a3ff65eedf2e999cba98f414c8\ninterfaces/IStaking.sol ec1d7f214e3fd40e14716de412deee9769359bc0\ninterfaces/IStakingEvents.sol 25f16b814c4df9d2002316831c3f727d858456c4\ninterfaces/IStakingProxy.sol 02e35c6b51e08235b2a01d30a8082d60d9d61bee\ninterfaces/IStorage.sol eeaa798c262b46d1874e904cf7de0423d4132cee\ninterfaces/IStorageInit.sol b9899b03e474ea5adc3b4818a4357f71b8d288d4\ninterfaces/IStructs.sol fee17d036883d641afb1222b75eec8427f3cdb96\n\n-- 38 of 50 --\n\nContracts Description Table\nFile Name SHA-1 Hash\ninterfaces/IZrxVault.sol 9067154651675317e000cfa92de9741e50c1c809\nlibs/LibCobbDouglas.sol 242d62d71cf8bc09177d240c0db59b83f9bb4e96\nlibs/LibFixedMath.sol 36311e7be09a947fa4e6cd8c544cacd13d65833c\nlibs/LibFixedMathRichErrors.sol 39cb3e07bbce3272bbf090e87002d5834d288ec2\nlibs/LibProxy.sol 29abe52857a782c8da39b053cc54e02e295c1ae2\nlibs/LibSafeDowncast.sol ae16ed2573d64802793320253b060b9507729c3d\nlibs/LibStakingRichErrors.sol f5868ef6066a18277c932e59c0a516ec58920b00\nstake/MixinStake.sol ade59ed356fe72521ffd2ef12ff8896c852f11f8\nstake/MixinStakeBalances.sol cde6ca1a6200570ba18dd6d392ffabf68c2bb464\nstake/MixinStakeStorage.sol cadf34d9d341efd2a85dd13ec3cd4ce8383e0f73\nstaking_pools/MixinCumulativeRewards.sol 664ea3e35376c81492457dc17832a4d0d602c8ae\nstaking_pools/MixinStakingPool.sol 74ba9cb2db29b8dd6376d112e9452d117a391b18\nstaking_pools/MixinStakingPoolRewards.sol a3b4e5c9b1c3568c94923e2dd9a93090ebdf8536\nsys/MixinAbstract.sol 99fd4870c20d8fa03cfa30e8055d3dfb348ed5cd\nsys/MixinFinalizer.sol cc658ed07241c1804cec75b12203be3cd8657b9b\nsys/MixinParams.sol 7b395f4da7ed787d7aa4eb915f15377725ff8168\nsys/MixinScheduler.sol 2fab6b83a6f9e1d0dd1b1bdcea4b129d166aef1d\nContract Type Bases\n└ Function Name Visibility\nReadOnlyProxy Implementation MixinStorage\n└ <Fallback> External ❗\n└ revertDelegateCall External ❗\nStaking Implementation\nIStaking, MixinPa\nMixinStake,\nMixinExchangeF\n\n-- 39 of 50 --\n\nContract Type Bases\n└ <Fallback> External ❗\n└ init Public ❗\nStakingProxy Implementation IStakingProxy, Mixin\n└ <Constructor> Public ❗\n└ <Fallback> External ❗\n└ attachStakingContract External ❗\n└ detachStakingContract External ❗\n└ setReadOnlyMode External ❗\n└ batchExecute External ❗\n└ _assertValidStorageParams Internal \u0000\n└ _attachStakingContract Internal \u0000\nZrxVault Implementation Authorizable, IZrx\n└ <Constructor> Public ❗\n└ setStakingProxy External ❗\n└ enterCatastrophicFailure External ❗\n└ setZrxProxy External ❗\n└ depositFrom External ❗\n└ withdrawFrom External ❗\n└ withdrawAllFrom External ❗\n└ balanceOf External ❗\n└ _withdrawFrom Internal \u0000\n└ _assertSenderIsStakingProxy Private \u0000\n└ _assertInCatastrophicFailure Private \u0000\n└ _assertNotInCatastrophicFailure Private \u0000\n\n-- 40 of 50 --\n\nContract Type Bases\nMixinExchangeFees Implementation\nMixinExchangeMa\nMixinStakingPo\nMixinFinalize\n└ payProtocolFee External ❗\n└ getActiveStakingPoolThisEpoch External ❗\n└ _computeMembersAndWeightedStake Private \u0000\n└ _assertValidProtocolFee Private \u0000\nMixinExchangeManager Implementation IStakingEvent\nMixinStorage\n└ addExchangeAddress External ❗\n└ removeExchangeAddress External ❗\nMixinConstants Implementation MixinDeploymentCo\nMixinDeploymentConstants Implementation\n└ getWethContract Public ❗\n└ getZrxVault Public ❗\nMixinStorage Implementation MixinConstant\nAuthorizable\nIStaking Interface\n└ moveStake External ❗\n└ payProtocolFee External ❗\n└ stake External ❗\nIStakingEvents Interface\nIStakingProxy Interface\n└ <Fallback> External ❗\n└ attachStakingContract External ❗\n└ detachStakingContract External ❗\n\n-- 41 of 50 --\n\nContract Type Bases\nIStorage Interface\n└ stakingContract External ❗\n└ readOnlyProxy External ❗\n└ readOnlyProxyCallee External ❗\n└ nextPoolId External ❗\n└ numMakersByPoolId External ❗\n└ currentEpoch External ❗\n└ currentEpochStartTimeInSeconds External ❗\n└ protocolFeesThisEpochByPool External ❗\n└ activePoolsThisEpoch External ❗\n└ validExchanges External ❗\n└ epochDurationInSeconds External ❗\n└ rewardDelegatedStakeWeight External ❗\n└ minimumPoolStake External ❗\n└ maximumMakersInPool External ❗\n└ cobbDouglasAlphaNumerator External ❗\n└ cobbDouglasAlphaDenominator External ❗\nIStorageInit Interface\n└ init External ❗\nIStructs Interface\nIZrxVault Interface\n└ setStakingProxy External ❗\n└ enterCatastrophicFailure External ❗\n└ setZrxProxy External ❗\n└ depositFrom External ❗\n\n-- 42 of 50 --\n\nContract Type Bases\n└ withdrawFrom External ❗\n└ withdrawAllFrom External ❗\n└ balanceOf External ❗\nLibCobbDouglas Library\n└ cobbDouglas Internal \u0000\nLibFixedMath Library\n└ one Internal \u0000\n└ add Internal \u0000\n└ sub Internal \u0000\n└ mul Internal \u0000\n└ div Internal \u0000\n└ mulDiv Internal \u0000\n└ uintMul Internal \u0000\n└ abs Internal \u0000\n└ invert Internal \u0000\n└ toFixed Internal \u0000\n└ toFixed Internal \u0000\n└ toFixed Internal \u0000\n└ toFixed Internal \u0000\n└ toInteger Internal \u0000\n└ ln Internal \u0000\n└ exp Internal \u0000\n└ _mul Private \u0000\n└ _div Private \u0000\n└ _add Private \u0000\nLibFixedMathRichErrors Library\n\n-- 43 of 50 --\n\nContract Type Bases\n└ SignedValueError Internal \u0000\n└ UnsignedValueError Internal \u0000\n└ BinOpError Internal \u0000\nLibProxy Library\n└ proxyCall Internal \u0000\nLibSafeDowncast Library\n└ downcastToUint96 Internal \u0000\n└ downcastToUint64 Internal \u0000\n└ downcastToUint32 Internal \u0000\nLibStakingRichErrors Library\n└ OnlyCallableByExchangeError Internal \u0000\n└ ExchangeManagerError Internal \u0000\n└ Insu\u0000cientBalanceError Internal \u0000\n└ OnlyCallableByPoolOperatorOrMakerError Internal \u0000\n└ MakerPoolAssignmentError Internal \u0000\n└ BlockTimestampTooLowError Internal \u0000\n└ OnlyCallableByStakingContractError Internal \u0000\n└ OnlyCallableIfInCatastrophicFailureError Internal \u0000\n└ OnlyCallableIfNotInCatastrophicFailureError Internal \u0000\n└ OperatorShareError Internal \u0000\n└ PoolExistenceError Internal \u0000\n└ InvalidProtocolFeePaymentError Internal \u0000\n└ InvalidStakeStatusError Internal \u0000\n└ InitializationError Internal \u0000\n└ InvalidParamValueError Internal \u0000\n└ ProxyDestinationCannotBeNilError Internal \u0000\n\n-- 44 of 50 --\n\nContract Type Bases\n└ PreviousEpochNotFinalizedError Internal \u0000\nMixinStake Implementation MixinStakingPo\n└ stake External ❗\n└ unstake External ❗\n└ moveStake External ❗\n└ _delegateStake Private \u0000\n└ _undelegateStake Private \u0000\n└ _getBalancePtrFromStatus Private \u0000\nMixinStakeBalances Implementation MixinStakeStora\n└ getGlobalActiveStake External ❗\n└ getGlobalInactiveStake External ❗\n└ getGlobalDelegatedStake External ❗\n└ getTotalStake External ❗\n└ getActiveStake External ❗\n└ getInactiveStake External ❗\n└ getStakeDelegatedByOwner External ❗\n└ getWithdrawableStake Public ❗\n└ getStakeDelegatedToPoolByOwner Public ❗\n└ getTotalStakeDelegatedToPool Public ❗\n└ _computeWithdrawableStake Internal \u0000\nMixinStakeStorage Implementation MixinSchedule\n└ _moveStake Internal \u0000\n└ _loadSyncedBalance Internal \u0000\n└ _loadUnsyncedBalance Internal \u0000\n└ _increaseCurrentAndNextBalance Internal \u0000\n└ _decreaseCurrentAndNextBalance Internal \u0000\n\n-- 45 of 50 --\n\nContract Type Bases\n└ _increaseNextBalance Internal \u0000\n└ _decreaseNextBalance Internal \u0000\n└ _storeBalance Private \u0000\n└ _arePointersEqual Private \u0000\nMixinCumulativeRewards Implementation MixinStakeBalan\n└ _initializeCumulativeRewards Internal \u0000\n└ _isCumulativeRewardSet Internal \u0000\n└ _forceSetCumulativeReward Internal \u0000\n└ _computeMemberRewardOverInterval Internal \u0000\n└ _getMostRecentCumulativeReward Internal \u0000\n└ _getCumulativeRewardAtEpoch Internal \u0000\nMixinStakingPool Implementation MixinAbstrac\nMixinStakingPoolRe\n└ createStakingPool External ❗\n└ decreaseStakingPoolOperatorShare External ❗\n└ joinStakingPoolAsMaker External ❗\n└ addMakerToStakingPool External ❗\n└ removeMakerFromStakingPool External ❗\n└ getStakingPoolIdOfMaker Public ❗\n└ getStakingPool Public ❗\n└ _addMakerToStakingPool Internal \u0000\n└ _computeNextStakingPoolId Internal \u0000\n└ _assertStakingPoolExists Internal \u0000\n└ _assertNewOperatorShare Private \u0000\n└ _assertSenderIsPoolOperatorOrMaker Private \u0000\n\n-- 46 of 50 --\n\nContract Type Bases\nMixinStakingPoolRewards Implementation MixinAbstrac\nMixinCumulativeRe\n└ withdrawDelegatorRewards External ❗\n└ computeRewardBalanceOfOperator External ❗\n└ computeRewardBalanceOfDelegator External ❗\n└ _withdrawAndSyncDelegatorRewards Internal \u0000\n└ _syncPoolRewards Internal \u0000\n└ _computePoolRewardsSplit Internal \u0000\n└ _computeDelegatorReward Private \u0000\n└ _computeUn\u0000nalizedDelegatorReward Private \u0000\n└ _increasePoolRewards Private \u0000\n└ _decreasePoolRewards Private \u0000\nMixinAbstract Implementation\n└ \u0000nalizePool Public ❗\n└ _getUn\u0000nalizedPoolRewards Internal \u0000\nMixinFinalizer Implementation MixinStakingPoolRe\n└ endEpoch External ❗\n└ \u0000nalizePool Public ❗\n└ _getUn\u0000nalizedPoolRewards Internal \u0000\n└ _getActivePoolFromEpoch Internal \u0000\n└ _getActivePoolsFromEpoch Internal \u0000\n└ _wrapEth Internal \u0000\n└ _getAvailableWethBalance Internal \u0000\n└ _getUn\u0000nalizedPoolRewardsFromState Private \u0000\n└ _creditRewardsToPool Private \u0000\n\n-- 47 of 50 --\n\nLegend\nSymbol Meaning\n\u0000 Function can modify state\n\u0000 Function is payable\nAppendix 1 - Disclosure\nConsenSys Diligence (“CD”) typically receives compensation from one or more clients (the\n“Clients”) for performing the analysis contained in these reports (the “Reports”). The\nReports may be distributed through other means, including via ConsenSys publications\nand other distributions.\nThe Reports are not an endorsement or indictment of any particular project or team, and\nthe Reports do not guarantee the security of any particular project. This Report does not\nconsider, and should not be interpreted as considering or having any bearing on, the\npotential economics of a token, token sale or any other product, service or other asset.\nCryptographic tokens are emergent technologies and carry with them high levels of\nContract Type Bases\nMixinParams Implementation IStakingEvent\nMixinStorage\n└ setParams External ❗\n└ getParams External ❗\n└ _initMixinParams Internal \u0000\n└ _assertParamsNotInitialized Internal \u0000\n└ _setParams Private \u0000\nMixinScheduler Implementation IStakingEvent\nMixinStorage\n└ getCurrentEpochEarliestEndTimeInSeconds Public ❗\n└ _initMixinScheduler Internal \u0000\n└ _goToNextEpoch Internal \u0000\n└ _assertSchedulerNotInitialized Internal \u0000\n\n-- 48 of 50 --\n\ntechnical risk and uncertainty. No Report provides any warranty or representation to any\nThird-Party in any respect, including regarding the bugfree nature of code, the business\nmodel or proprietors of any such business model, and the legal compliance of any such\nbusiness. No third party should rely on the Reports in any way, including for the purpose of\nmaking any decisions to buy or sell any token, product, service or other asset. Speci\u0000cally,\nfor the avoidance of doubt, this Report does not constitute investment advice, is not\nintended to be relied upon as investment advice, is not an endorsement of this project or\nteam, and it is not a guarantee as to the absolute security of the project. CD owes no duty\nto any Third-Party by virtue of publishing these Reports.\nPURPOSE OF REPORTS The Reports and the analysis described therein are created solely\nfor Clients and published with their consent. The scope of our review is limited to a review\nof Solidity code and only the Solidity code we note as being within the scope of our review\nwithin this report. The Solidity language itself remains under development and is subject to\nunknown risks and \u0000aws. The review does not extend to the compiler layer, or any other\nareas beyond Solidity that could present security risks. Cryptographic tokens are emergent\ntechnologies and carry with them high levels of technical risk and uncertainty.\nCD makes the Reports available to parties other than the Clients (i.e., “third parties”) – on\nits website. CD hopes that by making these analyses publicly available, it can help the\nblockchain ecosystem develop technical best practices in this rapidly evolving area of\ninnovation.\nLINKS TO OTHER WEB SITES FROM THIS WEB SITE You may, through hypertext or other\ncomputer links, gain access to web sites operated by persons other than ConsenSys and\nCD. Such hyperlinks are provided for your reference and convenience only, and are the\nexclusive responsibility of such web sites’ owners. You agree that ConsenSys and CD are\nnot responsible for the content or operation of such Web sites, and that ConsenSys and CD\nshall have no liability to you or any other person or entity for the use of third party Web\nsites. Except as described below, a hyperlink from this web Site to another web site does\nnot imply or mean that ConsenSys and CD endorses the content on that Web site or the\noperator or operations of that site. You are solely responsible for determining the extent to\nwhich you may use any content at any other web sites to which you link from the Reports.\nConsenSys and CD assumes no responsibility for the use of third party software on the\nWeb Site and shall have no liability whatsoever to any person or entity for the accuracy or\ncompleteness of any outcome generated by such software.\nTIMELINESS OF CONTENT The content contained in the Reports is current as of the date\nappearing on the Report and is subject to change without notice. Unless indicated\n\n-- 49 of 50 --\n\notherwise, by ConsenSys and CD.\n\n-- 50 of 50 --",
+    "sourceFileName": "0x-v3-staking-audit-2019-10.pdf",
+    "createdAtIso": "2026-06-05T23:32:18.135Z",
+    "updatedAtIso": "2026-06-05T23:32:18.135Z"
+  },
+  "findings": [
+    {
+      "id": "F-G-consensys-diligence-0x-v3-staking-audit-2019-10-GIDX-001",
+      "slug": "5-2-delegated-stake-weight-reduction-can-be-bypassed-by-using-an-external-an-external",
+      "reportId": "G-consensys-diligence-0x-v3-staking-audit-2019-10",
+      "reportName": "consensys-diligence-0x-v3-staking-audit-2019-10",
+      "title": "Anyone can remove a maker’s pending pool join status",
+      "cve": "—",
+      "severity": "High",
+      "asset": "investigation-scope",
+      "score": 84,
+      "status": "Open",
+      "detectedAt": "2026-06-05T23:32:09.648Z",
+      "summary": "Anyone can remove a maker’s pending pool join status affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+      "evidence": "Products: an external | Assets: an external",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:18.126Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "5.2 Delegated stake weight reduction can be bypassed by using an external",
+        "severity": "Medium",
+        "asset": "an external",
+        "status": "In Review",
+        "summary": "5.2 Delegated stake weight reduction can be bypassed by using an external affecting an external; extractor found product an external.",
+        "impact": "Potential impact includes increased attacker opportunity against an external if this signal is not reviewed.",
+        "evidence": "Products: an external | Assets: an external",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "5.2 delegated stake weight reduction can be bypassed by using an external",
+        "normalizedAsset": "an external",
+        "canonicalKey": "5.1|anyone can remove a maker s pending pool join status|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 88,
+        "sourceSectionTitle": "Anyone can remove a maker’s pending pool join status",
+        "sourceText": "5.1 Anyone can remove a maker’s pending pool join status Major",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Anyone can remove a maker’s pending pool join status",
+      "canonicalKey": "5.1|anyone can remove a maker s pending pool join status|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-0x-v3-staking-audit-2019-10-GIDX-002",
+      "slug": "5-2-delegated-stake-weight-reduction-can-be-bypassed-by-using-an-external-an-external",
+      "reportId": "G-consensys-diligence-0x-v3-staking-audit-2019-10",
+      "reportName": "consensys-diligence-0x-v3-staking-audit-2019-10",
+      "title": "Delegated stake weight reduction can be bypassed by using an external contract",
+      "cve": "—",
+      "severity": "High",
+      "asset": "investigation-scope",
+      "score": 84,
+      "status": "Open",
+      "detectedAt": "2026-06-05T23:32:09.648Z",
+      "summary": "Delegated stake weight reduction can be bypassed by using an external contract affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+      "evidence": "Products: an external | Assets: an external",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:18.126Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "5.2 Delegated stake weight reduction can be bypassed by using an external",
+        "severity": "Medium",
+        "asset": "an external",
+        "status": "In Review",
+        "summary": "5.2 Delegated stake weight reduction can be bypassed by using an external affecting an external; extractor found product an external.",
+        "impact": "Potential impact includes increased attacker opportunity against an external if this signal is not reviewed.",
+        "evidence": "Products: an external | Assets: an external",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "5.2 delegated stake weight reduction can be bypassed by using an external",
+        "normalizedAsset": "an external",
+        "canonicalKey": "5.2|delegated stake weight reduction can be bypassed by using an external contract|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 88,
+        "sourceSectionTitle": "Delegated stake weight reduction can be bypassed by using an external contract",
+        "sourceText": "5.2 Delegated stake weight reduction can be bypassed by using an external contract Major",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Delegated stake weight reduction can be bypassed by using an external contract",
+      "canonicalKey": "5.2|delegated stake weight reduction can be bypassed by using an external contract|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-0x-v3-staking-audit-2019-10-GIDX-003",
+      "slug": "5-2-delegated-stake-weight-reduction-can-be-bypassed-by-using-an-external-an-external",
+      "reportId": "G-consensys-diligence-0x-v3-staking-audit-2019-10",
+      "reportName": "consensys-diligence-0x-v3-staking-audit-2019-10",
+      "title": "MixinParams.setParams bypasses safety checks made by standard StakingProxy upgrade path",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:09.648Z",
+      "summary": "MixinParams.setParams bypasses safety checks made by standard StakingProxy upgrade path affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: an external | Assets: an external",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:18.126Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "5.2 Delegated stake weight reduction can be bypassed by using an external",
+        "severity": "Medium",
+        "asset": "an external",
+        "status": "In Review",
+        "summary": "5.2 Delegated stake weight reduction can be bypassed by using an external affecting an external; extractor found product an external.",
+        "impact": "Potential impact includes increased attacker opportunity against an external if this signal is not reviewed.",
+        "evidence": "Products: an external | Assets: an external",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "5.2 delegated stake weight reduction can be bypassed by using an external",
+        "normalizedAsset": "an external",
+        "canonicalKey": "5.3|mixinparams setparams bypasses safety checks made by standard stakingproxy upgrade path|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 88,
+        "sourceSectionTitle": "MixinParams.setParams bypasses safety checks made by standard StakingProxy upgrade path",
+        "sourceText": "5.3 MixinParams.setParams bypasses safety checks made by standard StakingProxy upgrade path Medium",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "MixinParams.setParams bypasses safety checks made by standard StakingProxy upgrade path",
+      "canonicalKey": "5.3|mixinparams setparams bypasses safety checks made by standard stakingproxy upgrade path|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-0x-v3-staking-audit-2019-10-GIDX-004",
+      "slug": "5-2-delegated-stake-weight-reduction-can-be-bypassed-by-using-an-external-an-external",
+      "reportId": "G-consensys-diligence-0x-v3-staking-audit-2019-10",
+      "reportName": "consensys-diligence-0x-v3-staking-audit-2019-10",
+      "title": "Authorized addresses can indefinitely stall ZrxVaultBackstop catastrophic failure mode",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:09.648Z",
+      "summary": "Authorized addresses can indefinitely stall ZrxVaultBackstop catastrophic failure mode affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: an external | Assets: an external",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:18.126Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "5.2 Delegated stake weight reduction can be bypassed by using an external",
+        "severity": "Medium",
+        "asset": "an external",
+        "status": "In Review",
+        "summary": "5.2 Delegated stake weight reduction can be bypassed by using an external affecting an external; extractor found product an external.",
+        "impact": "Potential impact includes increased attacker opportunity against an external if this signal is not reviewed.",
+        "evidence": "Products: an external | Assets: an external",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "5.2 delegated stake weight reduction can be bypassed by using an external",
+        "normalizedAsset": "an external",
+        "canonicalKey": "5.4|authorized addresses can indefinitely stall zrxvaultbackstop catastrophic failure mode|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 88,
+        "sourceSectionTitle": "Authorized addresses can indefinitely stall ZrxVaultBackstop catastrophic failure mode",
+        "sourceText": "5.4 Authorized addresses can indefinitely stall ZrxVaultBackstop catastrophic failure mode Medium",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Authorized addresses can indefinitely stall ZrxVaultBackstop catastrophic failure mode",
+      "canonicalKey": "5.4|authorized addresses can indefinitely stall zrxvaultbackstop catastrophic failure mode|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-0x-v3-staking-audit-2019-10-GIDX-005",
+      "slug": "5-2-delegated-stake-weight-reduction-can-be-bypassed-by-using-an-external-an-external",
+      "reportId": "G-consensys-diligence-0x-v3-staking-audit-2019-10",
+      "reportName": "consensys-diligence-0x-v3-staking-audit-2019-10",
+      "title": "Pool 0 can be used to temporarily prevent makers from joining another pool",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:09.648Z",
+      "summary": "Pool 0 can be used to temporarily prevent makers from joining another pool affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: an external | Assets: an external",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:18.126Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "5.2 Delegated stake weight reduction can be bypassed by using an external",
+        "severity": "Medium",
+        "asset": "an external",
+        "status": "In Review",
+        "summary": "5.2 Delegated stake weight reduction can be bypassed by using an external affecting an external; extractor found product an external.",
+        "impact": "Potential impact includes increased attacker opportunity against an external if this signal is not reviewed.",
+        "evidence": "Products: an external | Assets: an external",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "5.2 delegated stake weight reduction can be bypassed by using an external",
+        "normalizedAsset": "an external",
+        "canonicalKey": "5.5|pool 0 can be used to temporarily prevent makers from joining another pool|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 88,
+        "sourceSectionTitle": "Pool 0 can be used to temporarily prevent makers from joining another pool",
+        "sourceText": "5.5 Pool 0 can be used to temporarily prevent makers from joining another pool Medium",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Pool 0 can be used to temporarily prevent makers from joining another pool",
+      "canonicalKey": "5.5|pool 0 can be used to temporarily prevent makers from joining another pool|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-0x-v3-staking-audit-2019-10-GIDX-006",
+      "slug": "5-2-delegated-stake-weight-reduction-can-be-bypassed-by-using-an-external-an-external",
+      "reportId": "G-consensys-diligence-0x-v3-staking-audit-2019-10",
+      "reportName": "consensys-diligence-0x-v3-staking-audit-2019-10",
+      "title": "Recommendation: Fix weak assertions in MixinStakingPool stemming from use of NIL_POOL_ID",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:09.648Z",
+      "summary": "Recommendation: Fix weak assertions in MixinStakingPool stemming from use of NIL_POOL_ID affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: an external | Assets: an external",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:18.126Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "5.2 Delegated stake weight reduction can be bypassed by using an external",
+        "severity": "Medium",
+        "asset": "an external",
+        "status": "In Review",
+        "summary": "5.2 Delegated stake weight reduction can be bypassed by using an external affecting an external; extractor found product an external.",
+        "impact": "Potential impact includes increased attacker opportunity against an external if this signal is not reviewed.",
+        "evidence": "Products: an external | Assets: an external",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "5.2 delegated stake weight reduction can be bypassed by using an external",
+        "normalizedAsset": "an external",
+        "canonicalKey": "5.6|recommendation fix weak assertions in mixinstakingpool stemming from use of nil pool id|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 88,
+        "sourceSectionTitle": "Recommendation: Fix weak assertions in MixinStakingPool stemming from use of NIL_POOL_ID",
+        "sourceText": "5.6 Recommendation: Fix weak assertions in MixinStakingPool stemming from use of NIL_POOL_ID Medium",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Recommendation: Fix weak assertions in MixinStakingPool stemming from use of NIL_POOL_ID",
+      "canonicalKey": "5.6|recommendation fix weak assertions in mixinstakingpool stemming from use of nil pool id|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-0x-v3-staking-audit-2019-10-GIDX-007",
+      "slug": "5-2-delegated-stake-weight-reduction-can-be-bypassed-by-using-an-external-an-external",
+      "reportId": "G-consensys-diligence-0x-v3-staking-audit-2019-10",
+      "reportName": "consensys-diligence-0x-v3-staking-audit-2019-10",
+      "title": "LibFixedMath functions fail to catch a number of overflows",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:09.648Z",
+      "summary": "LibFixedMath functions fail to catch a number of overflows affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: an external | Assets: an external",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:18.126Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "5.2 Delegated stake weight reduction can be bypassed by using an external",
+        "severity": "Medium",
+        "asset": "an external",
+        "status": "In Review",
+        "summary": "5.2 Delegated stake weight reduction can be bypassed by using an external affecting an external; extractor found product an external.",
+        "impact": "Potential impact includes increased attacker opportunity against an external if this signal is not reviewed.",
+        "evidence": "Products: an external | Assets: an external",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "5.2 delegated stake weight reduction can be bypassed by using an external",
+        "normalizedAsset": "an external",
+        "canonicalKey": "5.7|libfixedmath functions fail to catch a number of overflows|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 88,
+        "sourceSectionTitle": "LibFixedMath functions fail to catch a number of overflows",
+        "sourceText": "5.7 LibFixedMath functions fail to catch a number of overflows Medium",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "LibFixedMath functions fail to catch a number of overflows",
+      "canonicalKey": "5.7|libfixedmath functions fail to catch a number of overflows|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-0x-v3-staking-audit-2019-10-GIDX-008",
+      "slug": "5-2-delegated-stake-weight-reduction-can-be-bypassed-by-using-an-external-an-external",
+      "reportId": "G-consensys-diligence-0x-v3-staking-audit-2019-10",
+      "reportName": "consensys-diligence-0x-v3-staking-audit-2019-10",
+      "title": "Recommendation: Remove MixinAbstract and fold MixinStakingPoolRewards into MixinFinalizer and MixinStake",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:09.648Z",
+      "summary": "Recommendation: Remove MixinAbstract and fold MixinStakingPoolRewards into MixinFinalizer and MixinStake affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: an external | Assets: an external",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:18.126Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "5.2 Delegated stake weight reduction can be bypassed by using an external",
+        "severity": "Medium",
+        "asset": "an external",
+        "status": "In Review",
+        "summary": "5.2 Delegated stake weight reduction can be bypassed by using an external affecting an external; extractor found product an external.",
+        "impact": "Potential impact includes increased attacker opportunity against an external if this signal is not reviewed.",
+        "evidence": "Products: an external | Assets: an external",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "5.2 delegated stake weight reduction can be bypassed by using an external",
+        "normalizedAsset": "an external",
+        "canonicalKey": "5.8|recommendation remove mixinabstract and fold mixinstakingpoolrewards into mixinfinalizer and mixinstake|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 88,
+        "sourceSectionTitle": "Recommendation: Remove MixinAbstract and fold MixinStakingPoolRewards into MixinFinalizer and MixinStake",
+        "sourceText": "5.8 Recommendation: Remove MixinAbstract and fold MixinStakingPoolRewards into MixinFinalizer and MixinStake Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Recommendation: Remove MixinAbstract and fold MixinStakingPoolRewards into MixinFinalizer and MixinStake",
+      "canonicalKey": "5.8|recommendation remove mixinabstract and fold mixinstakingpoolrewards into mixinfinalizer and mixinstake|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-0x-v3-staking-audit-2019-10-GIDX-009",
+      "slug": "5-2-delegated-stake-weight-reduction-can-be-bypassed-by-using-an-external-an-external",
+      "reportId": "G-consensys-diligence-0x-v3-staking-audit-2019-10",
+      "reportName": "consensys-diligence-0x-v3-staking-audit-2019-10",
+      "title": "Recommendation: remove confusing access to activePoolsThisEpoch",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:09.648Z",
+      "summary": "Recommendation: remove confusing access to activePoolsThisEpoch affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: an external | Assets: an external",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:18.126Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "5.2 Delegated stake weight reduction can be bypassed by using an external",
+        "severity": "Medium",
+        "asset": "an external",
+        "status": "In Review",
+        "summary": "5.2 Delegated stake weight reduction can be bypassed by using an external affecting an external; extractor found product an external.",
+        "impact": "Potential impact includes increased attacker opportunity against an external if this signal is not reviewed.",
+        "evidence": "Products: an external | Assets: an external",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "5.2 delegated stake weight reduction can be bypassed by using an external",
+        "normalizedAsset": "an external",
+        "canonicalKey": "5.9|recommendation remove confusing access to activepoolsthisepoch|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 88,
+        "sourceSectionTitle": "Recommendation: remove confusing access to activePoolsThisEpoch",
+        "sourceText": "5.9 Recommendation: remove confusing access to activePoolsThisEpoch Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Recommendation: remove confusing access to activePoolsThisEpoch",
+      "canonicalKey": "5.9|recommendation remove confusing access to activepoolsthisepoch|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-0x-v3-staking-audit-2019-10-GIDX-010",
+      "slug": "5-2-delegated-stake-weight-reduction-can-be-bypassed-by-using-an-external-an-external",
+      "reportId": "G-consensys-diligence-0x-v3-staking-audit-2019-10",
+      "reportName": "consensys-diligence-0x-v3-staking-audit-2019-10",
+      "title": "Recommendation: remove MixinFinalizer._getUnfinalizedPoolRewardsFromState",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:09.648Z",
+      "summary": "Recommendation: remove MixinFinalizer._getUnfinalizedPoolRewardsFromState affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: an external | Assets: an external",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:18.126Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "5.2 Delegated stake weight reduction can be bypassed by using an external",
+        "severity": "Medium",
+        "asset": "an external",
+        "status": "In Review",
+        "summary": "5.2 Delegated stake weight reduction can be bypassed by using an external affecting an external; extractor found product an external.",
+        "impact": "Potential impact includes increased attacker opportunity against an external if this signal is not reviewed.",
+        "evidence": "Products: an external | Assets: an external",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "5.2 delegated stake weight reduction can be bypassed by using an external",
+        "normalizedAsset": "an external",
+        "canonicalKey": "5.10|recommendation remove mixinfinalizer getunfinalizedpoolrewardsfromstate|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 88,
+        "sourceSectionTitle": "Recommendation: remove MixinFinalizer._getUnfinalizedPoolRewardsFromState",
+        "sourceText": "5.10 Recommendation: remove MixinFinalizer._getUnfinalizedPoolRewardsFromState Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Recommendation: remove MixinFinalizer._getUnfinalizedPoolRewardsFromState",
+      "canonicalKey": "5.10|recommendation remove mixinfinalizer getunfinalizedpoolrewardsfromstate|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-0x-v3-staking-audit-2019-10-GIDX-011",
+      "slug": "5-2-delegated-stake-weight-reduction-can-be-bypassed-by-using-an-external-an-external",
+      "reportId": "G-consensys-diligence-0x-v3-staking-audit-2019-10",
+      "reportName": "consensys-diligence-0x-v3-staking-audit-2019-10",
+      "title": "Recommendation: remove complicating getters from MixinStakingPoolRewards",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:09.648Z",
+      "summary": "Recommendation: remove complicating getters from MixinStakingPoolRewards affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: an external | Assets: an external",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:18.126Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "5.2 Delegated stake weight reduction can be bypassed by using an external",
+        "severity": "Medium",
+        "asset": "an external",
+        "status": "In Review",
+        "summary": "5.2 Delegated stake weight reduction can be bypassed by using an external affecting an external; extractor found product an external.",
+        "impact": "Potential impact includes increased attacker opportunity against an external if this signal is not reviewed.",
+        "evidence": "Products: an external | Assets: an external",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "5.2 delegated stake weight reduction can be bypassed by using an external",
+        "normalizedAsset": "an external",
+        "canonicalKey": "5.11|recommendation remove complicating getters from mixinstakingpoolrewards|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 88,
+        "sourceSectionTitle": "Recommendation: remove complicating getters from MixinStakingPoolRewards",
+        "sourceText": "5.11 Recommendation: remove complicating getters from MixinStakingPoolRewards Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Recommendation: remove complicating getters from MixinStakingPoolRewards",
+      "canonicalKey": "5.11|recommendation remove complicating getters from mixinstakingpoolrewards|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-0x-v3-staking-audit-2019-10-GIDX-012",
+      "slug": "5-2-delegated-stake-weight-reduction-can-be-bypassed-by-using-an-external-an-external",
+      "reportId": "G-consensys-diligence-0x-v3-staking-audit-2019-10",
+      "reportName": "consensys-diligence-0x-v3-staking-audit-2019-10",
+      "title": "Recommendation: remove unneeded dependency on MixinStakeBalances",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:09.648Z",
+      "summary": "Recommendation: remove unneeded dependency on MixinStakeBalances affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: an external | Assets: an external",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:18.126Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "5.2 Delegated stake weight reduction can be bypassed by using an external",
+        "severity": "Medium",
+        "asset": "an external",
+        "status": "In Review",
+        "summary": "5.2 Delegated stake weight reduction can be bypassed by using an external affecting an external; extractor found product an external.",
+        "impact": "Potential impact includes increased attacker opportunity against an external if this signal is not reviewed.",
+        "evidence": "Products: an external | Assets: an external",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "5.2 delegated stake weight reduction can be bypassed by using an external",
+        "normalizedAsset": "an external",
+        "canonicalKey": "5.12|recommendation remove unneeded dependency on mixinstakebalances|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 88,
+        "sourceSectionTitle": "Recommendation: remove unneeded dependency on MixinStakeBalances",
+        "sourceText": "5.12 Recommendation: remove unneeded dependency on MixinStakeBalances Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Recommendation: remove unneeded dependency on MixinStakeBalances",
+      "canonicalKey": "5.12|recommendation remove unneeded dependency on mixinstakebalances|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-0x-v3-staking-audit-2019-10-GIDX-013",
+      "slug": "5-2-delegated-stake-weight-reduction-can-be-bypassed-by-using-an-external-an-external",
+      "reportId": "G-consensys-diligence-0x-v3-staking-audit-2019-10",
+      "reportName": "consensys-diligence-0x-v3-staking-audit-2019-10",
+      "title": "Misleading MoveStake event when moving stake from UNDELEGATED to UNDELEGATED",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:09.648Z",
+      "summary": "Misleading MoveStake event when moving stake from UNDELEGATED to UNDELEGATED affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: an external | Assets: an external",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:18.126Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "5.2 Delegated stake weight reduction can be bypassed by using an external",
+        "severity": "Medium",
+        "asset": "an external",
+        "status": "In Review",
+        "summary": "5.2 Delegated stake weight reduction can be bypassed by using an external affecting an external; extractor found product an external.",
+        "impact": "Potential impact includes increased attacker opportunity against an external if this signal is not reviewed.",
+        "evidence": "Products: an external | Assets: an external",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "5.2 delegated stake weight reduction can be bypassed by using an external",
+        "normalizedAsset": "an external",
+        "canonicalKey": "5.13|misleading movestake event when moving stake from undelegated to undelegated|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 88,
+        "sourceSectionTitle": "Misleading MoveStake event when moving stake from UNDELEGATED to UNDELEGATED",
+        "sourceText": "5.13 Misleading MoveStake event when moving stake from UNDELEGATED to UNDELEGATED Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Misleading MoveStake event when moving stake from UNDELEGATED to UNDELEGATED",
+      "canonicalKey": "5.13|misleading movestake event when moving stake from undelegated to undelegated|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-0x-v3-staking-audit-2019-10-GIDX-014",
+      "slug": "5-2-delegated-stake-weight-reduction-can-be-bypassed-by-using-an-external-an-external",
+      "reportId": "G-consensys-diligence-0x-v3-staking-audit-2019-10",
+      "reportName": "consensys-diligence-0x-v3-staking-audit-2019-10",
+      "title": "The staking contracts contain several artifacts of a quickly-changing codebase",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:09.648Z",
+      "summary": "The staking contracts contain several artifacts of a quickly-changing codebase affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: an external | Assets: an external",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:18.126Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "5.2 Delegated stake weight reduction can be bypassed by using an external",
+        "severity": "Medium",
+        "asset": "an external",
+        "status": "In Review",
+        "summary": "5.2 Delegated stake weight reduction can be bypassed by using an external affecting an external; extractor found product an external.",
+        "impact": "Potential impact includes increased attacker opportunity against an external if this signal is not reviewed.",
+        "evidence": "Products: an external | Assets: an external",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "5.2 delegated stake weight reduction can be bypassed by using an external",
+        "normalizedAsset": "an external",
+        "canonicalKey": "5.14|the staking contracts contain several artifacts of a quickly changing codebase|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 88,
+        "sourceSectionTitle": "The staking contracts contain several artifacts of a quickly-changing codebase",
+        "sourceText": "5.14 The staking contracts contain several artifacts of a quickly-changing codebase Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "The staking contracts contain several artifacts of a quickly-changing codebase",
+      "canonicalKey": "5.14|the staking contracts contain several artifacts of a quickly changing codebase|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-0x-v3-staking-audit-2019-10-GIDX-015",
+      "slug": "5-2-delegated-stake-weight-reduction-can-be-bypassed-by-using-an-external-an-external",
+      "reportId": "G-consensys-diligence-0x-v3-staking-audit-2019-10",
+      "reportName": "consensys-diligence-0x-v3-staking-audit-2019-10",
+      "title": "Remove unneeded fields from StoredBalance and Pool structs",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:09.648Z",
+      "summary": "Remove unneeded fields from StoredBalance and Pool structs affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: an external | Assets: an external",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:18.126Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "5.2 Delegated stake weight reduction can be bypassed by using an external",
+        "severity": "Medium",
+        "asset": "an external",
+        "status": "In Review",
+        "summary": "5.2 Delegated stake weight reduction can be bypassed by using an external affecting an external; extractor found product an external.",
+        "impact": "Potential impact includes increased attacker opportunity against an external if this signal is not reviewed.",
+        "evidence": "Products: an external | Assets: an external",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "5.2 delegated stake weight reduction can be bypassed by using an external",
+        "normalizedAsset": "an external",
+        "canonicalKey": "5.15|remove unneeded fields from storedbalance and pool structs|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 88,
+        "sourceSectionTitle": "Remove unneeded fields from StoredBalance and Pool structs",
+        "sourceText": "5.15 Remove unneeded fields from StoredBalance and Pool structs Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Remove unneeded fields from StoredBalance and Pool structs",
+      "canonicalKey": "5.15|remove unneeded fields from storedbalance and pool structs|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-0x-v3-staking-audit-2019-10-GIDX-016",
+      "slug": "5-2-delegated-stake-weight-reduction-can-be-bypassed-by-using-an-external-an-external",
+      "reportId": "G-consensys-diligence-0x-v3-staking-audit-2019-10",
+      "reportName": "consensys-diligence-0x-v3-staking-audit-2019-10",
+      "title": "Remove unnecessary fallback function in Staking contract",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:09.648Z",
+      "summary": "Remove unnecessary fallback function in Staking contract affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: an external | Assets: an external",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:18.126Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "5.2 Delegated stake weight reduction can be bypassed by using an external",
+        "severity": "Medium",
+        "asset": "an external",
+        "status": "In Review",
+        "summary": "5.2 Delegated stake weight reduction can be bypassed by using an external affecting an external; extractor found product an external.",
+        "impact": "Potential impact includes increased attacker opportunity against an external if this signal is not reviewed.",
+        "evidence": "Products: an external | Assets: an external",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "5.2 delegated stake weight reduction can be bypassed by using an external",
+        "normalizedAsset": "an external",
+        "canonicalKey": "5.16|remove unnecessary fallback function in staking contract|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 88,
+        "sourceSectionTitle": "Remove unnecessary fallback function in Staking contract",
+        "sourceText": "5.16 Remove unnecessary fallback function in Staking contract Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Remove unnecessary fallback function in Staking contract",
+      "canonicalKey": "5.16|remove unnecessary fallback function in staking contract|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-0x-v3-staking-audit-2019-10-GIDX-017",
+      "slug": "5-2-delegated-stake-weight-reduction-can-be-bypassed-by-using-an-external-an-external",
+      "reportId": "G-consensys-diligence-0x-v3-staking-audit-2019-10",
+      "reportName": "consensys-diligence-0x-v3-staking-audit-2019-10",
+      "title": "Pool IDs can just be incrementing integers",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:09.648Z",
+      "summary": "Pool IDs can just be incrementing integers affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: an external | Assets: an external",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:18.126Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "5.2 Delegated stake weight reduction can be bypassed by using an external",
+        "severity": "Medium",
+        "asset": "an external",
+        "status": "In Review",
+        "summary": "5.2 Delegated stake weight reduction can be bypassed by using an external affecting an external; extractor found product an external.",
+        "impact": "Potential impact includes increased attacker opportunity against an external if this signal is not reviewed.",
+        "evidence": "Products: an external | Assets: an external",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "5.2 delegated stake weight reduction can be bypassed by using an external",
+        "normalizedAsset": "an external",
+        "canonicalKey": "5.17|pool ids can just be incrementing integers|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 88,
+        "sourceSectionTitle": "Pool IDs can just be incrementing integers",
+        "sourceText": "5.17 Pool IDs can just be incrementing integers Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Pool IDs can just be incrementing integers",
+      "canonicalKey": "5.17|pool ids can just be incrementing integers|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-0x-v3-staking-audit-2019-10-GIDX-018",
+      "slug": "5-2-delegated-stake-weight-reduction-can-be-bypassed-by-using-an-external-an-external",
+      "reportId": "G-consensys-diligence-0x-v3-staking-audit-2019-10",
+      "reportName": "consensys-diligence-0x-v3-staking-audit-2019-10",
+      "title": "LibProxy.proxyCall() may overwrite important memory",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:09.648Z",
+      "summary": "LibProxy.proxyCall() may overwrite important memory affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: an external | Assets: an external",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:18.126Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "5.2 Delegated stake weight reduction can be bypassed by using an external",
+        "severity": "Medium",
+        "asset": "an external",
+        "status": "In Review",
+        "summary": "5.2 Delegated stake weight reduction can be bypassed by using an external affecting an external; extractor found product an external.",
+        "impact": "Potential impact includes increased attacker opportunity against an external if this signal is not reviewed.",
+        "evidence": "Products: an external | Assets: an external",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "5.2 delegated stake weight reduction can be bypassed by using an external",
+        "normalizedAsset": "an external",
+        "canonicalKey": "5.18|libproxy proxycall may overwrite important memory|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 88,
+        "sourceSectionTitle": "LibProxy.proxyCall() may overwrite important memory",
+        "sourceText": "5.18 LibProxy.proxyCall() may overwrite important memory Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "LibProxy.proxyCall() may overwrite important memory",
+      "canonicalKey": "5.18|libproxy proxycall may overwrite important memory|investigation scope||||||"
+    }
+  ],
+  "eval": {
+    "enableNlp": true,
+    "expectedCount": 18,
+    "actualCount": 18,
+    "expectedSeverityCounts": {
+      "Critical": 0,
+      "High": 2,
+      "Medium": 5,
+      "Low": 11
+    },
+    "actualSeverityCounts": {
+      "Critical": 0,
+      "High": 2,
+      "Medium": 5,
+      "Low": 11
+    },
+    "duplicates": 0,
+    "negativeHits": 0,
+    "pass": true
+  }
+}

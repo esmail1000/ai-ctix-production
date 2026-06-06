@@ -1,0 +1,1285 @@
+{
+  "manifest": {
+    "id": "consensys-diligence-omisego-morevp-audit-2019-10",
+    "vendor": "Consensys",
+    "family": "consensys-diligence",
+    "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+    "sourcePath": "Consensys/Diligence/omisego-morevp-audit-2019-10.pdf",
+    "textPath": "data/golden-reports/extracted-text/consensys-diligence-omisego-morevp-audit-2019-10.txt",
+    "expectedPath": "data/golden-reports/expected/consensys-diligence-omisego-morevp-audit-2019-10.json"
+  },
+  "expected": {
+    "id": "consensys-diligence-omisego-morevp-audit-2019-10",
+    "expectedCount": 20,
+    "expectedSeverityCounts": {
+      "Critical": 1,
+      "High": 2,
+      "Medium": 3,
+      "Low": 14
+    },
+    "notes": [
+      "Promoted from verified Stage 5 V5 review queue.",
+      "Source review id: consensys-diligence-omisego-morevp-audit-2019-10-f8f81482",
+      "Requires ENABLE_GENERIC_INDEX_ALIGNMENT=true for generic official index / table recovery gates.",
+      "Major is normalized to High. Minor, Info, Informational, and Note are normalized to Low."
+    ]
+  },
+  "report": {
+    "id": "G-consensys-diligence-omisego-morevp-audit-2019-10",
+    "slug": "consensys-diligence-omisego-morevp-audit-2019-10",
+    "name": "consensys-diligence-omisego-morevp-audit-2019-10",
+    "type": "PDF",
+    "uploadedAt": "2026-06-05T23:32:57.482Z",
+    "owner": "AI CTIX Analyzer",
+    "status": "Ready",
+    "findings": 20,
+    "critical": 1,
+    "high": 2,
+    "medium": 3,
+    "low": 14,
+    "summary": "4 Recommendation: Remove TxFinalizationModel and TxFinalizationVerifier . 5 Merkle - The implementation does not enforce inclusion of leaf nodes. 10 Recommendation: Merge TxPosLib into UtxoPosLib and implement a decode function with range checks.",
+    "parsingStatus": "parsed",
+    "analysisVersion": 1,
+    "parserVersion": 1,
+    "parsingNotes": [
+      "Structured parser found no blocks; heuristic fallback was used.",
+      "NLP hybrid extraction produced 8 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+      "Aligned findings with generic official index: 8 -> 20."
+    ],
+    "content": "Date January 2020\nLead Auditor Alexander Wade\nCo-auditors Daniel Luca, Martin Ortner\nOmisego Morevp Audit\n1 Summary\n2 Audit Scope\n3 Key Observations/Recommendations\n4 Security Speci\u0000cation\n4.1 Actors\n4.2 Trust Model\n5 Issues\n5.1 Merkle.checkMembership allows existence proofs for the same leaf in\nmultiple locations in the tree Critical ✓ Addressed\n5.2 Improper initialization of spending condition abstraction allows “v2\ntransactions” to exit using PaymentExitGame Major ✓ Addressed\n5.3 RLPReader - Leading zeroes allow multiple valid encodings and exit / output\nids for the same transaction Major ✓ Addressed\n5.4 Recommendation: Remove TxFinalizationModel and\nTxFinalizationVerifier . Implement stronger checks in Merkle Medium\n5.5 Merkle - The implementation does not enforce inclusion of leaf nodes. Medium\n✓ Addressed\n5.6 Maintainer can bypass exit game quarantine by registering not-yet-deployed\ncontracts Medium ✓ Addressed\n5.7 EthVault - Unused state variable Minor ✓ Addressed\n5.8 Recommendation: Add a tree height limit check to Merkle.sol Minor\n5.9 Recommendation: remove IsDeposit and add a similar getter to\nBlockController Minor ✓ Addressed\n5.10 Recommendation: Merge TxPosLib into UtxoPosLib and implement a\ndecode function with range checks. Minor\n5.11 Recommendation: Implement additional existence and range checks on\ninputs and storage reads Minor\n\n-- 1 of 61 --\n\n5.12 Recommendation: Remove optional arguments and clean unused code\nMinor ✓ Addressed\n5.13 Recommendation: Remove WireTransaction and PaymentOutputModel .\nFold functionality into an extended PaymentTransactionModel Minor\n5.14 ECDSA error value is not handled Minor ✓ Addressed\n5.15 No existence checks on framework block and timestamp reads Minor\n✓ Addressed\n5.16 BondSize - effectiveUpdateTime should be uint64 Minor\n5.17 PaymentExitGame contains several redundant plasmaFramework\ndeclarations Minor\n5.18 BlockController - inaccurate description of childBlockInterval for\nsubmitDepositBlock Minor\n5.19 PlasmaFramework - Can omit inheritance of VaultRegistry Minor\n5.20 BlockController - maintainer should be the only entity to set new authority\nMinor ✓ Addressed\nAppendix 1 - Scope\nAppendix 2 - Disclosure\n1 Summary\nConsenSys Diligence conducted a security audit of OmiseGo’s plasma framework\ncontracts. The contracts are their implementation of More Viable Plasma (MoreVP), which\nis based on Minimal Viable Plasma (MVP). MoreVP aims to improve on Plasma’s UX by\ngetting rid of MVP’s con\u0000rmation signatures in favor of a more involved exit game.\nDiligence performed a secondary review of the plasma contracts following OmiseGo’s\nimplementation of fee transaction types as well as their inclusion of \u0000xes from our initial\nreview.\n2 Audit Scope\nOur review was concerned primarily with the smart contracts in OmiseGo’s plasma-\ncontracts repository. We began our review at commit\ne13aaf759c979cf6516c1d8de865c9e324bc2db6.\nOur subsequent review began at commit\n9d79e35811a483277d4cd8b06b1678efc9f33151.\n\n-- 2 of 61 --\n\nA complete list of Solidity \u0000les reviewed can be found in the appendix.\n3 Key Observations/Recommendations\nThe bulk of the code (~80%) is concerned with the MoreVP exit game. Of this code,\nlarge portions of many contracts are irrelevant to the intended behavior of the system:\nboilerplate and leftovers from unused extensibility features.\nThe inclusion of this code makes it di\u0000cult to understand many components.\nCode is spread across a sprawling \u0000le structure, and understanding individual\nfeatures involves hopping between \u0000les frequently.\nThe unused code may have unintended side effects. External calls and\ndelegatecalls are often made. Memory is frequently allocated without cause.\nFunctions often have more parameters than they use. It may be that these affect\nthe function of the contracts in some subtle way.\nUpdate: Since our initial review, signi\u0000cant refactoring has removed much of the\nunused code initially found. In particular, the removal of unused parameters and\nfeatures like the output guard handler made it easier to reason about the code\n(see 5.12).\nMany future features are planned, but not yet implemented. The extensibility features\nmentioned above are meant to support new features when they are released, but,\ncrucially, will never serve a purpose in the existing system post-deployment. Assuming\nthe system is deployed and initialized correctly, the extensibility features in the existing\ncodebase will never be active.\nInstead, future features will be added via the registration of new exit games and\nvaults. This process involves a quarantine period whereby users can ensure that\nnew features are understood and audited before being used. The quarantine\nperiod is based on the minimum exit period, so that users are free to opt-out via\nexit before any new features become active.\nSome future features are represented in the current system. Of note is plasma\ntransaction fees, which are represented in the exit state transition veri\u0000er contract.\nThis contract checks that the sum of the denominations of each input is greater\nthan or equal to the sum of the denominations of each output. Should fees not be\nimplemented, this representation is incorrect and could lead to invalid\ntransactions exiting successfully.\n\n-- 3 of 61 --\n\nUpdate: Since our initial review, transaction fees have been implemented and\nincluded in the smart contracts as \u0000rst-class citizens. However, the contracts are\nstill highly complex due to heavy use of abstractions and a complicated\ntransaction decoding scheme. The potential to enable future transaction types\nand decoding schemes plays a large role in obfuscating the business logic of the\ncontracts. This obfuscation is magni\u0000ed by the codebase’s aforementioned\nsprawling \u0000le structure and relative lack of code commenting. Further work should\nattempt to limit this sprawl and focus on making implementation details more\nclear.\nBecause MoreVP does not use con\u0000rmation signatures, verifying a transaction’s\nvalidity is nearly impossible in the resource-constrained environment of the EVM. To\nget around this limitation, MoreVP allows invalid transactions to be exited. In order to\navoid losing funds, users must be sure that they are running the child chain watcher,\nand that it is correctly con\u0000gured to notify them of byzantine scenarios.\nAs a safeguard to the potential exiting of invalid transactions, users can perform a\nmass exit. In this case, the gas cost required to exit each UTXO is a critically-\nimportant bottleneck. Should a mass exit be too resource-intensive, the network\nmay be clogged up and invalid transactions may be exited successfully. Future\nwork on this codebase should make additional steps to ensure that exit game\nimplementations are as e\u0000cient as possible.\nUpdate: As with any highly-complex system, it is impossible to account for every\npossibility before launching. Our review was primarily concerned with the plasma\nsmart contracts as the critical point of infrastructure, but left other important\ncomponents nearly untouched. Of particular note is the implementation of the child\nchain watcher (and its integration with the plasma chain), which serves as a crucial\nsafeguard for users during production.\nOur review uncovered several issues in a highly complex codebase, and more were\nuncovered by OmiseGo’s development team during the engagement. We highly\nrecommend proceeding with caution: rather than pushing immediately for a full-\nscale production release, a testnet, public bug bounty, limited release, or a\ncombination of all of these would allow OmiseGo to work out the kinks of the\nsystem before it reaches critical mass.\n4 Security Speci\u0000cation\n\n-- 4 of 61 --\n\nThis section describes, from a security perspective, the expected behavior of the system\nunder audit. It is not a substitute for documentation. The purpose of this section is to\nidentify speci\u0000c security properties that were validated by the audit team.\n4.1 Actors\nThe relevant actors are as follows:\nOperator: Runs the child chain and submits child chain blocks to the\nPlasmaFramework contract.\nMaintainer: An address controlled by OmiseGo that has permissions to enable some\nextensibility features in the root chain contracts.\nDeployer: The address used to deploy the system’s contracts. Following deployment,\nthe deployer should revoke their permissions in some Ownable contracts.\nUser: An EOA that has deposited ERC20 or Ether into PlasmaFramework vaults. Users\nhold assets in the child chain.\nWatcher: A node that observes properties of the child chain and root chain contracts\nand signals if a byzantine scenario is detected.\n4.2 Trust Model\nIn any smart contract system, it’s important to identify what trust is expected/required\nbetween various actors. For this audit, we established the following trust model:\nDeployment and Initialization\nBefore the plasma chain can start submitting blocks to the root chain contract, it must be\ndeployed and initialized correctly. That the contracts are correctly initialized is crucial. The\nsafety of many system components rely on the revocation of permissions post-\ninitialization, as well as the correct injection of parameters into each contract constructor.\nPlasmaFramework.constructor - minExitPeriod\nThe minimum exit period should be 1 week\nPlasmaFramework.constructor - vault and exit game immunities\nPlasmaFramework should be initialized with 2 immunities for vaults, which should\nbe \u0000lled during initialization by the erc20 and eth vaults.\n\n-- 5 of 61 --\n\nPlasmaFramework should be initialized with 1 immunity for exit games, which\nshould be \u0000lled during initialization by the PaymentExitGame contract, con\u0000gured\nwith each of the components mentioned below.\nOutputGuardHandlerRegistry and SpendingConditionRegistry\nFollowing deployment, the owner of these contracts should revoke ownership by\ntransferring permissions to the zero address.\nOnly one payment output type should be registered in\nOutputGuardHandlerRegistry .\nTwo spending conditions should be registered in SpendingConditionRegistry ,\nwith the same output type registered in OutputGuardHandlerRegistry , and two\ndifferent transaction types. These spending conditions should be separately-\ndeployed instances of PaymentOutputToPaymentTxCondition.sol .\nUpdate: The OutputGuardHandlerRegistry was removed after refactoring\nsuggested in 5.12.\nPaymentExitGame.constructor (args)\nethVaultId and erc20VaultId should be the deployed EthVault.sol and\nERC20Vault.sol contracts. They should be different addresses. Each should be\ninitialized with the correct deposit veri\u0000er contract.\noutputGuardHandlerRegistry , spendingConditionVerifier ,\nstateTransitionVerifier , and txFinalizationVerifier should be the\ndeployed OutputGuardHandlerRegistry.sol ,\nSpendingConditionRegistry.sol ,\nPaymentTransactionStateTransitionVerifier.sol , and\nTxFinalizationVerifier.sol\nUpdate: The OutputGuardHandlerRegistry was removed after refactoring\nsuggested in 5.12.\nUser Behavior\nThe safety of the system relies in large part on vigilant monitoring and decisive action on\nthe part of the system’s users. Users should be running the child chain watcher, which\nmonitors the plasma chain and main chain contracts to alert the user if an exit is needed. In\nthe event of a byzantine operator or some discovered \u0000aw, it is critical that users be able to\nexit quickly and correctly.\n\n-- 6 of 61 --\n\nThe watcher should monitor registered exit games and vaults, and alert users if a new\nexit game is registered. Users should examine each registered exit game to ensure it\ncomplies with their expectations of the system.\nThe watcher should be used by as many users as is feasible.\nIn the event that an exit is needed, users must be able to coordinate and exit safely.\n5 Issues\nEach issue has an assigned severity:\nMinor issues are subjective in nature. They are typically suggestions around best\npractices or readability. Code maintainers should use their own judgment as to\nwhether to address such issues.\nMedium issues are objective in nature but are not security vulnerabilities. These should\nbe addressed unless there is a clear reason not to.\nMajor issues are security vulnerabilities that may not be directly exploitable or may\nrequire certain conditions in order to be exploited. All major issues should be\naddressed.\nCritical issues are directly exploitable security vulnerabilities that need to be \u0000xed.\n5.1 Merkle.checkMembership allows existence proofs for the same\nleaf in multiple locations in the tree Critical ✓ Addressed\nResolution\nThis was addressed in omisego/plasma-contracts#533 by including a check in\nPosLib that restricts transaction indices to between 0 and 2**16 - 1 inclusive. A\nsubsequent change in omisego/plasma-contracts#547 ensured the passed-in index\nsatis\u0000ed the recommended criterion.\nDescription\ncheckMembership is used by several contracts to prove that transactions exist in the child\nchain. The function uses a leaf , an index , and a proof to construct a hypothetical\n\n-- 7 of 61 --\n\nroot hash. This constructed hash is compared to the passed in rootHash parameter. If the\ntwo are equivalent, the proof is considered valid.\nThe proof is performed iteratively, and uses a pseudo-index ( j ) to determine whether the\nnext proof element represents a “left branch” or “right branch”:\ncode/plasma_framework/contracts/src/utils/Merkle.sol:L28-L41\nIf j is even, the computed hash is placed before the next proof element. If j is odd, the\ncomputed hash is placed after the next proof element. After each iteration, j is decremented\nby j = j / 2 .\nBecause checkMembership makes no requirements on the height of the tree or the size of\nthe proof relative to the provided index , it is possible to pass in invalid values for index\nthat prove a leaf’s existence in multiple locations in the tree.\nExamples\nBy modifying existing tests, we showed that for a tree with 3 leaves, leaf 2 can be proven to\nexist at indices 2, 6, and 10 using the same proof each time. The modi\u0000ed test can be found\nhere: https://gist.github.com/wadeAlexC/01b60099282a026f8dc1ac85d83489fd#\u0000le-\nmerkle-test-js-L40-L67\nit('should accidentally allow different indices to use the same proof', async () =>\nconst rootHash = this.merkleTree.root;\nuint256 j = index;\n// Note: We're skipping the first 32 bytes of `proof`, which holds the size of\nfor (uint256 i = 32; i <= proof.length; i += 32) {\n// solhint-disable-next-line no-inline-assembly\nassembly {\nproofElement := mload(add(proof, i))\n}\nif (j % 2 == 0) {\ncomputedHash = keccak256(abi.encodePacked(NODE_SALT, computedHash, pro\n} else {\ncomputedHash = keccak256(abi.encodePacked(NODE_SALT, proofElement, com\n}\nj = j / 2;\n}\n\n-- 8 of 61 --\n\nconst proof = this.merkleTree.getInclusionProof(leaves[2]);\nconst result = await this.merkleContract.checkMembership(\nleaves[2],\n2,\nrootHash,\nproof,\n);\nexpect(result).to.be.true;\nconst nextResult = await this.merkleContract.checkMembership(\nleaves[2],\n6,\nrootHash,\nproof,\n);\nexpect(nextResult).to.be.true;\nconst nextNextResult = await this.merkleContract.checkMembership(\nleaves[2],\n10,\nrootHash,\nproof,\n);\nexpect(nextNextResult).to.be.true;\n});\nConclusion\nExit processing is meant to bypass exits processed more than once. This is implemented\nusing an “output id” system, where each exited output should correspond to a unique id that\ngets \u0000agged in the ExitGameController contract as it’s exited. Before an exit is\nprocessed, its output id is calculated and checked against ExitGameController . If the\noutput has already been exited, the exit being processed is deleted and skipped. Crucially,\noutput id is calculated differently for standard transactions and deposit transactions:\ndeposit output ids factor in the transaction index.\nBy using the behavior described in this issue in conjunction with methods discussed in\nissue 5.8 and issue 5.10, we showed that deposit transactions can be exited twice using\n\n-- 9 of 61 --\n\nindices 0 and 2**16 . Because of the distinct output id calculation, these exits have\ndifferent output ids and can be processed twice, allowing users to exit double their\ndeposited amount.\nA modi\u0000ed StandardExit.load.test.js shows that exits are successfully enqueued with\na transaction index of 65536 :\nhttps://gist.github.com/wadeAlexC/4ad459b7510e512bc9556e7c919e0965#\u0000le-\nstandardexit-load-test-js-L55\nRecommendation\nUse the length of the proof to determine the maximum allowed index. The passed-in index\nshould satisfy the following criterion: index < 2**(proof.length/32) . Additionally,\nensure range checks on transaction position decoding are su\u0000ciently restrictive (see issue\n5.10).\nCorresponding issue in plasma-contracts repo: https://github.com/omisego/plasma-\ncontracts/issues/546\n5.2 Improper initialization of spending condition abstraction allows\n“v2 transactions” to exit using PaymentExitGame Major ✓ Addressed\nResolution\nThis was addressed in omisego/plasma-contracts#478 by requiring that\nPaymentStartStandardExit and PaymentStartInFlightExit check the exiting\ntransaction’s transaction type.\nDescription\nPaymentOutputToPaymentTxCondition is an abstraction around the transaction signature\ncheck needed for many components of the exit games. Its only function, verify , returns\ntrue if one transaction ( inputTxBytes ) is spent by another transaction\n( spendingTxBytes ):\ncode/plasma_framework/contracts/src/exits/payment/spendingConditions/PaymentOutputT\nL69\n\n-- 10 of 61 --\n\nVeri\u0000cation process\nThe veri\u0000cation process is relatively straightforward. The contract performs some basic\ninput validation, checking that the input transaction’s txType matches\nsupportInputTxType , and that the spending transaction’s txType matches\nsupportSpendingTxType . These values are set during construction.\nfunction verify(\nbytes calldata inputTxBytes,\nuint16 outputIndex,\nuint256 inputTxPos,\nbytes calldata spendingTxBytes,\nuint16 inputIndex,\nbytes calldata signature,\nbytes calldata\n/*optionalArgs*/\n)\nexternal\nview\nreturns (bool)\n{\nPaymentTransactionModel.Transaction memory inputTx = PaymentTransactionMod\nrequire(inputTx.txType == supportInputTxType, \"Input tx is an unsupported\nPaymentTransactionModel.Transaction memory spendingTx = PaymentTransaction\nrequire(spendingTx.txType == supportSpendingTxType, \"The spending tx is an\nUtxoPosLib.UtxoPos memory utxoPos = UtxoPosLib.build(TxPosLib.TxPos(inputT\nrequire(\nspendingTx.inputs[inputIndex] == bytes32(utxoPos.value),\n\"Spending tx points to the incorrect output UTXO position\"\n);\naddress payable owner = inputTx.outputs[outputIndex].owner();\nrequire(owner == ECDSA.recover(eip712.hashTx(spendingTx), signature), \"Tx\nreturn true;\n}\n\n-- 11 of 61 --\n\nNext, verify checks that the spending transaction contains an input that matches the\nposition of one of the input transaction’s outputs.\nFinally, verify performs an EIP-712 hash on the spending transaction, and ensures it is\nsigned by the owner of the output in question.\nImplications of the abstraction\nThe abstraction used requires several \u0000les to be visited to fully understand the function of\neach line of code: ISpendingCondition , PaymentEIP712Lib , UtxoPosLib , TxPosLib ,\nPaymentTransactionModel , PaymentOutputModel , RLPReader , ECDSA , and\nSpendingConditionRegistry . Additionally, the abstraction obfuscates the underlying\nspending condition veri\u0000cation primitive where used.\nFinally, understanding the abstraction requires an understanding of how\nSpendingConditionRegistry is initialized, as well as the nature of its relationship with\nPlasmaFramework and ExitGameRegistry . The aforementioned txType values,\nsupportInputTxType and supportSpendingTxType , are set during construction. Their\nuse in ExitGameRegistry seems to suggest they are intended to represent different\nversions of transaction types, and that separate exit game contracts are meant to handle\ndifferent transaction types:\ncode/plasma_framework/contracts/src/framework/registries/ExitGameRegistry.sol:L58-\nL78\n/**\n* @notice Registers an exit game within the PlasmaFramework. Only the maintai\n* @dev Emits ExitGameRegistered event to notify clients\n* @param _txType The tx type where the exit game wants to register\n* @param _contract Address of the exit game contract\n* @param _protocol The transaction protocol, either 1 for MVP or 2 for MoreVP\n*/\nfunction registerExitGame(uint256 _txType, address _contract, uint8 _protocol)\nrequire(_txType != 0, \"Should not register with tx type 0\");\nrequire(_contract != address(0), \"Should not register with an empty exit g\nrequire(_exitGames[_txType] == address(0), \"The tx type is already registe\nrequire(_exitGameToTxType[_contract] == 0, \"The exit game contract is alre\nrequire(Protocol.isValidProtocol(_protocol), \"Invalid protocol value\");\n\n-- 12 of 61 --\n\nMigration and initialization\nThe migration script seems to corroborate this interpretation:\ncode/plasma_framework/migrations/5_deploy_and_register_payment_exit_game.js:L109-\nL124\nThe migration script shown above deploys two different versions of\nPaymentOutputToPaymentTxCondition . The \u0000rst sets supportInputTxType and\nsupportSpendingTxType to PAYMENT_OUTPUT_TYPE and PAYMENT_TX_TYPE , respectively.\nThe second sets those same variables to PAYMENT_OUTPUT_TYPE and\nPAYMENT_V2_TX_TYPE , respectively.\n_exitGames[_txType] = _contract;\n_exitGameToTxType[_contract] = _txType;\n_protocols[_txType] = _protocol;\n_exitGameQuarantine.quarantine(_contract);\nemit ExitGameRegistered(_txType, _contract, _protocol);\n}\n// handle spending condition\nawait deployer.deploy(\nPaymentOutputToPaymentTxCondition,\nplasmaFramework.address,\nPAYMENT_OUTPUT_TYPE,\nPAYMENT_TX_TYPE,\n);\nconst paymentToPaymentCondition = await PaymentOutputToPaymentTxCondition.depl\nawait deployer.deploy(\nPaymentOutputToPaymentTxCondition,\nplasmaFramework.address,\nPAYMENT_OUTPUT_TYPE,\nPAYMENT_V2_TX_TYPE,\n);\nconst paymentToPaymentV2Condition = await PaymentOutputToPaymentTxCondition.de\n\n-- 13 of 61 --\n\nThe migration script then registers both of these contracts in\nSpendingConditionRegistry , and then calls renounceOwnership , freezing the spending\nconditions registered permanently:\ncode/plasma_framework/migrations/5_deploy_and_register_payment_exit_game.js:L126-\nL135\nFinally, the migration script registers a single exit game contract in PlasmaFramework :\ncode/plasma_framework/migrations/5_deploy_and_register_payment_exit_game.js:L137-\nL143\n// register the exit game to framework\nawait plasmaFramework.registerExitGame(\nPAYMENT_TX_TYPE,\npaymentExitGame.address,\nconfig.frameworks.protocols.moreVp,\n{ from: maintainerAddress },\n);\nNote that the associated _txType is permanently associated with the deployed exit game\ncontract:\ncode/plasma_framework/contracts/src/framework/registries/ExitGameRegistry.sol:L58-\nL78\nconsole.log(`Registering paymentToPaymentCondition (${paymentToPaymentConditio\nawait spendingConditionRegistry.registerSpendingCondition(\nPAYMENT_OUTPUT_TYPE, PAYMENT_TX_TYPE, paymentToPaymentCondition.address,\n);\nconsole.log(`Registering paymentToPaymentV2Condition (${paymentToPaymentV2Cond\nawait spendingConditionRegistry.registerSpendingCondition(\nPAYMENT_OUTPUT_TYPE, PAYMENT_V2_TX_TYPE, paymentToPaymentV2Condition.addre\n);\nawait spendingConditionRegistry.renounceOwnership();\n\n-- 14 of 61 --\n\nConclusion\nCrucially, this association is never used. It is implied heavily that transactions with some\ntxType must use a certain registered exit game contract. In fact, this is not true. When\nusing PaymentExitGame , its routers, and their associated controllers, the txType is\ninvariably inferred from the encoded transaction, not from the mappings in\nExitGameRegistry . If initialized as-is, both PAYMENT_TX_TYPE and PAYMENT_V2_TX_TYPE\ntransactions may be exited using PaymentExitGame , provided they exist in the plasma\nchain.\nRecommendation\nRemove PaymentOutputToPaymentTxCondition and SpendingConditionRegistry\nImplement checks for speci\u0000c spending conditions directly in exit game controllers.\nEmphasize clarity of function: ensure it is clear when called from the top level that a\nsignature veri\u0000cation check and spending condition check are being performed.\n/**\n* @notice Registers an exit game within the PlasmaFramework. Only the maintai\n* @dev Emits ExitGameRegistered event to notify clients\n* @param _txType The tx type where the exit game wants to register\n* @param _contract Address of the exit game contract\n* @param _protocol The transaction protocol, either 1 for MVP or 2 for MoreVP\n*/\nfunction registerExitGame(uint256 _txType, address _contract, uint8 _protocol)\nrequire(_txType != 0, \"Should not register with tx type 0\");\nrequire(_contract != address(0), \"Should not register with an empty exit g\nrequire(_exitGames[_txType] == address(0), \"The tx type is already registe\nrequire(_exitGameToTxType[_contract] == 0, \"The exit game contract is alre\nrequire(Protocol.isValidProtocol(_protocol), \"Invalid protocol value\");\n_exitGames[_txType] = _contract;\n_exitGameToTxType[_contract] = _txType;\n_protocols[_txType] = _protocol;\n_exitGameQuarantine.quarantine(_contract);\nemit ExitGameRegistered(_txType, _contract, _protocol);\n}\n\n-- 15 of 61 --\n\nIf the inferred relationship between txType and PaymentExitGame is correct, ensure\nthat each PaymentExitGame router checks for its supported txType . Alternatively,\nthe check could be made in PaymentExitGame itself.\nCorresponding issue in plasma-contracts repo: https://github.com/omisego/plasma-\ncontracts/issues/472\n5.3 RLPReader - Leading zeroes allow multiple valid encodings and\nexit / output ids for the same transaction Major ✓ Addressed\nResolution\nThis was addressed in omisego/plasma-contracts#507 with the addition of checks to\nensure primitive decoding functions in RLPReader ( toAddress , toUint ,\ntoBytes32 ) do not decode lists. A subsequent change in omisego/plasma-\ncontracts#476 rejects leading zeroes in toUint , and improves on size requirements\nfor decoded payloads. Note that the scalar “0” should be encoded as 0x80 .\nDescription\nThe current implementation of RLP decoding can take 2 different txBytes and decode\nthem to the same structure. Speci\u0000cally, the RLPReader.toUint method can decode 2\ndifferent types of bytes to the same number. For example:\n0x821234 is decoded to uint(0x1234)\n0x83001234 is decoded to uint(0x1234)\n0xc101 can decode to uint(1) , even though the tag speci\u0000es a short list\n0x01 can decode to uint(1) , even though the tag speci\u0000es a single byte\nAs explanation for this encoding:\n0x821234 is broken down into 2 parts:\n0x82 - represents 0x80 (the string tag) + 0x02 bytes encoded\n0x1234 - are the encoded bytes\nThe same for 0x83001234 :\n\n-- 16 of 61 --\n\n0x83 - represents 0x80 (the string tag) + 0x03 bytes encoded\n0x001234 - are the encoded bytes\nThe current implementation casts the encoded bytes into a uint256, so these different\nencodings are interpreted by the contracts as the same number:\nuint(0x1234) = uint(0x001234)\ncode/plasma_framework/contracts/src/utils/RLPReader.sol:L112\nresult := mload(memPtr)\nHaving different valid encodings for the same data is a problem because the encodings are\nused to create hashes that are used as unique ids. This means that multiple ids can be\ncreated for the same data. The data should only have one possible id.\nThe encoding is used to create ids in these parts of the code:\nOutputid.sol\ncode/plasma_framework/contracts/src/exits/utils/OutputId.sol:L18\nreturn keccak256(abi.encodePacked(_txBytes, _outputIndex, _utxoPosValue));\ncode/plasma_framework/contracts/src/exits/utils/OutputId.sol:L32\nreturn keccak256(abi.encodePacked(_txBytes, _outputIndex));\nExitId.sol\ncode/plasma_framework/contracts/src/exits/utils/ExitId.sol:L41\nbytes32 hashData = keccak256(abi.encodePacked(_txBytes, _utxoPos.value));\ncode/plasma_framework/contracts/src/exits/utils/ExitId.sol:L54\nreturn uint160((uint256(keccak256(_txBytes)) >> 105).setBit(151));\n\n-- 17 of 61 --\n\nTxFinalizationVeri\u0000er.sol\ncode/plasma_framework/contracts/src/exits/utils/TxFinalizationVeri\u0000er.sol:L55\nbytes32 leafData = keccak256(data.txBytes);\nOther methods that are affected because they rely on the return values of these methods:\nExitId.sol\ngetStandardExitId\ngetInFlightExitId\nOutputId.sol\ncomputeDepositOutputId\ncomputeNormalOutputId\nPaymentChallengeIFENotCanonical.sol\nverifyAndDeterminePositionOfTransactionIncludedInBlock\nverifyCompetingTxFinalized\nPaymentChallengeStandardExit.sol\nverifyChallengeTxProtocolFinalized\nPaymentStartInFlightExit.sol\nverifyInputTransactionIsStandardFinalized\nPaymentExitGame.sol\ngetStandardExitId\ngetInFlightExitId\nPaymentOutputToPaymentTxCondition.sol\nverify\nRecommendation\nEnforce strict-length decoding for txBytes , and specify that uint is decoded from a 32-\nbyte short string.\nEnforcing a 32-byte length for uint means that 0x1234 should always be encoded as:\n0xa00000000000000000000000000000000000000000000000000000000000001234\n0xa0 represents the tag + the length: 0x80 + 32\n\n-- 18 of 61 --\n\n0000000000000000000000000000000000000000000000000000000000001234 is the\nnumber 32 bytes long with leading zeroes\nUnfortunately, using leading zeroes is against the RLP spec:\nhttps://github.com/ethereum/wiki/wiki/RLP\npositive RLP integers must be represented in big endian binary form with no\nleading zeroes\nThis means that libraries interacting with OMG contracts which are going to correctly and\nfully implement the spec will generate “incorrect” encodings for uints; encodings that are\nnot going to be recognized by the OMG contracts.\nFully correct spec encoding: 0x821234 . Proposed encoding in this solution:\n0xa00000000000000000000000000000000000000000000000000000000000001234 .\nSimilarly enforce restrictions where they can be added; this is possible because of the strict\nstructure format that needs to be encoded.\nSome other potential solutions are included below. Note that these solutions are not\nrecommended for reasons included below:\n1. Normalize the encoding that gets passed to methods that hash the transaction for use\nas an id:\nThis can be implemented in the methods that call keccak256 on txBytes and should\ndecode and re-encode the passed txBytes in order to normalize the passed encoding.\na txBytes is passed\nthe txBytes are decoded into structure: tmpDecodedStruct = decode(txBytes)\nthe tmpDecodedStruct is re-encoded in order to normalize it: normalizedTxBytes =\nencode(txBytes)\nThis method is not recommended because it needs a Solidity encoder to be implemented\nand a lot of gas will be used to decode and re-encode the initial txBytes .\n1. Correctly and fully implement RLP decoding\nThis is another solution that adds a lot of code and is prone to errors.\n\n-- 19 of 61 --\n\nThe solution would be to enforce all of the restrictions when decoding and not accept any\nencoding that doesn’t fully follow the spec. This for example means that is should not\naccept uints with leading zeroes.\nThis is a problem because it needs a lot of code that is not easy to write in Solidity (or EVM).\n5.4 Recommendation: Remove TxFinalizationModel and\nTxFinalizationVerifier . Implement stronger checks in Merkle\nMedium\nResolution\nThis was partially addressed in omisego/plasma-contracts#503, with the removal of\nseveral unneeded branches of logic in TxFinalizationModel (now renamed to\nMoreVpFinalization ). A subsequent change in omisego/plasma-contracts#533\nadded a non-zero proof length check in Merkle . Note that\nPaymentChallengeIFENotCanonical.respond still calls Merkle.checkMembership\ndirectly, and lacks the typical transaction type protocol check made in\nMoreVpFinalization.isStandardFinalized .\nDescription\nTxFinalizationVerifier is an abstraction around the block inclusion check needed for\nmany of the features of plasma exit games. It uses a struct de\u0000ned in\nTxFinalizationModel as inputs to its two functions: isStandardFinalized and\nisProtocolFinalized .\nisStandardFinalized returns the result of an inclusion proof. Although there are several\nbranches, only the \u0000rst is used:\ncode/plasma_framework/contracts/src/exits/utils/TxFinalizationVeri\u0000er.sol:L19-L32\n/**\n* @notice Checks whether a transaction is \"standard finalized\"\n* @dev MVP: requires that both inclusion proof and confirm signature is checke\n* @dev MoreVp: checks inclusion proof only\n*/\n\n-- 20 of 61 --\n\nisProtocolFinalized is unused:\ncode/plasma_framework/contracts/src/exits/utils/TxFinalizationVeri\u0000er.sol:L34-L47\nThe abstraction used introduces branching logic and requires several \u0000les to be visited to\nfully understand the function of each line of code: ITxFinalizationVerifier ,\nTxFinalizationModel , TxPosLib , Protocol , BlockController , and Merkle .\nAdditionally, the abstraction obfuscates the underlying inclusion proof primitive when used\nin the exit game contracts. isStandardFinalized is not clearly an inclusion proof, and\nisProtocolFinalized simply adds confusion.\nFinally, the abstraction may have rami\u0000cations on the safety of Merkle.sol . As it stands\nnow, Merkle.checkMembership should never be called directly by the exit game\nfunction isStandardFinalized(Model.Data memory data) public view returns (bool\nif (data.protocol == Protocol.MORE_VP()) {\nreturn checkInclusionProof(data);\n} else if (data.protocol == Protocol.MVP()) {\nrevert(\"MVP is not yet supported\");\n} else {\nrevert(\"Invalid protocol value\");\n}\n}\n/**\n* @notice Checks whether a transaction is \"protocol finalized\"\n* @dev MVP: must be standard finalized\n* @dev MoreVp: allows in-flight tx, so only checks for the existence of the tr\n*/\nfunction isProtocolFinalized(Model.Data memory data) public view returns (bool\nif (data.protocol == Protocol.MORE_VP()) {\nreturn data.txBytes.length > 0;\n} else if (data.protocol == Protocol.MVP()) {\nrevert(\"MVP is not yet supported\");\n} else {\nrevert(\"Invalid protocol value\");\n}\n}\n\n-- 21 of 61 --\n\ncontrollers, as it lacks an important check made in\nTxFinalizationVerifier.checkInclusionProof :\ncode/plasma_framework/contracts/src/exits/utils/TxFinalizationVeri\u0000er.sol:L49-L59\nBy introducing the abstraction of TxFinalizationVerifier , the input validation\nperformed by Merkle is split across multiple \u0000les, and the reasonable-seeming decision of\ncalling Merkle.checkMembership directly becomes unsafe. In fact, this occurs in one\nlocation in the contracts:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFENot\nL204\nfunction checkInclusionProof(Model.Data memory data) private view returns (boo\nif (data.inclusionProof.length == 0) {\nreturn false;\n}\n(bytes32 root,) = data.framework.blocks(data.txPos.blockNum());\nbytes32 leafData = keccak256(data.txBytes);\nreturn Merkle.checkMembership(\nleafData, data.txPos.txIndex(), root, data.inclusionProof\n);\n}\nfunction verifyAndDeterminePositionOfTransactionIncludedInBlock(\nbytes memory txbytes,\nUtxoPosLib.UtxoPos memory utxoPos,\nbytes32 root,\nbytes memory inclusionProof\n)\nprivate\npure\nreturns(uint256)\n{\nbytes32 leaf = keccak256(txbytes);\nrequire(\nMerkle.checkMembership(leaf, utxoPos.txIndex(), root, inclusionProof),\n\"Transaction is not included in block of Plasma chain\"\n\n-- 22 of 61 --\n\nRecommendation\n1. Remove TxFinalizationVerifier and TxFinalizationModel\n2. Implement a proof length check in Merkle.sol\n3. Call Merkle.checkMembership directly from exit controller contracts:\nPaymentChallengeIFEOutputSpent.verifyInFlightTransactionStandardFinalized :\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFEOut\nPaymentChallengeIFENotCanonical.verifyCompetingTxFinalized :\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFENot\nPaymentStartInFlightExit.verifyInputTransactionIsStandardFinalized :\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentStartInFlightExit.\nL308\n1. If none of the above recommendations are implemented, ensure that\nPaymentChallengeIFENotCanonical uses the abstraction TxFinalizationVerifier\nso that a length check is performed on the inclusion proof.\nCorresponding issue in plasma-contracts repo: https://github.com/omisego/plasma-\ncontracts/issues/471\n);\nreturn utxoPos.value;\n}\nrequire(controller.txFinalizationVerifier.isStandardFinalized(finalizationData\nrequire(self.txFinalizationVerifier.isStandardFinalized(finalizationData), \"Fa\nrequire(exitData.controller.txFinalizationVerifier.isStandardFinalized(finaliz\n\"Input transaction is not standard finalized\");\n\n-- 23 of 61 --\n\n5.5 Merkle - The implementation does not enforce inclusion of leaf\nnodes. Medium ✓ Addressed\nResolution\nThis was addressed in omisego/plasma-contracts#452 with the addition of leaf and\nnode salts to the checkMembership function.\nDescription\nA observation with the current Merkle tree implementation is that it may be possible to\nvalidate nodes other than leaves. This is done by providing checkMembership with a\nreference to a hash within the tree, rather than a leaf.\ncode/plasma_framework/contracts/src/utils/Merkle.sol:L9-L42\n/**\n* @notice Checks that a leaf hash is contained in a root hash\n* @param leaf Leaf hash to verify\n* @param index Position of the leaf hash in the Merkle tree\n* @param rootHash Root of the Merkle tree\n* @param proof A Merkle proof demonstrating membership of the leaf hash\n* @return True, if the leaf hash is in the Merkle tree; otherwise, False\n*/\nfunction checkMembership(bytes32 leaf, uint256 index, bytes32 rootHash, bytes\ninternal\npure\nreturns (bool)\n{\nrequire(proof.length % 32 == 0, \"Length of Merkle proof must be a multiple\nbytes32 proofElement;\nbytes32 computedHash = leaf;\nuint256 j = index;\n// Note: We're skipping the first 32 bytes of `proof`, which holds the siz\nfor (uint256 i = 32; i <= proof.length; i += 32) {\n// solhint-disable-next-line no-inline-assembly\nassembly {\n\n-- 24 of 61 --\n\nThe current implementation will validate the provided “leaf” and return true . This is a\nknown problem of Merkle trees\nhttps://en.wikipedia.org/wiki/Merkle_tree#Second_preimage_attack.\nExamples\nProvide a hash from within the Merkle tree as the leaf argument. The index has to match\nthe index of that node in regards to its current level in the tree. The rootHash has to be the\ncorrect Merkle tree rootHash . The proof has to skip the necessary number of levels\nbecause the nodes “underneath” the provided “leaf” will not be processed.\nRecommendation\nA remediation needs a \u0000xed Merkle tree size as well as the addition of a byte prepended to\neach node in the tree. Another way would be to create a structure for the Merkle node and\nmark it as leaf or no leaf .\nCorresponding issue in plasma-contracts repo: https://github.com/omisego/plasma-\ncontracts/issues/425\nproofElement := mload(add(proof, i))\n}\nif (j % 2 == 0) {\ncomputedHash = keccak256(abi.encodePacked(computedHash, proofEleme\n} else {\ncomputedHash = keccak256(abi.encodePacked(proofElement, computedHa\n}\nj = j / 2;\n}\nreturn computedHash == rootHash;\n}\n5.6 Maintainer can bypass exit game quarantine by registering not-\nyet-deployed contracts Medium ✓ Addressed\nResolution\n\n-- 25 of 61 --\n\nThis was addressed in commit 7669076be1dff47473ee877dcebef5989d7617ac by\nadding a check that registered contracts had nonzero extcodesize .\nDescription\nThe plasma framework uses an ExitGameRegistry to allow the maintainer to add new\nexit games after deployment. An exit game is any arbitrary contract. In order to prevent the\nmaintainer from adding malicious exit games that steal user funds, the framework uses a\n“quarantine” system whereby newly-registered exit games have restricted permissions until\ntheir quarantine period has expired. The quarantine period is by default 3 *\nminExitPeriod , and is intended to facilitate auditing of the new exit game’s functionality by\nthe plasma users.\nHowever, by registering an exit game at a contract which has not yet been deployed, the\nmaintainer can prevent plasma users from auditing the game until the quarantine period\nhas expired. After the quarantine period has expired, the maintainer can deploy the\nmalicious exit game and immediately steal funds.\nExplanation\nExit games are registered in the following function, callable only by the plasma contract\nmaintainer:\ncode/plasma_framework/contracts/src/framework/registries/ExitGameRegistry.sol:L58-\nL78\n/**\n* @notice Registers an exit game within the PlasmaFramework. Only the maintai\n* @dev Emits ExitGameRegistered event to notify clients\n* @param _txType The tx type where the exit game wants to register\n* @param _contract Address of the exit game contract\n* @param _protocol The transaction protocol, either 1 for MVP or 2 for MoreVP\n*/\nfunction registerExitGame(uint256 _txType, address _contract, uint8 _protocol)\nrequire(_txType != 0, \"Should not register with tx type 0\");\nrequire(_contract != address(0), \"Should not register with an empty exit g\nrequire(_exitGames[_txType] == address(0), \"The tx type is already registe\nrequire(_exitGameToTxType[_contract] == 0, \"The exit game contract is alre\n\n-- 26 of 61 --\n\nNotably, the function does not check the extcodesize of the submitted contract. As such,\nthe maintainer can submit the address of a contract which does not yet exist and is not\nauditable.\nAfter at least 3 * minExitPeriod seconds pass, the submitted contract now has full\npermissions as a registered exit game and can pass all checks using the\nonlyFromNonQuarantinedExitGame modi\u0000er:\ncode/plasma_framework/contracts/src/framework/registries/ExitGameRegistry.sol:L33-\nL40\nAdditionally, the submitted contract passes checks made by external contracts using the\nisExitGameSafeToUse function:\ncode/plasma_framework/contracts/src/framework/registries/ExitGameRegistry.sol:L48-\nL56\nrequire(Protocol.isValidProtocol(_protocol), \"Invalid protocol value\");\n_exitGames[_txType] = _contract;\n_exitGameToTxType[_contract] = _txType;\n_protocols[_txType] = _protocol;\n_exitGameQuarantine.quarantine(_contract);\nemit ExitGameRegistered(_txType, _contract, _protocol);\n}\n/**\n* @notice A modifier to verify that the call is from a non-quarantined exit g\n*/\nmodifier onlyFromNonQuarantinedExitGame() {\nrequire(_exitGameToTxType[msg.sender] != 0, \"The call is not from a regist\nrequire(!_exitGameQuarantine.isQuarantined(msg.sender), \"ExitGame is quara\n_;\n}\n/**\n* @notice Checks whether the contract is safe to use and is not under quarant\n* @dev Exposes information about exit games quarantine\n\n-- 27 of 61 --\n\nThese permissions allow a registered quarantine to:\n1. Withdraw any users’ tokens from ERC20Vault :\ncode/plasma_framework/contracts/src/vaults/Erc20Vault.sol:L52-L55\n1. Withdraw any users’ ETH from EthVault :\ncode/plasma_framework/contracts/src/vaults/EthVault.sol:L46-L54\n1. Activate and deactivate the ExitGameController reentrancy mutex:\ncode/plasma_framework/contracts/src/framework/ExitGameController.sol:L63-L66\nfunction activateNonReentrant() external onlyFromNonQuarantinedExitGame() {\nrequire(!mutex, \"Reentrant call\");\n* @param _contract Address of the exit game contract\n* @return boolean Whether the contract is safe to use and is not under quaran\n*/\nfunction isExitGameSafeToUse(address _contract) public view returns (bool) {\nreturn _exitGameToTxType[_contract] != 0 && !_exitGameQuarantine.isQuarant\n}\nfunction withdraw(address payable receiver, address token, uint256 amount) ext\nIERC20(token).safeTransfer(receiver, amount);\nemit Erc20Withdrawn(receiver, token, amount);\n}\nfunction withdraw(address payable receiver, uint256 amount) external onlyFromN\n// we do not want to block exit queue if transfer is unucessful\n// solhint-disable-next-line avoid-call-value\n(bool success, ) = receiver.call.value(amount)(\"\");\nif (success) {\nemit EthWithdrawn(receiver, amount);\n} else {\nemit WithdrawFailed(receiver, amount);\n}\n\n-- 28 of 61 --\n\nmutex = true;\n}\ncode/plasma_framework/contracts/src/framework/ExitGameController.sol:L72-L75\n1. enqueue arbitrary exits:\ncode/plasma_framework/contracts/src/framework/ExitGameController.sol:L115-L138\nfunction deactivateNonReentrant() external onlyFromNonQuarantinedExitGame() {\nrequire(mutex, \"Not locked\");\nmutex = false;\n}\nfunction enqueue(\nuint256 vaultId,\naddress token,\nuint64 exitableAt,\nTxPosLib.TxPos calldata txPos,\nuint160 exitId,\nIExitProcessor exitProcessor\n)\nexternal\nonlyFromNonQuarantinedExitGame\nreturns (uint256)\n{\nbytes32 key = exitQueueKey(vaultId, token);\nrequire(hasExitQueue(key), \"The queue for the (vaultId, token) pair is not\nPriorityQueue queue = exitsQueues[key];\nuint256 priority = ExitPriority.computePriority(exitableAt, txPos, exitId)\nqueue.insert(priority);\ndelegations[priority] = exitProcessor;\nemit ExitQueued(exitId, priority);\nreturn priority;\n}\n\n-- 29 of 61 --\n\n1. Flag outputs as “spent”:\ncode/plasma_framework/contracts/src/framework/ExitGameController.sol:L210-L213\nRecommendation\nregisterExitGame should check that extcodesize of the submitted contract is non-\nzero.\nCorresponding issue in plasma-contracts repo: https://github.com/omisego/plasma-\ncontracts/issues/410\nfunction flagOutputSpent(bytes32 _outputId) external onlyFromNonQuarantinedExi\nrequire(_outputId != bytes32(\"\"), \"Should not flag with empty outputId\");\nisOutputSpent[_outputId] = true;\n}\n5.7 EthVault - Unused state variable Minor ✓ Addressed\nResolution\nThis was addressed in commit ea36f5ff46ab72ec5c281fa0a3dffe3bcc83178b.\nDescription\nThe state variable withdrawEntryCounter is not used in the code.\ncode/plasma_framework/contracts/src/vaults/EthVault.sol:L8\nuint256 private withdrawEntryCounter = 0;\nRecommendation\nRemove it from the contract.\n\n-- 30 of 61 --\n\n5.8 Recommendation: Add a tree height limit check to Merkle.sol\nMinor\nDescription\nEach plasma block has a maximum of 2 ** 16 transactions, which corresponds to a\nmaximum Merkle tree height of 16. The Merkle library currently checks that the proof is\ncomprised of 32-byte segments, but neglects to check the maximum height:\ncode/plasma_framework/contracts/src/utils/Merkle.sol:L17-L23\nCorresponding issue in plasma-contracts repo: https://github.com/omisego/plasma-\ncontracts/issues/467\nfunction checkMembership(bytes32 leaf, uint256 index, bytes32 rootHash, bytes\ninternal\npure\nreturns (bool)\n{\nrequire(proof.length % 32 == 0, \"Length of Merkle proof must be a multiple\n5.9 Recommendation: remove IsDeposit and add a similar getter to\nBlockController Minor ✓ Addressed\nResolution\nThis was addressed in commit 0fee13f7f084983139eb47636ff785ebea8a1c36 by\nremoving the IsDeposit contract and replicating its functionality in\nBlockController.sol .\nDescription\nThe IsDeposit library is used to check whether a block number is a deposit or not. The\nlogic is simple - if blockNum % childBlockInterval is nonzero, the block number is a\ndeposit.\n\n-- 31 of 61 --\n\nBy including this check in BlockController instead, the contract can perform an\nexistence check as well. The function in BlockController would return the same result as\nthe IsDeposit library, but would additionally revert if the block in question does not exist:\nfunction isDeposit(uint _blockNum) public view returns (bool) {\nrequire(blocks[_blockNum].timestamp != 0, \"Block does not exist\");\nreturn _blockNum % childBlockInterval != 0;\n}\nNote that this check is made at the cost of an external call. If the check needs to be made\nmultiple times in a transaction, the result should be cached.\nCorresponding issue in plasma-contracts repo: https://github.com/omisego/plasma-\ncontracts/issues/466\n5.10 Recommendation: Merge TxPosLib into UtxoPosLib and\nimplement a decode function with range checks. Minor\nResolution\nThis was partially addressed in omisego/plasma-contracts#515 with the merging of\nTxPosLib and UtxoPosLib into PosLib . A subsequent change in omisego/plasma-\ncontracts#533 implemented stricter range checks for block number and transaction\nindex. Note that the maximum output index in PosLib is still 9999, well above the\ncurrently-supported maximum of “3”. Additionally, PosLib.encode lacks an explicit\nrange check on txIndex and PosLib.decode lacks an explicit range check on\noutputIndex .\nDescription\nTxPosLib and UtxoPosLib serve very similar functions. They both provide utility\nfunctions to access the block number and tx index of a packed utxo position variable.\nUtxoPosLib , additionally, provides a function to retrieve the output index of a packed utxo\nposition variable.\nWhat they both lack, though, is sanity checks on the values packed inside a utxo position\nvariable. By implementing a function UtxoPosLib.decode(uint _utxoPos) returns\n\n-- 32 of 61 --\n\n(UtxoPos) , each exit controller contract can ensure that the values it is using make logical\nsense. The decode function should check that:\ntxIndex is between 0 and 2**16\noutputIndex is between 0 and 3\nCurrently, neither of these restrictions is explicitly enforced. As for blockNum , the best\ncheck is that it exists in the PlasmaFramework contract with a nonzero root. Since\nUtxoPosLib is a pure library, that check is better performed elsewhere (See issue 5.9).\nOnce implemented, all contracts should avoid casting values directly to the UtxoPos\nstruct, in favor of using the decode function. Merging the two \u0000les will help with this.\nCorresponding issue in plasma-contracts repo: https://github.com/omisego/plasma-\ncontracts/issues/465\n5.11 Recommendation: Implement additional existence and range\nchecks on inputs and storage reads Minor\nResolution\nThis was partially addressed in omisego/plasma-contracts#524 and\nomisego/plasma-contracts#483. Not all recommended checks were included.\nDescription\nMany input validation and storage read checks are made implicitly, rather than explicitly.\nThe following compilation notes each line of code in the exit controller contracts where an\nadditional check should be added.\nExamples\n1. PaymentChallengeIFEInputSpent :\nCheck that inFlightTx has a nonzero input at the provided index:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFEInpu\n\n-- 33 of 61 --\n\nCheck that each transaction is nonzero and is correctly formed:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFEInpu\nL101\nrequire(\nkeccak256(args.inFlightTx) != keccak256(args.challengingTx),\n\"The challenging transaction is the same as the in-flight transaction\"\n);\nCheck that resulting outputId is nonzero:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFEInpu\nSee issue 5.10:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFEInpu\nSee issue 5.9:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFEInpu\nCheck that inputTx is nonzero and well-formed:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFEInpu\nL128\nrequire(ife.isInputPiggybacked(args.inFlightTxInputIndex), \"The indexed input\nbytes32 ifeInputOutputId = data.ife.inputs[data.args.inFlightTxInputIndex].out\nUtxoPosLib.UtxoPos memory utxoPos = UtxoPosLib.UtxoPos(data.args.inputUtxoPos)\nbytes32 challengingTxInputOutputId = data.controller.isDeposit.test(utxoPos.bl\n? OutputId.computeDepositOutputId(data.args.inputTx, utxoPos.outputIndex(), ut\n: OutputId.computeNormalOutputId(data.args.inputTx, utxoPos.outputIndex());\n\n-- 34 of 61 --\n\nCheck that output is nonzero:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFEInpu\nSee issue 5.10:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFEInpu\nCheck that challengingTx has a nonzero input at provided index:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFEInpu\ndata.args.challengingTxInputIndex,\n2. PaymentChallengeIFENotCanonical :\nCheck that each transaction is nonzero and is correctly formed:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFENot\nL101\nrequire(\nkeccak256(args.inFlightTx) != keccak256(args.competingTx),\n\"The competitor transaction is the same as transaction in-flight\"\n);\nSee issue 5.10:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFENot\nSee issue 5.9:\nWireTransaction.Output memory output = WireTransaction.getOutput(data.args.cha\nUtxoPosLib.UtxoPos memory inputUtxoPos = UtxoPosLib.UtxoPos(data.args.inputUtx\nUtxoPosLib.UtxoPos memory inputUtxoPos = UtxoPosLib.UtxoPos(args.inputUtxoPos)\n\n-- 35 of 61 --\n\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFENot\nif (self.isDeposit.test(inputUtxoPos.blockNum())) {\nCheck that inputTx is nonzero and well-formed:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFENot\nL110\nCheck that inFlightTx has a nonzero input at the provided index:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFENot\nL113\nCheck that output is nonzero:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFENot\nCheck that competingTx has a nonzero input at provided index:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFENot\nargs.competingTxInputIndex,\nCheck that resulting position is nonzero:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFENot\noutputId = OutputId.computeDepositOutputId(args.inputTx, inputUtxoPos.outp\n} else {\noutputId = OutputId.computeNormalOutputId(args.inputTx, inputUtxoPos.outpu\nrequire(outputId == ife.inputs[args.inFlightTxInputIndex].outputId,\n\"Provided inputs data does not point to the same outputId from the in-\nWireTransaction.Output memory output = WireTransaction.getOutput(args.inputTx,\n\n-- 36 of 61 --\n\nCheck that inFlightTxPos is nonzero:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFENot\nL173\nSee issue 5.10:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFENot\nUtxoPosLib.UtxoPos memory utxoPos = UtxoPosLib.UtxoPos(inFlightTxPos);\nCheck that block root is nonzero:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFENot\n(bytes32 root, ) = self.framework.blocks(utxoPos.blockNum());\nCheck that inFlightTx is nonzero and well-formed:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFENot\ninFlightTx, utxoPos, root, inFlightTxInclusionProof\nSee issue 5.10:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFENot\n3. PaymentChallengeIFEOutputSpent :\nuint256 competitorPosition = verifyCompetingTxFinalized(self, args, output);\nrequire(\nife.oldestCompetitorPosition > inFlightTxPos,\n\"In-flight transaction must be younger than competitors to respond to non-\nUtxoPosLib.UtxoPos memory competingTxUtxoPos = UtxoPosLib.UtxoPos(args.competi\n\n-- 37 of 61 --\n\nCheck that inFlightTx is nonzero and is well-formed:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFEOut\nuint160 exitId = ExitId.getInFlightExitId(args.inFlightTx);\nSee issue 5.10:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFEOut\nUtxoPosLib.UtxoPos memory utxoPos = UtxoPosLib.UtxoPos(args.outputUtxoPos);\nCheck that inFlightTx has a nonzero output at the provided index:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFEOut\nL63\nrequire(\nife.isOutputPiggybacked(outputIndex),\n\"Output is not piggybacked\"\n);\nCheck that bond size is nonzero:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFEOut\nuint256 piggybackBondSize = ife.outputs[outputIndex].piggybackBondSize;\nSee issue 5.10:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFEOut\nUtxoPosLib.UtxoPos memory utxoPos = UtxoPosLib.UtxoPos(args.outputUtxoPos);\nSee issue 5.10:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFEOut\n\n-- 38 of 61 --\n\nUtxoPosLib.UtxoPos memory utxoPos = UtxoPosLib.UtxoPos(args.outputUtxoPos);\nCheck that challengingTx is nonzero and is well-formed:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFEOut\nCheck that output is nonzero:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFEOut\nCheck that challengingTx has a nonzero input at provided index:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFEOut\nargs.challengingTxInputIndex,\n4. PaymentChallengeStandardExit :\nSee issue 5.10:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeStanda\nCheck that exitingTx is nonzero and well-formed:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeStanda\n.decode(data.args.exitingTx)\nCheck that output is nonzero:\nuint256 challengingTxType = WireTransaction.getTransactionType(args.challengin\nWireTransaction.Output memory output = WireTransaction.getOutput(args.challeng\nUtxoPosLib.UtxoPos memory utxoPos = UtxoPosLib.UtxoPos(data.exitData.utxoPos);\n\n-- 39 of 61 --\n\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeStanda\nL113\nPaymentOutputModel.Output memory output = PaymentTransactionModel\n.decode(data.args.exitingTx)\n.outputs[utxoPos.outputIndex()];\nCheck that challengeTx is nonzero and well-formed:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeStanda\nSee issue 5.10:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeStanda\ntxPos: TxPosLib.TxPos(data.args.challengeTxPos),\nSee issue 5.9:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeStanda\nbytes32 outputId = data.controller.isDeposit.test(utxoPos.blockNum())\nCheck that challengeTx has a nonzero input at provided index:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeStanda\nargs.inputIndex,\n5. PaymentPiggybackInFlightExit :\nCheck that inFlightTx is nonzero and well-formed:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentPiggybackInFligh\nuint256 challengeTxType = WireTransaction.getTransactionType(data.args.challen\n\n-- 40 of 61 --\n\nuint160 exitId = ExitId.getInFlightExitId(args.inFlightTx);\nCheck that inFlightTx has a nonzero input at provided index:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentPiggybackInFligh\nSee issue 5.10:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentPiggybackInFligh\nCheck that inFlightTx is nonzero and is well-formed:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentPiggybackInFligh\nuint160 exitId = ExitId.getInFlightExitId(args.inFlightTx);\nCheck that inFlightTx has a nonzero output at provided index:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentPiggybackInFligh\nSee issue 5.10:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentPiggybackInFligh\n6. PaymentStartInFlightExit :\nCheck that inFlightTx is nonzero and is well-formed:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentStartInFlightExit.\nrequire(!exit.isInputPiggybacked(args.inputIndex), \"Indexed input already pigg\nenqueue(self, withdrawData.token, UtxoPosLib.UtxoPos(exit.position), exitId);\nrequire(!exit.isOutputPiggybacked(args.outputIndex), \"Indexed output already p\nenqueue(self, withdrawData.token, UtxoPosLib.UtxoPos(exit.position), exitId);\n\n-- 41 of 61 --\n\nexitData.exitId = ExitId.getInFlightExitId(args.inFlightTx);\nCheck that the length of inputTxs is nonzero:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentStartInFlightExit.\nexitData.inputTxs = args.inputTxs;\nSee issue 5.10:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentStartInFlightExit.\nutxosPos[i] = UtxoPosLib.UtxoPos(inputUtxosPos[i]);\nSee issue 5.9:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentStartInFlightExit.\nbool isDepositTx = controller.isDeposit.test(utxoPos[i].blockNum());\nCheck that each inputTxs is nonzero and well-formed:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentStartInFlightExit.\nL183\nCheck that each output is nonzero:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentStartInFlightExit.\nCheck that inFlightTx has nonzero inputs for all i :\noutputIds[i] = isDepositTx\n? OutputId.computeDepositOutputId(inputTxs[i], utxoPos[i].outputIndex(), u\n: OutputId.computeNormalOutputId(inputTxs[i], utxoPos[i].outputIndex());\nWireTransaction.Output memory output = WireTransaction.getOutput(inputTxs[i],\n\n-- 42 of 61 --\n\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentStartInFlightExit.\nL328\nexitData.inFlightTxRaw,\ni,\nCheck that each output is nonzero:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentStartInFlightExit.\nPaymentOutputModel.Output memory output = exitData.inFlightTx.outputs[i];\n7. PaymentStartStandardExit :\nSee issue 5.10:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentStartStandardExi\nUtxoPosLib.UtxoPos memory utxoPos = UtxoPosLib.UtxoPos(args.utxoPos);\nCheck that output is nonzero:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentStartStandardExi\nCheck that timestamp is nonzero:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentStartStandardExi\nCorresponding issue in plasma-contracts repo: https://github.com/omisego/plasma-\ncontracts/issues/463\nPaymentOutputModel.Output memory output = outputTx.outputs[utxoPos.outputIndex\n(, uint256 blockTimestamp) = controller.framework.blocks(utxoPos.blockNum());\n\n-- 43 of 61 --\n\n5.12 Recommendation: Remove optional arguments and clean\nunused code Minor ✓ Addressed\nResolution\nThis was addressed in omisego/plasma-contracts#496 and omisego/plasma-\ncontracts#503 with the removal of the output guard handler pattern, the simpli\u0000cation\nof the tx \u0000nalization check via MoreVpFinalization , and the removal of various\nunused function parameters and struct \u0000elds.\nDescription\nSeveral locations in the codebase feature unused arguments, functions, return values, and\nmore. There are two primary reasons to remove these artifacts from the codebase:\n1. Mass exits are the primary safeguard against a byzantine operator. The biggest\nbottleneck of a mass exit is transaction throughput, so plasma rootchain\nimplementations should strive to be as e\u0000cient as possible. Many unused features\nrequire external calls, memory allocation, unneeded calculation, and more.\n2. The contracts are set up to be extensible by way of the addition of new exit games to\nthe system. “Optional” or unimplemented features in current exit games should be\nremoved for simplicity’s sake, as they currently make up a large portion of the\ncodebase.\nExamples\nOutput guard handlers\nThese offer very little utility in the current contracts. The main contract,\nPaymentOutputGuardHandler , has three functions:\nisValid enforces that some “preimage” value passed in via calldata has a\nlength of zero. This could be removed along with the unused “preimage”\nparameter.\ngetExitTarget converts a bytes20 to address payable (with the help of\nAddressPayable.sol ). This could be removed in favor of using\nAddressPayable directly where needed.\n\n-- 44 of 61 --\n\ngetConfirmSigAddress simply returns an empty address. This should be\nremoved wherever used - empty \u0000elds should be a rare exception or an error,\nrather than being injected as unused values into critical functions.\nThe minimal utility offered comes at the price of using an external call to the\nOutputGuardHandlerRegistry , as well as an external call for each of the\nfunctions mentioned above. Overall, the existence of output guard handlers adds\nthousands of gas to the exit process.\nReferenced contracts: IOutputGuardHandler , OutputGuardModel ,\nPaymentOutputGuardHandler , OutputGuardHandlerRegistry\nPayment router arguments\nSeveral \u0000elds in the exit router structs are marked “optional,” and are not used in\nthe contracts. While this is not particularly impactful, it does clutter and confuse\nthe contracts. Many “optional” \u0000elds are referenced and passed into functions\nwhich do not use them. Of note is the crucially-important signature veri\u0000cation\nfunction, PaymentOutputToPaymentTxCondition.verify , where\nStartExitData.inputSpendingConditionOptionalArgs resolves to an unnamed\nparameter:\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentStartInFlightExit.\nL332\nbool isSpentByInFlightTx = condition.verify(\nexitData.inputTxs[i],\nexitData.inputUtxosPos[i].outputIndex(),\nexitData.inputUtxosPos[i].txPos().value,\nexitData.inFlightTxRaw,\ni,\nexitData.inFlightTxWitnesses[i],\nexitData.inputSpendingConditionOptionalArgs[i]\n);\nrequire(isSpentByInFlightTx, \"Spending condition failed\");\ncode/plasma_framework/contracts/src/exits/payment/spendingConditions/PaymentOutputT\nL47\n\n-- 45 of 61 --\n\nfunction verify(\nbytes calldata inputTxBytes,\nuint16 outputIndex,\nuint256 inputTxPos,\nbytes calldata spendingTxBytes,\nuint16 inputIndex,\nbytes calldata signature,\nbytes calldata\n/*optionalArgs*/\nThe additional \u0000elds clutter the namespace of each struct, confusing the purpose of the\nother \u0000elds. For example, PaymentInFlightExitRouterArgs.StartExitArgs features two\n\u0000elds, inputTxsConfirmSigs and inFlightTxsWitnesses , the former of which is marked\n“optional”. In fact, the inFlightTxsWitnesses \u0000eld ends up containing the signatures\npassed to the spending condition veri\u0000er and ECDSA library:\ncode/plasma_framework/contracts/src/exits/payment/routers/PaymentInFlightExitRouterArg\nL24\n/**\n* @notice Wraps arguments for startInFlightExit.\n* @param inFlightTx RLP encoded in-flight transaction.\n* @param inputTxs Transactions that created the inputs to the in-flight transa\n* @param inputUtxosPos Utxos that represent in-flight transaction inputs. In t\n* @param outputGuardPreimagesForInputs (Optional) Output guard pre-images for\n* @param inputTxsInclusionProofs Merkle proofs that show the input-creating tr\n* @param inputTxsConfirmSigs (Optional) Confirm signatures for the input txs.\n* @param inFlightTxWitnesses Witnesses for in-flight transaction. In the same\n* @param inputSpendingConditionOptionalArgs (Optional) Additional args for the\n*/\nstruct StartExitArgs {\nbytes inFlightTx;\nbytes[] inputTxs;\nuint256[] inputUtxosPos;\nbytes[] outputGuardPreimagesForInputs;\nbytes[] inputTxsInclusionProofs;\nbytes[] inputTxsConfirmSigs;\nbytes[] inFlightTxWitnesses;\n\n-- 46 of 61 --\n\nCorresponding issue in plasma-contracts repo: https://github.com/omisego/plasma-\ncontracts/issues/457\nbytes[] inputSpendingConditionOptionalArgs;\n}\n5.13 Recommendation: Remove WireTransaction and\nPaymentOutputModel . Fold functionality into an extended\nPaymentTransactionModel Minor\nDescription\nRLP decoding is performed on transaction bytes in each of WireTransaction ,\nPaymentOutputModel , and PaymentTransactionModel . The latter is the primary decoding\nfunction for transactions, while the former two contracts deal with outputs speci\u0000cally.\nBoth WireTransaction and PaymentOutputModel make use of RLPReader to decode\ntransaction objects, and both implement very similar features. Rather than having a\ncodebase with two separate de\u0000nitions for struct Output , PaymentTransactionModel\nshould be extended to implement all required functionality.\nExamples\nPaymentTransactionModel should include three distinct decoding functions:\ndecodeDepositTx decodes a deposit transaction, which has no inputs and\nexactly 1 output.\ndecodeSpendTx decodes a spend transaction, which has exactly 4 inputs and 4\noutputs.\ndecodeOutput decodes an output, which is a long list with 4 \u0000elds ( uint ,\naddress , address , uint )\nA mock implementation including decodeSpendTx and decodeOutput is shown here:\nhttps://gist.github.com/wadeAlexC/7820c0cd82fd5fdc11a0ad58a84165ae\nOmiseGo may want to consider enforcing restrictions on the ordering of empty and\nnonempty \u0000elds here as well.\nCorresponding issue in plasma-contracts repo: https://github.com/omisego/plasma-\ncontracts/issues/456\n\n-- 47 of 61 --\n\n5.14 ECDSA error value is not handled Minor ✓ Addressed\nResolution\nThis was addressed in commit 32288ccff5b867a7477b4eaf3beb0587a4684d7a by\nadding a check that the returned value is nonzero.\nDescription\nThe OpenZeppelin ECDSA library returns address(0x00) for many cases with malformed\nsignatures:\ncontracts/cryptography/ECDSA.sol:L57-L63\nThe PaymentOutputToPaymentTxCondition contract does not explicitly handle this case:\ncode/plasma_framework/contracts/src/exits/payment/spendingConditions/PaymentOutputT\nL68\nRecommendation\nAdding a check to handle this case will make it easier to reason about the code.\nCorresponding issue in plasma-contracts repo: https://github.com/omisego/plasma-\ncontracts/issues/454\nif (uint256(s) > 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681\nreturn address(0);\n}\nif (v != 27 && v != 28) {\nreturn address(0);\n}\naddress payable owner = inputTx.outputs[outputIndex].owner();\nrequire(owner == ECDSA.recover(eip712.hashTx(spendingTx), signature), \"Tx in n\nreturn true;\n\n-- 48 of 61 --\n\n5.15 No existence checks on framework block and timestamp reads\nMinor ✓ Addressed\nResolution\nThis was addressed in commit c5e5a460a2082b809a2c45b2d6a69b738b34937a by\nadding checks that block root and timestamp reads return nonzero values.\nDescription\nThe exit game libraries make several queries to the main PlasmaFramework contract\nwhere plasma block hashes and timestamps are stored. In multiple locations, the return\nvalues of these queries are not checked for existence.\nExamples\n1. PaymentStartStandardExit.setupStartStandardExitData :\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentStartStandardExi\n1. PaymentChallengeIFENotCanonical.respond :\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentChallengeIFENot\n(bytes32 root, ) = self.framework.blocks(utxoPos.blockNum());\n1. PaymentPiggybackInFlightExit.enqueue :\ncode/plasma_framework/contracts/src/exits/payment/controllers/PaymentPiggybackInFligh\n1. TxFinalizationVerifier.checkInclusionProof :\ncode/plasma_framework/contracts/src/exits/utils/TxFinalizationVeri\u0000er.sol:L54\n(, uint256 blockTimestamp) = controller.framework.blocks(utxoPos.blockNum());\n(, uint256 blockTimestamp) = controller.framework.blocks(utxoPos.blockNum());\n\n-- 49 of 61 --\n\n(bytes32 root,) = data.framework.blocks(data.txPos.blockNum());\nRecommendation\nAlthough none of these examples seem exploitable, adding existence checks makes it\neasier to reason about the code. Each query to PlasmaFramework.blocks should be\nfollowed with a check that the returned value is nonzero.\nCorresponding issue in plasma-contracts repo: https://github.com/omisego/plasma-\ncontracts/issues/463\n5.16 BondSize - effectiveUpdateTime should be uint64 Minor\nDescription\nIn BondSize, the mechanism to update the size of the bond has a grace period after which\nthe new bond size becomes active.\nWhen updating the bond size, the time is casted as a uint64 and saved in a uint128\nvariable.\ncode/plasma_framework/contracts/src/exits/utils/BondSize.sol:L24\nuint128 effectiveUpdateTime;\ncode/plasma_framework/contracts/src/exits/utils/BondSize.sol:L11\nuint64 constant public WAITING_PERIOD = 2 days;\ncode/plasma_framework/contracts/src/exits/utils/BondSize.sol:L57\nself.effectiveUpdateTime = uint64(now) + WAITING_PERIOD;\nThere’s no need to use a uint128 to save the time if it never will take up that much space.\nRecommendation\n\n-- 50 of 61 --\n\nChange the type of the effectiveUpdateTime to uint64 .\n- uint128 effectiveUpdateTime;\n+ uint64 effectiveUpdateTime;\n5.17 PaymentExitGame contains several redundant plasmaFramework\ndeclarations Minor\nDescription\nPaymentExitGame inherits from both PaymentInFlightExitRouter and\nPaymentStandardExitRouter . All three contracts declare and initialize their own\nPlasmaFramework variable. This pattern can be misleading, and may lead to subtle issues\nin future versions of the code.\nExamples\n1. PaymentExitGame declaration:\ncode/plasma_framework/contracts/src/exits/payment/PaymentExitGame.sol:L18\nPlasmaFramework private plasmaFramework;\n1. PaymentInFlightExitRouter declaration:\ncode/plasma_framework/contracts/src/exits/payment/routers/PaymentInFlightExitRouter.so\nPlasmaFramework private framework;\n1. PaymentStandardExitRouter declaration:\ncode/plasma_framework/contracts/src/exits/payment/routers/PaymentStandardExitRouter.s\nPlasmaFramework private framework;\nEach variable is initialized in the corresponding \u0000le’s constructor.\n\n-- 51 of 61 --\n\nRecommendation\nIntroduce an inherited contract common to PaymentStandardExitRouter and\nPaymentInFlightExitRouter with the PlasmaFramework variable. Make the variable\ninternal so it is visible to inheriting contracts.\n5.18 BlockController - inaccurate description of childBlockInterval\nfor submitDepositBlock Minor\nDescription\nThe Vault calls submitDepositBlock when a user deposits funds into the plasma chain.\nEach deposit transaction creates one deposit block on the plasma chain. The number of\ndeposit blocks between two child blocks is limited by the childBlockInterval . For\nexample, a childBlockInterval of 1 would not allow any deposit blocks, a\nchildBlockInterval of 2 would allow one deposit block after each child block [child]\n[optional: deposit][child][optional: deposit] .\ncode/plasma_framework/contracts/src/framework/BlockController.sol:L96-L114\n/**\n* @notice Submits a block for deposit\n* @dev Block number adds 1 per submission; it's possible to have at most 'chi\n* @param _blockRoot Merkle root of the Plasma block\n* @return The deposit block number\n*/\nfunction submitDepositBlock(bytes32 _blockRoot) public onlyFromNonQuarantinedV\nrequire(isChildChainActivated == true, \"Child chain has not been activated\nrequire(nextDeposit < childBlockInterval, \"Exceeded limit of deposits per\nuint256 blknum = nextDepositBlock();\nblocks[blknum] = BlockModel.Block({\nroot : _blockRoot,\ntimestamp : block.timestamp\n});\nnextDeposit++;\nreturn blknum;\n}\n\n-- 52 of 61 --\n\nHowever, the comment at line 98 mentions the following:\n[..] it’s possible to have at most ‘childBlockInterval’ deposit blocks between two\nchild chain blocks [..]\nThis comment is inaccurate, as a childBlockInterval of 1 would not allow deposits at\nall (Note how nextDeposit is always >=1 ).\nRemediation\nThe comment should read: [..] it’s possible to have at most ‘childBlockInterval -1’ deposit\nblocks between two child chain blocks [..]. Make sure to properly validate inputs for these\nvalues when deploying the contract to avoid obvious miscon\u0000guration.\n5.19 PlasmaFramework - Can omit inheritance of VaultRegistry\nMinor\nDescription\nThe contract PlasmaFramework inherits VaultRegistry even though it does not use any\nof the methods directly. Also BlockController inherits VaultRegistry effectively\nadding all of the needed functionality in there.\nRemediation\nPlasmaFramework does not need to inherit VaultRegistry , thus the import and the\ninheritance can be removed from PlasmaFramework.sol .\nimport \"./BlockController.sol\";\nimport \"./ExitGameController.sol\";\n-import \"./registries/VaultRegistry.sol\";\nimport \"./registries/ExitGameRegistry.sol\";\n-contract PlasmaFramework is VaultRegistry, ExitGameRegistry, ExitGameControll\n+contract PlasmaFramework is ExitGameRegistry, ExitGameController, BlockContro\nuint256 public constant CHILD_BLOCK_INTERVAL = 1000;\n/**\n\n-- 53 of 61 --\n\nAll tests still pass after removing the inheritance.\n5.20 BlockController - maintainer should be the only entity to set\nnew authority Minor ✓ Addressed\nResolution\nThis was addressed in commit 25c2560e3b2e40ce9a10c40da97c3f79afc2c641 with\nthe removal of the setAuthority function.\nDescription\ncode/plasma_framework/contracts/src/framework/BlockController.sol:L69-L72\ndeployer initially sets the account that is allowed to submit new blocks as authority .\nauthority can then set a new authority at will. In a system that is set-up and\nmaintained by a maintainer role (multi-sig) that can upgrade certain parts of the system\nit is unexpected for another role to be able to pass along its permissions. The security\nspeci\u0000cation notes that the authority role is only used to submit blocks:\nAuthority: EOA used exclusively to submit plasma block hashes to the root chain.\nThe child chain assumes at deployment that the authority account has nonce zero\nand no transactions have been sent from it.\nHowever, no transactions might not be possible as authority is the only one to\nactivateChildChain . Once activated, the child chain cannot be de-activated but the\nauthority can change.\nelixir-omg#managing-the-operator-address notes the following for operator aka\nauthority :\nfunction setAuthority(address newAuthority) external onlyFrom(authority) {\nrequire(newAuthority != address(0), \"Authority address cannot be zero\");\nauthority = newAuthority;\n}\n\n-- 54 of 61 --\n\nAs a consequence, the operator address must never send any other transactions, if\nit intends to continue submitting blocks. (Workarounds to this limitation are\navailable, if there’s such requirement.)\nAdditionally, setAuthority should emit an event to allow participants to react to this\nchange in the system and have an audit trial.\nRemediation\nRemove the setAuthority function, or clarify its intended purpose and add an event so it\ncan be detected by users.\nCorresponding issue in plasma-contracts repo: https://github.com/omisego/plasma-\ncontracts/issues/403\nAppendix 1 - Scope\nOur initial review covered the following \u0000les:\nFile Name\nexits/interfaces/IOutputGuardHandler.sol 441f1302e9c56a\nexits/interfaces/ISpendingCondition.sol 00c615d91f4b56\nexits/interfaces/IStateTransitionVeri\u0000er.sol a8a402a118795\nexits/interfaces/ITxFinalizationVeri\u0000er.sol 47d1025d9d719\nexits/models/OutputGuardModel.sol 46ef116b93bb41\nexits/models/TxFinalizationModel.sol 8a5bbd3e8022e3\nexits/payment/controllers/PaymentChallengeIFEInputSpent.sol 277cac44c58fcc\nexits/payment/controllers/PaymentChallengeIFENotCanonical.sol cddc8ba53ccf99\nexits/payment/controllers/PaymentChallengeIFEOutputSpent.sol a5ce1510088b8\nexits/payment/controllers/PaymentChallengeStandardExit.sol a5a319545934d\nexits/payment/controllers/PaymentPiggybackInFlightExit.sol 8eb01f55de028e\nexits/payment/controllers/PaymentProcessInFlightExit.sol 6ba4a78b47995\nexits/payment/controllers/PaymentProcessStandardExit.sol 20e5f5d30b3787\nexits/payment/controllers/PaymentStartInFlightExit.sol c6c5424ee37c61\n\n-- 55 of 61 --\n\nFile Name\nexits/payment/controllers/PaymentStartStandardExit.sol 4ebe197698627\nexits/payment/outputGuardHandlers/PaymentOutputGuardHandler.sol 564e9ea7a3fb40\nexits/payment/PaymentExitDataModel.sol d1e69011622fe6\nexits/payment/PaymentExitGame.sol f0b6b93c0a89e1\nexits/payment/PaymentInFlightExitModelUtils.sol 33d3e5c065be8f\nexits/payment/PaymentTransactionStateTransitionVeri\u0000er.sol e5cf8acf73b6ad4\nexits/payment/routers/PaymentInFlightExitRouterArgs.sol c11e874a9e06fb\nexits/payment/routers/PaymentInFlightExitRouter.sol 970fa3e62f1a56\nexits/payment/routers/PaymentStandardExitRouterArgs.sol bf16c27381f8c9\nexits/payment/routers/PaymentStandardExitRouter.sol 42806bdfedae95\nexits/payment/spendingConditions/PaymentOutputToPaymentTxCondition.sol 03e91d87e21ca4\nexits/registries/OutputGuardHandlerRegistry.sol 309a123160bbe\nexits/registries/SpendingConditionRegistry.sol 3c3d474f0a9fcd\nexits/utils/BondSize.sol 5b0d0d28374d8\nexits/utils/ExitableTimestamp.sol 43c6aac2ffb2cb7\nexits/utils/ExitId.sol 7afda23a55bc86\nexits/utils/OutputId.sol 92f09840ae6a9b\nexits/utils/TxFinalizationVeri\u0000er.sol fe3ed4518d03e0\nframework/BlockController.sol 6739cfe1a0ee45\nframework/ExitGameController.sol 80368067a6813\nframework/interfaces/IExitProcessor.sol e4c1d8af9e266f9\nframework/models/BlockModel.sol b8189e31fa460f\nframework/PlasmaFramework.sol ab2f4972d01ca5\nframework/Protocol.sol 19a3df96f1038b\nframework/registries/ExitGameRegistry.sol 0f005fbde0fc38a\nframework/registries/VaultRegistry.sol b67f8e7bc05518\nframework/utils/ExitPriority.sol 18b26af2160f3b\n\n-- 56 of 61 --\n\nOur subsequent review covered the following \u0000les:\nFile Name\nframework/utils/PriorityQueue.sol 122b3e2f81de23\nframework/utils/Quarantine.sol eb3c6ca62779e1\ntransactions/eip712Libs/PaymentEip712Lib.sol 484d1dc077895\ntransactions/outputs/PaymentOutputModel.sol 2cd78f5327a459\ntransactions/PaymentTransactionModel.sol 2901a612cba37\ntransactions/WireTransaction.sol 95919930e6213\nutils/AddressPayable.sol fbe6d6c78e748a\nutils/Bits.sol ecdb86c5001d0e\nutils/FailFastReentrancyGuard.sol af48169f434734\nutils/IsDeposit.sol d6968ebd0091e\nutils/Merkle.sol 876dad4fb2edea\nutils/OnlyFromAddress.sol 7c2992b12e7689\nutils/OnlyWithValue.sol 85bf439b5889f9\nutils/RLPReader.sol 3fd2f65a4bdc0fc\nutils/SafeEthTransfer.sol 056e0166a2e4ef\nutils/TxPosLib.sol e3338d37bdd83\nutils/UtxoPosLib.sol bf056fd54e5a8a\nvaults/Erc20Vault.sol 0b71916cd9cef1\nvaults/EthVault.sol 3502005fc37019\nvaults/Vault.sol 9cf94dbbd859c7\nvaults/veri\u0000ers/Erc20DepositVeri\u0000er.sol deba9753470bc7\nvaults/veri\u0000ers/EthDepositVeri\u0000er.sol 5e53ed549695ed\nvaults/veri\u0000ers/IErc20DepositVeri\u0000er.sol bd9cc22d1669f8\nvaults/veri\u0000ers/IEthDepositVeri\u0000er.sol 943c3ebddf7f85\nvaults/ZeroHashesProvider.sol 6564cf101c4b92\n\n-- 57 of 61 --\n\nFile Name File Name\ncontracts/src/exits/fee/FeeClaimOutputToPaymentTxCondition.sol 6c\ncontracts/src/exits/fee/FeeExitGame.sol 17\ncontracts/src/exits/interfaces/ISpendingCondition.sol 3a\ncontracts/src/exits/interfaces/IStateTransitionVeri\u0000er.sol a8\ncontracts/src/exits/payment/controllers/PaymentChallengeIFEInputSpent.sol cee\ncontracts/src/exits/payment/controllers/PaymentChallengeIFENotCanonical.sol 33\ncontracts/src/exits/payment/controllers/PaymentChallengeIFEOutputSpent.sol 74\ncontracts/src/exits/payment/controllers/PaymentChallengeStandardExit.sol e8\ncontracts/src/exits/payment/controllers/PaymentDeleteInFlightExit.sol 10\ncontracts/src/exits/payment/controllers/PaymentPiggybackInFlightExit.sol fe7\ncontracts/src/exits/payment/controllers/PaymentProcessInFlightExit.sol 8c\ncontracts/src/exits/payment/controllers/PaymentProcessStandardExit.sol 1c\ncontracts/src/exits/payment/controllers/PaymentStartInFlightExit.sol 31\ncontracts/src/exits/payment/controllers/PaymentStartStandardExit.sol 19\ncontracts/src/exits/payment/PaymentExitDataModel.sol d1\ncontracts/src/exits/payment/PaymentExitGameArgs.sol 77\ncontracts/src/exits/payment/PaymentExitGame.sol 93\ncontracts/src/exits/payment/PaymentInFlightExitModelUtils.sol eb\ncontracts/src/exits/payment/PaymentTransactionStateTransitionVeri\u0000er.sol 64\ncontracts/src/exits/payment/routers/PaymentInFlightExitRouterArgs.sol 14\ncontracts/src/exits/payment/routers/PaymentInFlightExitRouter.sol 21\ncontracts/src/exits/payment/routers/PaymentStandardExitRouterArgs.sol eb\ncontracts/src/exits/payment/routers/PaymentStandardExitRouter.sol ea\ncontracts/src/exits/payment/spendingConditions/PaymentOutputToPaymentTxCondition.sol e4\ncontracts/src/exits/registries/SpendingConditionRegistry.sol b9\ncontracts/src/exits/utils/BondSize.sol 5b\ncontracts/src/exits/utils/ExitableTimestamp.sol 43\n\n-- 58 of 61 --\n\nFile Name\ncontracts/src/exits/utils/ExitId.sol 80\ncontracts/src/exits/utils/MoreVpFinalization.sol f25\ncontracts/src/exits/utils/OutputId.sol 92\ncontracts/src/framework/BlockController.sol 51\ncontracts/src/framework/ExitGameController.sol cee\ncontracts/src/framework/interfaces/IExitProcessor.sol e4\ncontracts/src/framework/models/BlockModel.sol b8\ncontracts/src/framework/PlasmaFramework.sol ab\ncontracts/src/framework/Protocol.sol 19\ncontracts/src/framework/registries/ExitGameRegistry.sol 83\ncontracts/src/framework/registries/VaultRegistry.sol 06\ncontracts/src/framework/utils/ExitPriority.sol d6\ncontracts/src/framework/utils/PriorityQueue.sol 12\ncontracts/src/framework/utils/Quarantine.sol eb\ncontracts/src/transactions/eip712Libs/PaymentEip712Lib.sol 89\ncontracts/src/transactions/FungibleTokenOutputModel.sol 31\ncontracts/src/transactions/GenericTransaction.sol 48\ncontracts/src/transactions/PaymentTransactionModel.sol f62\ncontracts/src/utils/Bits.sol ecd\ncontracts/src/utils/FailFastReentrancyGuard.sol 8c\ncontracts/src/utils/Merkle.sol 72\ncontracts/src/utils/OnlyFromAddress.sol 7c\ncontracts/src/utils/OnlyWithValue.sol 85\ncontracts/src/utils/PosLib.sol 47\ncontracts/src/utils/RLPReader.sol 90\ncontracts/src/utils/SafeEthTransfer.sol 05\ncontracts/src/vaults/Erc20Vault.sol 59\n\n-- 59 of 61 --\n\nAppendix 2 - Disclosure\nConsenSys Diligence (“CD”) typically receives compensation from one or more clients (the\n“Clients”) for performing the analysis contained in these reports (the “Reports”). The Reports\nmay be distributed through other means, including via ConsenSys publications and other\ndistributions.\nThe Reports are not an endorsement or indictment of any particular project or team, and\nthe Reports do not guarantee the security of any particular project. This Report does not\nconsider, and should not be interpreted as considering or having any bearing on, the\npotential economics of a token, token sale or any other product, service or other asset.\nCryptographic tokens are emergent technologies and carry with them high levels of\ntechnical risk and uncertainty. No Report provides any warranty or representation to any\nThird-Party in any respect, including regarding the bugfree nature of code, the business\nmodel or proprietors of any such business model, and the legal compliance of any such\nbusiness. No third party should rely on the Reports in any way, including for the purpose of\nmaking any decisions to buy or sell any token, product, service or other asset. Speci\u0000cally,\nfor the avoidance of doubt, this Report does not constitute investment advice, is not\nintended to be relied upon as investment advice, is not an endorsement of this project or\nteam, and it is not a guarantee as to the absolute security of the project. CD owes no duty\nto any Third-Party by virtue of publishing these Reports.\nPURPOSE OF REPORTS The Reports and the analysis described therein are created solely\nfor Clients and published with their consent. The scope of our review is limited to a review\nof Solidity code and only the Solidity code we note as being within the scope of our review\nwithin this report. The Solidity language itself remains under development and is subject to\nunknown risks and \u0000aws. The review does not extend to the compiler layer, or any other\nFile Name\ncontracts/src/vaults/EthVault.sol 7b\ncontracts/src/vaults/Vault.sol 7a\ncontracts/src/vaults/veri\u0000ers/Erc20DepositVeri\u0000er.sol 3c\ncontracts/src/vaults/veri\u0000ers/EthDepositVeri\u0000er.sol 42\ncontracts/src/vaults/veri\u0000ers/IErc20DepositVeri\u0000er.sol bd\ncontracts/src/vaults/veri\u0000ers/IEthDepositVeri\u0000er.sol 94\n\n-- 60 of 61 --\n\n2019 © ConsenSys Privacy Policy\nareas beyond Solidity that could present security risks. Cryptographic tokens are emergent\ntechnologies and carry with them high levels of technical risk and uncertainty.\nCD makes the Reports available to parties other than the Clients (i.e., “third parties”) – on its\nwebsite. CD hopes that by making these analyses publicly available, it can help the\nblockchain ecosystem develop technical best practices in this rapidly evolving area of\ninnovation.\nLINKS TO OTHER WEB SITES FROM THIS WEB SITE You may, through hypertext or other\ncomputer links, gain access to web sites operated by persons other than ConsenSys and\nCD. Such hyperlinks are provided for your reference and convenience only, and are the\nexclusive responsibility of such web sites’ owners. You agree that ConsenSys and CD are\nnot responsible for the content or operation of such Web sites, and that ConsenSys and CD\nshall have no liability to you or any other person or entity for the use of third party Web\nsites. Except as described below, a hyperlink from this web Site to another web site does\nnot imply or mean that ConsenSys and CD endorses the content on that Web site or the\noperator or operations of that site. You are solely responsible for determining the extent to\nwhich you may use any content at any other web sites to which you link from the Reports.\nConsenSys and CD assumes no responsibility for the use of third party software on the\nWeb Site and shall have no liability whatsoever to any person or entity for the accuracy or\ncompleteness of any outcome generated by such software.\nTIMELINESS OF CONTENT The content contained in the Reports is current as of the date\nappearing on the Report and is subject to change without notice. Unless indicated\notherwise, by ConsenSys and CD.\n\n-- 61 of 61 --",
+    "sourceFileName": "omisego-morevp-audit-2019-10.pdf",
+    "createdAtIso": "2026-06-05T23:33:07.504Z",
+    "updatedAtIso": "2026-06-05T23:33:07.504Z"
+  },
+  "findings": [
+    {
+      "id": "F-G-consensys-diligence-omisego-morevp-audit-2019-10-GIDX-001",
+      "slug": "3-key-observations-recommendations-investigation-scope",
+      "reportId": "G-consensys-diligence-omisego-morevp-audit-2019-10",
+      "reportName": "consensys-diligence-omisego-morevp-audit-2019-10",
+      "title": "Merkle.checkMembership allows existence proofs for the same leaf in multiple locations in the tree",
+      "cve": "—",
+      "severity": "Critical",
+      "asset": "investigation-scope",
+      "score": 94,
+      "status": "Open",
+      "detectedAt": "2026-06-05T23:32:57.482Z",
+      "summary": "Merkle.checkMembership allows existence proofs for the same leaf in multiple locations in the tree affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+      "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:07.458Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3 Key Observations/Recommendations",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "3 Key Observations/Recommendations affecting investigation-scope; extractor found version d.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "3 key observations/recommendations",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "5.1|merkle checkmembership allows existence proofs for the same leaf in multiple locations in the tree|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "Merkle.checkMembership allows existence proofs for the same leaf in multiple locations in the tree",
+        "sourceText": "5.1 Merkle.checkMembership allows existence proofs for the same leaf in multiple locations in the tree Critical",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Merkle.checkMembership allows existence proofs for the same leaf in multiple locations in the tree",
+      "canonicalKey": "5.1|merkle checkmembership allows existence proofs for the same leaf in multiple locations in the tree|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-omisego-morevp-audit-2019-10-GIDX-002",
+      "slug": "3-key-observations-recommendations-investigation-scope",
+      "reportId": "G-consensys-diligence-omisego-morevp-audit-2019-10",
+      "reportName": "consensys-diligence-omisego-morevp-audit-2019-10",
+      "title": "Improper initialization of spending condition abstraction allows v2 transactions to exit using PaymentExitGame",
+      "cve": "—",
+      "severity": "High",
+      "asset": "investigation-scope",
+      "score": 84,
+      "status": "Open",
+      "detectedAt": "2026-06-05T23:32:57.482Z",
+      "summary": "Improper initialization of spending condition abstraction allows v2 transactions to exit using PaymentExitGame affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+      "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:07.458Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3 Key Observations/Recommendations",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "3 Key Observations/Recommendations affecting investigation-scope; extractor found version d.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "3 key observations/recommendations",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "5.2|improper initialization of spending condition abstraction allows v2 transactions to exit using paymentexitgame|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "Improper initialization of spending condition abstraction allows v2 transactions to exit using PaymentExitGame",
+        "sourceText": "5.2 Improper initialization of spending condition abstraction allows v2 transactions to exit using PaymentExitGame Major",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Improper initialization of spending condition abstraction allows v2 transactions to exit using PaymentExitGame",
+      "canonicalKey": "5.2|improper initialization of spending condition abstraction allows v2 transactions to exit using paymentexitgame|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-omisego-morevp-audit-2019-10-GIDX-003",
+      "slug": "3-key-observations-recommendations-investigation-scope",
+      "reportId": "G-consensys-diligence-omisego-morevp-audit-2019-10",
+      "reportName": "consensys-diligence-omisego-morevp-audit-2019-10",
+      "title": "RLPReader - Leading zeroes allow multiple valid encodings and exit / output ids for the same transaction",
+      "cve": "—",
+      "severity": "High",
+      "asset": "investigation-scope",
+      "score": 84,
+      "status": "Open",
+      "detectedAt": "2026-06-05T23:32:57.482Z",
+      "summary": "RLPReader - Leading zeroes allow multiple valid encodings and exit / output ids for the same transaction affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+      "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:07.458Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3 Key Observations/Recommendations",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "3 Key Observations/Recommendations affecting investigation-scope; extractor found version d.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "3 key observations/recommendations",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "5.3|rlpreader leading zeroes allow multiple valid encodings and exit output ids for the same transaction|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "RLPReader - Leading zeroes allow multiple valid encodings and exit / output ids for the same transaction",
+        "sourceText": "5.3 RLPReader - Leading zeroes allow multiple valid encodings and exit / output ids for the same transaction Major",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "RLPReader - Leading zeroes allow multiple valid encodings and exit / output ids for the same transaction",
+      "canonicalKey": "5.3|rlpreader leading zeroes allow multiple valid encodings and exit output ids for the same transaction|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-omisego-morevp-audit-2019-10-GIDX-004",
+      "slug": "3-key-observations-recommendations-investigation-scope",
+      "reportId": "G-consensys-diligence-omisego-morevp-audit-2019-10",
+      "reportName": "consensys-diligence-omisego-morevp-audit-2019-10",
+      "title": "Recommendation: Remove TxFinalizationModel and TxFinalizationVerifier; implement stronger checks in Merkle",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:57.482Z",
+      "summary": "Recommendation: Remove TxFinalizationModel and TxFinalizationVerifier; implement stronger checks in Merkle affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:07.458Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3 Key Observations/Recommendations",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "3 Key Observations/Recommendations affecting investigation-scope; extractor found version d.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "3 key observations/recommendations",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "5.4|recommendation remove txfinalizationmodel and txfinalizationverifier implement stronger checks in merkle|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "Recommendation: Remove TxFinalizationModel and TxFinalizationVerifier; implement stronger checks in Merkle",
+        "sourceText": "5.4 Recommendation: Remove TxFinalizationModel and TxFinalizationVerifier; implement stronger checks in Merkle Medium",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Recommendation: Remove TxFinalizationModel and TxFinalizationVerifier; implement stronger checks in Merkle",
+      "canonicalKey": "5.4|recommendation remove txfinalizationmodel and txfinalizationverifier implement stronger checks in merkle|investigation scope||||||"
+    },
+    {
+      "id": "F-consensys-004",
+      "slug": "merkle-the-implementation-does-not-enforce-inclusion-of-leaf-nodes-code-plasma-framework-contracts-s",
+      "reportId": "G-consensys-diligence-omisego-morevp-audit-2019-10",
+      "reportName": "consensys-diligence-omisego-morevp-audit-2019-10",
+      "title": "Merkle - The implementation does not enforce inclusion of leaf nodes",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "code/plasma_framework/contracts/src/utils/Merkle.sol",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:57.482Z",
+      "summary": "Merkle - The implementation does not enforce inclusion of leaf nodes affecting code/plasma_framework/contracts/src/utils/Merkle.sol; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against code/plasma_framework/contracts/src/utils/Merkle.sol if this signal is not reviewed.",
+      "evidence": "Components: code/plasma_framework/contracts/src/utils/Merkle.sol | Assets: code/plasma_framework/contracts/src/utils/Merkle.sol | Endpoints: s, salts | Services: HTTPS | URLs: https://en.wikipedia.org/wiki/Merkle_tree#Second_preimage_attack, https://github.com/omisego/plasmacontracts/issues/425 | Domains: en.wikipedia.org, github.com, Merkle.sol, proof.length, abi.encodePacked | File paths: code/plasma_framework/contracts/src/utils/Merkle.sol | File names: Merkle.sol",
+      "remediation": "A remediation needs a \u0000xed Merkle tree size as well as the addition of a byte prepended to each node in the tree. Another way would be to create a structure for the Merkle node and mark it as leaf or no leaf",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:07.471Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "Merkle - The implementation does not enforce inclusion of leaf nodes",
+        "severity": "Medium",
+        "asset": "code/plasma_framework/contracts/src/utils/Merkle.sol",
+        "status": "In Review",
+        "summary": "Merkle - The implementation does not enforce inclusion of leaf nodes affecting code/plasma_framework/contracts/src/utils/Merkle.sol; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against code/plasma_framework/contracts/src/utils/Merkle.sol if this signal is not reviewed.",
+        "evidence": "Components: code/plasma_framework/contracts/src/utils/Merkle.sol | Assets: code/plasma_framework/contracts/src/utils/Merkle.sol | Endpoints: s, salts | Services: HTTPS | URLs: https://en.wikipedia.org/wiki/Merkle_tree#Second_preimage_attack, https://github.com/omisego/plasmacontracts/issues/425 | Domains: en.wikipedia.org, github.com, Merkle.sol, proof.length, abi.encodePacked | File paths: code/plasma_framework/contracts/src/utils/Merkle.sol | File names: Merkle.sol",
+        "remediation": "A remediation needs a \u0000xed Merkle tree size as well as the addition of a byte prepended to each node in the tree. Another way would be to create a structure for the Merkle node and mark it as leaf or no leaf",
+        "references": [
+          "https://en.wikipedia.org/wiki/Merkle_tree#Second_preimage_attack",
+          "https://github.com/omisego/plasmacontracts/issues/425",
+          "en.wikipedia.org",
+          "github.com",
+          "Merkle.sol",
+          "proof.length",
+          "abi.encodePacked"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "merkle - the implementation does not enforce inclusion of leaf nodes",
+        "normalizedAsset": "code/plasma_framework/contracts/src/utils/merkle.sol",
+        "canonicalKey": "5.5|merkle the implementation does not enforce inclusion of leaf nodes|code plasma framework contracts src utils merkle sol||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 88,
+        "sourceSectionTitle": "Merkle - The implementation does not enforce inclusion of leaf nodes",
+        "sourceText": "5.5 Merkle - The implementation does not enforce inclusion of leaf nodes Medium",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "reported"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Merkle - The implementation does not enforce inclusion of leaf nodes",
+      "canonicalKey": "5.5|merkle the implementation does not enforce inclusion of leaf nodes|code plasma framework contracts src utils merkle sol||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-omisego-morevp-audit-2019-10-GIDX-006",
+      "slug": "3-key-observations-recommendations-investigation-scope",
+      "reportId": "G-consensys-diligence-omisego-morevp-audit-2019-10",
+      "reportName": "consensys-diligence-omisego-morevp-audit-2019-10",
+      "title": "Maintainer can bypass exit game quarantine by registering not-yet-deployed contracts",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:57.482Z",
+      "summary": "Maintainer can bypass exit game quarantine by registering not-yet-deployed contracts affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:07.458Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3 Key Observations/Recommendations",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "3 Key Observations/Recommendations affecting investigation-scope; extractor found version d.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "3 key observations/recommendations",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "5.6|maintainer can bypass exit game quarantine by registering not yet deployed contracts|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "Maintainer can bypass exit game quarantine by registering not-yet-deployed contracts",
+        "sourceText": "5.6 Maintainer can bypass exit game quarantine by registering not-yet-deployed contracts Medium",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Maintainer can bypass exit game quarantine by registering not-yet-deployed contracts",
+      "canonicalKey": "5.6|maintainer can bypass exit game quarantine by registering not yet deployed contracts|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-omisego-morevp-audit-2019-10-GIDX-007",
+      "slug": "3-key-observations-recommendations-investigation-scope",
+      "reportId": "G-consensys-diligence-omisego-morevp-audit-2019-10",
+      "reportName": "consensys-diligence-omisego-morevp-audit-2019-10",
+      "title": "EthVault - Unused state variable",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:57.482Z",
+      "summary": "EthVault - Unused state variable affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:07.458Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3 Key Observations/Recommendations",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "3 Key Observations/Recommendations affecting investigation-scope; extractor found version d.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "3 key observations/recommendations",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "5.7|ethvault unused state variable|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "EthVault - Unused state variable",
+        "sourceText": "5.7 EthVault - Unused state variable Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "EthVault - Unused state variable",
+      "canonicalKey": "5.7|ethvault unused state variable|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-omisego-morevp-audit-2019-10-GIDX-008",
+      "slug": "3-key-observations-recommendations-investigation-scope",
+      "reportId": "G-consensys-diligence-omisego-morevp-audit-2019-10",
+      "reportName": "consensys-diligence-omisego-morevp-audit-2019-10",
+      "title": "Recommendation: Add a tree height limit check to Merkle.sol",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:57.482Z",
+      "summary": "Recommendation: Add a tree height limit check to Merkle.sol affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:07.458Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3 Key Observations/Recommendations",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "3 Key Observations/Recommendations affecting investigation-scope; extractor found version d.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "3 key observations/recommendations",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "5.8|recommendation add a tree height limit check to merkle sol|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "Recommendation: Add a tree height limit check to Merkle.sol",
+        "sourceText": "5.8 Recommendation: Add a tree height limit check to Merkle.sol Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Recommendation: Add a tree height limit check to Merkle.sol",
+      "canonicalKey": "5.8|recommendation add a tree height limit check to merkle sol|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-omisego-morevp-audit-2019-10-GIDX-009",
+      "slug": "3-key-observations-recommendations-investigation-scope",
+      "reportId": "G-consensys-diligence-omisego-morevp-audit-2019-10",
+      "reportName": "consensys-diligence-omisego-morevp-audit-2019-10",
+      "title": "Recommendation: remove IsDeposit and add a similar getter to BlockController",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:57.482Z",
+      "summary": "Recommendation: remove IsDeposit and add a similar getter to BlockController affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:07.458Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3 Key Observations/Recommendations",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "3 Key Observations/Recommendations affecting investigation-scope; extractor found version d.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "3 key observations/recommendations",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "5.9|recommendation remove isdeposit and add a similar getter to blockcontroller|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "Recommendation: remove IsDeposit and add a similar getter to BlockController",
+        "sourceText": "5.9 Recommendation: remove IsDeposit and add a similar getter to BlockController Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Recommendation: remove IsDeposit and add a similar getter to BlockController",
+      "canonicalKey": "5.9|recommendation remove isdeposit and add a similar getter to blockcontroller|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-omisego-morevp-audit-2019-10-GIDX-010",
+      "slug": "3-key-observations-recommendations-investigation-scope",
+      "reportId": "G-consensys-diligence-omisego-morevp-audit-2019-10",
+      "reportName": "consensys-diligence-omisego-morevp-audit-2019-10",
+      "title": "Recommendation: Merge TxPosLib into UtxoPosLib and implement a decode function with range checks",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:57.482Z",
+      "summary": "Recommendation: Merge TxPosLib into UtxoPosLib and implement a decode function with range checks affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:07.458Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3 Key Observations/Recommendations",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "3 Key Observations/Recommendations affecting investigation-scope; extractor found version d.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "3 key observations/recommendations",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "5.10|recommendation merge txposlib into utxoposlib and implement a decode function with range checks|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "Recommendation: Merge TxPosLib into UtxoPosLib and implement a decode function with range checks",
+        "sourceText": "5.10 Recommendation: Merge TxPosLib into UtxoPosLib and implement a decode function with range checks Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Recommendation: Merge TxPosLib into UtxoPosLib and implement a decode function with range checks",
+      "canonicalKey": "5.10|recommendation merge txposlib into utxoposlib and implement a decode function with range checks|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-omisego-morevp-audit-2019-10-GIDX-011",
+      "slug": "3-key-observations-recommendations-investigation-scope",
+      "reportId": "G-consensys-diligence-omisego-morevp-audit-2019-10",
+      "reportName": "consensys-diligence-omisego-morevp-audit-2019-10",
+      "title": "Recommendation: Implement additional existence and range checks on inputs and storage reads",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:57.482Z",
+      "summary": "Recommendation: Implement additional existence and range checks on inputs and storage reads affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:07.458Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3 Key Observations/Recommendations",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "3 Key Observations/Recommendations affecting investigation-scope; extractor found version d.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "3 key observations/recommendations",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "5.11|recommendation implement additional existence and range checks on inputs and storage reads|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "Recommendation: Implement additional existence and range checks on inputs and storage reads",
+        "sourceText": "5.11 Recommendation: Implement additional existence and range checks on inputs and storage reads Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Recommendation: Implement additional existence and range checks on inputs and storage reads",
+      "canonicalKey": "5.11|recommendation implement additional existence and range checks on inputs and storage reads|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-omisego-morevp-audit-2019-10-GIDX-012",
+      "slug": "3-key-observations-recommendations-investigation-scope",
+      "reportId": "G-consensys-diligence-omisego-morevp-audit-2019-10",
+      "reportName": "consensys-diligence-omisego-morevp-audit-2019-10",
+      "title": "Recommendation: Remove optional arguments and clean unused code",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:57.482Z",
+      "summary": "Recommendation: Remove optional arguments and clean unused code affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:07.458Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3 Key Observations/Recommendations",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "3 Key Observations/Recommendations affecting investigation-scope; extractor found version d.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "3 key observations/recommendations",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "5.12|recommendation remove optional arguments and clean unused code|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "Recommendation: Remove optional arguments and clean unused code",
+        "sourceText": "5.12 Recommendation: Remove optional arguments and clean unused code Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Recommendation: Remove optional arguments and clean unused code",
+      "canonicalKey": "5.12|recommendation remove optional arguments and clean unused code|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-omisego-morevp-audit-2019-10-GIDX-013",
+      "slug": "3-key-observations-recommendations-investigation-scope",
+      "reportId": "G-consensys-diligence-omisego-morevp-audit-2019-10",
+      "reportName": "consensys-diligence-omisego-morevp-audit-2019-10",
+      "title": "Recommendation: Remove WireTransaction and PaymentOutputModel; fold functionality into an extended PaymentTransactionModel",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:57.482Z",
+      "summary": "Recommendation: Remove WireTransaction and PaymentOutputModel; fold functionality into an extended PaymentTransactionModel affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:07.458Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3 Key Observations/Recommendations",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "3 Key Observations/Recommendations affecting investigation-scope; extractor found version d.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "3 key observations/recommendations",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "5.13|recommendation remove wiretransaction and paymentoutputmodel fold functionality into an extended paymenttransactionmodel|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "Recommendation: Remove WireTransaction and PaymentOutputModel; fold functionality into an extended PaymentTransactionModel",
+        "sourceText": "5.13 Recommendation: Remove WireTransaction and PaymentOutputModel; fold functionality into an extended PaymentTransactionModel Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Recommendation: Remove WireTransaction and PaymentOutputModel; fold functionality into an extended PaymentTransactionModel",
+      "canonicalKey": "5.13|recommendation remove wiretransaction and paymentoutputmodel fold functionality into an extended paymenttransactionmodel|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-omisego-morevp-audit-2019-10-GIDX-014",
+      "slug": "3-key-observations-recommendations-investigation-scope",
+      "reportId": "G-consensys-diligence-omisego-morevp-audit-2019-10",
+      "reportName": "consensys-diligence-omisego-morevp-audit-2019-10",
+      "title": "ECDSA error value is not handled",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:57.482Z",
+      "summary": "ECDSA error value is not handled affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:07.458Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3 Key Observations/Recommendations",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "3 Key Observations/Recommendations affecting investigation-scope; extractor found version d.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "3 key observations/recommendations",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "5.14|ecdsa error value is not handled|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "ECDSA error value is not handled",
+        "sourceText": "5.14 ECDSA error value is not handled Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "ECDSA error value is not handled",
+      "canonicalKey": "5.14|ecdsa error value is not handled|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-omisego-morevp-audit-2019-10-GIDX-015",
+      "slug": "3-key-observations-recommendations-investigation-scope",
+      "reportId": "G-consensys-diligence-omisego-morevp-audit-2019-10",
+      "reportName": "consensys-diligence-omisego-morevp-audit-2019-10",
+      "title": "No existence checks on framework block and timestamp reads",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:57.482Z",
+      "summary": "No existence checks on framework block and timestamp reads affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:07.458Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3 Key Observations/Recommendations",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "3 Key Observations/Recommendations affecting investigation-scope; extractor found version d.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "3 key observations/recommendations",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "5.15|no existence checks on framework block and timestamp reads|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "No existence checks on framework block and timestamp reads",
+        "sourceText": "5.15 No existence checks on framework block and timestamp reads Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "No existence checks on framework block and timestamp reads",
+      "canonicalKey": "5.15|no existence checks on framework block and timestamp reads|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-omisego-morevp-audit-2019-10-GIDX-016",
+      "slug": "3-key-observations-recommendations-investigation-scope",
+      "reportId": "G-consensys-diligence-omisego-morevp-audit-2019-10",
+      "reportName": "consensys-diligence-omisego-morevp-audit-2019-10",
+      "title": "BondSize - effectiveUpdateTime should be uint64",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:57.482Z",
+      "summary": "BondSize - effectiveUpdateTime should be uint64 affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:07.458Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3 Key Observations/Recommendations",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "3 Key Observations/Recommendations affecting investigation-scope; extractor found version d.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "3 key observations/recommendations",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "5.16|bondsize effectiveupdatetime should be uint64|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "BondSize - effectiveUpdateTime should be uint64",
+        "sourceText": "5.16 BondSize - effectiveUpdateTime should be uint64 Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "BondSize - effectiveUpdateTime should be uint64",
+      "canonicalKey": "5.16|bondsize effectiveupdatetime should be uint64|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-omisego-morevp-audit-2019-10-GIDX-017",
+      "slug": "3-key-observations-recommendations-investigation-scope",
+      "reportId": "G-consensys-diligence-omisego-morevp-audit-2019-10",
+      "reportName": "consensys-diligence-omisego-morevp-audit-2019-10",
+      "title": "PaymentExitGame contains several redundant plasmaFramework declarations",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:57.482Z",
+      "summary": "PaymentExitGame contains several redundant plasmaFramework declarations affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:07.458Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3 Key Observations/Recommendations",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "3 Key Observations/Recommendations affecting investigation-scope; extractor found version d.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "3 key observations/recommendations",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "5.17|paymentexitgame contains several redundant plasmaframework declarations|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "PaymentExitGame contains several redundant plasmaFramework declarations",
+        "sourceText": "5.17 PaymentExitGame contains several redundant plasmaFramework declarations Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "PaymentExitGame contains several redundant plasmaFramework declarations",
+      "canonicalKey": "5.17|paymentexitgame contains several redundant plasmaframework declarations|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-omisego-morevp-audit-2019-10-GIDX-018",
+      "slug": "3-key-observations-recommendations-investigation-scope",
+      "reportId": "G-consensys-diligence-omisego-morevp-audit-2019-10",
+      "reportName": "consensys-diligence-omisego-morevp-audit-2019-10",
+      "title": "BlockController - inaccurate description of childBlockInterval for submitDepositBlock",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:57.482Z",
+      "summary": "BlockController - inaccurate description of childBlockInterval for submitDepositBlock affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:07.458Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3 Key Observations/Recommendations",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "3 Key Observations/Recommendations affecting investigation-scope; extractor found version d.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "3 key observations/recommendations",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "5.18|blockcontroller inaccurate description of childblockinterval for submitdepositblock|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "BlockController - inaccurate description of childBlockInterval for submitDepositBlock",
+        "sourceText": "5.18 BlockController - inaccurate description of childBlockInterval for submitDepositBlock Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "BlockController - inaccurate description of childBlockInterval for submitDepositBlock",
+      "canonicalKey": "5.18|blockcontroller inaccurate description of childblockinterval for submitdepositblock|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-omisego-morevp-audit-2019-10-GIDX-019",
+      "slug": "3-key-observations-recommendations-investigation-scope",
+      "reportId": "G-consensys-diligence-omisego-morevp-audit-2019-10",
+      "reportName": "consensys-diligence-omisego-morevp-audit-2019-10",
+      "title": "PlasmaFramework - Can omit inheritance of VaultRegistry",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:57.482Z",
+      "summary": "PlasmaFramework - Can omit inheritance of VaultRegistry affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:07.458Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3 Key Observations/Recommendations",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "3 Key Observations/Recommendations affecting investigation-scope; extractor found version d.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "3 key observations/recommendations",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "5.19|plasmaframework can omit inheritance of vaultregistry|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "PlasmaFramework - Can omit inheritance of VaultRegistry",
+        "sourceText": "5.19 PlasmaFramework - Can omit inheritance of VaultRegistry Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "PlasmaFramework - Can omit inheritance of VaultRegistry",
+      "canonicalKey": "5.19|plasmaframework can omit inheritance of vaultregistry|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-omisego-morevp-audit-2019-10-GIDX-020",
+      "slug": "3-key-observations-recommendations-investigation-scope",
+      "reportId": "G-consensys-diligence-omisego-morevp-audit-2019-10",
+      "reportName": "consensys-diligence-omisego-morevp-audit-2019-10",
+      "title": "BlockController - maintainer should be the only entity to set new authority",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:57.482Z",
+      "summary": "BlockController - maintainer should be the only entity to set new authority affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:07.458Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3 Key Observations/Recommendations",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "3 Key Observations/Recommendations affecting investigation-scope; extractor found version d.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Versions: d | Assets: s | Endpoints: s, that",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "3 key observations/recommendations",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "5.20|blockcontroller maintainer should be the only entity to set new authority|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "BlockController - maintainer should be the only entity to set new authority",
+        "sourceText": "5.20 BlockController - maintainer should be the only entity to set new authority Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "BlockController - maintainer should be the only entity to set new authority",
+      "canonicalKey": "5.20|blockcontroller maintainer should be the only entity to set new authority|investigation scope||||||"
+    }
+  ],
+  "eval": {
+    "enableNlp": true,
+    "expectedCount": 20,
+    "actualCount": 20,
+    "expectedSeverityCounts": {
+      "Critical": 1,
+      "High": 2,
+      "Medium": 3,
+      "Low": 14
+    },
+    "actualSeverityCounts": {
+      "Critical": 1,
+      "High": 2,
+      "Medium": 3,
+      "Low": 14
+    },
+    "duplicates": 0,
+    "negativeHits": 0,
+    "pass": true
+  }
+}

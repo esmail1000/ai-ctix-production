@@ -80,4 +80,10 @@ audit-*.ps1
 heavy-paste-report.txt
 apply-auth-flow.ps1
 legacy-storage/
-source-snapshot/
+source-snapshot/nlp_engine/models/
+cyberbert-ner-runtime.zip
+cyberbert-runtime-model.zip
+nlp_engine/models/
+fix_waf_indent.py
+nlp_test.txt
+git

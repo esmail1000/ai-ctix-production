@@ -1,0 +1,118 @@
+{
+  "id": "cure53-analysis-report-pomerium-f9038a95",
+  "status": "ready_for_review",
+  "source": {
+    "sourcePath": "Cure53/analysis-report_Pomerium.pdf",
+    "absolutePath": "C:\\Users\\Esmail Azoz\\Downloads\\public-pentesting-reports-master\\public-pentesting-reports-master\\Cure53\\analysis-report_Pomerium.pdf",
+    "fileName": "analysis-report_Pomerium.pdf",
+    "vendorGuess": "Cure53",
+    "sizeMb": 0.18,
+    "extractionMethod": "pdf-parse",
+    "textPath": "data/golden-reports/review-queue-text/cure53-analysis-report-pomerium-f9038a95.txt"
+  },
+  "modelRun": {
+    "enableNlp": true,
+    "actualFindings": 5,
+    "severityCounts": {
+      "Critical": 0,
+      "High": 2,
+      "Medium": 1,
+      "Low": 2
+    },
+    "warnings": [
+      "Structured parser found no blocks; heuristic fallback was used.",
+      "NLP hybrid extraction produced 5 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+      "Aligned findings with generic official index: 5 -> 5."
+    ]
+  },
+  "reviewChecklist": {
+    "expectedCount": null,
+    "expectedSeverityCounts": {
+      "Critical": null,
+      "High": null,
+      "Medium": null,
+      "Low": null
+    },
+    "reviewerNotes": [],
+    "promoteToGolden": false,
+    "promoteToTraining": false,
+    "rejectedReason": null
+  },
+  "findings": [
+    {
+      "id": "F-cure53-001",
+      "title": "JWT leak via Open Redirect in programmatic access",
+      "severity": "High",
+      "asset": "investigation-scope",
+      "cve": "—",
+      "score": 84,
+      "status": "Open",
+      "summary": "JWT leak via Redirect in programmatic access affecting investigation-scope; extractor found type Open Redirect.",
+      "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "JWT leak via Open Redirect in programmatic access",
+      "canonicalKey": "POM-01-001|jwt leak via open redirect in programmatic access|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-002",
+      "title": "No verification of pomerium_signature in middleware",
+      "severity": "High",
+      "asset": "investigation-scope",
+      "cve": "—",
+      "score": 84,
+      "status": "Open",
+      "summary": "No verification of pomerium_signature in middleware affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "No verification of pomerium_signature in middleware",
+      "canonicalKey": "POM-01-002|no verification of pomerium signature in middleware|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-003",
+      "title": "Hardening recommendations for file-handling",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "cve": "—",
+      "score": 64,
+      "status": "In Review",
+      "summary": "Hardening recommendations for file-handling affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Hardening recommendations for file-handling",
+      "canonicalKey": "POM-01-003|hardening recommendations for file handling|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-004",
+      "title": "Cross-Origin HTTP security headers missing",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "cve": "—",
+      "score": 35,
+      "status": "In Review",
+      "summary": "Cross-Origin HTTP security headers missing affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Cross-Origin HTTP security headers missing",
+      "canonicalKey": "POM-01-004|cross origin http security headers missing|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-005",
+      "title": "Missing SameSite flag for cookie security",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "cve": "—",
+      "score": 35,
+      "status": "In Review",
+      "summary": "Missing SameSite flag for cookie security affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Missing SameSite flag for cookie security",
+      "canonicalKey": "POM-01-005|missing samesite flag for cookie security|investigation scope||||||"
+    }
+  ]
+}

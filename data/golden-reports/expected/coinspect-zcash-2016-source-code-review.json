@@ -1,0 +1,20 @@
+{
+  "id": "coinspect-zcash-2016-source-code-review",
+  "expectedCount": 11,
+  "expectedSeverityCounts": {
+    "Critical": 0,
+    "High": 2,
+    "Medium": 3,
+    "Low": 6
+  },
+  "notes": [
+    "Promoted from verified Stage 4 V4 review queue.",
+    "Source review id: coinspect-coinspectreportzcash2016-5d1c3c67",
+    "Source path: Coinspect/CoinspectReportZcash2016.pdf",
+    "Info / Informational / Note / Minor findings are normalized to Low by the current app model.",
+    "Major findings are normalized to High by the current app model.",
+    "Requires ENABLE_NLP=true and ENABLE_GENERIC_INDEX_ALIGNMENT=true.",
+    "7ASecurity reports also require ENABLE_7ASECURITY_INDEX_ALIGNMENT=true.",
+    "Do not promote the excluded research / expert-witness / manual-hold reports without separate manual review."
+  ]
+}

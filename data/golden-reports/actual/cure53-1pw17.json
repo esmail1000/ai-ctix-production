@@ -1,0 +1,487 @@
+{
+  "manifest": {
+    "id": "cure53-1pw17",
+    "vendor": "Cure53",
+    "family": "cure53",
+    "sourceRootEnv": "GOLDEN_REPORT_SOURCE_DIR",
+    "sourcePath": "Cure53-1PW17-report.pdf",
+    "textPath": "data/golden-reports/extracted-text/cure53-1pw17.txt",
+    "expectedPath": "data/golden-reports/expected/cure53-1pw17.json"
+  },
+  "expected": {
+    "id": "cure53-1pw17",
+    "expectedCount": 6,
+    "notes": [
+      "Seed golden report. Count gate only in phase 1."
+    ],
+    "negativeSections": [
+      "Table of Contents",
+      "Contents",
+      "Index",
+      "Scope",
+      "Executive Summary",
+      "Severity Definitions",
+      "Risk Scale",
+      "Methodology",
+      "Conclusion",
+      "Appendix",
+      "Disclaimer"
+    ]
+  },
+  "report": {
+    "id": "G-cure53-1pw17",
+    "slug": "cure53-1pw17",
+    "name": "cure53-1pw17",
+    "type": "PDF",
+    "uploadedAt": "2026-06-05T23:28:00.348Z",
+    "owner": "AI CTIX Analyzer",
+    "status": "Ready",
+    "findings": 6,
+    "critical": 0,
+    "high": 1,
+    "medium": 2,
+    "low": 3,
+    "summary": "Mario Heiderich, Cure53 Bielefelder Str. Identified Vulnerabilities 1PW-17-001 WP1: Reusable authorization token in localStorage (Medium)",
+    "parsingStatus": "parsed",
+    "analysisVersion": 1,
+    "parserVersion": 1,
+    "parsingNotes": [
+      "Structured parser found no blocks; heuristic fallback was used.",
+      "NLP hybrid extraction produced 6 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+      "Aligned findings with generic official index: 6 -> 6."
+    ],
+    "content": "Dr.-Ing. Mario Heiderich, Cure53\n Bielefelder Str. 14\n D 10709 Berlin\n cure53.de · mario@cure53.de \n\nPentest-Report 1Password B5 Web & API 10.-11.2021\nCure53, Dr.-Ing. M. Heiderich, MSc. S. Moritz, MSc. N. Krein\n\nIndex\n\nIntroduction\n\nScope\n\nIdentified Vulnerabilities\n\n1PW-17-001 WP1: Reusable authorization token in localStorage (Medium)\n\n1PW-17-003 WP2: Missing check allows spoofing of Activity Logs (Low)\n\n1PW-17-004 WP2: DoS against other users via blocklist (Medium)\n\n1PW-17-006 WP1: Client-side DoS via invalid encrypted data in vaults (High)\n\nMiscellaneous Issues\n\n1PW-17-002 WP2: Inconsistent check leads to faulty Activity Logs (Low)\n\n1PW-17-005 WP2: Information disclosure via WebSocket channel (Low)\n\nConclusions\n\nIntroduction\n\n“1Password is the easiest way to store and use strong passwords. Log in to sites and fill\nforms securely with a single click.”\n\nFrom https://1password.com/\n\nThis report describes the results of a security assessment of the 1Password B5 web\napplication complex. Carried out by Cure53 in October 2021, the project included a\npenetration test and a dedicated audit of the source code.\n\nRegistered as 1PW-17, the project was requested by 1Password in April 2021 and then\nscheduled as part of the more structured series of security-centered assessments\nconducted by Cure53 for the 1Password team. Examinations of the 1Password B5\napplication have taken place with certain regularity in 2020 and 2021.\n\nAs for the precise timeline and specific resources allocated to 1PW-17, Cure53\ncompleted the examination in mid-to-late October 2021, namely in CW40 and CW41. A\ntotal of fourteen days were invested to reach the coverage expected for this assignment,\nwhereas a team of three senior testers has been composed and tasked with this\n\nCure53, Berlin · 11/23/21\n\n 1/16\n\n \n\f Dr.-Ing. Mario Heiderich, Cure53\n Bielefelder Str. 14\n D 10709 Berlin\n cure53.de · mario@cure53.de \n\nproject’s preparation, execution and finalization. All testers in this group were already\nfamiliar with the 1Password B5 web app compound via previous project work.\n\nFor optimal structuring and tracking of tasks, the work was split into two separate work\npackages (WPs):\n\n- WP1: 1Password B5 web application frontend, written predominantly in TS\n- WP2: 1Password B5 web application backend, written predominantly in GoLang\n\nCure53 was given access to a dedicated 1Password B5 test environment as well as\nfurnished with all relevant sources. Additionally, test-supporting documentation, lots of\ndetails pertinent to focus areas and related documentation were provided to make sure\nthe project can be executed in line with the agreed-upon framework. Following best\npractices established during past cooperation, the methodology utilized in 1PW-17 was\naccordingly white-box.\n\nThe project progressed effectively on the whole. All preparations were done in CW39 to\nfoster a smooth transition into the testing phase. Over the course of the engagement, the\ncommunications were done using a private, dedicated and shared Slack channel which\nwas spun up by 1Password. All partaking team members could join test communications\nthere. The discussions throughout the test were very good and productive and not many\nquestions had to be asked. The scope was well-prepared and clear, with no noteworthy\nroadblocks encountered during the test.\n\nCure53 offered frequent status updates about the test and the emerging findings. Live-\nreporting was performed as usual and the Cure53 team managed to acquire good\ncoverage over the test targets delineated for WP1 and WP2 of this 1PW-17 project.\n\nAmong six security-relevant discoveries, four were classified to be security vulnerabilities\nand two to be general weaknesses with lower exploitation potential. It needs to be noted\nthat this is a good result for 1Password, largely asserting that frequent engagement with\nexternal tests and audits positively contributes to the security posture of the complex.\n\nNone of the findings were marked as Critical and only one discovery represented a\nborderline High risk. This problem would let an attacker cause a DoS of the 1Password\naccount under certain circumstances related to invalid vault data submission. Other\nflaws related to DoS and possible reuse of leaked information in browser storage\ncontainers. Both the severities and the total number of issues can be seen as\nmanageable.\n\nCure53, Berlin · 11/23/21\n\n 2/16\n\n \n\f Dr.-Ing. Mario Heiderich, Cure53\n Bielefelder Str. 14\n D 10709 Berlin\n cure53.de · mario@cure53.de \n\nIn the following sections, the report will first shed light on the scope and key test\nparameters, as well as the structure and content of the WPs. Next, all findings will be\ndiscussed in grouped vulnerability and miscellaneous categories, then following a\nchronological order in each group. Alongside technical descriptions, PoC and mitigation\nadvice are supplied when applicable. Finally, the report will close with broader\nconclusions about this autumn 2021 project. Cure53 elaborates on the general\nimpressions and reiterates the verdict based on the testing team’s observations and\ncollected evidence. Tailored hardening recommendations for the 1Password B5 web\napplication complex are also incorporated into the final section.\n\nCure53, Berlin · 11/23/21\n\n 3/16\n\n \n\f Dr.-Ing. Mario Heiderich, Cure53\n Bielefelder Str. 14\n D 10709 Berlin\n cure53.de · mario@cure53.de \n\nScope\n\n- Penetration-Tests & Code Audits against 1Password B5 Web Application\n\n◦ WP1: 1Password B5 Web Application Frontend, written predominantly in TS\n\n▪ Test environment:\n\n- \n\nhttps://1pw17testcompany.b5test.com/\n\n▪ All relevant sources were shared with Cure53\n\n◦ WP2: 1Password B5 Web Application Backend, written predominantly in GoLang\n\n▪ Key focus areas:\n\n- New 1Password vault invite flow\n- Service account authorization feature\nItem sharing feature\n- \n- Duo v4 MFA integration\n\n▪ All relevant sources were shared with Cure53\n\n- \n\nTest user-accounts:\n◦ https://1pw17testcompany.b5test.com/\n\n▪ U: seba@cure53.de\n▪ U: niko@cure53.de\n\n◦ https://1pw17second.b5test.com/\n\n▪ U: seba@cure53.de\n◦ https://1pw17third.b5test.com\n▪ U: seba@cure53.de\n\n◦ https://1pw17fourth.b5test.com\n\n▪ U: seba@cure53.de\n\n◦ Duo MFA:\n\n▪ https://admin-da89dc78.duosecurity.com/login\n▪ U: seba@cure53.de\n\n◦ Test-supporting material was shared with Cure53\n◦ All relevant sources were shared with Cure53\n\nCure53, Berlin · 11/23/21\n\n 4/16\n\n \n \n \n \n \n \n \n \n \n \n \n \n \n\f Dr.-Ing. Mario Heiderich, Cure53\n Bielefelder Str. 14\n D 10709 Berlin\n cure53.de · mario@cure53.de \n\nIdentified Vulnerabilities\n\nThe following sections list both vulnerabilities and implementation issues spotted during\nthe testing period. Note that findings are listed in chronological order rather than by their\ndegree of severity and impact. The aforementioned severity rank is simply given in\nbrackets following the title heading for each vulnerability. Each vulnerability is\nadditionally given a unique identifier (e.g. 1PW-17-001) for the purpose of facilitating any\nfuture follow-up correspondence.\n\n1PW-17-001 WP1: Reusable authorization token in localStorage (Medium)\n\nNote: The 1Password team has accepted this finding as a low severity issue. They\ncannot follow the provided recommendation for usability reasons, but are looking to\nmitigate the risk of accidentally long-lived authentication tokens by introducing an opt-\nout for storing this in a future version of item sharing.\n\nDuring the assessment of the newly introduced item sharing feature, the discovery was\nmade that the currently implemented authentication mechanism is prone to several local\nattack scenarios. The feature furnishes the option to define a set of accessors via email\naddresses. These determine where the item can be shared.\n\nAfter the email gets confirmed via an OTP token, an additional authorization token is\nreturned and is stored in the localStorage. Due to the fact that items in the localStorage\nremain after the browser is closed and the token is reusable, a local acting adversary is\nable to use this token to access all valid items shared with the email address.\n\nMoreover, the expiration date of the authorization token is set to one month, which\ngreatly increases the likelihood of being exploited. Please keep in mind that URLs are\nstored together with the location.hash value in the browser’s history, which also make it\nattractive as a route to easily access unexpired shared items.\n\nAffected content of localStorage:\nconsole.log(localStorage.getItem('token_<email>'))\n\nResulting content:\n{\"token\":\"lMVEQPMSTxKdHtJjMp7RFROLqwSIZa8h\",\"email\":\"seba+inviter@cure53.de\",\"ex\npiresAt\":\"2021-11-05T09:56:27.717Z\"}\n\nIt is recommended to cease storing sensitive data such as tokens in the localStorage1.\nInstead, it is advisable to use the HTML5 sessionStorage which stores data for the\ncurrent browser session only. Thus, the data is deleted once the browser has been\n\n1 https://dev.to/rdegges/please-stop-using-local-storage-1i04\n\nCure53, Berlin · 11/23/21\n\n 5/16\n\n \n\f Dr.-Ing. Mario Heiderich, Cure53\n Bielefelder Str. 14\n D 10709 Berlin\n cure53.de · mario@cure53.de \n\nclosed and local attackers have no access to previously-stored data in a new browser\nsession. In addition, in order to further harden the current implementation, consideration\nshould be given to limiting the token's expiry and performing email verification for each\nitem shared to the address.\n\n1PW-17-003 WP2: Missing check allows spoofing of Activity Logs (Low)\n\nNote: The 1Password team has reviewed the issue and confirms it is present, but was\nnot able to accept this issue. This is a known and accepted consideration in how item\nsharing works: 1Password cannot access your secrets, and therefore cannot see what\nsecrets users share. As a result, 1Password can only verify if a user shares a secret\nthey have access to, but not which of those secrets that is.\n\nIt was found that the Activity Log feature available for higher-privileged 1Password users\nsuffers from several spoofing attacks related to the shared items. The current\nimplemented design randomly generates secret bytes for each new share. A unique\nUUID, a token and a rawKey are derived from these. The rawKey is used to encrypt the\ncontent, which is sent along with the token, the UUID of the shared item, the UUID of the\nvault and the UUID of the item to the server.\n\nLeveraging the current design, an adversary is able to send other items, vault UUIDs or\nother encrypted content that do not belong to the shared item. This allows spoofing\nentries to create fake logs of shared items, whereby other content was made publicly\navailable. The impact can be considered limited due to the fact that this might be used in\nscenarios where admins safely rely on the values behind shared items.\n\nAffected request (decrypted):\nPOST /api/v3/itemshare HTTP/2\nHost: 1pw17testcompany.b5test.com\nX-Agilebits-Mac: v1|19|oLlvjks7SgGGwzYe\nX-Agilebits-Session-Id: ZIEBQG5J4NE7FMNFXV6JFUYS5Q\n[...]\n\n{\n \"uuid\" : \"ngcj47nuwsaa24dr2pc6i5zqau\",\n \"token\" : \"5nzdbyuza7w7ep75i7sathqs5e\",\n \"vaultUuid\" : \"k2l2l5ushqwardrwzu5r5y2wxu\",\n \"itemUuid\" : \"dzidcgo2ki6poscx25cxar35ru\",\n \"itemVersion\" : 1,\n \"encOverview\" : {\n[...]\n\nCure53, Berlin · 11/23/21\n\n 6/16\n\n \n\f Dr.-Ing. Mario Heiderich, Cure53\n Bielefelder Str. 14\n D 10709 Berlin\n cure53.de · mario@cure53.de \n\nSteps to reproduce:\n\n1. Open the item selected for sharing with others.\n2. Open b5-*min.js in the DevTools and place a breakpoint on line: \n\ne.post('/api/v3/itemshare', t).then(Object(o.unsafeDecodeAs) (f))]\n\n3. Click on “Share…” and “Get Link to Share”.\n4. Open the console in DevTools and add the UUID of an item that is supposed to \n\nbe shown in the logs: t.itemUuid=\"<itemUUID>\"\n5. Continue the script and open the resulting share link.\n\nAs a result, the initial item is shown on the shared page, whereby the spoofed item is\ndisplayed in the logs.\n\nSince the server has no knowledge about decrypted contents and the issue does not\nseem to be solvable on the client-side, the risk is somewhat diminished. Still, it is\nrecommended to implement additional verifications in order to raise the bar for further\nexploitations.\n\n1PW-17-004 WP2: DoS against other users via blocklist (Medium)\n\nNote: The 1Password team confirms this issue is present and has accepted it as a best\npractice issue. 1Password has no plans to address this in the short term but are looking\nat alternatives for their request filter mechanisms that would be less susceptible to this\nissue.\n\nIt was found that the 1Password web application is still prone to a Denial-of-Service\nattack. While the issue has already been reported by Cure53 in January 2019 (see\n1PW-01-005), it was found that it has still not been addressed accordingly. The\nimplemented defense mechanism adds an IP to the blocklist if some of the defined\nstrings are added to request parts, for instance to the URL.\n\nAfter the IP is added, the client is no longer able to reach the application and the status\n403 Forbidden is returned. This effectively prevents the users from a prolonged\nengagement with the product if a prepared URL gets sent from the client. Please note\nthat those URLs can also be opened without user-action from other origins, for example\nvia simple fetch requests.\n\nAffected files:\nserver/src/main/middleware/filter.go\n\nAffected code:\nfunc filter(hosts []string, handler http.Handler) http.Handler {\n\nCure53, Berlin · 11/23/21\n\n 7/16\n\n \n\f Dr.-Ing. Mario Heiderich, Cure53\n Bielefelder Str. 14\n D 10709 Berlin\n cure53.de · mario@cure53.de \n\nrequestAnalyzer := activedefence.NewRequestAnalyzer(hosts, \n\npathsRequiringSession())\n\n return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {\n ip := r.Header.Get(remote.XIPHeader)\n\n if blocklist.Includes(ip) && !allowlist.Includes(ip) {\n renderForbidden(w, r, \"Blocklist is returning blocklisted response\")\n return\n }\n[...]\nbanList.AddFilter(`alert(`)\n[...]\n\nPoC URL:\nhttps://1pw17testcompany.b5test.com/alert(\n\nThe following PoC shows how such a request can be fired from other origins. Please\nnote that accessing the response via JavaScript is not needed for this type of attack.\n\nPoC HTML (via fetch):\n<script>fetch(\"https://1pw17testcompany.b5test.com/alert(\")</script>\n\nNevertheless, it is recommended to switch to a more WAF-based approach, which would\nonly block specific requests instead of both requests and IPs. This would prevent\nexploiting the behavior as a stepping stone for further Denial-of-Service attacks against\n1Password users.\n\n1PW-17-006 WP1: Client-side DoS via invalid encrypted data in vaults (High)\n\nNote: The 1Password team confirms this issue was present and has addressed this in\ncurrently released versions of their product.\n\nDuring the assessment of the client-side parts of the B5 application, the discovery was\nmade that the application suffers from a Denial-of-Service attack. During vault creation,\nan access object containing encrypted keys is sent to the server. In case the object\ncontains invalid encrypted data, the client-side parts will throw the error of “Key IDs do\nnot match” during decryption. As a result, all functionalities that require accessing\ndecrypted vault content are affected, including Dashboard,\n Vaults or\nIntegrations. \n\n People,\n\nDue to the fact that the behavior is also exploitable for lower-privileged users and it\naffects the whole 1Password account, the issue was rated as High.\n\nCure53, Berlin · 11/23/21\n\n 8/16\n\n \n\f Dr.-Ing. Mario Heiderich, Cure53\n Bielefelder Str. 14\n D 10709 Berlin\n cure53.de · mario@cure53.de \n\nAffected file:\nclient/web-api/src/model/symmetric_key.ts\n\nAffected code:\npublic decrypt = async (json: JweB): Promise<Uint8Array> => {\n if (CONTENT_TYPE !== json.cty) {\n throw new Error(\"Unexpected content type\");\n }\n if (json.kid !== this.uuid) {\n throw new Error(\"Key IDs do not match\");\n }\n[...]\n\nThe following PoC shows how a faulty vault entry can be created.\n\nPoC request example:\n{\n \"uuid\" : \"fbgkclhge7vbxthhlfsrk6dhwf\",\n \"type\" : \"U\",\n \"attrVersion\" : 1,\n \"contentVersion\" : 1,\n \"encAttrs\" : {\n \"kid\" : \"2skapppepcf4krmir32zpt2qx4\",\n \"enc\" : \"A256GCM\",\n \"cty\" : \"b5+jwk+json\",\n \"iv\" : \"BvAy24vWyl5-yQcs\",\n \"data\" : \"-\nAFRgqx3XellWUHQ_87crCw8TX3GFVAyUBKl1v5T5Yw6M9xL3JZ83db7_eAqTvjjSZiR9sg5p__xDsiA9\nvn-\nz1y4cUHVhLBvoTDD5LyE0B8n2IhcmNBc5pUAu_9ZoT8vm0H5jqZEpyn7ENVFibGJewtp4JE_aNt2PZVn\nAclYK7G7vmvuZXpqvr3szm6DcWtYoTbgfOee84LD1GCdCzpoL9PYAapSCul_wKMJc76_\"\n },\n \"access\" : [ {\n \"vaultUuid\" : \"fbgkclhge7vbxthhlfsrk6dhwf\",\n \"accessorType\" : \"user\",\n \"accessorUuid\" : \"QMV4E5KYXJGLDFEVJRPYSR72YQ\",\n \"acl\" : 2147483646,\n \"leaseTimeout\" : 0,\n \"vaultKeySN\" : 1,\n \"encryptedBy\" : \"3ohtmkjj4emonbbnemjgpzho3y\",\n \"encVaultKey\" : {\n \"kid\" : \"3ohtmkjj4emonbbnemjgpzho3y\",\n \"enc\" : \"RSA-OAEP\",\n \"cty\" : \"b5+jwk+json\",\n \"data\" : \"INVALID\"\n }\n }, {\n \"vaultUuid\" : \"fbgkclhge7vbxthhlfsrk6dhwf\",\n\nCure53, Berlin · 11/23/21\n\n 9/16\n\n \n\f Dr.-Ing. Mario Heiderich, Cure53\n Bielefelder Str. 14\n D 10709 Berlin\n cure53.de · mario@cure53.de \n\n \"accessorType\" : \"group\",\n \"accessorUuid\" : \"qz3gw6t42vwdlgswpivbxeblhq\",\n \"acl\" : 1,\n \"leaseTimeout\" : 0,\n \"vaultKeySN\" : 1,\n \"encryptedBy\" : \"xujdyj4y2o3tdvdaeze2zob4ai\",\n \"encVaultKey\" : {\n \"kid\" : \"xujdyj4y2o3tdvdaeze2zob4ai\",\n \"enc\" : \"RSA-OAEP\",\n \"cty\" : \"b5+jwk+json\",\n \"data\" : \"INVALID\"\n }\n }, {\n \"vaultUuid\" : \"fbgkclhge7vbxthhlfsrk6dhwf\",\n \"accessorType\" : \"group\",\n \"accessorUuid\" : \"abszsozul3zrtf2csq4dmqx22e\",\n \"acl\" : 2,\n \"leaseTimeout\" : 0,\n \"vaultKeySN\" : 1,\n \"encryptedBy\" : \"xk2tbxw6fyfhrp7rkrufoahzfi\",\n \"encVaultKey\" : {\n \"kid\" : \"xk2tbxw6fyfhrp7rkrufoahzfi\",\n \"enc\" : \"RSA-OAEP\",\n \"cty\" : \"b5+jwk+json\",\n \"data\" : \"INVALID\"\n }\n }, {\n \"vaultUuid\" : \"fbgkclhge7vbxthhlfsrk6dhwf\",\n \"accessorType\" : \"group\",\n \"accessorUuid\" : \"kc5gnate6iqlfdrfvlc3cjghxu\",\n \"acl\" : 2,\n \"leaseTimeout\" : 0,\n \"vaultKeySN\" : 1,\n \"encryptedBy\" : \"ilaprfxvecjz36itrky5zajaoi\",\n \"encVaultKey\" : {\n \"kid\" : \"ilaprfxvecjz36itrky5zajaoi\",\n \"enc\" : \"RSA-OAEP\",\n \"cty\" : \"b5+jwk+json\",\n \"data\" : \"INVALID\"\n }\n } ]\n}\n\nSteps to reproduce:\n\n1. Create a new vault and intercept the request with the provided Burp plugin.\n2. Replace the content in the data field of an accessor object with invalid data (see \n\nPoC above).\n\n3. Send the edited request to the server.\n\nCure53, Berlin · 11/23/21\n\n 10/16\n\n \n\f Dr.-Ing. Mario Heiderich, Cure53\n Bielefelder Str. 14\n D 10709 Berlin\n cure53.de · mario@cure53.de \n\n4. Click on Dashboard or Vaults and observe an error being thrown. The account is \n\nno longer usable.\n\nIt is recommended to introduce proper exception handling on the affected client-side\nparts of the application. By doing so, an error would not interrupt a continuous\nengagement with the product. The web interface should still be displayed even when\nundecryptable data is passed.\n\nMiscellaneous Issues\n\nThis section covers those noteworthy findings that did not lead to an exploit but might aid\nan attacker in achieving their malicious goals in the future. Most of these results are\nvulnerable code snippets that did not provide an easy way to be called. Conclusively,\nwhile a vulnerability is present, an exploit might not always be possible.\n\n1PW-17-002 WP2: Inconsistent check leads to faulty Activity Logs (Low)\n\nNote: The 1Password team has accepted this finding as a best practice issue and will\naddress it in an upcoming release.\n\nA further investigation of 1PW-17-003 revealed that the application lacks some proper\nchecks when a shared item entry is being created. The affected code part does not\nprevent creating new audit event records with UUIDs that already exist in the database.\nDue to the fact that an entry is firstly created in the Activity Log component, inconsistent\ndata can be created in the logs of events pointing to other shared items, even if the final\ncreation fails.\n\nAffected file:\nserver/src/db/audit/item_share.go\n\nAffected code:\n// CreateItemShare creates a new audit event record when sharing an item \nexternally\nfunc CreateItemShare(tx *datastore.Tx, userSession *model.UserSession, vaultItem\n*model.VaultItem, vault *model.Vault, shareUUID string) error {\n\nevent := userSession.NewAuditEvent(ActionShare, ObjectVaultItem, \nvaultItem.ID, vaultItem.UUID, &model.AuxInfo{ID: vault.ID, UUID: vault.UUID, \nInfo: shareUUID})\n\nif err := tx.AddAuditEvent(event); err != nil {\n\nreturn errors.Wrapf(err, \"CreateItemShare audit failed for user %d\n\n%s, item %v, vault %v, share %v\", userSession.UserID, userSession.UserUUID, \nvaultItem, vault, shareUUID)\n\n}\n\nCure53, Berlin · 11/23/21\n\n 11/16\n\n \n\f Dr.-Ing. Mario Heiderich, Cure53\n Bielefelder Str. 14\n D 10709 Berlin\n cure53.de · mario@cure53.de \n\nAffected request (decrypted):\nPOST /api/v3/itemshare HTTP/2\nHost: 1pw17testcompany.b5test.com\nX-Agilebits-Mac: v1|19|oLlvjks7SgGGwzYe\nX-Agilebits-Session-Id: ZIEBQG5J4NE7FMNFXV6JFUYS5Q\n[...]\n\n{\n \"uuid\" : \"ngcj47nuwsaa24dr2pc6i5zqau\",\n \"token\" : \"5nzdbyuza7w7ep75i7sathqs5e\",\n \"vaultUuid\" : \"k2l2l5ushqwardrwzu5r5y2wxu\",\n \"itemUuid\" : \"dzidcgo2ki6poscx25cxar35ru\",\n \"itemVersion\" : 1,\n \"encOverview\" : {\n[...]\n\nIt is recommended to first check if the received UUID of a shared item already exists in\nthe Activity Log component. By doing so, the operation should be aborted, which would\nprevent creating entries having the same UUID.\n\n1PW-17-005 WP2: Information disclosure via WebSocket channel (Low)\n\nNote: The 1Password team has accepted this finding as a low severity issue and is\nworking on a different way to handle the described notification messages that is not\nsusceptible to this.\n\nIt was found that the B5 web application discloses information via the notification feature\nusing WebSockets. Notifications are used to send confirmations back to the client in\ncase data was successfully updated on the server.\n\nDue to a missing check, a valid WebSocket connection can be established without\nknowing a corresponding UUID of a connected device. This lets adversaries obtain valid\nsession IDs or device UUIDs from other users who have updated an entry. The behavior\ncan also be used to track some activities about a user.\n\nAffected file:\ncmd/b5notifier/main.go\n\nAffected code:\npath := strings.TrimPrefix(r.URL.Path, \"/\")\nparams := strings.Split(path, \"/\")\nif len(params) != 3 {\n l.Warning(r, \"[\"+ip+\"] Invalid number of parameters: \n\"+strconv.Itoa(len(params)))\n http.Error(w, \"Method not allowed\", 405)\n\nCure53, Berlin · 11/23/21\n\n 12/16\n\n \n\f Dr.-Ing. Mario Heiderich, Cure53\n Bielefelder Str. 14\n D 10709 Berlin\n cure53.de · mario@cure53.de \n\n return\n}\n\naccountUUID := params[0]\nuserUUID := params[1]\ndeviceUUID := params[2]\n[...]\n\nAffected request:\nGET \n/WVQEGA6WHBGVXCNC4SWFYFRGSU/AR2PKGCWBJAYPKJ2TF7COILNPM/vboioxt4rawx6iy66dg5s7dui\na HTTP/1.1\nHost: b5n.b5test.com\nConnection: Upgrade\nOrigin: https://1pw17second.b5test.com\nSec-WebSocket-Version: 13\nSec-WebSocket-Key: G1w+GCmY6ppqtm+Rw55jqQ==\n[...]\n\nFor a successful attack, only a valid account UUID and a user UUID are required, which\nare both obtainable from the API via a 1Password account. The following PoC shows\nhow such a connection can be established.\n\nPoC:\n<script>var s = new \nWebSocket(\"wss://b5n.1password.com/<accountUUID>/<userUUID>/\");s.onmessage = \nfunction (event) {document.write(event.data)}</script>\n\nHowever, the obtainable data could not be exploited in order to impersonate other users\nor to access juicy data, thus explaining the Miscellaneous rating. This is mainly due to\nthe fact that for a working X-Agilebits-Mac header, a valid session key is required and\nonly known by the client.\n\nNevertheless, it is recommended that neither session IDs nor device UUIDs get\nbroadcasted via WebSockets to the connected clients. Moreover, it is advised to\nimplement an additional check which makes sure that a valid device UUID is required for\na valid WebSocket connection. It actually needs to belong to the user UUID.\n\nCure53, Berlin · 11/23/21\n\n 13/16\n\n \n\f Dr.-Ing. Mario Heiderich, Cure53\n Bielefelder Str. 14\n D 10709 Berlin\n cure53.de · mario@cure53.de \n\nConclusions\n\nIn this 1PW-17 project, which was a next iteration of the ongoing assessments pertaining\nto the client- and server-side parts of the 1Password B5 web application, Cure53\nexamined various components through a selection of tailored approaches. To reiterate,\nthree members of the Cure53 team completed the project over the course of fourteen\ndays in October 2021.\n\nWhile six issues were found during the audit, four of them were exploitable and two were\njust hardening recommendations or best practices. It must be underlined that the project\nconcludes with a fine result for 1Password. The narrow span and low volume of issues is\na clear sign that an external attacker without in-depth insight into the software\nimplementation, codebase and architecture would have had a hard time when wanting to\ncause noteworthy damage.\n\nThe basic idea behind the Cure53 investigation of the web applications was to find out\nwhether the existing functionality of the connected endpoints and its environment can be\ndeemed healthy enough to withstand attacks by malicious users. With the focus on\ntypical modern application problems, the issues connected with various types of injection\nattacks and misconfigurations, which could compromise the server part of the\napplication, were investigated without significant success.\n\nWhile most of the tests were performed on the created test-environments, all found\nissues are also exploitable on the corresponding production environments. This is mainly\ndue to the fact that the offered sources differ only in the configuration settings and\nbasically show no differences in the respective implementations. Still, the security\nposture of the applications running on production machines was also examined,\nespecially for the newly introduced services used by the item sharing feature. Thus, the\napplications were checked for exposed sensitive services, insecure configurations, as\nwell for hidden files or routes.\n\nGiven long-term cooperation, a lot of attention was given to the newly introduced item,\nwhich was here the sharing feature. As a result, three issues connected to Low and\nMedium severities could be found in this area during this autumn 2021 review. This\ncorresponds to a solid result for the first review of a newly implemented feature.\n\nTo give more details, the first found issue - 1PW-17-001 - affects the client-side parts of\nthe item sharing feature. Items only made accessible to specific email addresses are\nprone to some local attack scenarios due to the usage of the browser’s insecure\nlocalStorage. In combination with the expiration duration of about one month, the\nlikelihood of it being exploited by local adversaries is heavily increased. It is\n\nCure53, Berlin · 11/23/21\n\n 14/16\n\n \n\f Dr.-Ing. Mario Heiderich, Cure53\n Bielefelder Str. 14\n D 10709 Berlin\n cure53.de · mario@cure53.de \n\nrecommended to follow the proposed mitigations in order to prevent credentials from\nbeing compromised.\n\nMoreover, two additional issues connected to the item sharing feature were found. They\nlie in the Activity log component. Due to the implemented design, the server has no data\non decrypted data, which is encrypted on the client-side with a key derived from\nrandomly created secret bytes. This allows adversaries to send other UUIDs or\nencrypted data to the server as it is shown in the logs (see 1PW-17-003). However,\nsince it only allows some spoofing, the issue was rated as Low. Nevertheless, it should\nbe taken into account to raise the bar of exploitation, making these attacks less\nattractive.\n\nA similar issue could be found regarding the creation of duplicate log entries of shared\nitems due to a missing check observed within the sharing flow. However, due to the fact\nthat it only fosters some inconsistencies, no further advantage could be found, hence the\nMiscellaneous rating (see 1PW-17-002).\n\nThe server-side implementation of the newly designed invite flow has been analyzed as\nwell. This feature is now directly available in vault settings to give new users access to\nspecific vaults. In this testing process new groups of users have been created. They only\nhave access to one specific vault and exclusively have the permission to invite new\nusers into said vault. The frontend implementation of the UI does not show this, but the\nlogic behind the invite flow iterates over the request body and allows to specify multiple\nvaults and user IDs to be added. It was made sure that the loops exit correctly whenever\nvaults are specified but the necessary permissions are missing.\n\nEven though the server sometimes accepts requests to non-accessible vaults, it was\ndetermined that this only happens when an invite to an accessible vault is already\npresent; the logic then simply skips all proceeding checks. This does not create any form\nof vulnerability. Output-validation of the generated emails has been checked as well.\nSome sinks like the created button URLs for accepting invites exist because of\ndangerously looking sprintf calls. However, no issues transpired.\n\nAnother important refreshed feature that was covered in this pentest spanned the\nDUOv4 implementation that is heavily based on redirects. Since the new flow leaves the\napplication context, it is stored in an encrypted session storage, whereas the key is\nstored in the state parameter. Cure53 made sure that the session storage was correctly\ncleared on each flow, even when the MFA flow failed in the end. Verification of\nconfigurable DUO settings, to - for instance - prevent SSRF attacks via the DUO API\nhostname, is also being done correctly through extensive use of validators to check for\n\nCure53, Berlin · 11/23/21\n\n 15/16\n\n \n\f Dr.-Ing. Mario Heiderich, Cure53\n Bielefelder Str. 14\n D 10709 Berlin\n cure53.de · mario@cure53.de \n\ncorrect domain suffixes. The DUO code verification is also appropriate, with pinned DUO\ncertificates for the final verification code within the server-side MFA API.\n\nA dedicated and requested reanalysis of permission checks for users with access to\ncreating service accounts was performed. Despite problems in the past (i.e. viewing the\nsecret automation as a way to forge JWTs and get access to restricted vaults), Cure53\nwas unable to reproduce past attack vectors or identify new ones. Similarly, it was not\npossible to find any further ACL flows through the service account integration over a\nnewly configured connect server. Cure53 found that the permission matrix for vaults\nworks as intended. The testing team checked if previously found issues connected to\nseveral DoS attacks were addressed accordingly. While the issues are properly fixed, a\nnew issue was found in this area (see 1PW-17-006). This time, invalid sent data during\nvault creation allows adversaries to perform a permanent Denial-of-Service attack\naffecting the entire 1Password account. Absence of a proper exception handling of\ninvalid keys means that the web interface cannot be displayed. This leads to a locked\naccount, so a clear recommendation is to first focus on fixing this issue to prevent DoS\nattacks against 1Password accounts.\n\nAnother discovery affected the current notification feature, which was missing some\nadditional checks during the WebSocket creation. This meant adversaries could obtain\nsession IDs and device UUIDs of currently authorized users (see 1PW-17-005).\nHowever, Cure53 could not see a way to turn this into a real vulnerability, hence the\nMiscellaneous score. Nevertheless, it is recommended to further follow the principle of\nminimalism and only send back data that is really required by the connected clients.\n\nAll in all, the examined 1Password B5 web application and the related specific areas\nleave a very good and solid impression. Despite one High finding, the average impact of\ndiscoveries was limited, thereby indicating quite stable protection against attacks that\ncould imaginably target the examined applications and services. However, the audit also\nshows that there is still room for improvement, especially in the client-side parts. The\ntested items somewhat suffered from insufficiently implemented exception handling and\nthe usage of the proven-unsuitable browser features linked to storing sensitive data.\nOnce the relevant issues are fixed, Cure53 will have greater confidence in the\n1Password B5 web application being more properly secured for a continuative\nproduction use. It is hoped that the listed flaws can increase the compound’s capacity to\ndeliver a secure foundation, at a level expected of password managers.\n\nCure53 would like to thank Stephen Haywood, Brett Bollman, Jasper Patterson,\nWhymarrh Whitby, Rob Yoder, Rick van Galen and Artem Kresling from the 1Password\nteam for their excellent project coordination, support and assistance, both before and\nduring this assignment.\n\nCure53, Berlin · 11/23/21\n\n 16/16",
+    "sourceFileName": "Cure53-1PW17-report.pdf",
+    "createdAtIso": "2026-06-05T23:28:08.248Z",
+    "updatedAtIso": "2026-06-05T23:28:08.248Z"
+  },
+  "findings": [
+    {
+      "id": "F-cure53-001",
+      "slug": "reusable-authorization-token-in-localstorage-dev-to",
+      "reportId": "G-cure53-1pw17",
+      "reportName": "cure53-1pw17",
+      "title": "Reusable authorization token in localStorage",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "dev.to",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:28:00.348Z",
+      "summary": "Reusable authorization token in localStorage affecting dev.to; extractor found security indicators from the submitted report. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "impact": "Potential impact includes increased attacker opportunity against dev.to if this signal is not reviewed.",
+      "evidence": "Finding IDs: 1PW-17-001 | Assets: dev.to | Services: HTTPS | URLs: https://dev.to/rdegges/please-stop-using-local-storage-1i04 | Domains: dev.to, location.hash, console.log, localStorage.getItem, cure53.de | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "remediation": "cease storing sensitive data such as tokens in the localStorage1",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:28:08.231Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Profile-bounded extraction used to keep this report family stable for regression and training"
+        }
+      ],
+      "reported": {
+        "title": "Reusable authorization token in localStorage",
+        "severity": "Medium",
+        "asset": "dev.to",
+        "status": "In Review",
+        "summary": "Reusable authorization token in localStorage affecting dev.to; extractor found security indicators from the submitted report. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "impact": "Potential impact includes increased attacker opportunity against dev.to if this signal is not reviewed.",
+        "evidence": "Finding IDs: 1PW-17-001 | Assets: dev.to | Services: HTTPS | URLs: https://dev.to/rdegges/please-stop-using-local-storage-1i04 | Domains: dev.to, location.hash, console.log, localStorage.getItem, cure53.de | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "remediation": "cease storing sensitive data such as tokens in the localStorage1",
+        "references": [
+          "https://dev.to/rdegges/please-stop-using-local-storage-1i04",
+          "dev.to",
+          "location.hash",
+          "console.log",
+          "localStorage.getItem",
+          "cure53.de"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "reusable authorization token in localstorage",
+        "normalizedAsset": "dev.to",
+        "canonicalKey": "1PW-17-001|reusable authorization token in localstorage|dev to||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Reusable authorization token in localStorage",
+        "sourceText": "1PW-17-001 WP1: Reusable authorization token in localStorage (Medium)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "reported"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Reusable authorization token in localStorage",
+      "canonicalKey": "1PW-17-001|reusable authorization token in localstorage|dev to||||||"
+    },
+    {
+      "id": "F-cure53-002",
+      "slug": "missing-check-allows-spoofing-of-activity-logs-min-js",
+      "reportId": "G-cure53-1pw17",
+      "reportName": "cure53-1pw17",
+      "title": "Missing check allows spoofing of Activity Logs",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "min.js",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:28:00.348Z",
+      "summary": "Missing check allows spoofing of Activity Logs affecting min.js; extractor found security indicators from the submitted report. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "impact": "Potential impact includes increased attacker opportunity against min.js if this signal is not reviewed.",
+      "evidence": "Finding IDs: 1PW-17-003 | Assets: min.js | Services: Vault, HTTP | Domains: 1pw17testcompany.b5test.com, cure53.de, min.js, e.post, o.unsafeDecodeAs, t.itemUuid | File paths: min.js | File names: min.js | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "remediation": "implement additional verifications in order to raise the bar for further",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:28:08.232Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Profile-bounded extraction used to keep this report family stable for regression and training"
+        }
+      ],
+      "reported": {
+        "title": "Missing check allows spoofing of Activity Logs",
+        "severity": "Low",
+        "asset": "min.js",
+        "status": "In Review",
+        "summary": "Missing check allows spoofing of Activity Logs affecting min.js; extractor found security indicators from the submitted report. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "impact": "Potential impact includes increased attacker opportunity against min.js if this signal is not reviewed.",
+        "evidence": "Finding IDs: 1PW-17-003 | Assets: min.js | Services: Vault, HTTP | Domains: 1pw17testcompany.b5test.com, cure53.de, min.js, e.post, o.unsafeDecodeAs, t.itemUuid | File paths: min.js | File names: min.js | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "remediation": "implement additional verifications in order to raise the bar for further",
+        "references": [
+          "1pw17testcompany.b5test.com",
+          "cure53.de",
+          "min.js",
+          "e.post",
+          "o.unsafeDecodeAs",
+          "t.itemUuid"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "missing check allows spoofing of activity logs",
+        "normalizedAsset": "min.js",
+        "canonicalKey": "1PW-17-003|missing check allows spoofing of activity logs|min js||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Missing check allows spoofing of Activity Logs",
+        "sourceText": "1PW-17-003 WP2: Missing check allows spoofing of Activity Logs (Low)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "reported"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Missing check allows spoofing of Activity Logs",
+      "canonicalKey": "1PW-17-003|missing check allows spoofing of activity logs|min js||||||"
+    },
+    {
+      "id": "F-cure53-003",
+      "slug": "dos-against-other-users-via-blocklist-server-src-main-middleware-filter-go",
+      "reportId": "G-cure53-1pw17",
+      "reportName": "cure53-1pw17",
+      "title": "DoS against other users via blocklist",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "server/src/main/middleware/filter.go",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:28:00.348Z",
+      "summary": "DoS against other users via blocklist affecting server/src/main/middleware/filter.go; extractor found type Denial of Service. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "impact": "Potential impact includes increased attacker opportunity against server/src/main/middleware/filter.go if this signal is not reviewed.",
+      "evidence": "Finding IDs: 1PW-17-004 | Assets: server/src/main/middleware/filter.go | Services: HTTP, HTTPS | URLs: https://1pw17testcompany.b5test.com/alert | Domains: 1pw17testcompany.b5test.com, filter.go, http.Handler, cure53.de, activedefence.NewRequestAnalyzer, http.HandlerFunc, http.ResponseWriter, http.Request, r.Header.Get, remote.XIPHeader, blocklist.Includes, allowlist.Includes, banList.AddFilter | File paths: server/src/main/middleware/filter.go | File names: filter.go | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "remediation": "switch to a more WAF-based approach, which would",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:28:08.232Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Profile-bounded extraction used to keep this report family stable for regression and training"
+        }
+      ],
+      "reported": {
+        "title": "DoS against other users via blocklist",
+        "severity": "Medium",
+        "asset": "server/src/main/middleware/filter.go",
+        "status": "In Review",
+        "summary": "DoS against other users via blocklist affecting server/src/main/middleware/filter.go; extractor found type Denial of Service. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "impact": "Potential impact includes increased attacker opportunity against server/src/main/middleware/filter.go if this signal is not reviewed.",
+        "evidence": "Finding IDs: 1PW-17-004 | Assets: server/src/main/middleware/filter.go | Services: HTTP, HTTPS | URLs: https://1pw17testcompany.b5test.com/alert | Domains: 1pw17testcompany.b5test.com, filter.go, http.Handler, cure53.de, activedefence.NewRequestAnalyzer, http.HandlerFunc, http.ResponseWriter, http.Request, r.Header.Get, remote.XIPHeader, blocklist.Includes, allowlist.Includes, banList.AddFilter | File paths: server/src/main/middleware/filter.go | File names: filter.go | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "remediation": "switch to a more WAF-based approach, which would",
+        "references": [
+          "https://1pw17testcompany.b5test.com/alert",
+          "1pw17testcompany.b5test.com",
+          "filter.go",
+          "http.Handler",
+          "cure53.de",
+          "activedefence.NewRequestAnalyzer",
+          "http.HandlerFunc",
+          "http.ResponseWriter",
+          "http.Request",
+          "r.Header.Get",
+          "remote.XIPHeader",
+          "blocklist.Includes",
+          "allowlist.Includes",
+          "banList.AddFilter"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "dos against other users via blocklist",
+        "normalizedAsset": "server/src/main/middleware/filter.go",
+        "canonicalKey": "1PW-17-004|dos against other users via blocklist|server src main middleware filter go||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "DoS against other users via blocklist",
+        "sourceText": "1PW-17-004 WP2: DoS against other users via blocklist (Medium)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "reported"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "DoS against other users via blocklist",
+      "canonicalKey": "1PW-17-004|dos against other users via blocklist|server src main middleware filter go||||||"
+    },
+    {
+      "id": "F-cure53-004",
+      "slug": "client-side-dos-via-invalid-encrypted-data-in-vaults-client-web-api-src-model-symmetric-key-ts",
+      "reportId": "G-cure53-1pw17",
+      "reportName": "cure53-1pw17",
+      "title": "Client-side DoS via invalid encrypted data in vaults",
+      "cve": "—",
+      "severity": "High",
+      "asset": "client/web-api/src/model/symmetric_key.ts",
+      "score": 84,
+      "status": "Open",
+      "detectedAt": "2026-06-05T23:28:00.348Z",
+      "summary": "Client-side DoS via invalid encrypted data in vaults affecting client/web-api/src/model/symmetric_key.ts; extractor found type Denial of Service. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against client/web-api/src/model/symmetric_key.ts if this issue remains unaddressed.",
+      "evidence": "Finding IDs: 1PW-17-006 | Assets: client/web-api/src/model/symmetric_key.ts | Services: Vault | Domains: cure53.de, json.cty, json.kid, this.uuid | File paths: client/web-api/src/model/symmetric_key.ts | File names: symmetric_key.ts | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "remediation": "introduce proper exception handling on the affected client-side",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:28:08.233Z",
+          "status": "Open",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Profile-bounded extraction used to keep this report family stable for regression and training"
+        }
+      ],
+      "reported": {
+        "title": "Client-side DoS via invalid encrypted data in vaults",
+        "severity": "High",
+        "asset": "client/web-api/src/model/symmetric_key.ts",
+        "status": "Open",
+        "summary": "Client-side DoS via invalid encrypted data in vaults affecting client/web-api/src/model/symmetric_key.ts; extractor found type Denial of Service. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against client/web-api/src/model/symmetric_key.ts if this issue remains unaddressed.",
+        "evidence": "Finding IDs: 1PW-17-006 | Assets: client/web-api/src/model/symmetric_key.ts | Services: Vault | Domains: cure53.de, json.cty, json.kid, this.uuid | File paths: client/web-api/src/model/symmetric_key.ts | File names: symmetric_key.ts | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "remediation": "introduce proper exception handling on the affected client-side",
+        "references": [
+          "cure53.de",
+          "json.cty",
+          "json.kid",
+          "this.uuid"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "client-side dos via invalid encrypted data in vaults",
+        "normalizedAsset": "client/web-api/src/model/symmetric_key.ts",
+        "canonicalKey": "1PW-17-006|client side dos via invalid encrypted data in vaults|client web api src model symmetric key ts||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Client-side DoS via invalid encrypted data in vaults",
+        "sourceText": "1PW-17-006 WP1: Client-side DoS via invalid encrypted data in vaults (High)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "reported"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Client-side DoS via invalid encrypted data in vaults",
+      "canonicalKey": "1PW-17-006|client side dos via invalid encrypted data in vaults|client web api src model symmetric key ts||||||"
+    },
+    {
+      "id": "F-cure53-005",
+      "slug": "inconsistent-check-leads-to-faulty-activity-logs-investigation-scope",
+      "reportId": "G-cure53-1pw17",
+      "reportName": "cure53-1pw17",
+      "title": "Inconsistent check leads to faulty Activity Logs",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:28:00.348Z",
+      "summary": "Inconsistent check leads to faulty Activity Logs affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: 1PW-17-002 | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:28:08.233Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Profile-bounded extraction used to keep this report family stable for regression and training"
+        }
+      ],
+      "reported": {
+        "title": "Inconsistent check leads to faulty Activity Logs",
+        "severity": "Low",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Inconsistent check leads to faulty Activity Logs affecting investigation-scope; extractor found security indicators from the submitted report. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: 1PW-17-002 | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "inconsistent check leads to faulty activity logs",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "1PW-17-002|inconsistent check leads to faulty activity logs|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Inconsistent check leads to faulty Activity Logs",
+        "sourceText": "1PW-17-002 WP2: Inconsistent check leads to faulty Activity Logs (Low)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Inconsistent check leads to faulty Activity Logs",
+      "canonicalKey": "1PW-17-002|inconsistent check leads to faulty activity logs|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-006",
+      "slug": "information-disclosure-via-websocket-channel-1password-com",
+      "reportId": "G-cure53-1pw17",
+      "reportName": "cure53-1pw17",
+      "title": "Information disclosure via WebSocket channel",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "1password.com",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:28:00.348Z",
+      "summary": "Information disclosure via WebSocket channel affecting 1password.com; extractor found type Denial of Service. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "impact": "Potential impact includes increased attacker opportunity against 1password.com if this signal is not reviewed.",
+      "evidence": "Finding IDs: 1PW-17-005 | Assets: 1password.com | Services: HTTPS, Vault | URLs: https://1password.com/, https://1pw17testcompany.b5test.com/, https://1pw17second.b5test.com/, https://1pw17third.b5test.com, https://1pw17fourth.b5test.com, https://admin-da89dc78.duosecurity.com/login | Domains: 1password.com, 1pw17testcompany.b5test.com, 1pw17second.b5test.com, 1pw17third.b5test.com, 1pw17fourth.b5test.com, admin-da89dc78.duosecurity.com, cure53.de | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:28:08.234Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected. Warnings: Profile-bounded extraction used to keep this report family stable for regression and training"
+        }
+      ],
+      "reported": {
+        "title": "Information disclosure via WebSocket channel",
+        "severity": "Low",
+        "asset": "1password.com",
+        "status": "In Review",
+        "summary": "Information disclosure via WebSocket channel affecting 1password.com; extractor found type Denial of Service. Warning: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "impact": "Potential impact includes increased attacker opportunity against 1password.com if this signal is not reviewed.",
+        "evidence": "Finding IDs: 1PW-17-005 | Assets: 1password.com | Services: HTTPS, Vault | URLs: https://1password.com/, https://1pw17testcompany.b5test.com/, https://1pw17second.b5test.com/, https://1pw17third.b5test.com, https://1pw17fourth.b5test.com, https://admin-da89dc78.duosecurity.com/login | Domains: 1password.com, 1pw17testcompany.b5test.com, 1pw17second.b5test.com, 1pw17third.b5test.com, 1pw17fourth.b5test.com, admin-da89dc78.duosecurity.com, cure53.de | Warnings: Profile-bounded extraction used to keep this report family stable for regression and training",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+        "references": [
+          "https://1password.com/",
+          "https://1pw17testcompany.b5test.com/",
+          "https://1pw17second.b5test.com/",
+          "https://1pw17third.b5test.com",
+          "https://1pw17fourth.b5test.com",
+          "https://admin-da89dc78.duosecurity.com/login",
+          "1password.com",
+          "1pw17testcompany.b5test.com",
+          "1pw17second.b5test.com",
+          "1pw17third.b5test.com",
+          "1pw17fourth.b5test.com",
+          "admin-da89dc78.duosecurity.com",
+          "cure53.de"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "information disclosure via websocket channel",
+        "normalizedAsset": "1password.com",
+        "canonicalKey": "1PW-17-005|information disclosure via websocket channel|1password com||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Information disclosure via WebSocket channel",
+        "sourceText": "1PW-17-005 WP2: Information disclosure via WebSocket channel (Low)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Information disclosure via WebSocket channel",
+      "canonicalKey": "1PW-17-005|information disclosure via websocket channel|1password com||||||"
+    }
+  ],
+  "eval": {
+    "enableNlp": true,
+    "expectedCount": 6,
+    "actualCount": 6,
+    "actualSeverityCounts": {
+      "Critical": 0,
+      "High": 1,
+      "Medium": 2,
+      "Low": 3
+    },
+    "duplicates": 0,
+    "negativeHits": 0,
+    "pass": true
+  }
+}

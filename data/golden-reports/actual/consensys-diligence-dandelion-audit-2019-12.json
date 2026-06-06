@@ -1,0 +1,517 @@
+{
+  "manifest": {
+    "id": "consensys-diligence-dandelion-audit-2019-12",
+    "vendor": "Consensys",
+    "family": "consensys-diligence",
+    "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+    "sourcePath": "Consensys/Diligence/dandelion-audit-2019-12.pdf",
+    "textPath": "data/golden-reports/extracted-text/consensys-diligence-dandelion-audit-2019-12.txt",
+    "expectedPath": "data/golden-reports/expected/consensys-diligence-dandelion-audit-2019-12.json"
+  },
+  "expected": {
+    "id": "consensys-diligence-dandelion-audit-2019-12",
+    "expectedCount": 7,
+    "expectedSeverityCounts": {
+      "Critical": 1,
+      "High": 0,
+      "Medium": 3,
+      "Low": 3
+    },
+    "notes": [
+      "Promoted from verified Stage 5 V5 review queue.",
+      "Source review id: consensys-diligence-dandelion-audit-2019-12-8957291e",
+      "Requires ENABLE_GENERIC_INDEX_ALIGNMENT=true for generic official index / table recovery gates.",
+      "Major is normalized to High. Minor, Info, Informational, and Note are normalized to Low."
+    ]
+  },
+  "report": {
+    "id": "G-consensys-diligence-dandelion-audit-2019-12",
+    "slug": "consensys-diligence-dandelion-audit-2019-12",
+    "name": "consensys-diligence-dandelion-audit-2019-12",
+    "type": "PDF",
+    "uploadedAt": "2026-06-05T23:32:39.124Z",
+    "owner": "AI CTIX Analyzer",
+    "status": "Ready",
+    "findings": 7,
+    "critical": 1,
+    "high": 0,
+    "medium": 3,
+    "low": 3,
+    "summary": "2 Surya Appendix 1 - Disclosure 1 Summary ConsenSys Diligence conducted a security audit of 1Hive’s Dandelion org template and supporting apps. Dandelion orgs are a DAO template that function similarly to MolochDAO, and are comprised of a suite of modular Aragon apps that can be used in any DAO.",
+    "parsingStatus": "parsed",
+    "analysisVersion": 1,
+    "parserVersion": 1,
+    "parsingNotes": [
+      "Structured parser found no blocks; heuristic fallback was used.",
+      "NLP hybrid extraction produced 3 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+      "Aligned findings with generic official index: 3 -> 7."
+    ],
+    "content": "Date December 2019\nAuditors Alexander Wade\nDandelion Organizations Audit\n1 Summary\n2 Audit Scope\n3 Key Observations/Recommendations\n4 Security Speci\u0000cation\n4.1 Actors\n4.2 Trust Model\n5 Issues\n5.1 TimeLock spam prevention can be bypassed Critical ✓ Addressed\n5.2 Passing duplicate tokens to Redemptions and TokenRequest may have\nunintended consequences Medium ✓ Addressed\n5.3 The Delay app allows scripts to be paused even after execution time has\nelapsed Medium ✓ Addressed\n5.4 Misleading intentional miscon\u0000guration possible through misuse of\nnewToken and newBaseInstance Medium ✓ Addressed\n5.5 Delay.execute can re-enter and re-execute the same script twice Minor\n✓ Addressed\n5.6 Delay.cancelExecution should revert on a non-existent script id Minor\n✓ Addressed\n5.7 ID validation check missing for installDandelionApps Minor ✓ Addressed\n6 Tool-Based Analysis\n6.1 Ethlint\n6.2 Surya\nAppendix 1 - Disclosure\n1 Summary\nConsenSys Diligence conducted a security audit of 1Hive’s Dandelion org template and\nsupporting apps. Dandelion orgs are a DAO template that function similarly to MolochDAO,\n\n-- 1 of 26 --\n\nand are comprised of a suite of modular Aragon apps that can be used in any DAO.\n2 Audit Scope\nThis audit covered the following \u0000les:\nFile Name SHA-1 Hash\ntoken-request-\napp/contracts/lib/AddressArrayLib.sol 56997c6cfa74369087731aedcc4e032b29d400c6\nredemptions-\napp/contracts/lib/ArrayUtils.sol 6b184d37d5cca932da3d962a2fdc938389778a76\ndandelion-org/contracts/DandelionOrg.sol bdfeab2a56304ce4bbbbd1a43cff49a2103732e0\ndandelion-voting-\napp/contracts/DandelionVoting.sol 3d131eb7a72d4a44e3ae387b7f12a255f38f5d6a\ndelay-app/contracts/Delay.sol cbc8a9cdca4c7cb8a3afecb33d36d2ef2324c903\nredemptions-\napp/contracts/Redemptions.sol a26ba97e9c71367955a2b34c735ba3b1559cda26\ntime-lock-app/contracts/TimeLock.sol b30260b66f876ea0462fc72ee108e085594b1123\ntoken-\noracle/contracts/TokenBalanceOracle.sol 0e16f0bbe4870234b264f824d943e08d50c9bc59\ntoken-request-\napp/contracts/TokenRequest.sol 2fa54ed301858564806416823d5539624a8418c8\ntoken-request-\napp/contracts/lib/UintArrayLib.sol 1226ee39e2eaca8320647bbaa0fcf2d577665ef6\nThe audit activities can be grouped into the following three broad categories:\n1. Security: Identifying security related issues within the contract.\n2. Architecture: Evaluating the system architecture through the lens of established\nsmart contract best practices.\n3. Code quality: A full review of the contract source code. The primary areas of focus\ninclude:\nCorrectness\nReadability\nScalability\n\n-- 2 of 26 --\n\nCode complexity\nQuality of test coverage\n3 Key Observations/Recommendations\nA Dandelion organization functions similarly to MolochDAO:\nThe org has a native asset which represents “shares”. Holders of the asset are\nconferred voting power within the org.\nShares are implemented via MiniMeToken , which tracks historical balances.\nShares are non-transferrable\nShares are minted when new members are accepted to the org\nShares are burned when redeemed for a proportion of the org’s assets\nMembers can vote to accept new members into the organization\nVotes are executed in order of their creation, and between a vote’s passing and\nexecution is a grace period during which members of the org can exit their shares\n(according to a few requirements)\nNoteable differences:\nDandelion orgs are much more con\u0000gurable\nDandelion proposals execute aragonOS EVMScripts, which are batches of\narbitrary calls to any destination. As such, Dandelion orgs can execute a much\nwider range of actions through votes:\nModifying voting-speci\u0000c parameters, like support required, minimum\nquorum, number of blocks between votes, and vote execution delay period\nNotably, vote duration ( durationBlocks ) cannot be changed\nManaging permissions within the organization’s ACL\nManaging registered applications within the organization\nModifying execution methods for executed proposals (via the\nEVMScriptRegistry )\nModifying which assets are redeemable when burning shares\nModifying which assets are accepted by TokenRequest requests for entry\ninto the org\n… and more.\n\n-- 3 of 26 --\n\nMolochDAO is very minimalist. Dandelion’s complexity is much higher due to its\nwider range of actions and con\u0000gurations, as well as its highly modular design.\nThe wider range of actions allowed in Dandelion orgs allow the organization\nto pass votes that radically change the structure and function of the\norganization. It is possible to execute votes that do almost anything,\nincluding dissolving the organization. Members of Dandelion orgs will need to\nfully understand proposals, and carefully consider the entire range of actions\nexecuted by a successful vote.\nDandelion orgs do not require an existing member to submit a proposal for a new\nmember to join. Instead, a new member can create a request to join (via\nTokenRequest.createTokenRequest ).\nRequests offer a deposit of tokens in exchange for the minting of new org\ntokens\nThe requesting user can cancel their request at any point before its\n\u0000nalization. Cancelled requests involve a refund of the deposited tokens.\nRequests can be \u0000nalized through the passing of a vote in\nDandelionVoting . On \u0000nalization, the requestor’s deposited tokens are\ntransferred to the org’s Vault, and the TokenManager mints shares for the\nrequestor.\nDiscouraging spam in MolochDAO is implemented by requiring a 10 ETH deposit\nfrom the member sponsoring a request to join. In Dandelion, spam is discouraged\nvia the TimeLock app, which requires anyone creating a vote to lock up a\nspeci\u0000ed token for a con\u0000gurable amount of time. The more votes created by a\nsingle address before their timelocked tokens are released, the higher the spam\npenalty is for each vote. The increase in spam penalty is calculated using the\ncon\u0000gurable spamPenaltyFactor .\nDandelionVoting introduces a con\u0000gurable voting quorum and support\nthreshhold, while MolochDAO requires only a simple majority to pass a vote.\n4 Security Speci\u0000cation\nThis section describes, from a security perspective, some of the expected behavior of the\nsystem under audit. It is not a substitute for documentation. The purpose of this section is\nto identify speci\u0000c security properties that were investigated by the audit team.\n4.1 Actors\n\n-- 4 of 26 --\n\nThe relevant actors are as follows:\nDeployer: Responsible for instantiating the organization with its base settings via\nDandelionOrg .\nOrganization Member: Holds non-transferrable org tokens, which represent a\nredeemable portion of the org’s assets. Responsible for voting on new proposals to\ncarry out a wide range of actions within the org.\nRequesting Member: Creates a request to be minted org tokens via TokenRequest .\nCan cancel request before \u0000nalization. On \u0000nalization, deposit tokens are moved to the\norg’s vault and the requesting member is minted an amount of org tokens.\n4.2 Trust Model\nIn any smart contract system, it’s important to identify what trust is expected/required\nbetween various actors. For this audit, we established the following trust model:\nThe parameters set up during instantiation ( newTokenAndBaseInstance and\ninstallDandelionApps ) are important to the behavior of many critical systems in the\norg:\n_redemptionsRedeemableTokens describes the redeemable assets held by the\norganization. The Deployer should ensure that this is a list of valid ERC20 tokens\n(optionally including “ETH” by using address(0x00))\n_tokenRequestAcceptedDepositTokens describes the tokens accepted for\ndeposit by requesting members. The Deployer should ensure that this is a list of\nvalid ERC20 tokens (optionally including “ETH” by using address(0x00))\nThe Deployer should be careful when including tokens in this list that are not\nincluded in _redemptionsRedeemableTokens . If tokens are deposited that\nare not directly redeemable, they must \u0000rst be added to Redemptions by\nway of a vote.\nAdditionally, TokenRequest.acceptedDepositTokens and\nRedemptions.redeemableTokens have different maximum allowed sizes.\nThe Deployer should note that a token must be redeemable in order for org\nmembers to withdraw it.\n_timelockToken is the address of the token users will lock when creating votes\nvia TimeLock.forward . It is con\u0000gured with an array of settings ( uint[3]\n_timelockSettings ), which corresponds to the duration of the lock, the base\namount of tokens to lock, and the factor by which the successive lock penalty\n\n-- 5 of 26 --\n\nincreases. It is crucial that each org choose reasonable settings for TimeLock , as\nsuccessful spamming of DandelionVoting.newVote has the potential to halt\nprogress in an org due to longer and longer delays between relevant votes.\nAdditionally, the token chosen for TimeLock should be non-transferrable for\nmaximum spam penalty e\u0000cacy.\nuint64[5] _votingSettings corresponds to settings in DandelionVoting . It is\ncrucial that the Deployer choose reasonable values for their org’s purpose:\nsupportRequiredPct is the percent of yeas in all casted votes required to\npass a vote (expressed as a proportion of 10**18)\nminAcceptQuorumPct is the percent of yeas in the total possible votes\nrequired to pass a vote (expressed as a proportion of 10**18)\ndurationBlocks is the number of blocks a vote will be open for voters.\nDeployers should note that of all org settings, this value is not changeable.\nTherefore, it is very important to choose a reasonable value.\nbufferBlocks is the number of blocks between the start of each\nsubsequent vote.\nexecutionDelayBlocks is the number of blocks that consist of the delay\nperiod between a vote’s passing and its actual execution.\nThe relative security of an organization’s assets depends heavily on the careful\nconsideration of the rami\u0000cations of each vote by the org’s members. With great\npower comes great responsibility; batched administrative actions within an org are\nable to fundamentally change the behavior of many aspects of the org and demand\ncareful attention before being rati\u0000ed.\nOrgs can be extended through votes by the addition of new apps. These new apps will\nundoutedly have their own set of permissions and security properties and should be\ncarefully reviewed by voters to ensure maximum compatibility with the goals of the\nexisting org.\nDandelion orgs and their supporting apps make heavy use of aragonOS. While\naragonOS has been audited, a full review of the system is not in scope for this audit.\n5 Issues\nEach issue has an assigned severity:\nMinor issues are subjective in nature. They are typically suggestions around best\npractices or readability. Code maintainers should use their own judgment as to\nwhether to address such issues.\n\n-- 6 of 26 --\n\nMedium issues are objective in nature but are not security vulnerabilities. These should\nbe addressed unless there is a clear reason not to.\nMajor issues are security vulnerabilities that may not be directly exploitable or may\nrequire certain conditions in order to be exploited. All major issues should be\naddressed.\nCritical issues are directly exploitable security vulnerabilities that need to be \u0000xed.\n5.1 TimeLock spam prevention can be bypassed Critical ✓ Addressed\nResolution\nThis was addressed in commit aa6fc49fbf3230d7f02956b33a3150c6885ee93f by\nparsing the input evm script and ensuring only a single external call is made.\nAdditionally, commit 453179e98159413d38196b6a5373cdd729483567 added\nTimeLock and token to the script runner blacklist.\nDescription\nThe TimeLock app is a forwarder that requires users to lock some token before forwarding\nan EVM callscript. Its purpose is to introduce a “spam penalty” to hamper repeat actions\nwithin an Aragon org. In the context of a Dandelion org, this spam penalty is meant to stop\nusers from repeatedly creating votes in DandelionVoting , as subsequent votes are\nbuffered by a con\u0000gurable number of blocks ( DandelionVoting.bufferBlocks ). Spam\nprevention is important, as the more votes are buffered, the longer it takes before “non-\nspam” votes are able to be executed.\nBy allowing arbitrary calls to be executed, the TimeLock app opens several potential\nvectors for bypassing spam prevention.\nExamples\nUsing a callscript to transfer locked tokens to the sender\nBy constructing a callscript that executes a call to the lock token address, the sender\nexecute calls to the lock token on behalf of TimeLock . Any function can be executed,\nmaking it possible to not only transfer “locked” tokens back to the sender, but also steal\nother users’ locked tokens by way of transfer .\n\n-- 7 of 26 --\n\nUsing a batched callscript to call DandelionVoting.newVote repeatedly\nCallscripts can be batched, meaning they can execute multiple calls before \u0000nishing. Within\na Dandelion org, the spam prevention mechanism is used for the\nDandelionVoting.newVote function. A callscript that batches multiple calls to this\nfunction can execute newVote several times per call to TimeLock.forward . Although\nmultiple new votes are created, only one spam penalty is incurred, making it trivial to extend\nthe buffer imposed on “non-spam” votes.\nUsing a callscript to re-enter TimeLock and forward or withdrawAllTokens to\nitself\nA callscript can be used to re-enter TimeLock.forward , as well as any other TimeLock\nfunctions. Although this may not be directly exploitable, it does seem unintentional that\nmany of the TimeLock contract functions are accessible to itself in this manner.\nRecommendation\n1. Add the TimeLock contract’s own address to the evmscript blacklist\n2. Add the TimeLock lock token address to the evmscript blacklist\n3. To \u0000x spamming through batched callscripts, one option is to have users pass in a\ndestination and calldata, and manually perform a call. Alternatively, CallsScript can\nbe forked and altered to only execute a single external call to a single destination.\n5.2 Passing duplicate tokens to Redemptions and TokenRequest\nmay have unintended consequences Medium ✓ Addressed\nResolution\nThis was addressed in Redemptions commit\n2b0034206a5b9cdf239da7a51900e89d9931554f by checking\nredeemableTokenAdded[token] == false for each subsequent token added during\ninitialization. Note that ordering is not enforced.\nAdditionally, the issue in TokenRequest was addressed in commit\neb4181961093439f142f2e74eb706b7f501eb5c0 by requiring that each subsequent\n\n-- 8 of 26 --\n\ntoken added during initialization has a value strictly greater than the previous token\nadded.\nDescription\nBoth Redemptions and TokenRequest are initialized with a list of acceptable tokens to\nuse with each app. For Redemptions , the list of tokens corresponds to an organization’s\ntreasury assets. For TokenRequest , the list of tokens corresponds to tokens accepted for\npayment to join an organization. Neither contract makes a uniqueness check on input\ntokens during initialization, which can lead to unintended behavior.\nExamples\nIn Redemptions , each of an organization’s assets are redeemed according to the\nsender’s proportional ownership in the org. The redemption process iterates over the\nredeemableTokens list, paying out the sender their proportion of each token listed:\ncode/redemptions-app/contracts/Redemptions.sol:L112-L121\nIf a token address is included more than once, the sender will be paid out more than once,\npotentially earning many times more than their proportional share of the token.\nIn TokenRequest , this behavior does not allow for any signi\u0000cant deviation from\nexpected behavior. It was included because the initialization process is similar to that\nof Redemptions .\nRecommendation\nfor (uint256 i = 0; i < redeemableTokens.length; i++) {\nvaultTokenBalance = vault.balance(redeemableTokens[i]);\nredemptionAmount = _burnableAmount.mul(vaultTokenBalance).div(burnableToke\ntotalRedemptionAmount = totalRedemptionAmount.add(redemptionAmount);\nif (redemptionAmount > 0) {\nvault.transfer(redeemableTokens[i], msg.sender, redemptionAmount);\n}\n}\n\n-- 9 of 26 --\n\nDuring initialization in both apps, check that input token addresses are unique. One simple\nmethod is to require that token addresses are submitted in ascending order, and that each\nsubsequent address added is greater than the one before.\n5.3 The Delay app allows scripts to be paused even after execution\ntime has elapsed Medium ✓ Addressed\nResolution\nThis was addressed in commit 46d8fa414cc3e68c68a5d9bc1174be5f32970611 by\nrequiring that the current timestamp is before the delayed script’s execution time.\nDescription\nThe Delay app is used to con\u0000gure a delay between when an evm script is created and\nwhen it is executed. The entry point for this process is Delay.delayExecution , which\nstores the input script with a future execution date:\ncode/delay-app/contracts/Delay.sol:L153-L162\nAn auxiliary capability of the Delay app is the ability to “pause” the delayed script, which\nsets the script’s pausedAt value to the current block timestamp:\ncode/delay-app/contracts/Delay.sol:L80-L85\nfunction _delayExecution(bytes _evmCallScript) internal returns (uint256) {\nuint256 delayedScriptIndex = delayedScriptsNewIndex;\ndelayedScriptsNewIndex++;\ndelayedScripts[delayedScriptIndex] = DelayedScript(getTimestamp64().add(ex\nemit DelayedScriptStored(delayedScriptIndex);\nreturn delayedScriptIndex;\n}\n\n-- 10 of 26 --\n\nA paused script cannot be executed until resumeExecution is called, which extends the\nscript’s executionTime by the amount of time paused. Essentially, the delay itself is\npaused:\ncode/delay-app/contracts/Delay.sol:L91-L100\nA delayed script whose execution time has passed and is not currently paused should be\nable to be executed via the execute function. However, the pauseExecution function still\nallows the aforementioned script to be paused, halting execution.\nRecommendation\nAdd a check to pauseExecution to ensure that execution is not paused if the script’s\nexecution delay has already transpired.\nfunction pauseExecution(uint256 _delayedScriptId) external auth(PAUSE_EXECUTIO\nrequire(!_isExecutionPaused(_delayedScriptId), ERROR_CAN_NOT_PAUSE);\ndelayedScripts[_delayedScriptId].pausedAt = getTimestamp64();\nemit ExecutionPaused(_delayedScriptId);\n}\nfunction resumeExecution(uint256 _delayedScriptId) external auth(RESUME_EXECUT\nrequire(_isExecutionPaused(_delayedScriptId), ERROR_CAN_NOT_RESUME);\nDelayedScript storage delayedScript = delayedScripts[_delayedScriptId];\nuint64 timePaused = getTimestamp64().sub(delayedScript.pausedAt);\ndelayedScript.executionTime = delayedScript.executionTime.add(timePaused);\ndelayedScript.pausedAt = 0;\nemit ExecutionResumed(_delayedScriptId);\n}\n5.4 Misleading intentional miscon\u0000guration possible through misuse\nof newToken and newBaseInstance Medium ✓ Addressed\nResolution\n\n-- 11 of 26 --\n\nThis was addressed in commit b68d89ab0deb22161987e19d1ff0bb9d7303f0a9 by\nmaking newToken and newBaseInstance internal. A later commit addressed an\ninvalid DandelionVoting import statement.\nDescription\nThe instantiation process for a Dandelion organization requires two separate external calls\nto DandelionOrg . There are two primary functions: installDandelionApps , and\nnewTokenAndBaseInstance .\ninstallDandelionApps relies on cached results from prior calls to\nnewTokenAndBaseInstance and completes the initialization step for a Dandelion org.\nnewTokenAndBaseInstance is a wrapper around two publicly accessible functions:\nnewToken and newBaseInstance . Called together, the functions: * Deploy a new\nMiniMeToken used to represent shares in an organization, and cache the address of the\ncreated token:\ncode/dandelion-org/contracts/DandelionOrg.sol:L128-L137\nCreate a new dao instance using Aragon’s BaseTemplate contract:\ncode/dandelion-org/contracts/DandelionOrg.sol:L139-L160\n/**\n* @dev Create a new MiniMe token and save it for the user\n* @param _name String with the name for the token used by share holders in the\n* @param _symbol String with the symbol for the token used by share holders in\n*/\nfunction newToken(string memory _name, string memory _symbol) public returns (\nMiniMeToken token = _createToken(_name, _symbol, TOKEN_DECIMALS);\n_saveToken(token);\nreturn token;\n}\n/**\n* @dev Deploy a Dandelion Org DAO using a previously saved MiniMe token\n* @param _id String with the name for org, will assign `[id].aragonid.eth`\n\n-- 12 of 26 --\n\nSet up prepackaged Aragon apps, like Vault , TokenManager , and Finance :\ncode/dandelion-org/contracts/DandelionOrg.sol:L162-L182\n* @param _holders Array of token holder addresses\n* @param _stakes Array of token stakes for holders (token has 18 decimals, mul\n* @param _useAgentAsVault Boolean to tell whether to use an Agent app as a mor\n*/\nfunction newBaseInstance(\nstring memory _id,\naddress[] memory _holders,\nuint256[] memory _stakes,\nuint64 _financePeriod,\nbool _useAgentAsVault\n)\npublic\n{\n_validateId(_id);\n_ensureBaseSettings(_holders, _stakes);\n(Kernel dao, ACL acl) = _createDAO();\n_setupBaseApps(dao, acl, _holders, _stakes, _financePeriod, _useAgentAsVau\n}\nfunction _setupBaseApps(\nKernel _dao,\nACL _acl,\naddress[] memory _holders,\nuint256[] memory _stakes,\nuint64 _financePeriod,\nbool _useAgentAsVault\n)\ninternal\n{\nMiniMeToken token = _getToken();\nVault agentOrVault = _useAgentAsVault ? _installDefaultAgentApp(_dao) : _i\nTokenManager tokenManager = _installTokenManagerApp(_dao, token, TOKEN_TRA\nFinance finance = _installFinanceApp(_dao, agentOrVault, _financePeriod ==\n\n-- 13 of 26 --\n\nNote that newToken and newBaseInstance can be called separately. The token created in\nnewToken is cached in _saveToken , which overwrites any previously-cached value:\ncode/dandelion-org/contracts/DandelionOrg.sol:L413-L417\nCached tokens are retrieved in _getToken :\ncode/dandelion-org/contracts/DandelionOrg.sol:L441-L447\nBy exploiting the overwriteable caching mechanism, it is possible to intentionally\nmiscon\u0000gure Dandelion orgs.\nExamples\ninstallDandelionApps uses _getToken to associate a token with the\nDandelionVoting app. The value returned from _getToken depends on the sender’s\nprevious call to newToken , which overwrites any previously-cached value. The steps for\nintentional miscon\u0000guration are as follows:\n_mintTokens(_acl, tokenManager, _holders, _stakes);\n_saveBaseApps(_dao, finance, tokenManager, agentOrVault);\n_saveAgentAsVault(_dao, _useAgentAsVault);\n}\nfunction _saveToken(MiniMeToken _token) internal {\nDeployedContracts storage senderDeployedContracts = deployedContracts[msg.\nsenderDeployedContracts.token = address(_token);\n}\nfunction _getToken() internal returns (MiniMeToken) {\nDeployedContracts storage senderDeployedContracts = deployedContracts[msg.\nrequire(senderDeployedContracts.token != address(0), ERROR_MISSING_TOKEN_C\nMiniMeToken token = MiniMeToken(senderDeployedContracts.token);\nreturn token;\n}\n\n-- 14 of 26 --\n\n1. Sender calls newTokenAndBaseInstance , creating token m0 and DAO A .\nThe TokenManager app in A is automatically con\u0000gured to be the controller of\nm0 .\nm0 is cached using _saveToken .\nDAO A apps are cached for future use using _saveBaseApps and\n_saveAgentAsVault .\n2. Sender calls newToken , creating token m1 , and overwriting the cache of m0 .\nFuture calls to _getToken will retrieve m1 .\nThe DandelionOrg contract is the controller of m1 .\n3. Sender calls installDandelionApps , which installs Dandelion apps in DAO A\nThe DandelionVoting app is con\u0000gured to use the current cached token, m1 ,\nrather than the token associated with A.TokenManager , m0\nFurther calls to newBaseInstance and installDandelionApps create DAO B , populate it\nwith Dandelion apps, and assign B.TokenManager as the controller of the earlier\nDandelionVoting app token, m0 .\nMany different miscon\u0000gurations are possible, and some may be underhandedly abusable.\nRecommendation\nMake newToken and newBaseInstance internal so they are only callable via\nnewTokenAndBaseInstance .\n5.5 Delay.execute can re-enter and re-execute the same script\ntwice Minor ✓ Addressed\nResolution\nThis was addressed in commit f049e978f93765e27783a3ecac4830498bb779ba by\ndeleting the delayed script before it is run. 1Hive elected to keep an empty script\nblacklist in order to allow delayed actions to be taken on the Delay app.\nDescription\n\n-- 15 of 26 --\n\nDelay.execute does not follow the “checks-effects-interactions” pattern, and deletes a\ndelayed script only after the script is run. Because the script being run executes arbitrary\nexternal calls, a script can be created that re-enters Delay and executes itself multiple\ntimes before being deleted:\ncode/delay-app/contracts/Delay.sol:L112-L123\nRecommendation\nAdd the Delay contract address to the runScript blacklist, or delete the delayed script\nfrom storage before it is run.\n/**\n* @notice Execute the script with ID `_delayedScriptId`\n* @param _delayedScriptId The ID of the script to execute\n*/\nfunction execute(uint256 _delayedScriptId) external {\nrequire(canExecute(_delayedScriptId), ERROR_CAN_NOT_EXECUTE);\nrunScript(delayedScripts[_delayedScriptId].evmCallScript, new bytes(0), ne\ndelete delayedScripts[_delayedScriptId];\nemit ExecutedScript(_delayedScriptId);\n}\n5.6 Delay.cancelExecution should revert on a non-existent script id\nMinor ✓ Addressed\nResolution\nThis was addressed in commit d99c94f5138a9af1fd5f0cd6990c140b46a55925 by\nadding the scriptExists(_delayedScriptId) modi\u0000er to cancelExecution .\nDescription\ncancelExecution makes no existence check on the passed-in script ID, clearing its\nstorage slot and emitting an event:\n\n-- 16 of 26 --\n\ncode/delay-app/contracts/Delay.sol:L102-L110\nRecommendation\nAdd a check that the passed-in script exists.\n/**\n* @notice Cancel script execution with ID `_delayedScriptId`\n* @param _delayedScriptId The ID of the script execution to cancel\n*/\nfunction cancelExecution(uint256 _delayedScriptId) external auth(CANCEL_EXECUT\ndelete delayedScripts[_delayedScriptId];\nemit ExecutionCancelled(_delayedScriptId);\n}\n5.7 ID validation check missing for installDandelionApps Minor\n✓ Addressed\nResolution\nThis was addressed in commit 8d1ecb1bc892d6ea1d34c7234e35de031db2bebd by\nremoving the _id parameter from newTokenAndBaseInstance and\nnewBaseInstance , and adding a validation check to installDandelionApps .\nDescription\nDandelionOrg allows users to kickstart an Aragon organization by using a dao template.\nThere are two primary functions to instantiate an org: newTokenAndBaseInstance , and\ninstallDandelionApps . Both functions accept a parameter, string _id , meant to\nrepresent an ENS subdomain that will be assigned to the new org during the instantiation\nprocess. The two functions are called independently, but depend on each other.\nIn newTokenAndBaseInstance , a sanity check is performed on the _id parameter, which\nensures the _id length is nonzero:\ncode/dandelion-org/contracts/DandelionOrg.sol:L155\n\n-- 17 of 26 --\n\n_validateId(_id);\nNote that the value of _id is otherwise unused in newTokenAndBaseInstance .\nIn installDandelionApps , this check is missing. The check is only important in this\nfunction, since it is in installDandelionApps that the ENS subdomain registration is\nactually performed.\nRecommendation\nUse _validateId in installDandelionApps rather than newTokenAndBaseInstance .\nSince the _id parameter is otherwise unused in newTokenAndBaseInstance , it can be\nremoved.\nAlternatively, the value of the submitted _id could be cached between calls and validated\nin newTokenAndBaseInstance , similarly to newToken .\n6 Tool-Based Analysis\nSeveral tools were used to perform automated analysis of the reviewed contracts. These\nissues were reviewed by the audit team, and relevant issues are listed in the Issue Details\nsection.\n6.1 Ethlint\nEthlint is an open source project for linting Solidity code. Only\nsecurity-related issues were reviewed by the audit team.\nBelow is the raw output of the Ethlint vulnerability scan:\n$ solium -V\nSolium version 1.2.5\n$ solium -d .\ndandelion-org/contracts/DandelionOrg.sol\n86:1 warning Line contains trailing whitespace no-trailing-\n226:8 warning Line exceeds the limit of 145 characters max-len\n\n-- 18 of 26 --\n\n6.2 Surya\nSurya is a utility tool for smart contract systems. It provides a number of visual outputs\nand information about the structure of smart contracts. It also supports querying the\nfunction call graph in multiple ways to aid in the manual inspection and control \u0000ow\nanalysis of contracts.\nBelow is a complete list of functions with their visibility and modi\u0000ers:\nContracts Description Table\ndandelion-voting-app/contracts/DandelionVoting.sol\n272:8 warning Line exceeds the limit of 145 characters max-len\ntoken-request-app/contracts/TokenRequest.sol\n62:4 warning Line exceeds the limit of 145 characters\n104:1 warning Line contains trailing whitespace\ntoken-request-app/contracts/lib/UintArrayLib.sol\n6:3 error Only use indent of 4 spaces. indentation\n✖ 1 error, 5 warnings found.\nContract Type Bases\n└ Function Name Visibility Mutability\nAddressArrayLib Library\n└ deleteItem Internal 🔒 🛑\n└ contains Internal 🔒 🛑\nArrayUtils Library\n└ deleteItem Internal 🔒 🛑\nDandelionOrg Implementation BaseTemplate\n└ <Constructor> Public ❗ 🛑\n└ newTokenAndBaseInstance External ❗ 🛑\n\n-- 19 of 26 --\n\nContract Type Bases\n└ installDandelionApps External ❗ 🛑\n└ newToken Public ❗ 🛑\n└ newBaseInstance Public ❗ 🛑\n└ _setupBaseApps Internal 🔒 🛑\n└ _installDandelionApps Internal 🔒 🛑\n└ _installDandelionVotingApp Internal 🔒 🛑\n└ _installDandelionVotingApp Internal 🔒 🛑\n└ _createDandelionVotingPermissions Internal 🔒 🛑\n└ _installRedemptionsApp Internal 🔒 🛑\n└ _createRedemptionsPermissions Internal 🔒 🛑\n└ _installTokenRequestApp Internal 🔒 🛑\n└ _createTokenRequestPermissions Internal 🔒 🛑\n└ _installTimeLockApp Internal 🔒 🛑\n└ _installTimeLockApp Internal 🔒 🛑\n└ _createTimeLockPermissions Internal 🔒 🛑\n└ _installTokenBalanceOracle Internal 🔒 🛑\n└ _createTokenBalanceOraclePermissions Internal 🔒 🛑\n└ _setupBasePermissions Internal 🔒 🛑\n└ _setupDandelionPermissions Internal 🔒 🛑\n└ _saveToken Internal 🔒 🛑\n└ _saveBaseApps Internal 🔒 🛑\n└ _saveAgentAsVault Internal 🔒 🛑\n└ _getDao Internal 🔒 🛑\n└ _getToken Internal 🔒 🛑\n└ _getBaseApps Internal 🔒 🛑\n└ _getAgentAsVault Internal 🔒 🛑\n└ _clearDeployedContracts Internal 🔒 🛑\n\n-- 20 of 26 --\n\nContract Type Bases\n└ _ensureBaseAppsDeployed Internal 🔒 🛑\n└ _ensureBaseSettings Private 🔐\n└ _ensureDandelionSettings Private 🔐 🛑\n└ _registerApp Private 🔐 🛑\n└ _setOracle Private 🔐 🛑\n└ _paramsTo256 Private 🔐 🛑\nDandelionVoting Implementation\nIForwarder,\nIACLOracle,\nAragonApp\n└ initialize External ❗ 🛑\n└ changeSupportRequiredPct External ❗ 🛑\n└ changeMinAcceptQuorumPct External ❗ 🛑\n└ changeBufferBlocks External ❗ 🛑\n└ changeExecutionDelayBlocks External ❗ 🛑\n└ newVote External ❗ 🛑\n└ vote External ❗ 🛑\n└ executeVote External ❗ 🛑\n└ isForwarder External ❗\n└ forward Public ❗ 🛑\n└ canForward Public ❗\n└ canPerform External ❗\n└ canExecute Public ❗\n└ canVote Public ❗\n└ getVote Public ❗\n└ getVoterState Public ❗\n└ _newVote Internal 🔒 🛑\n└ _vote Internal 🔒 🛑\n\n-- 21 of 26 --\n\nContract Type Bases\n└ _canExecute Internal 🔒\n└ _votePassed Internal 🔒\n└ _canVote Internal 🔒\n└ _voterStake Internal 🔒\n└ _isVoteOpen Internal 🔒\n└ _isValuePct Internal 🔒\nDelay Implementation AragonApp,\nIForwarder\n└ initialize External ❗ 🛑\n└ setExecutionDelay External ❗ 🛑\n└ delayExecution External ❗ 🛑\n└ isForwarder External ❗\n└ pauseExecution External ❗ 🛑\n└ resumeExecution External ❗ 🛑\n└ cancelExecution External ❗ 🛑\n└ execute External ❗ 🛑\n└ canExecute Public ❗\n└ canForward Public ❗\n└ forward Public ❗ 🛑\n└ _isExecutionPaused Internal 🔒\n└ _delayExecution Internal 🔒 🛑\nRedemptions Implementation AragonApp\n└ initialize External ❗ 🛑\n└ addRedeemableToken External ❗ 🛑\n└ removeRedeemableToken External ❗ 🛑\n└ redeem External ❗ 🛑\n\n-- 22 of 26 --\n\nContract Type Bases\n└ getRedeemableTokens External ❗\n└ getToken External ❗\n└ getETHAddress External ❗\nTimeLock Implementation\nAragonApp,\nIForwarder,\nIForwarderFee\n└ initialize External ❗ 🛑\n└ changeLockDuration External ❗ 🛑\n└ changeLockAmount External ❗ 🛑\n└ changeSpamPenaltyFactor External ❗ 🛑\n└ withdrawAllTokens External ❗ 🛑\n└ withdrawTokens External ❗ 🛑\n└ forwardFee External ❗\n└ isForwarder External ❗\n└ canForward Public ❗\n└ forward Public ❗ 🛑\n└ getWithdrawLocksCount Public ❗\n└ getSpamPenalty Public ❗\n└ _withdrawTokens Internal 🔒 🛑\nTokenBalanceOracle Implementation AragonApp,\nIACLOracle\n└ initialize External ❗ 🛑\n└ setToken External ❗ 🛑\n└ setMinBalance External ❗ 🛑\n└ canPerform External ❗\nTokenRequest Implementation AragonApp\n└ initialize External ❗ 🛑\n\n-- 23 of 26 --\n\nLegend\nSymbol Meaning\n🛑 Function can modify state\n💵 Function is payable\nAppendix 1 - Disclosure\nConsenSys Diligence (“CD”) typically receives compensation from one or more clients (the\n“Clients”) for performing the analysis contained in these reports (the “Reports”). The Reports\nmay be distributed through other means, including via ConsenSys publications and other\ndistributions.\nThe Reports are not an endorsement or indictment of any particular project or team, and\nthe Reports do not guarantee the security of any particular project. This Report does not\nconsider, and should not be interpreted as considering or having any bearing on, the\nContract Type Bases\n└ setTokenManager External ❗ 🛑\n└ setVault External ❗ 🛑\n└ addToken External ❗ 🛑\n└ removeToken External ❗ 🛑\n└ createTokenRequest External ❗ 💵\n└ refundTokenRequest External ❗ 🛑\n└ \u0000naliseTokenRequest External ❗ 🛑\n└ getAcceptedDepositTokens Public ❗\n└ getTokenRequest Public ❗\n└ getToken Public ❗ 🛑\nUintArrayLib Library\n└ deleteItem Internal 🔒 🛑\n\n-- 24 of 26 --\n\npotential economics of a token, token sale or any other product, service or other asset.\nCryptographic tokens are emergent technologies and carry with them high levels of\ntechnical risk and uncertainty. No Report provides any warranty or representation to any\nThird-Party in any respect, including regarding the bugfree nature of code, the business\nmodel or proprietors of any such business model, and the legal compliance of any such\nbusiness. No third party should rely on the Reports in any way, including for the purpose of\nmaking any decisions to buy or sell any token, product, service or other asset. Speci\u0000cally,\nfor the avoidance of doubt, this Report does not constitute investment advice, is not\nintended to be relied upon as investment advice, is not an endorsement of this project or\nteam, and it is not a guarantee as to the absolute security of the project. CD owes no duty\nto any Third-Party by virtue of publishing these Reports.\nPURPOSE OF REPORTS The Reports and the analysis described therein are created solely\nfor Clients and published with their consent. The scope of our review is limited to a review\nof Solidity code and only the Solidity code we note as being within the scope of our review\nwithin this report. The Solidity language itself remains under development and is subject to\nunknown risks and \u0000aws. The review does not extend to the compiler layer, or any other\nareas beyond Solidity that could present security risks. Cryptographic tokens are emergent\ntechnologies and carry with them high levels of technical risk and uncertainty.\nCD makes the Reports available to parties other than the Clients (i.e., “third parties”) – on its\nwebsite. CD hopes that by making these analyses publicly available, it can help the\nblockchain ecosystem develop technical best practices in this rapidly evolving area of\ninnovation.\nLINKS TO OTHER WEB SITES FROM THIS WEB SITE You may, through hypertext or other\ncomputer links, gain access to web sites operated by persons other than ConsenSys and\nCD. Such hyperlinks are provided for your reference and convenience only, and are the\nexclusive responsibility of such web sites’ owners. You agree that ConsenSys and CD are\nnot responsible for the content or operation of such Web sites, and that ConsenSys and CD\nshall have no liability to you or any other person or entity for the use of third party Web\nsites. Except as described below, a hyperlink from this web Site to another web site does\nnot imply or mean that ConsenSys and CD endorses the content on that Web site or the\noperator or operations of that site. You are solely responsible for determining the extent to\nwhich you may use any content at any other web sites to which you link from the Reports.\nConsenSys and CD assumes no responsibility for the use of third party software on the\nWeb Site and shall have no liability whatsoever to any person or entity for the accuracy or\ncompleteness of any outcome generated by such software.\n\n-- 25 of 26 --\n\nTIMELINESS OF CONTENT The content contained in the Reports is current as of the date\nappearing on the Report and is subject to change without notice. Unless indicated\notherwise, by ConsenSys and CD.\n\n-- 26 of 26 --",
+    "sourceFileName": "dandelion-audit-2019-12.pdf",
+    "createdAtIso": "2026-06-05T23:32:48.613Z",
+    "updatedAtIso": "2026-06-05T23:32:48.613Z"
+  },
+  "findings": [
+    {
+      "id": "F-G-consensys-diligence-dandelion-audit-2019-12-GIDX-001",
+      "slug": "3-key-observations-recommendations-vault",
+      "reportId": "G-consensys-diligence-dandelion-audit-2019-12",
+      "reportName": "consensys-diligence-dandelion-audit-2019-12",
+      "title": "TimeLock spam prevention can be bypassed",
+      "cve": "—",
+      "severity": "Critical",
+      "asset": "investigation-scope",
+      "score": 94,
+      "status": "Open",
+      "detectedAt": "2026-06-05T23:32:39.124Z",
+      "summary": "TimeLock spam prevention can be bypassed affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
+      "evidence": "Products: Vault | Versions: d | Assets: Vault | Endpoints: which, are, s | Services: Vault | Domains: TokenRequest.createTokenRequest",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:48.602Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3 Key Observations/Recommendations",
+        "severity": "Medium",
+        "asset": "Vault",
+        "status": "In Review",
+        "summary": "3 Key Observations/Recommendations affecting Vault; extractor found product Vault, version d.",
+        "impact": "Potential impact includes increased attacker opportunity against Vault if this signal is not reviewed.",
+        "evidence": "Products: Vault | Versions: d | Assets: Vault | Endpoints: which, are, s | Services: Vault | Domains: TokenRequest.createTokenRequest",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest.",
+        "references": [
+          "TokenRequest.createTokenRequest"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "3 key observations/recommendations",
+        "normalizedAsset": "vault",
+        "canonicalKey": "5.1|timelock spam prevention can be bypassed|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "TimeLock spam prevention can be bypassed",
+        "sourceText": "5.1 TimeLock spam prevention can be bypassed Critical",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "TimeLock spam prevention can be bypassed",
+      "canonicalKey": "5.1|timelock spam prevention can be bypassed|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-dandelion-audit-2019-12-GIDX-002",
+      "slug": "3-key-observations-recommendations-vault",
+      "reportId": "G-consensys-diligence-dandelion-audit-2019-12",
+      "reportName": "consensys-diligence-dandelion-audit-2019-12",
+      "title": "Passing duplicate tokens to Redemptions and TokenRequest may have unintended consequences",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:39.124Z",
+      "summary": "Passing duplicate tokens to Redemptions and TokenRequest may have unintended consequences affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: Vault | Versions: d | Assets: Vault | Endpoints: which, are, s | Services: Vault | Domains: TokenRequest.createTokenRequest",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:48.602Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3 Key Observations/Recommendations",
+        "severity": "Medium",
+        "asset": "Vault",
+        "status": "In Review",
+        "summary": "3 Key Observations/Recommendations affecting Vault; extractor found product Vault, version d.",
+        "impact": "Potential impact includes increased attacker opportunity against Vault if this signal is not reviewed.",
+        "evidence": "Products: Vault | Versions: d | Assets: Vault | Endpoints: which, are, s | Services: Vault | Domains: TokenRequest.createTokenRequest",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest.",
+        "references": [
+          "TokenRequest.createTokenRequest"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "3 key observations/recommendations",
+        "normalizedAsset": "vault",
+        "canonicalKey": "5.2|passing duplicate tokens to redemptions and tokenrequest may have unintended consequences|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "Passing duplicate tokens to Redemptions and TokenRequest may have unintended consequences",
+        "sourceText": "5.2 Passing duplicate tokens to Redemptions and TokenRequest may have unintended consequences Medium",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Passing duplicate tokens to Redemptions and TokenRequest may have unintended consequences",
+      "canonicalKey": "5.2|passing duplicate tokens to redemptions and tokenrequest may have unintended consequences|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-dandelion-audit-2019-12-GIDX-003",
+      "slug": "3-key-observations-recommendations-vault",
+      "reportId": "G-consensys-diligence-dandelion-audit-2019-12",
+      "reportName": "consensys-diligence-dandelion-audit-2019-12",
+      "title": "The Delay app allows scripts to be paused even after execution time has elapsed",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:39.124Z",
+      "summary": "The Delay app allows scripts to be paused even after execution time has elapsed affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: Vault | Versions: d | Assets: Vault | Endpoints: which, are, s | Services: Vault | Domains: TokenRequest.createTokenRequest",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:48.602Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3 Key Observations/Recommendations",
+        "severity": "Medium",
+        "asset": "Vault",
+        "status": "In Review",
+        "summary": "3 Key Observations/Recommendations affecting Vault; extractor found product Vault, version d.",
+        "impact": "Potential impact includes increased attacker opportunity against Vault if this signal is not reviewed.",
+        "evidence": "Products: Vault | Versions: d | Assets: Vault | Endpoints: which, are, s | Services: Vault | Domains: TokenRequest.createTokenRequest",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest.",
+        "references": [
+          "TokenRequest.createTokenRequest"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "3 key observations/recommendations",
+        "normalizedAsset": "vault",
+        "canonicalKey": "5.3|the delay app allows scripts to be paused even after execution time has elapsed|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "The Delay app allows scripts to be paused even after execution time has elapsed",
+        "sourceText": "5.3 The Delay app allows scripts to be paused even after execution time has elapsed Medium",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "The Delay app allows scripts to be paused even after execution time has elapsed",
+      "canonicalKey": "5.3|the delay app allows scripts to be paused even after execution time has elapsed|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-dandelion-audit-2019-12-GIDX-004",
+      "slug": "3-key-observations-recommendations-vault",
+      "reportId": "G-consensys-diligence-dandelion-audit-2019-12",
+      "reportName": "consensys-diligence-dandelion-audit-2019-12",
+      "title": "Misleading intentional misconfiguration possible through misuse of newToken and newBaseInstance",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:39.124Z",
+      "summary": "Misleading intentional misconfiguration possible through misuse of newToken and newBaseInstance affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: Vault | Versions: d | Assets: Vault | Endpoints: which, are, s | Services: Vault | Domains: TokenRequest.createTokenRequest",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:48.602Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3 Key Observations/Recommendations",
+        "severity": "Medium",
+        "asset": "Vault",
+        "status": "In Review",
+        "summary": "3 Key Observations/Recommendations affecting Vault; extractor found product Vault, version d.",
+        "impact": "Potential impact includes increased attacker opportunity against Vault if this signal is not reviewed.",
+        "evidence": "Products: Vault | Versions: d | Assets: Vault | Endpoints: which, are, s | Services: Vault | Domains: TokenRequest.createTokenRequest",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest.",
+        "references": [
+          "TokenRequest.createTokenRequest"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "3 key observations/recommendations",
+        "normalizedAsset": "vault",
+        "canonicalKey": "5.4|misleading intentional misconfiguration possible through misuse of newtoken and newbaseinstance|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "Misleading intentional misconfiguration possible through misuse of newToken and newBaseInstance",
+        "sourceText": "5.4 Misleading intentional misconfiguration possible through misuse of newToken and newBaseInstance Medium",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Misleading intentional misconfiguration possible through misuse of newToken and newBaseInstance",
+      "canonicalKey": "5.4|misleading intentional misconfiguration possible through misuse of newtoken and newbaseinstance|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-dandelion-audit-2019-12-GIDX-005",
+      "slug": "3-key-observations-recommendations-vault",
+      "reportId": "G-consensys-diligence-dandelion-audit-2019-12",
+      "reportName": "consensys-diligence-dandelion-audit-2019-12",
+      "title": "Delay.execute can re-enter and re-execute the same script twice",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:39.124Z",
+      "summary": "Delay.execute can re-enter and re-execute the same script twice affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: Vault | Versions: d | Assets: Vault | Endpoints: which, are, s | Services: Vault | Domains: TokenRequest.createTokenRequest",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:48.602Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3 Key Observations/Recommendations",
+        "severity": "Medium",
+        "asset": "Vault",
+        "status": "In Review",
+        "summary": "3 Key Observations/Recommendations affecting Vault; extractor found product Vault, version d.",
+        "impact": "Potential impact includes increased attacker opportunity against Vault if this signal is not reviewed.",
+        "evidence": "Products: Vault | Versions: d | Assets: Vault | Endpoints: which, are, s | Services: Vault | Domains: TokenRequest.createTokenRequest",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest.",
+        "references": [
+          "TokenRequest.createTokenRequest"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "3 key observations/recommendations",
+        "normalizedAsset": "vault",
+        "canonicalKey": "5.5|delay execute can re enter and re execute the same script twice|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "Delay.execute can re-enter and re-execute the same script twice",
+        "sourceText": "5.5 Delay.execute can re-enter and re-execute the same script twice Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Delay.execute can re-enter and re-execute the same script twice",
+      "canonicalKey": "5.5|delay execute can re enter and re execute the same script twice|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-dandelion-audit-2019-12-GIDX-006",
+      "slug": "3-key-observations-recommendations-vault",
+      "reportId": "G-consensys-diligence-dandelion-audit-2019-12",
+      "reportName": "consensys-diligence-dandelion-audit-2019-12",
+      "title": "Delay.cancelExecution should revert on a non-existent script id",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:39.124Z",
+      "summary": "Delay.cancelExecution should revert on a non-existent script id affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: Vault | Versions: d | Assets: Vault | Endpoints: which, are, s | Services: Vault | Domains: TokenRequest.createTokenRequest",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:48.602Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3 Key Observations/Recommendations",
+        "severity": "Medium",
+        "asset": "Vault",
+        "status": "In Review",
+        "summary": "3 Key Observations/Recommendations affecting Vault; extractor found product Vault, version d.",
+        "impact": "Potential impact includes increased attacker opportunity against Vault if this signal is not reviewed.",
+        "evidence": "Products: Vault | Versions: d | Assets: Vault | Endpoints: which, are, s | Services: Vault | Domains: TokenRequest.createTokenRequest",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest.",
+        "references": [
+          "TokenRequest.createTokenRequest"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "3 key observations/recommendations",
+        "normalizedAsset": "vault",
+        "canonicalKey": "5.6|delay cancelexecution should revert on a non existent script id|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "Delay.cancelExecution should revert on a non-existent script id",
+        "sourceText": "5.6 Delay.cancelExecution should revert on a non-existent script id Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Delay.cancelExecution should revert on a non-existent script id",
+      "canonicalKey": "5.6|delay cancelexecution should revert on a non existent script id|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-dandelion-audit-2019-12-GIDX-007",
+      "slug": "3-key-observations-recommendations-vault",
+      "reportId": "G-consensys-diligence-dandelion-audit-2019-12",
+      "reportName": "consensys-diligence-dandelion-audit-2019-12",
+      "title": "ID validation check missing for installDandelionApps",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:39.124Z",
+      "summary": "ID validation check missing for installDandelionApps affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: Vault | Versions: d | Assets: Vault | Endpoints: which, are, s | Services: Vault | Domains: TokenRequest.createTokenRequest",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:48.602Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "3 Key Observations/Recommendations",
+        "severity": "Medium",
+        "asset": "Vault",
+        "status": "In Review",
+        "summary": "3 Key Observations/Recommendations affecting Vault; extractor found product Vault, version d.",
+        "impact": "Potential impact includes increased attacker opportunity against Vault if this signal is not reviewed.",
+        "evidence": "Products: Vault | Versions: d | Assets: Vault | Endpoints: which, are, s | Services: Vault | Domains: TokenRequest.createTokenRequest",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest.",
+        "references": [
+          "TokenRequest.createTokenRequest"
+        ]
+      },
+      "normalization": {
+        "normalizedTitle": "3 key observations/recommendations",
+        "normalizedAsset": "vault",
+        "canonicalKey": "5.7|id validation check missing for installdandelionapps|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "ID validation check missing for installDandelionApps",
+        "sourceText": "5.7 ID validation check missing for installDandelionApps Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "ID validation check missing for installDandelionApps",
+      "canonicalKey": "5.7|id validation check missing for installdandelionapps|investigation scope||||||"
+    }
+  ],
+  "eval": {
+    "enableNlp": true,
+    "expectedCount": 7,
+    "actualCount": 7,
+    "expectedSeverityCounts": {
+      "Critical": 1,
+      "High": 0,
+      "Medium": 3,
+      "Low": 3
+    },
+    "actualSeverityCounts": {
+      "Critical": 1,
+      "High": 0,
+      "Medium": 3,
+      "Low": 3
+    },
+    "duplicates": 0,
+    "negativeHits": 0,
+    "pass": true
+  }
+}

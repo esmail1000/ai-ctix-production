@@ -1,0 +1,42 @@
+{
+  "id": "cure53-analysis-report-ijop-011406e1",
+  "status": "needs_attention",
+  "source": {
+    "sourcePath": "Cure53/analysis-report_ijop.pdf",
+    "absolutePath": "C:\\Users\\Esmail Azoz\\Downloads\\public-pentesting-reports-master\\public-pentesting-reports-master\\Cure53\\analysis-report_ijop.pdf",
+    "fileName": "analysis-report_ijop.pdf",
+    "vendorGuess": "Cure53",
+    "sizeMb": 1.31,
+    "extractionMethod": "pdf-parse",
+    "textPath": "data/golden-reports/review-queue-text/cure53-analysis-report-ijop-011406e1.txt"
+  },
+  "modelRun": {
+    "enableNlp": true,
+    "actualFindings": 0,
+    "severityCounts": {
+      "Critical": 0,
+      "High": 0,
+      "Medium": 0,
+      "Low": 0
+    },
+    "warnings": [
+      "Structured parser found no blocks; heuristic fallback was used.",
+      "NLP hybrid extraction produced 1 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+      "Generic official index suppression applied: Cure53 analysis/classification report without severity-rated vulnerability findings."
+    ]
+  },
+  "reviewChecklist": {
+    "expectedCount": null,
+    "expectedSeverityCounts": {
+      "Critical": null,
+      "High": null,
+      "Medium": null,
+      "Low": null
+    },
+    "reviewerNotes": [],
+    "promoteToGolden": false,
+    "promoteToTraining": false,
+    "rejectedReason": null
+  },
+  "findings": []
+}

@@ -1,0 +1,18 @@
+{
+  "id": "consensys-diligence-rexmls-audit-report",
+  "expectedCount": 7,
+  "expectedSeverityCounts": {
+    "Critical": 0,
+    "High": 0,
+    "Medium": 1,
+    "Low": 6
+  },
+  "notes": [
+    "Promoted from verified Stage 5 V5 review queue.",
+    "Source review id: consensys-diligence-consensys-diligence-audit-report-b47fb6b3",
+    "Requires ENABLE_GENERIC_INDEX_ALIGNMENT=true for generic official index / table recovery gates.",
+    "Major is normalized to High. Minor, Info, Informational, and Note are normalized to Low.",
+    "Promoted from Stage 5 V5 after manual review.",
+    "Only severity-rated audit findings are counted; non-severity optimization notes are excluded."
+  ]
+}

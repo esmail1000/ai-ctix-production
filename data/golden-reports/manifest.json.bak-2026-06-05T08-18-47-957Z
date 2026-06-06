@@ -1,0 +1,112 @@
+{
+  "reports": [
+    {
+      "id": "hlm-01-cure53",
+      "vendor": "Cure53",
+      "family": "cure53",
+      "sourceRootEnv": "GOLDEN_REPORT_SOURCE_DIR",
+      "sourcePath": "HLM-01-report.pdf",
+      "textPath": "data/golden-reports/extracted-text/hlm-01-cure53.txt",
+      "expectedPath": "data/golden-reports/expected/hlm-01-cure53.json"
+    },
+    {
+      "id": "cure53-1pw17",
+      "vendor": "Cure53",
+      "family": "cure53",
+      "sourceRootEnv": "GOLDEN_REPORT_SOURCE_DIR",
+      "sourcePath": "Cure53-1PW17-report.pdf",
+      "textPath": "data/golden-reports/extracted-text/cure53-1pw17.txt",
+      "expectedPath": "data/golden-reports/expected/cure53-1pw17.json"
+    },
+    {
+      "id": "cure53-1pw18",
+      "vendor": "Cure53",
+      "family": "cure53",
+      "sourceRootEnv": "GOLDEN_REPORT_SOURCE_DIR",
+      "sourcePath": "Cure53-1PW18-report.pdf",
+      "textPath": "data/golden-reports/extracted-text/cure53-1pw18.txt",
+      "expectedPath": "data/golden-reports/expected/cure53-1pw18.json"
+    },
+    {
+      "id": "ncc-zcash-nu5",
+      "vendor": "NCC Group",
+      "family": "nccgroup",
+      "sourceRootEnv": "GOLDEN_REPORT_SOURCE_DIR",
+      "sourcePath": "NCC_Group_Zcash_NU5_PublicReportFinal.pdf",
+      "textPath": "data/golden-reports/extracted-text/ncc-zcash-nu5.txt",
+      "expectedPath": "data/golden-reports/expected/ncc-zcash-nu5.json"
+    },
+    {
+      "id": "amneziavpn",
+      "vendor": "AmneziaVPN",
+      "family": "amneziavpn",
+      "sourceRootEnv": "GOLDEN_REPORT_SOURCE_DIR",
+      "sourcePath": "pentest-report-amneziavpn.pdf",
+      "textPath": "data/golden-reports/extracted-text/amneziavpn.txt",
+      "expectedPath": "data/golden-reports/expected/amneziavpn.json"
+    },
+    {
+      "id": "redsiege-sample",
+      "vendor": "Red Siege",
+      "family": "redsiege",
+      "sourceRootEnv": "GOLDEN_REPORT_SOURCE_DIR",
+      "sourcePath": "RedSiege-SampleReport.pdf",
+      "textPath": "data/golden-reports/extracted-text/redsiege-sample.txt",
+      "expectedPath": "data/golden-reports/expected/redsiege-sample.json"
+    },
+    {
+      "id": "doyensec-teleport-q42020",
+      "vendor": "Doyensec",
+      "family": "doyensec",
+      "sourceRootEnv": "GOLDEN_REPORT_SOURCE_DIR",
+      "sourcePath": "Doyensec_Gravitational_Teleport_Testing_Q42020.pdf",
+      "textPath": "data/golden-reports/extracted-text/doyensec-teleport-q42020.txt",
+      "expectedPath": "data/golden-reports/expected/doyensec-teleport-q42020.json"
+    },
+    {
+      "id": "7asecurity-psiphon-e",
+      "vendor": "7ASecurity",
+      "family": "7asecurity",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "7ASecurity/pentest-report_psiphon-e.pdf",
+      "textPath": "data/golden-reports/extracted-text/7asecurity-psiphon-e.txt",
+      "expectedPath": "data/golden-reports/expected/7asecurity-psiphon-e.json"
+    },
+    {
+      "id": "7asecurity-wepn",
+      "vendor": "7ASecurity",
+      "family": "7asecurity",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "7ASecurity/pentest-report_wepn.pdf",
+      "textPath": "data/golden-reports/extracted-text/7asecurity-wepn.txt",
+      "expectedPath": "data/golden-reports/expected/7asecurity-wepn.json"
+    },
+    {
+      "id": "7asecurity-amneziavpn",
+      "vendor": "7ASecurity",
+      "family": "7asecurity",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "7ASecurity/pentest-report-amneziavpn.pdf",
+      "textPath": "data/golden-reports/extracted-text/7asecurity-amneziavpn.txt",
+      "expectedPath": "data/golden-reports/expected/7asecurity-amneziavpn.json"
+    },
+    {
+      "id": "7asecurity-leavehomesafe",
+      "vendor": "7ASecurity",
+      "family": "7asecurity",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "7ASecurity/pentest-report-leavehomesafe.pdf",
+      "textPath": "data/golden-reports/extracted-text/7asecurity-leavehomesafe.txt",
+      "expectedPath": "data/golden-reports/expected/7asecurity-leavehomesafe.json"
+    },
+    {
+      "id": "7asecurity-minivpn",
+      "vendor": "7ASecurity",
+      "family": "7asecurity",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "7ASecurity/pentest-report-minivpn.pdf",
+      "textPath": "data/golden-reports/extracted-text/7asecurity-minivpn.txt",
+      "expectedPath": "data/golden-reports/expected/7asecurity-minivpn.json"
+    }
+  ]
+}

@@ -1,0 +1,556 @@
+{
+  "manifest": {
+    "id": "consensys-diligence-simplemultisigwallet-audit",
+    "vendor": "Consensys",
+    "family": "consensys-diligence",
+    "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+    "sourcePath": "Consensys/Diligence/SimpleMultisigWallet_Audit.pdf",
+    "textPath": "data/golden-reports/extracted-text/consensys-diligence-simplemultisigwallet-audit.txt",
+    "expectedPath": "data/golden-reports/expected/consensys-diligence-simplemultisigwallet-audit.json"
+  },
+  "expected": {
+    "id": "consensys-diligence-simplemultisigwallet-audit",
+    "expectedCount": 8,
+    "expectedSeverityCounts": {
+      "Critical": 0,
+      "High": 0,
+      "Medium": 4,
+      "Low": 4
+    },
+    "notes": [
+      "Promoted from verified Stage 5 V5 review queue.",
+      "Source review id: consensys-diligence-simplemultisigwallet-audit-1d73d666",
+      "Requires ENABLE_GENERIC_INDEX_ALIGNMENT=true for generic official index / table recovery gates.",
+      "Major is normalized to High. Minor, Info, Informational, and Note are normalized to Low."
+    ]
+  },
+  "report": {
+    "id": "G-consensys-diligence-simplemultisigwallet-audit",
+    "slug": "consensys-diligence-simplemultisigwallet-audit",
+    "name": "consensys-diligence-simplemultisigwallet-audit",
+    "type": "PDF",
+    "uploadedAt": "2026-06-05T23:33:15.444Z",
+    "owner": "AI CTIX Analyzer",
+    "status": "Ready",
+    "findings": 8,
+    "critical": 0,
+    "high": 0,
+    "medium": 4,
+    "low": 4,
+    "summary": "4 ‑ Critical Appendix 3 ‑ Disclosure 1 Summary ConsenSys Diligence conducted a security audit for the SimpleMultiSig contract. The contract will at first be used to store and transfer ether. It may be used to store and transfer tokens or other assets in the future.",
+    "parsingStatus": "parsed",
+    "analysisVersion": 1,
+    "parserVersion": 1,
+    "parsingNotes": [
+      "Structured parser found no blocks; heuristic fallback was used.",
+      "NLP hybrid extraction produced 1 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+      "Aligned findings with generic official index: 1 -> 8."
+    ],
+    "content": "Simple MultiSig Wallet Audit\n1 Summary\n1.1 Key Observations/Recommendations\n1.2 Audit Dashboard\n1.3 Audit Goals\n1.4 System Overview\n2 Issue Overview\n3 Issue Detail\n3.1 Signed data should include the sender\n3.2 Signed data should include the gas limit\n3.3 Failed transactions should not be replayable\n3.4 A reasonable threshold should be required\n3.5 Consider whitelisting function calls to standard ERC20/ERC223 functions\n3.6 Use the latest Solidity compiler\n3.7 Passing multiple arguments to keccak256 is deprecated\n3.8 The execute function can be external rather than public\n4 Threat Model\n4.1 Overview\n4.2 Threat Analysis\n5 Tool based analysis\n5.1 Mythril\n5.2 Solhint\n5.3 Surya\n6 Test Coverage Measurement\nAppendix 1 ‑ File Hashes\nAppendix 2 ‑ Severity\nA.2.1 ‑ Minor\nA.2.2 ‑ Medium\nA.2.3 ‑ Major\nA.2.4 ‑ Critical\nAppendix 3 ‑ Disclosure\n1 Summary\nConsenSys Diligence conducted a security audit for the SimpleMultiSig contract. The contract will at first be used to store and\ntransfer ether. It may be used to store and transfer tokens or other assets in the future.\nNumber of issues per severity\n1 0 0 0\n3 4 0 0\n1.1 Key Observations/Recommendations\n\n-- 1 of 9 --\n\nSimple contract design: The contract design is excellent. The simplicity of the contract means there's a very small attack\nsurface.\nClear code: The code is well written and commented.\nThe signatures used with this wallet lock down key parameters of a transaction, such as the recipient and payload, but they leave the\nfollowing parameters unconstrained:\nthe initiator of the transaction\nthe gas limit supplied\nthe timing of the transaction\nThese free parameters are the primary surface area for an attacker. The recommended changes detailed in section 3 mostly relate to\nreducing the attack surface area by constraining these remaining parameters. In some cases, reducing the surface area also\nreduces functionality. For a wallet that will control assets of considerable value, we believe that tradeoff is worthwhile.\n1.2 Audit Dashboard\nAudit Details\nProject Name: Simple MultiSig Wallet\nAuditors: Steve Marx, Dean Pierce\nInternal Reviewer: J. Maurelian\nLanguages: Solidity\nDate: 2018‑09‑11 to 2018‑09‑24\n1.3 Audit Goals\nThe focus of the audit was to verify that the smart contract system is secure, resilient and working according to its specifications. The\naudit activities can be grouped in the following three categories:\nSecurity: Identifying security related issues within each contract and within the system of contracts.\nSound Architecture: Evaluation of the architecture of this system through the lens of established smart contract best practices and\ngeneral software best practices.\nCode Correctness and Quality: A full review of the contract source code. The primary areas of focus include:\nCorrectness\nReadability\nSections of code with high complexity\nImproving scalability\nQuantity and quality of test coverage\n1.4 System Overview\nScope\nThe scope of this audit was the single file SimpleMultiSig-v1.0.4 .\nDesign\nThe SimpleMultiSig contract is an m‑of‑n multisig wallet that uses minimal usable state. Signatures are gathered offline and\nsubmitted together to execute a transaction.\n2 Issue Overview\n\n-- 2 of 9 --\n\nThe following table contains all the issues discovered during the audit. The issues are ordered based on their severity. More detailed\ndescription on the levels of severity can be found in Appendix 2. The table also contains the GitHub status of any discovered issue.\nChapter Issue Title Issue Status Severity\n3.1 Signed data should include the sender\n3.2 Signed data should include the gas limit\n3.3 Failed transactions should not be replayable\n3.4 A reasonable threshold should be required\n3.5 Consider whitelisting function calls to standard ERC20/ERC223 functions\n3.6 Use the latest Solidity compiler\n3.7 Passing multiple arguments to keccak256 is deprecated\n3.8 The execute function can be external rather than public\n3 Issue Detail\n3.1 Signed data should include the sender\nSeverity Status Link Remediation Comment\nissues/32 This was fixed in https://github.com/christianlundkvist/simple‑\nmultisig/commit/179a6834e80a39f5f709a6a92107bec2673aa89e.\nDescription\nexecute() can be called by anyone in possession of threshold valid signatures. This opens up a front‑running opportunity where an\nattacker observes a desired call to execute() and sends their own transaction with the same signatures. This changes the tx.origin\nfor the transaction, which may affect the result.\nFurthermore, locking down the sender to a trusted (by the owners) party could mitigate cross‑chain replay attacks by not allowing an\nattacker to submit the transaction on the other chain.\nExample\nBelow is a contrived example of a target contract that an attacker could manipulate by front‑running with their own transaction:\nfunction() public payable {\n// Behavior differs according to tx.origin.\nif (tx.origin == owner) {\n// Bad attempt at a refund?\ntx.origin.transfer(msg.value);\n} else {\n// Track how much ether has been deposited\nbalance += msg.value;\n}\n}\nRemediation\nAdd msg.sender to the signed data.\n\n-- 3 of 9 --\n\n3.2 Signed data should include the gas limit\nSeverity Status Link Remediation Comment\nissues/31\nThis is considered mitigated by adding the executor to the signature in\nhttps://github.com/christianlundkvist/simple‑\nmultisig/commit/179a6834e80a39f5f709a6a92107bec2673aa89e. The gas limit was also\nincluded, but there is no check for sufficient gas, so this only prevents issues involving\nproviding too much gas.\nDescription\nexecute() can be called by anyone in possession of threshold valid signatures. The signatures do not specify how much gas will be\nforwarded to the destination address. This allows an attacker, by front‑running a legitimate call, to make the same call with a different\namount of gas.\nIf the executed call succeeds but behaves differently based on the amount of gas provided, an attacker could use this technique to\naffect the outcome.\nExample\nBelow is a contrived example of a target contract that fails to transfer funds if insufficient gas is provided. An attacker maliciously\nlowering the provided gas could result in locked ether or simply a denial of service attack against the wallet owners.\nfunction withdraw(address destination) external {\nuint256 amount = balance;\nbalance = 0;\n// Silently fails with insufficient gas\ndestination.call.value(amount)();\n}\nRemediation\nAdd the gas limit as a parameter to execute() and include that parameter in the signature.\n3.3 Failed transactions should not be replayable\nSeverity Status Link Remediation Comment\nissues/30\nThe project team considers this unnecessary due to the addition of an executor in the\nsigned data in https://github.com/christianlundkvist/simple‑\nmultisig/commit/179a6834e80a39f5f709a6a92107bec2673aa89e.\nDescription\nIf a call to execute() with proper signatures fails because the resulting call does, the nonce is not incremented. Until the nonce is\nused for a different transaction, anyone can attempt that original transaction again. If the transaction has different behavior in the\nfuture (e.g. because the destination contract was destroyed or a crowdsale moved to a different phase), this may be an opportunity for\nan attacker to make mischief.\nExample\nBelow is a contrived example of a target contract that reveals this vulnerability. The initial call to reverts with attached ether will fail,\nbut if the contract is later selfdestruct ed, replaying that transaction would result in lost ether, as there would be no code to revert\nthe transaction.\nfunction reverts() external payable {\nrevert();\n\n-- 4 of 9 --\n\n}\nfunction kill() external {\nrequire(msg.sender == owner);\nselfdestruct(msg.sender);\n}\nRemediation\nWe suggest two changes to address this vulnerability:\n1. As suggested in other issues, specify the transaction sender in the signature. This means that only the sender can retry a failed\ntransaction. Depending on the trust model and security of the sender, this may be sufficient.\n2. Increment the nonce even when the call fails. (Remove require(success) .) Note that this should only be done if the sender\nand/or gas limit have been locked down. (If those changes are not made, then increasing the nonce on failed transactions makes it\neasier for an attacker to mount a denial of service attack by front‑running with insufficient gas and forcing the call to fail,\nconsuming the nonce.)\nIf suggestion 2 above is not taken, then we recommend both of the following additional remediations:\n1. Specify a maximum block number parameter and include that parameter in the signature. Reject any transactions if the maximum\nblock number has passed. This limits an attacker's window of opportunity to an arbitrarily small number of blocks.\n2. As an operational procedure, any time a transaction fails, submit a new \"no‑op\" transaction with the same nonce to replace the\nfailed one and prevent future replay attempts. (A good \"no‑op\" transaction would be a transfer of 0 ether to the wallet contract.)\n3.4 A reasonable threshold should be required\nSeverity Status Link Remediation Comment\nissues/26\nThis was fixed in https://github.com/christianlundkvist/simple‑\nmultisig/commit/1d8ad609e57a4326230a05250a3b72b7356c2ba7. The threshold is now\nrequired to be positive.\nCurrently, the code allows for a threshold of 0 , which is somewhat nonsensical and would allow anyone to call execute\nsuccessfully without any signatures.\nSimpleMultiSig‑v1.0.4.sol:L11\nrequire(owners_.length <= 10 && threshold_ <= owners_.length && threshold_ >= 0);\nA threshold greater than 0 should be required, and consideration should be given to requiring something stricter (like a majority:\nthreshold > owners_.length / 2 ).\n3.5 Consider whitelisting function calls to standard ERC20/ERC223 functions\nSeverity Status Link Remediation Comment\nissues/29 The issue is currently under review\nAs it exists now, the contract can make arbitrary calls to arbitrary contracts. To reduce the potential attack surface, it might be useful to\nwhitelist which functions can be called on remote contracts or even what contracts can be called, if at all possible. We recommend that\nthe whitelist be hardcoded and unchangeable once deployed. If requirements change, a new multisig contract can be deployed with\nupdated capabilities.\n3.6 Use the latest Solidity compiler\nSeverity Status Link Remediation Comment\n\n-- 5 of 9 --\n\nSeverity Status Link Remediation Comment\nissues/25 The compiler version was bumped to 0.4.24 in https://github.com/christianlundkvist/simple‑\nmultisig/commit/f63ef72e448ecef85dd61ad5a3727c7dba4e4377.\nThe codebase uses pragmas that are set to an older version of Solidity. Use the most recent version of Solidity (0.4.25 at the time of\nthis audit).\n3.7 Passing multiple arguments to keccak256 is deprecated\nSeverity Status Link Remediation Comment\nissues/24 The latest version of the code uses abi.encodePacked .\nSimpleMultiSig‑v1.0.4.sol:L29\nbytes32 txHash = keccak256(byte(0x19), byte(0), this, destination, value, data, nonce);\nshould be updated accordingly.\nSimpleMultiSig-v1.0.4.sol:30:22: Warning: This function only accepts a single \"bytes\" argument. Please use\n\"abi.encodePacked(...)\" or a similar function to encode the data.\nbytes32 txHash = keccak256(byte(0x19), byte(0), this, destination, value, data, nonce);\n^-------------------------------------------------------------------^\n3.8 The execute function can be external rather than public\nSeverity Status Link Remediation Comment\nissues/23\nMarking the function external would leave the data in call data (rather than memory),\nrequiring other changes to the function. It was decided that leaving this function public is\nsimpler.\nBecause it is never called internally, this function can be made external . This likely has no security implications but will save gas.\n4 Threat Model\nThe creation of a threat model is beneficial when building smart contract systems as it helps to understand the potential security\nthreats, assess risk, and identify appropriate mitigation strategies.\nA threat model was created during the audit process in order to analyze the attack surface of the contract system and to focus review\nand testing efforts on key areas that a malicious actor would likely also attack.\n4.1 Overview\nThe multisig wallet is intended to have two important properties:\n1. It allows authorized access.\n2. It disallows unauthorized access.\nIt's a common mistake to only focus on the second property, but the first property is also critical. The owners of the wallet lose just as\nmuch from having their access blocked as they lose from an attacker transferring the assets away. An attacker can mount a denial of\nservice attack simply to make mischief or as a way to extort the owners.\n4.2 Threat Analysis\n\n-- 6 of 9 --\n\nThreat Consequence Mitigation\nOwners'\nprivate keys\nare lost.\nIf no more than threshold private keys are\navailable, the wallet owners can no longer\naccess the controlled funds.\nUsing a sufficiently large number of owner accounts means that\nmany keys would have to be lost before losing access to the wallet.\nAn attacker\nexecutes an\nunauthorized\ntransaction.\nAll assets could be transferred to an\nattacker's account.\nOnly transactions signed by threshold keys can be executed. The\nsignature specifies the destination, value, and data for the\ntransaction, so these cannot be tampered with. Suggestions made\nin section 3 mitigate other changes that an attacker may make\nwithout changing the signature.\nAn attacker\nreplays an\nexecuted\ntransaction.\nAt a minimum, more assets could be\ntransferred away than intended (e.g.\npaying multiple times for the same\nservice). Given that the contract can make\narbitrary calls, the risks of replay attacks\ncannot be fully enumerated.\nReplay attacks are mitigated by the use of a nonce and EIP191\nsignatures, which include the contract address as part of the\nsignature. Replaying a failed transaction can be mitigated by\nreplacing the failed transaction with a no‑op (like a transfer of 0\nether) to consume the nonce. Suggestions in section 3 further\nreduce the risk of replay attacks.\n5 Tool based analysis\nThe issues from the tool based analysis have been reviewed and the relevant issues have been listed in chapter 3 ‑ Issues.\n5.1 Mythril\nMythril is a security analysis tool for Ethereum smart contracts. It uses concolic analysis to detect various types\nof issues. The tool was used for automated vulnerability discovery for all audited contracts and libraries. More\ndetails on Mythril's current vulnerability coverage can be found here.\nThe raw output of the Mythril vulnerability scan has been reviewed, and none of the findings have been deemed\na legitimate threat.\n5.2 Solhint\nThis is an open source project for linting Solidity code. The project provides both Security and Style Guide\nvalidations. The issues of Solhint were analyzed for security relevant issues only. It is still recommended to use\nSolhint during development to improve code quality while writing smart contracts.\n5.3 Surya\nSurya is an utility tool for smart contract systems. It provides a number of visual outputs and information about structure of smart\ncontracts. It also supports querying the function call graph in multiple ways to aid in the manual inspection and control flow analysis of\ncontracts.\n6 Test Coverage Measurement\nThe Solidity‑Coverage tool was used to measure the portion of the code base exercised by the test suite and identify areas with little or\nno coverage.\nThe existing tests at the time of this audit achieve 100% test coverage.\nIt's important to note that \"100% test coverage\" is not a silver bullet. The issues outlined in section 3 exist despite 100% coverage and\npassing tests.\nAppendix 1 ‑ File Hashes\nThe SHA1 hashes of the source code files in scope of the audit are listed in the table below.\n\n-- 7 of 9 --\n\nFile Name SHA‑1 Hash File Name SHA‑1 Hash\nSimpleMultiSig‑v1.0.4.sol bd300504603a75bb4c5f4e0fba283c11e555dad0\nAppendix 2 ‑ Severity\nA.2.1 ‑ Minor\nMinor issues are generally subjective in nature, or potentially deal with topics like \"best practices\" or \"readability\". Minor issues in\ngeneral will not indicate an actual problem or bug in code.\nThe maintainers should use their own judgment as to whether addressing these issues improves the codebase.\nA.2.2 ‑ Medium\nMedium issues are generally objective in nature but do not represent actual bugs or security problems.\nThese issues should be addressed unless there is a clear reason not to.\nA.2.3 ‑ Major\nMajor issues will be things like bugs or security vulnerabilities. These issues may not be directly exploitable, or may require a certain\ncondition to arise in order to be exploited.\nLeft unaddressed these issues are highly likely to cause problems with the operation of the contract or lead to a situation which allows\nthe system to be exploited in some way.\nA.2.4 ‑ Critical\nCritical issues are directly exploitable bugs or security vulnerabilities.\nLeft unaddressed these issues are highly likely or guaranteed to cause major problems or potentially a full failure in the operations of\nthe contract.\nAppendix 3 ‑ Disclosure\nConsenSys Diligence (“CD”) typically receives compensation from one or more clients (the “Clients”) for performing the analysis\ncontained in these reports (the “Reports”). The Reports may be distributed through other means, including via ConsenSys publications\nand other distributions.\nThe Reports are not an endorsement or indictment of any particular project or team, and the Reports do not guarantee the security of\nany particular project. This Report does not consider, and should not be interpreted as considering or having any bearing on, the\npotential economics of a token, token sale or any other product, service or other asset. Cryptographic tokens are emergent\ntechnologies and carry with them high levels of technical risk and uncertainty. No Report provides any warranty or representation to\nany Third‑Party in any respect, including regarding the bugfree nature of code, the business model or proprietors of any such business\nmodel, and the legal compliance of any such business. No third party should rely on the Reports in any way, including for the purpose\nof making any decisions to buy or sell any token, product, service or other asset. Specifically, for the avoidance of doubt, this Report\ndoes not constitute investment advice, is not intended to be relied upon as investment advice, is not an endorsement of this project or\nteam, and it is not a guarantee as to the absolute security of the project. CD owes no duty to any Third‑Party by virtue of publishing\nthese Reports.\nPURPOSE OF REPORTS The Reports and the analysis described therein are created solely for Clients and published with their consent.\nThe scope of our review is limited to a review of Solidity code and only the Solidity code we note as being within the scope of our\nreview within this report. The Solidity language itself remains under development and is subject to unknown risks and flaws. The review\ndoes not extend to the compiler layer, or any other areas beyond Solidity that could present security risks. Cryptographic tokens are\nemergent technologies and carry with them high levels of technical risk and uncertainty.\n\n-- 8 of 9 --\n\nCD makes the Reports available to parties other than the Clients (i.e., “third parties”) ‑‑ on its GitHub account\n(https://github.com/ConsenSys). CD hopes that by making these analyses publicly available, it can help the blockchain ecosystem\ndevelop technical best practices in this rapidly evolving area of innovation.\nLINKS TO OTHER WEB SITES FROM THIS WEB SITE You may, through hypertext or other computer links, gain access to web sites\noperated by persons other than ConsenSys and CD. Such hyperlinks are provided for your reference and convenience only, and are the\nexclusive responsibility of such web sites' owners. You agree that ConsenSys and CD are not responsible for the content or operation\nof such Web sites, and that ConsenSys and CD shall have no liability to you or any other person or entity for the use of third party Web\nsites. Except as described below, a hyperlink from this web Site to another web site does not imply or mean that ConsenSys and CD\nendorses the content on that Web site or the operator or operations of that site. You are solely responsible for determining the extent\nto which you may use any content at any other web sites to which you link from the Reports. ConsenSys and CD assumes no\nresponsibility for the use of third party software on the Web Site and shall have no liability whatsoever to any person or entity for the\naccuracy or completeness of any outcome generated by such software.\nTIMELINESS OF CONTENT The content contained in the Reports is current as of the date appearing on the Report and is subject to\nchange without notice. Unless indicated otherwise, by ConsenSys and CD.\n\n-- 9 of 9 --",
+    "sourceFileName": "SimpleMultisigWallet_Audit.pdf",
+    "createdAtIso": "2026-06-05T23:33:23.705Z",
+    "updatedAtIso": "2026-06-05T23:33:23.705Z"
+  },
+  "findings": [
+    {
+      "id": "F-G-consensys-diligence-simplemultisigwallet-audit-GIDX-001",
+      "slug": "mitigation-a-sufficiently-large-number-of-owner-accounts-means-that",
+      "reportId": "G-consensys-diligence-simplemultisigwallet-audit",
+      "reportName": "consensys-diligence-simplemultisigwallet-audit",
+      "title": "Signed data should include the sender",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:15.444Z",
+      "summary": "Signed data should include the sender affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: a sufficiently large number of owner accounts means that | Assets: a sufficiently large number of owner accounts means that | Endpoints: s",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:23.703Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "Mitigation",
+        "severity": "Medium",
+        "asset": "a sufficiently large number of owner accounts means that",
+        "status": "In Review",
+        "summary": "Mitigation affecting a sufficiently large number of owner accounts means that; extractor found product a sufficiently large number of owner accounts means that.",
+        "impact": "Potential impact includes increased attacker opportunity against a sufficiently large number of owner accounts means that if this signal is not reviewed.",
+        "evidence": "Products: a sufficiently large number of owner accounts means that | Assets: a sufficiently large number of owner accounts means that | Endpoints: s",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "mitigation",
+        "normalizedAsset": "a sufficiently large number of owner accounts means that",
+        "canonicalKey": "3.1|signed data should include the sender|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "Signed data should include the sender",
+        "sourceText": "3.1 Signed data should include the sender Medium",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Signed data should include the sender",
+      "canonicalKey": "3.1|signed data should include the sender|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-simplemultisigwallet-audit-GIDX-002",
+      "slug": "mitigation-a-sufficiently-large-number-of-owner-accounts-means-that",
+      "reportId": "G-consensys-diligence-simplemultisigwallet-audit",
+      "reportName": "consensys-diligence-simplemultisigwallet-audit",
+      "title": "Signed data should include the gas limit",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:15.444Z",
+      "summary": "Signed data should include the gas limit affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: a sufficiently large number of owner accounts means that | Assets: a sufficiently large number of owner accounts means that | Endpoints: s",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:23.703Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "Mitigation",
+        "severity": "Medium",
+        "asset": "a sufficiently large number of owner accounts means that",
+        "status": "In Review",
+        "summary": "Mitigation affecting a sufficiently large number of owner accounts means that; extractor found product a sufficiently large number of owner accounts means that.",
+        "impact": "Potential impact includes increased attacker opportunity against a sufficiently large number of owner accounts means that if this signal is not reviewed.",
+        "evidence": "Products: a sufficiently large number of owner accounts means that | Assets: a sufficiently large number of owner accounts means that | Endpoints: s",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "mitigation",
+        "normalizedAsset": "a sufficiently large number of owner accounts means that",
+        "canonicalKey": "3.2|signed data should include the gas limit|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "Signed data should include the gas limit",
+        "sourceText": "3.2 Signed data should include the gas limit Medium",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Signed data should include the gas limit",
+      "canonicalKey": "3.2|signed data should include the gas limit|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-simplemultisigwallet-audit-GIDX-003",
+      "slug": "mitigation-a-sufficiently-large-number-of-owner-accounts-means-that",
+      "reportId": "G-consensys-diligence-simplemultisigwallet-audit",
+      "reportName": "consensys-diligence-simplemultisigwallet-audit",
+      "title": "Failed transactions should not be replayable",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:15.444Z",
+      "summary": "Failed transactions should not be replayable affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: a sufficiently large number of owner accounts means that | Assets: a sufficiently large number of owner accounts means that | Endpoints: s",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:23.703Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "Mitigation",
+        "severity": "Medium",
+        "asset": "a sufficiently large number of owner accounts means that",
+        "status": "In Review",
+        "summary": "Mitigation affecting a sufficiently large number of owner accounts means that; extractor found product a sufficiently large number of owner accounts means that.",
+        "impact": "Potential impact includes increased attacker opportunity against a sufficiently large number of owner accounts means that if this signal is not reviewed.",
+        "evidence": "Products: a sufficiently large number of owner accounts means that | Assets: a sufficiently large number of owner accounts means that | Endpoints: s",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "mitigation",
+        "normalizedAsset": "a sufficiently large number of owner accounts means that",
+        "canonicalKey": "3.3|failed transactions should not be replayable|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "Failed transactions should not be replayable",
+        "sourceText": "3.3 Failed transactions should not be replayable Medium",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Failed transactions should not be replayable",
+      "canonicalKey": "3.3|failed transactions should not be replayable|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-simplemultisigwallet-audit-GIDX-004",
+      "slug": "mitigation-a-sufficiently-large-number-of-owner-accounts-means-that",
+      "reportId": "G-consensys-diligence-simplemultisigwallet-audit",
+      "reportName": "consensys-diligence-simplemultisigwallet-audit",
+      "title": "A reasonable threshold should be required",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:15.444Z",
+      "summary": "A reasonable threshold should be required affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: a sufficiently large number of owner accounts means that | Assets: a sufficiently large number of owner accounts means that | Endpoints: s",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:23.703Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "Mitigation",
+        "severity": "Medium",
+        "asset": "a sufficiently large number of owner accounts means that",
+        "status": "In Review",
+        "summary": "Mitigation affecting a sufficiently large number of owner accounts means that; extractor found product a sufficiently large number of owner accounts means that.",
+        "impact": "Potential impact includes increased attacker opportunity against a sufficiently large number of owner accounts means that if this signal is not reviewed.",
+        "evidence": "Products: a sufficiently large number of owner accounts means that | Assets: a sufficiently large number of owner accounts means that | Endpoints: s",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "mitigation",
+        "normalizedAsset": "a sufficiently large number of owner accounts means that",
+        "canonicalKey": "3.4|a reasonable threshold should be required|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "A reasonable threshold should be required",
+        "sourceText": "3.4 A reasonable threshold should be required Medium",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "A reasonable threshold should be required",
+      "canonicalKey": "3.4|a reasonable threshold should be required|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-simplemultisigwallet-audit-GIDX-005",
+      "slug": "mitigation-a-sufficiently-large-number-of-owner-accounts-means-that",
+      "reportId": "G-consensys-diligence-simplemultisigwallet-audit",
+      "reportName": "consensys-diligence-simplemultisigwallet-audit",
+      "title": "Consider whitelisting function calls to standard ERC20/ERC223 functions",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:15.444Z",
+      "summary": "Consider whitelisting function calls to standard ERC20/ERC223 functions affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: a sufficiently large number of owner accounts means that | Assets: a sufficiently large number of owner accounts means that | Endpoints: s",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:23.703Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "Mitigation",
+        "severity": "Medium",
+        "asset": "a sufficiently large number of owner accounts means that",
+        "status": "In Review",
+        "summary": "Mitigation affecting a sufficiently large number of owner accounts means that; extractor found product a sufficiently large number of owner accounts means that.",
+        "impact": "Potential impact includes increased attacker opportunity against a sufficiently large number of owner accounts means that if this signal is not reviewed.",
+        "evidence": "Products: a sufficiently large number of owner accounts means that | Assets: a sufficiently large number of owner accounts means that | Endpoints: s",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "mitigation",
+        "normalizedAsset": "a sufficiently large number of owner accounts means that",
+        "canonicalKey": "3.5|consider whitelisting function calls to standard erc20 erc223 functions|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "Consider whitelisting function calls to standard ERC20/ERC223 functions",
+        "sourceText": "3.5 Consider whitelisting function calls to standard ERC20/ERC223 functions Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Consider whitelisting function calls to standard ERC20/ERC223 functions",
+      "canonicalKey": "3.5|consider whitelisting function calls to standard erc20 erc223 functions|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-simplemultisigwallet-audit-GIDX-006",
+      "slug": "mitigation-a-sufficiently-large-number-of-owner-accounts-means-that",
+      "reportId": "G-consensys-diligence-simplemultisigwallet-audit",
+      "reportName": "consensys-diligence-simplemultisigwallet-audit",
+      "title": "Use the latest Solidity compiler",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:15.444Z",
+      "summary": "Use the latest Solidity compiler affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: a sufficiently large number of owner accounts means that | Assets: a sufficiently large number of owner accounts means that | Endpoints: s",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:23.703Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "Mitigation",
+        "severity": "Medium",
+        "asset": "a sufficiently large number of owner accounts means that",
+        "status": "In Review",
+        "summary": "Mitigation affecting a sufficiently large number of owner accounts means that; extractor found product a sufficiently large number of owner accounts means that.",
+        "impact": "Potential impact includes increased attacker opportunity against a sufficiently large number of owner accounts means that if this signal is not reviewed.",
+        "evidence": "Products: a sufficiently large number of owner accounts means that | Assets: a sufficiently large number of owner accounts means that | Endpoints: s",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "mitigation",
+        "normalizedAsset": "a sufficiently large number of owner accounts means that",
+        "canonicalKey": "3.6|use the latest solidity compiler|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "Use the latest Solidity compiler",
+        "sourceText": "3.6 Use the latest Solidity compiler Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Use the latest Solidity compiler",
+      "canonicalKey": "3.6|use the latest solidity compiler|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-simplemultisigwallet-audit-GIDX-007",
+      "slug": "mitigation-a-sufficiently-large-number-of-owner-accounts-means-that",
+      "reportId": "G-consensys-diligence-simplemultisigwallet-audit",
+      "reportName": "consensys-diligence-simplemultisigwallet-audit",
+      "title": "Passing multiple arguments to keccak256 is deprecated",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:15.444Z",
+      "summary": "Passing multiple arguments to keccak256 is deprecated affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: a sufficiently large number of owner accounts means that | Assets: a sufficiently large number of owner accounts means that | Endpoints: s",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:23.703Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "Mitigation",
+        "severity": "Medium",
+        "asset": "a sufficiently large number of owner accounts means that",
+        "status": "In Review",
+        "summary": "Mitigation affecting a sufficiently large number of owner accounts means that; extractor found product a sufficiently large number of owner accounts means that.",
+        "impact": "Potential impact includes increased attacker opportunity against a sufficiently large number of owner accounts means that if this signal is not reviewed.",
+        "evidence": "Products: a sufficiently large number of owner accounts means that | Assets: a sufficiently large number of owner accounts means that | Endpoints: s",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "mitigation",
+        "normalizedAsset": "a sufficiently large number of owner accounts means that",
+        "canonicalKey": "3.7|passing multiple arguments to keccak256 is deprecated|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "Passing multiple arguments to keccak256 is deprecated",
+        "sourceText": "3.7 Passing multiple arguments to keccak256 is deprecated Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Passing multiple arguments to keccak256 is deprecated",
+      "canonicalKey": "3.7|passing multiple arguments to keccak256 is deprecated|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-simplemultisigwallet-audit-GIDX-008",
+      "slug": "mitigation-a-sufficiently-large-number-of-owner-accounts-means-that",
+      "reportId": "G-consensys-diligence-simplemultisigwallet-audit",
+      "reportName": "consensys-diligence-simplemultisigwallet-audit",
+      "title": "The execute function can be external rather than public",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:15.444Z",
+      "summary": "The execute function can be external rather than public affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Products: a sufficiently large number of owner accounts means that | Assets: a sufficiently large number of owner accounts means that | Endpoints: s",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:23.703Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "Mitigation",
+        "severity": "Medium",
+        "asset": "a sufficiently large number of owner accounts means that",
+        "status": "In Review",
+        "summary": "Mitigation affecting a sufficiently large number of owner accounts means that; extractor found product a sufficiently large number of owner accounts means that.",
+        "impact": "Potential impact includes increased attacker opportunity against a sufficiently large number of owner accounts means that if this signal is not reviewed.",
+        "evidence": "Products: a sufficiently large number of owner accounts means that | Assets: a sufficiently large number of owner accounts means that | Endpoints: s",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "mitigation",
+        "normalizedAsset": "a sufficiently large number of owner accounts means that",
+        "canonicalKey": "3.8|the execute function can be external rather than public|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 90,
+        "sourceSectionTitle": "The execute function can be external rather than public",
+        "sourceText": "3.8 The execute function can be external rather than public Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "reported",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "The execute function can be external rather than public",
+      "canonicalKey": "3.8|the execute function can be external rather than public|investigation scope||||||"
+    }
+  ],
+  "eval": {
+    "enableNlp": true,
+    "expectedCount": 8,
+    "actualCount": 8,
+    "expectedSeverityCounts": {
+      "Critical": 0,
+      "High": 0,
+      "Medium": 4,
+      "Low": 4
+    },
+    "actualSeverityCounts": {
+      "Critical": 0,
+      "High": 0,
+      "Medium": 4,
+      "Low": 4
+    },
+    "duplicates": 0,
+    "negativeHits": 0,
+    "pass": true
+  }
+}

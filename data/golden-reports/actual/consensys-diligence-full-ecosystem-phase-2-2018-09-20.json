@@ -1,0 +1,1700 @@
+{
+  "manifest": {
+    "id": "consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+    "vendor": "Consensys",
+    "family": "consensys",
+    "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+    "sourcePath": "Consensys/Diligence/2018-09-20 - Full Ecosystem [Phase 2] - Audit by ConsenSys final.pdf",
+    "textPath": "data/golden-reports/extracted-text/consensys-diligence-full-ecosystem-phase-2-2018-09-20.txt",
+    "expectedPath": "data/golden-reports/expected/consensys-diligence-full-ecosystem-phase-2-2018-09-20.json"
+  },
+  "expected": {
+    "id": "consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+    "expectedCount": 27,
+    "expectedSeverityCounts": {
+      "Critical": 0,
+      "High": 0,
+      "Medium": 4,
+      "Low": 23
+    },
+    "notes": [
+      "Promoted from verified Stage 4 V4 review queue.",
+      "Source review id: consensys-diligence-2018-09-20-full-ecosystem-phase-2-audit-by-consensys-final-6ec9fa13",
+      "Source path: Consensys/Diligence/2018-09-20 - Full Ecosystem [Phase 2] - Audit by ConsenSys final.pdf",
+      "Info / Informational / Note / Minor findings are normalized to Low by the current app model.",
+      "Major findings are normalized to High by the current app model.",
+      "Requires ENABLE_NLP=true and ENABLE_GENERIC_INDEX_ALIGNMENT=true.",
+      "7ASecurity reports also require ENABLE_7ASECURITY_INDEX_ALIGNMENT=true.",
+      "Do not promote the excluded research / expert-witness / manual-hold reports without separate manual review."
+    ]
+  },
+  "report": {
+    "id": "G-consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+    "slug": "consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+    "name": "consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+    "type": "PDF",
+    "uploadedAt": "2026-06-05T23:32:18.139Z",
+    "owner": "AI CTIX Analyzer",
+    "status": "Ready",
+    "findings": 27,
+    "critical": 0,
+    "high": 0,
+    "medium": 4,
+    "low": 23,
+    "summary": "3 Odyssey 5 Test Coverage Measurement Appendix 1 - File Hashes 4 - Critical Appendix 3 - Disclosure 1 Summary ConsenSys Diligence conducted a security audit on Brickblock's system of smart contracts for tokenizing real-world assets with a specific focus on real estate. The scope of the audit included Brickblock's upgra",
+    "parsingStatus": "parsed",
+    "analysisVersion": 1,
+    "parserVersion": 1,
+    "parsingNotes": [
+      "Structured parser found no blocks; heuristic fallback was used.",
+      "NLP hybrid extraction produced 3 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+      "Aligned findings with generic official index: 3 -> 27."
+    ],
+    "content": "Brickblock_[Phase_2]_Audit-final.md 9/20/2018\n1 / 22\nBrickblock [Phase 2] Audit\n1 Summary\n1.1 Audit Dashboard\n1.2 Audit Goals\n1.3 System Overview\n1.4 Key Observations/Recommendations\n2 Issue Overview\n3 Issue Detail\n3.1 Unnecessary complexity in toXLengthString functions in PoaCommon\n3.2 No plan for how a physical tokenized asset would handle a chain split\n3.3 Usage of random storage slots in the Proxy adds too much complexity\n3.4 Unnecessary usage of low-level .call() method\n3.5 Withdraw method does not check if balance is sufficient for the withdrawal\n3.6 Can lock and unlock 0 BBK in AccessToken\n3.7 Precision in percent function can overflow\n3.8 Transaction order dependence issue in ExchangeRates\n3.9 Non-optimal ordering of instructions in PoaProxy and PoaToken fallback functions\n3.10 ExchangeRateProvider's callback check for access control is non-optimal\n3.11 Inaccurate specification comment for setFailed() method in PoaCrowdsale\n3.12 Unnecessary fallback functions to refuse payments\n3.13 Comment about upgrade path is incorrect\n3.14 buyAndEndFunding ends by calling buyAndContinueFunding\n3.15 Unused variable has no dummy check in ExchangeRateProviderStub\n3.16 FeeManager open-by-default design might introduce flaws in the token economy\n3.17 Unnecessary refund action in PoaCrowdsale\n3.18 this should be explicitly typecast to address\n3.19 Blocking conditions in buyFiat\n3.20 Use of ever-growing unsigned integers in PoaToken is dangerous\n3.21 Use of ever-growing unsigned integers in AccessToken is dangerous\n3.22 Non-optimal stage checking condition in PoaToken\n3.23 Unnecessary static call to get POA Manager's address in POA proxy\n3.24 Unnecessary static call to fetch registry's address in POA Proxy\n3.25 Contradicting comment on POAManager\n3.26 Inconsistent type used for decimals\n3.27 Inconsistent event naming\n3.28 Incorrect name of parameter in BBKUnlockedEvent\n3.29 Usage of EntityState for both brokers and tokens in PoaManager is an anti-separation-\nof-concerns pattern\n4 Tool based analysis\n4.1 Mythril\n4.2 Sūrya\n4.3 Odyssey\n5 Test Coverage Measurement\nAppendix 1 - File Hashes\n\n-- 1 of 22 --\n\nBrickblock_[Phase_2]_Audit-final.md 9/20/2018\n2 / 22\nAppendix 2 - Severity\nA.2.1 - Minor\nA.2.2 - Medium\nA.2.3 - Major\nA.2.4 - Critical\nAppendix 3 - Disclosure\n1 Summary\nConsenSys Diligence conducted a security audit on Brickblock's system of smart\ncontracts for tokenizing real-world assets with a specific focus on real estate. The\nscope of the audit included Brickblock's upgradable system of smart contracts,\nencompassing three tokens, a pricing oracle, and other utilities, but with the\nunderstanding that one of the contracts, POAManager, was not frozen and would\nundergo further development. The objective of the audit was to discover issues\nthat could threaten the funds held in or behaviour of the Brickblock system,\nincluding its future upgradability.\nFinal Revision Summary\nThere were no critical or major issues with the contracts under review. All medium and minor issues have been\ndiligently addressed by Brickblock through either code changes or detailed explanations that can be found in\nsection 1.5 of this report.\n1.1 Audit Dashboard\nAudit Details\nProject Name: Brickblock Audit\nClient Name: Brickblock\nClient Contact: Philip Paetz, Cody Lamson\nAuditors: Gonçalo Sá, Sarah Friend\nGitHub : https://github.com/brickblock-io/smart-contracts\nLanguages: Solidity, Solidity Assembly, JavaScript\nDate: 8th June -\nNumber of issues per severity\n25 4 0 0\n1.2 Audit Goals\nThe focus of the audit was to verify that the smart contract system is secure, resilient and working according to\nits specifications. The audit activities can be grouped in the following three categories:\n\n-- 2 of 22 --\n\nBrickblock_[Phase_2]_Audit-final.md 9/20/2018\n3 / 22\nSecurity: Identifying security related issues within each contract and within the system of contracts.\nSound Architecture: Evaluation of the architecture of this system through the lens of established smart contract\nbest practices and general software best practices.\nCode Correctness and Quality: A full review of the contract source code. The primary areas of focus include:\nCorrectness\nReadability\nSections of code with high complexity\nImproving scalability\nQuantity and quality of test coverage\n1.3 System Overview\nDocumentation\nThe following documentation was available to the audit team:\nThe README which describes how to work with the contracts.\nThe Ecosystem documentation gives an architectural overview and detailed information about the\nindividual contracts.\nThe Tests against Geth doc which explains how to run the tests against geth and not truffle's ganache.\nScope\nThe audit focus was on the smart contract files, and test suites found in the following repositories:\nRepository Commit hash Commit date\nbrickblock-io/smart-contracts f1f5b04722b9569e1d4c0b62ac4c490c0a785fd8 8th June 2018\nThe full list of smart contracts in scope of the audit can be found in chapter Appendix 1 - File Hashes.\nDesign\nBrickblock is a system for managing the tokenization of assets, as well as custodianship/brokerage of and\ninvestment in those assets. The most important concepts of the Brickblock system are listed below:\nRegistrar: is at the core of the system. It's an ownable contract that uses unstructured storage to\nmanage an upgradeable directory of component contracts.\nPOA Tokens: represents an asset that has been tokenized. It's called via a multitude of POAProxies that\nare deployed by POAManager via the delegate proxy factory pattern.\nExchange Price Oracle: ExchangeRateProvider inherits from the Oraclize API and fetches current\nexchange rates, storing them in the ExchangeRates contract for use.\nBBK Token: is a double-entry paradigm token that can be locked for a period of time to collect ACT\nrewards.\nACT Token: is another double-entry paradigm token that serves as a payout to locked-in BBK tokens and\ncan be exchanged at a set-rate for Ether.\n\n-- 3 of 22 --\n\nBrickblock_[Phase_2]_Audit-final.md 9/20/2018\n4 / 22\nTo better understand how all the components interact it is helpful to analyze the system diagram (source\necosystem):\n1.4 Key Observations/Recommendations\nPraises:\nThe system specification was thorough from the day this phase of the audit was initiated and every\ndesign choice was well-founded.\nThe Brickblock team was interactive throughout and diligent in applying fixes to presented issues.\nRecommendations:\nLast pass on specification: it is recommended that the team does one last pass on the specification\nand documentation of the codebase. This includes comments in the codebase, as some of these have\nproved to be inconsistent with current code state.\nLast pass on implementation: akin to the last pass on specification/documentation it is recommended\nthat stale parts of the codebase are identified and removed before deployment to mainnet.\nFix all issues: It is recommended to fix all the issues listed in the below chapters, at the very least the\nones with severity Critical, Major and Medium.\n1.5 Revision\nThis section serves the sole purpose of acknowledging that the auditing team has approved all the changes\ncoming into effect as a cause of the first revision of the report.\nThe team acknowledges that all issues have been closed either by changing the codebase to correctly address\nthe problem at hand or by having the development team provide a precise explanation of why said issue was not\naddressed.\nRemediation links are provided in each of the relevant issue sections. Non-fix explanations are found in this same\nsection in the following table.\n\n-- 4 of 22 --\n\nBrickblock_[Phase_2]_Audit-final.md 9/20/2018\n5 / 22\nThe commit hash agreed upon for checkpointing the codebase after all the fixes was:\n99770100c9ae5ab7c8ac9d79e3fd0a8bce5f30b7.\nNon-addressed Issues Explanation\nIssue\nNumber Explanation\n3.4 Keep consistency of other calls where the event logger is used.\n3.8 The power held by the owner of the system already enables other attacks.\n3.15 Referenced code is just a stub for testing and so doesn't affect normal system operations.\n3.16 The current design allows for great flexibility as well as keeping fee payments simple. There have\nbeen no issues found with this so far.\n3.20 Said overflows will not happen for a very large period of time.\n3.21 Said overflows will not happen for a very large period of time.\n3.22\nDue to the way we want to present balances to users during the crowdsale aspect, we want to\nensure that the balance shows 0 for all users until a specific stage. There does not seem to be an\neasier way to do this. Additionally, the extra gas cost is not much.\n3.22\nThe struct is the same shape for both PoaToken and Broker data. The rights access is controlled\nwith modifiers on the public functions (addBroker, removeBroker, addToken, removeToken) and\nthen make use of private functions to work with the abstract EntityState.\n2 Issue Overview\nThe following table contains all the issues discovered during the audit. The issues are ordered based on their\nseverity. A more detailed description of the levels of severity can be found in Appendix 2. The table also contains\nthe Github status of any discovered issue.\nChapter Issue Title Issue\nStatus Severity Opt.\n3.1 Unnecessary complexity in toXLengthString functions in\nPoaCommon ✔\n3.2 No plan for how a physical tokenized asset would handle a chain\nsplit\n3.3 Usage of random storage slots in the Proxy adds too much\ncomplexity\n3.4 Unnecessary usage of low-level .call() method\n3.5 Withdraw method does not check if balance is sufficient for the\nwithdrawal\n3.6 Can lock and unlock 0 BBK in AccessToken\n\n-- 5 of 22 --\n\nBrickblock_[Phase_2]_Audit-final.md 9/20/2018\n6 / 22\nChapter Issue Title Issue\nStatus Severity Opt.\n3.7 Precision in percent function can overflow\n3.8 Transaction order dependence issue in ExchangeRates\n3.9 Non-optimal ordering of instructions in PoaProxy and\nPoaToken fallback functions ✔\n3.10 ExchangeRateProvider's callback check for access control\nis non-optimal\n3.11 Inaccurate specification comment for setFailed() method in\nPoaCrowdsale\n3.12 Unnecessary fallback functions to refuse payments ✔\n3.13 Comment about upgrade path is incorrect\n3.14 buyAndEndFunding ends by calling buyAndContinueFunding\n3.15 Unused variable has no dummy check-in\nExchangeRateProviderStub\n3.16 FeeManager open-by-default design might introduce flaws in the\ntoken economy\n3.17 Unnecessary refund action in PoaCrowdsale ✔\n3.18 this should be explicitly typecast to address\n3.19 Blocking conditions in buyFiat\n3.20 Use of ever-growing unsigned integers in PoaToken is\ndangerous\n3.21 Use of ever-growing unsigned integers in AccessToken is\ndangerous\n3.22 Non-optimal stage checking condition in PoaToken\n3.23 Contradicting comment on POAManager\n3.24 Inconsistent type used for decimals\n3.25 Inconsistent event naming\n\n-- 6 of 22 --\n\nBrickblock_[Phase_2]_Audit-final.md 9/20/2018\n7 / 22\nChapter Issue Title Issue\nStatus Severity Opt.\n3.26 Incorrect name of parameter in BBKUnlockedEvent\n3.27 Usage of EntityState for both brokers and tokens in\nPoaManager is an anti-separation-of-concerns pattern\n3 Issue Detail\n3.1 Unnecessary complexity in toXLengthString functions in PoaCommon\nSeverity Issue Status GitHub Repo Issue Link\nbrickblock-audit-report-2 issues/37\nDescription\nBoth the toXLengthString functions in PoaCommon are too complex and can be substituted by a simpler\nversion with a single assembly block.\nRemediation\nfunction to32LengthStringOpt(\nbytes32 _data\n)\npure\ninternal\nreturns (string)\n{\n// create new empty bytes array with same length as input\nbytes memory _bytesString = new bytes(32);\n// an assembly block is necessary to change memory layout directly\nassembly {\n// we store the _data bytes32 contents after the first 32\nbytes of\n// _bytesString which hold its length\nmstore(add(_bytesString, 0x20), _data)\n}\n// and now we measure the string by searching for the first\noccurrence\n// of a zero'ed out byte\nfor (uint256 _bytesCounter = 0; _bytesCounter < 32;\n_bytesCounter++) {\nif (_bytesString[_bytesCounter] == hex\"00\") {\nbreak;\n}\n}\n\n-- 7 of 22 --\n\nBrickblock_[Phase_2]_Audit-final.md 9/20/2018\n8 / 22\n// knowing the trimmed size we can now change its length directly\nassembly {\n// by changing the 32-byte-long slot we skipped over\npreviously\nmstore(_bytesString, _bytesCounter)\n}\nreturn string(_bytesString);\n}\nfunction to64LengthStringOpt(\nbytes32[2] _data\n)\npure\ninternal\nreturns (string)\n{\n// create new empty bytes array with same length as input\nbytes memory _bytesString = new bytes(64);\n// an assembly block is necessary to change memory layout directly\nassembly {\n// we store the _data bytes32 contents after the first 32\nbytes of\n// _bytesString which hold its length\nmstore(add(_bytesString, 0x20), mload(_data))\nmstore(add(_bytesString, 0x40), mload(add(_data, 0x20)))\n}\n// and now we measure the string by searching for the first\noccurrence\n// of a zero'ed out byte\nfor (uint256 _bytesCounter = 0; _bytesCounter < 64;\n_bytesCounter++) {\nif (_bytesString[_bytesCounter] == hex\"00\") {\nbreak;\n}\n}\n// knowing the trimmed size we can now change its length directly\nassembly {\n// by changing the 32-byte-long slot we skipped over\npreviously\nmstore(_bytesString, _bytesCounter)\n}\nreturn string(_bytesString);\n}\n\n-- 8 of 22 --\n\nBrickblock_[Phase_2]_Audit-final.md 9/20/2018\n9 / 22\n3.2 No plan for how a physical tokenized asset would handle a chain split\nSeverity Issue Status GitHub Repo Issue Link\nbrickblock-audit-report-2 issues/48\nDescription\nThe brickblock contract system creates tokens for physical assets, but in the event of an unplanned contentious\nhard fork, there would be two blockchain assets for each physical one. This is a potentially catastrophic scenario.\nRemediation\nPlan possible scenarios for how the brickblock system would handle the split tokens, choose a fork to support,\nand/or deprecate a fork. Add the plans to WORST-CASE-SCENARIOS.md\n3.3 Usage of random storage slots in the Proxy adds too much complexity\nSeverity Issue Status GitHub Repo Issue Link\nbrickblock-audit-report-2 issues/21\nDescription\nThere is a big complexity in the codebase stemming from the use of a custom implementation of randomized\nstorage slots for system-wide storage variables. This promotes dense code and may introduce unknown\nvulnerabilities.\nRemediation\nThe set of PoA-related contracts could make use inherited storage instead of having addresses reside in random\nslots in storage. This would avoid such heavy use of inline assembly, therefore, maintaining readability and safety.\n3.4 Unnecessary usage of low-level .call() method\nSeverity Issue Status GitHub Repo Issue Link\nbrickblock-audit-report-2 issues/40\nDescription\nThroughout the set of PoA-related contracts, there is an unnecessary and possibly dangerous usage of the low-\nlevel .call() method since every contract being called is known by the caller beforehand.\nRemediation\nTypecast the address variable returned by ContractRegistry and call the relevant member of the contract\ntype without the use of .call() (this is especially relevant in https://github.com/brickblock-io/smart-\ncontracts/blob/6360f5e1ba0630fa0caf82ff9b58b2dc5e9e1b53/contracts/PoaCommon.sol#L184).\n\n-- 9 of 22 --\n\nBrickblock_[Phase_2]_Audit-final.md 9/20/2018\n10 / 22\n3.5 Withdraw method does not check if balance is sufficient for the withdrawal\nSeverity Issue Status GitHub Repo Issue Link\nbrickblock-audit-report-2 issues/29\nDescription\nThe withdrawEthFunds in BrickblockAccount does not check that balance is greater than the amount being\nrequested, just that it's greater than zero\nfunction withdrawEthFunds(\naddress _address,\nuint256 _value\n)\nexternal\nonlyOwner\nreturns (bool)\n{\nrequire(address(this).balance > 0);\n_address.transfer(_value);\nreturn true;\n}\nRemediation\nConsider switching require(address(this).balance > 0); to require(address(this).balance\n>= _value);\n3.6 Can lock and unlock 0 BBK in AccessToken\nSeverity Issue Status GitHub Repo Issue Link\nbrickblock-audit-report-2 issues/30\nDescription\nThis method is public and can be called by anyone with quantity zero\nRemediation\nConsider adding a validator to the function to eliminate a possible source of user error\nrequire( _value > 0);\n3.7 Precision in percent function can overflow\nSeverity Issue Status GitHub Repo Issue Link\n\n-- 10 of 22 --\n\nBrickblock_[Phase_2]_Audit-final.md 9/20/2018\n11 / 22\nSeverity Issue Status GitHub Repo Issue Link\nbrickblock-audit-report-2 issues/46\nDescription\nThe public percent function in PoaCrowdsale takes precision as a parameter, does not validate it, and does not\nuse safe math\nuint256 _safeNumerator = _numerator.mul(10 ** (_precision + 1));\nRemediation\nThough the only place the brickblock contract system currently uses this function, precision is set at 18, using\nsafe math here could prevent future error as the contract system evolves.\n3.8 Transaction order dependence issue in ExchangeRates\nSeverity Issue Status GitHub Repo Issue Link\nbrickblock-audit-report-2 issues/47\nDescription\nEven though there is an access control layer applied to the whole contract, there's a transaction order\ndependence issue with the \"owner\" agent in ExchangeRates. When seeing a big buy transaction come in,\n\"owner\", basically controlling the exchange rate, could prepend a transaction (or multiple ones) of his own to get\nall the contribution for, practically, no tokens in exchange.\nRemediation\nA timelock could be implemented to give buyers a safe window on which to execute buy orders, but since the\n\"owner\" already holds so much power in the ACL structure, this may not be needed for the end user to feel safe\nbuying tokens.\n3.9 Non-optimal ordering of instructions in PoaProxy and PoaToken fallback functions\nSeverity Issue Status GitHub Repo Issue Link\nbrickblock-audit-report-2 issues/45\nDescription\nIn PoaProxy and PoaToken fallback functions, the order of the instructions can be changed to achieve better\ngas optimization. There is no need to copy return data to memory if the call result is false and the call is going\nto be reverted anyway.\nRemediation\nHave the iszero(result) condition check reside before the returndatacopy instruction.\n\n-- 11 of 22 --\n\nBrickblock_[Phase_2]_Audit-final.md 9/20/2018\n12 / 22\n3.10 ExchangeRateProvider's callback check for access control is non-optimal\nSeverity Issue Status GitHub Repo Issue Link\nbrickblock-audit-report-2 issues/44\nDescription\nGoing against proposed COP (condition-oriented programming) patterns and the general code style present\nthroughout the codebase, the __callback method of ExchangeRateProvider (v.\nhttps://github.com/brickblock-io/smart-\ncontracts/blob/6360f5e1ba0630fa0caf82ff9b58b2dc5e9e1b53/contracts/ExchangeRateProvider.sol#L100) does\nnot use a modifier to check if the caller is authorized to run this function.\nRemediation\nHave this check: require(msg.sender == oraclize_cbAddress()); reside in a properly named onlyX\nmodifier.\n3.11 Inaccurate specification comment for setFailed() method in PoaCrowdsale\nSeverity Issue Status GitHub Repo Issue Link\nbrickblock-audit-report-2 issues/41\nDescription\nThe specification comment above the setFailed() method mentions scenarios that don't need this function\nto get to the \"Failed\" stage.\n3.12 Unnecessary fallback functions to refuse payments\nSeverity Issue Status GitHub Repo Issue Link\nbrickblock-audit-report-2 issues/42\nDescription\nIn AccessToken, CentralLogger, ContractRegistry, ExchangeRates, FeeManager, PoaManager\nand Whitelist the presence of the fallback function there defined is not needed because the default Solidity\nbehavior is to disallow payments to contracts through their fallback function.\nRemediation\nRemove the fallback function definition from these contracts.\n3.13 Comment about upgrade path is incorrect\nSeverity Issue Status GitHub Repo Issue Link\n\n-- 12 of 22 --\n\nBrickblock_[Phase_2]_Audit-final.md 9/20/2018\n13 / 22\nSeverity Issue Status GitHub Repo Issue Link\nbrickblock-audit-report-2 issues/35\nDescription\nThis comment in AccessTokenUpgradeExample is incorrect. In the event of an upgrade, more than just\ninheritance will be required to access the state of the old contract.\n* This is an example of how we would upgrade the AccessToken contract if\nwe had to.\n* Instead of doing a full data migration from ACTv1 to ACTv2 we could\nmake\n* use of inheritance and just access the state on the old contract.\nRemediation\nRemove the comment to prevent a source of possible future confusion.\n3.14 buyAndEndFunding ends by calling buyAndContinueFunding\nSeverity Issue Status GitHub Repo Issue Link\nbrickblock-audit-report-2 issues/39\nDescription\nThe function that ends a PoaCrowdsale, buyAndEndFunding, ends by calling buyAndContinueFunding\n- though there is no wrong functionality here, it is counterintuitive.\nRemediation\nSince buyAndContinueFunding has more than one use, consider renaming it - it provides no guarantees that\nfunding continues.\n3.15 Unused variable has no dummy check-in ExchangeRateProviderStub\nSeverity Issue Status GitHub Repo Issue Link\nbrickblock-audit-report-2 issues/28\nDescription\nThere are unused variables in the sendQuery function in ExchangeRateProvider, generating a compiler warning.\nIn ExchangeRateProviderStub on the same function, there's a comment about doing a dummy check is wrong,\nbut no dummy check is done.\nRemediation\n\n-- 13 of 22 --\n\nBrickblock_[Phase_2]_Audit-final.md 9/20/2018\n14 / 22\nSilence the compiler by mentioning the variables _callInterval, _callbackGasLimit\n3.16 FeeManager open-by-default design might introduce flaws in the token economy\nSeverity Issue Status GitHub Repo Issue Link\nbrickblock-audit-report-2 issues/18\nDescription\nThe payFee function in FeeManager is public and does not validate or restrict msg.sender\nRemediation\nWhile this is intentional, it also increases the attack surface of the system, since paying a fee to FeeManager\neffects the totalSupply_ of ACT. Though at the moment any attack is likely prohibitively expensive, economic\ninterference with the exchange rates of BBK to ACT is possible.\n3.17 Unnecessary refund action in PoaCrowdsale\nSeverity Issue Status GitHub Repo Issue Link\nbrickblock-audit-report-2 issues/43\nDescription\nIn the buyAndEndFunding() method of PoaCrowdsale there's a transfer action being executed every\ntime even if the refund is equal to 0 or not even requested/needed.\nRemediation\nOnly transfer if refundAmount > 0.\n3.18 this should be explicitly typecast to address\nSeverity Issue Status GitHub Repo Issue Link\nbrickblock-audit-report-2 issues/19\nDescription\nthis is implicitly used as an address, which is forbidden in newer versions of solidity\nRemediation\nEvery instance of this should now be explicitly typecast to the address type\n3.19 Blocking conditions in buyFiat\nSeverity Issue Status GitHub Repo Issue Link\n\n-- 14 of 22 --\n\nBrickblock_[Phase_2]_Audit-final.md 9/20/2018\n15 / 22\nSeverity Issue Status GitHub Repo Issue Link\nbrickblock-audit-report-2 issues/38\nDescription\nThere is an edge case where the difference between fundingGoalInCents and\nfundedAmountInCentsDuringFiatFunding is less than 100, causing this earlier check\nrequire(_amountInCents >= 100); to block reaching the funding goal\nIn addition, there is a logical error in the function: Because of the check if\n(fundingGoalInCents().sub(_newFundedAmount) >= 0), the second check if\n(fundedAmountInCentsDuringFiatFunding() >= fundingGoalInCents()) can never be greater\nthan, only less than or equal to.\nRemediation\nThough this can be unblocked by moving on to the third stage and funding with Ether, the gas fees to do so will\nlikely be more than the remaining needed funding amount. Possible mitigations include removing the\nrequire(_amountInCents >= 100);, validating that fundingGoalInCents % 100 == 0, or\notherwise changing the logical flow.\n3.20 Use of ever-growing unsigned integers in PoaToken is dangerous\nSeverity Issue Status GitHub Repo Issue Link\nbrickblock-audit-report-2 issues/36\nDescription\nJust like AccessToken, this contract makes use of unsigned integer variables that can only increase and create\nan attack surface for DoS attacks, as well as a scalability limitation.\nRemediation\nEven though from a very careful analysis we could see that any attack would be hugely costly this presents an\nopportunity for a possible extension over this token, in the future, to overlook this nature of said variables and for\nthis to become an actual attack vector.\nSimilarly to AccessToken, the results of balanceOf calls could be validated\n3.21 Use of ever-growing unsigned integers in AccessToken is dangerous\nSeverity Issue Status GitHub Repo Issue Link\nbrickblock-audit-report-2 issues/33\nDescription\n\n-- 15 of 22 --\n\nBrickblock_[Phase_2]_Audit-final.md 9/20/2018\n16 / 22\nIn both the balanceOf and distribute functions the math behind makes use of uint256 variables that are\never-growing (can only increase and never decrease, per specification), this creates an attack surface for DoS\nattacks.\nRemediation\nEven though from a very careful analysis we could see that any attack would be hugely costly this presents an\nopportunity for a possible extension over this token, in the future, to overlook this nature of said variables and for\nthis to become an actual attack vector.\nThe possibility of attack or accidental DOS can be prevented by using the results of balanceOf function in an\noverflow check\nuint256 newRecipientBalance = balanceOf(_to).add(_value);\nuint256 tempSpent = spentBalances[_to];\nrequire(tempSpent.add(newRecipientBalance));\n3.22 Non-optimal stage checking condition in PoaToken\nSeverity Issue Status GitHub Repo Issue Link\nbrickblock-audit-report-2 issues/34\nDescription\nThe check of whether PoaToken is in stage 4 is implemented in the startingBalance function which, in turn,\nis used in the balanceOf function which is transversal to a lot of other functions.\nBesides creating an extra piece of bytecode that will get executed even in the transferFrom and\ncurrentPayout functions, it is buried down in the logic which makes it harder to assess the certainty of the\nspecification: \"the token is only tradeable after stage 4\".\nRemediation\nThe use of a modifier on the transfer function alone would achieve the same effect and produce more\nreadable and extensible code.\n3.23 Contradicting comment on POAManager\nSeverity Issue Status GitHub Repo Issue Link\nbrickblock-audit-report-2 issues/24\nDescription\nThe addToken() function in POAManager has a comment saying it initializes the entity with _active as true\nbut actually sets it false.\nRemediation\n\n-- 16 of 22 --\n\nBrickblock_[Phase_2]_Audit-final.md 9/20/2018\n17 / 22\nVerify that this is the correct behaviour in code, and correct the comment\n3.24 Inconsistent type used for decimals\nSeverity Issue Status GitHub Repo Issue Link\nbrickblock-audit-report-2 issues/25\nDescription\nAn inconsistent type is used for decimals. In POAToken uint256 is used, in AccessToken uint8 is used.\nRemediation\nConsider which type is preferable for this parameter and use it uniformly throughout all tokens. uint8 is more\ncommonly seen in standards\n3.25 Inconsistent event naming\nSeverity Issue Status GitHub Repo Issue Link\nbrickblock-audit-report-2 issues/26\nDescription\nThroughout the contract system - somewhat inconsistent event naming conventions, for example, Burn and\nBurnEvent\nevent BurnEvent(address indexed burner, uint256 value);\nevent Burn(address indexed burner, uint256 value);\nRemediation\nDecide on a naming convention and use it throughout the system. The BurnEvent pattern may be the stronger\nchoice, as it follows the Differentiate functions and events best practice\n3.26 Incorrect name of parameter in BBKUnlockedEvent\nSeverity Issue Status GitHub Repo Issue Link\nbrickblock-audit-report-2 issues/27\nDescription\nIn AccessToken, wrong variable name, the second uint256 is actually the unlockedAmount\n\n-- 17 of 22 --\n\nBrickblock_[Phase_2]_Audit-final.md 9/20/2018\n18 / 22\nevent BBKUnlockedEvent(\naddress indexed locker,\nuint256 lockedAmount,\nuint256 totalLockedAmount\n);\nRemediation\nCorrect the variable name:\nevent BBKUnlockedEvent(\naddress indexed locker,\nuint256 unlockedAmount,\nuint256 totalLockedAmount\n);\n3.27 Usage of EntityState for both brokers and tokens in PoaManager is an anti-\nseparation-of-concerns pattern\nSeverity Issue Status GitHub Repo Issue Link\nbrickblock-audit-report-2 issues/32\nDescription\nThe use of the doesEntityExist modifier and the addEntity, removeEntity, and\nsetEntityActiveValue to manipulate both brokers and tokens in the contract's state is an anti-pattern\nregarding separation of concerns.\nSince these functions are reused across two very different domains of logic state, this means that in the unlikely\nevent of a public function related to brokers having a vulnerability there's a non-zero probability that tokens are\ncompromised as well. Given the importance of the prior and latter lists, this is a clear escalation in the severity of\na vulnerability.\nRemediation\nCreate specific functions to handle each one of the different entities (e.g. addToken, removeBroker) or\nimplement the add, remove and set active logics for each entity in the public functions themselves instead of\nhaving shared private functions for that.\n4 Tool based analysis\nThe issues from the tool based analysis have been reviewed and the relevant issues have been listed in chapter 3\n- Issues.\n4.1 Mythril\n\n-- 18 of 22 --\n\nBrickblock_[Phase_2]_Audit-final.md 9/20/2018\n19 / 22\nMythril is a security analysis tool for Ethereum smart contracts. It uses concolic analysis\nto detect various types of issues. The tool was used for automated vulnerability\ndiscovery for all audited contracts and libraries. More details on Mythril's current\nvulnerability coverage can be found here.\nThe raw output of the Mythril vulnerability scan can be found here. It was thoroughly\nreviewed for possible vulnerabilities, and all the results stemming out of such analysis were included in the final\nissues report.\n4.2 Sūrya\nSurya is a utility tool for smart contract systems. It provides a number of visual outputs and information about the\nstructure of smart contracts. It also supports querying the function call graph in multiple ways to aid in the\nmanual inspection and control flow analysis of contracts.\nA complete list of functions with their visibility and modifiers can be found here.\n4.3 Odyssey\nOdyssey is an audit tool that acts as the glue between developers, auditors, and tools. It\nleverages Github as the platform for building software and aligns to the approach that\nquality needs to be addressed as early as possible in the development life cycle and small\niterative security activities spread out through development help to produce a more secure\nsmart contract system. In its current version Odyssey helps communicate audit issues to\ndevelopment teams better and to close them successfully.\nAppendix 1 - File Hashes\nThe SHA1 hashes of the source code files in scope of the audit are listed in the table below.\nContract File Name SHA1 hash\nstubs/RemoteContractStub.sol c2da2c57d0502a68acc9cafa134ffb62dfdc8446\nstubs/RemoteContractUserStub.sol b4d9811cca3c8c2516d521f315945f18e1ca488c\nstubs/ExchangeRateProviderStub.sol bce06f04ad4ae358e2802198484a95d7091cbdfb\nstubs/BrokenRemoteContractStub.sol 76d0cd9bcb809cd26255fcbf0aca5aae593fdd13\nstubs/PoaManagerStub.sol 886dd9d3f890acf7f6cf3c802a02e28dfcb38795\nstubs/UpgradedPoa.sol 7ddde558f506efec77488ba958fc1db714d1df4d\nstubs/BrickblockFountainStub.sol 1fcd2643e33cf0fa76644dd2203b0fa697701ed5\nPoaProxy.sol 2359f57c3503608f206195372e220d3673a127f2\nPoaManager.sol 0022d2a65065359ef648d05fc1a01b049dd32ff3\nExchangeRates.sol dd4c7a19d798a5a097d12e7fd2146f18705d5e6c\ntools/WarpTool.sol c2e2f5b46c2382d5919a6a11852d8bd3718ea238\n\n-- 19 of 22 --\n\nBrickblock_[Phase_2]_Audit-final.md 9/20/2018\n20 / 22\nContract File Name SHA1 hash\nCustomPOAToken.sol bc8a19f076450c44a8c1cb175626e9ca5b21c712\nOraclizeAPI.sol 974d293678647f934864c4eef21469c322e60f19\nCentralLogger.sol 63d7facdd2fd969f798b7eef4f3eb89392f817ea\nFeeManager.sol ba1fa0085716b524424a8b1ba366fde272b03842\nBrickblockAccount.sol 2c8cf3c8a6c8ce68044c89afaa1b30e5392f1b0c\nAccessToken.sol 9ea080dade42bf75787805d87be7aa7d3cdf2f11\nMigrations.sol cfc2c3229aa8d50eb038dbdad89b79c10aa76e81\nWhitelist.sol 0059355f7b70aefcae1e00293717c5547bf4c9f2\nBrickblockToken.sol 1dc072c4a388eb02a8e5ff94e53170266b3986cd\nPoaToken.sol 7115dd663666c65344d60530cb7f3a1f2439a4a9\nContractRegistry.sol 2bad3f21834b921e00a2c69e70976f49b8f0b828\nAccessTokenUpgradeExample.sol 4934bdfbf573caed91b947c4ce33fdd13525759a\nExchangeRateProvider.sol 55ae134887bf0ec8b6436dd32026f69f384abf8b\ninterfaces/IWhitelist.sol c1f79ab4dfe09e739142cba10bf5e8cb8c7cae00\ninterfaces/IAccessToken.sol 86ed15fbf886c084deec249dfb47286cfac1d328\ninterfaces/IBrickblockToken.sol 98db90ef02f16a9bf2097b7f7cbbdaef74e6c39d\ninterfaces/IPoaToken.sol 0a00f80a0e25d19a9615247ed3f58c79cee592ed\ninterfaces/IExchangeRates.sol 9f27b08adff3d6451689f6f2eaf60e7f79241676\ninterfaces/IFeeManager.sol cc418992580a2b7e471461c0aa71c554edc44206\ninterfaces/IRegistry.sol 33620967a81de0ecd2b82356eb8ed2eb1e3523cf\ninterfaces/IExchangeRateProvider.sol 61f0a6d1f06f85f501d755c45f6ab2517a716472\ninterfaces/IPoaManager.sol 1d09eb035efbf7d087b4e6d60d25480cacf0d1d7\nAppendix 2 - Severity\nA.2.1 - Minor\nMinor issues are generally subjective or potentially deal with topics like \"best practices\" or \"readability\". In\ngeneral, minor issues do not indicate an actual problem or bug in the code.\nThe maintainers should use their own judgment as to whether addressing these issues improves the codebase.\nA.2.2 - Medium\nMedium issues are generally objective but do not represent actual bugs or security problems.\n\n-- 20 of 22 --\n\nBrickblock_[Phase_2]_Audit-final.md 9/20/2018\n21 / 22\nThese issues should be addressed unless there is a clear reason not to.\nA.2.3 - Major\nMajor issues are things like bugs or security vulnerabilities. These issues may not be directly exploitable or may\nrequire a certain condition to arise to be exploited.\nLeft unaddressed these issues are highly likely to cause problems with the operation of the contract or lead to a\nsituation which allows the system to be exploited in some way.\nA.2.4 - Critical\nCritical issues are directly exploitable bugs or security vulnerabilities.\nLeft unaddressed these issues are highly likely or guaranteed to cause critical problems or potentially a full failure\nin the operations of the contract.\nAppendix 3 - Disclosure\nConsenSys Diligence (“CD”) typically receives compensation from one or more clients (the “Clients”) for\nperforming the analysis contained in these reports (the “Reports”). The Reports may be distributed through other\nmeans, including via ConsenSys publications and other distributions.\nThe Reports are not an endorsement or indictment of any particular project or team, and the Reports do not\nguarantee the security of any particular project. This Report does not consider, and should not be interpreted as\nconsidering or having any bearing on, the potential economics of a token, token sale or any other product,\nservice or other asset. Cryptographic tokens are emergent technologies and carry with them high levels of\ntechnical risk and uncertainty. No Report provides any warranty or representation to any Third-Party in any\nrespect, including regarding the bugfree nature of code, the business model or proprietors of any such business\nmodel, and the legal compliance of any such business. No third party should rely on the Reports in any way,\nincluding for the purpose of making any decisions to buy or sell any token, product, service or other asset.\nSpecifically, for the avoidance of doubt, this Report does not constitute investment advice, is not intended to be\nrelied upon as investment advice, is not an endorsement of this project or team, and it is not a guarantee as to\nthe absolute security of the project. CD owes no duty to any Third-Party by virtue of publishing these Reports.\nPURPOSE OF REPORTS The Reports and the analysis described therein are created solely for Clients and\npublished with their consent. The scope of our review is limited to a review of Solidity code and only the Solidity\ncode we note as being within the scope of our review within this report. The Solidity language itself remains\nunder development and is subject to unknown risks and flaws. The review does not extend to the compiler layer\nor any other areas beyond Solidity that could present security risks. Cryptographic tokens are emergent\ntechnologies and carry with them high levels of technical risk and uncertainty.\nCD makes the Reports available to parties other than the Clients (i.e., “third parties”) -- on its Github account\n(https://github.com/GNSPS). CD hopes that by making these analyses publicly available, it can help the\nblockchain ecosystem develop technical best practices in this rapidly evolving area of innovation.\nLINKS TO OTHER WEB SITES FROM THIS WEB SITE You may, through hypertext or other computer links, gain\naccess to web sites operated by persons other than ConsenSys and CD. Such hyperlinks are provided for your\nreference and convenience only, and are the exclusive responsibility of such web sites' owners. You agree that\nConsenSys and CD are not responsible for the content or operation of such Web sites, and that ConsenSys and\n\n-- 21 of 22 --\n\nBrickblock_[Phase_2]_Audit-final.md 9/20/2018\n22 / 22\nCD shall have no liability to you or any other person or entity for the use of third party Web sites. Except as\ndescribed below, a hyperlink from this web Site to another web site does not imply or mean that ConsenSys and\nCD endorse the content on that Web site or the operator or operations of that site. You are solely responsible for\ndetermining the extent to which you may use any content at any other web sites to which you link from the\nReports. ConsenSys and CD assume no responsibility for the use of third party software on the Web Site and\nshall have no liability whatsoever to any person or entity for the accuracy or completeness of any outcome\ngenerated by such software.\nTIMELINESS OF CONTENT The content contained in the Reports is current as of the date appearing on the\nReport and is subject to change without notice. Unless indicated otherwise, by ConsenSys and CD.\n\n-- 22 of 22 --",
+    "sourceFileName": "2018-09-20 - Full Ecosystem [Phase 2] - Audit by ConsenSys final.pdf",
+    "createdAtIso": "2026-06-05T23:32:24.803Z",
+    "updatedAtIso": "2026-06-05T23:32:24.803Z"
+  },
+  "findings": [
+    {
+      "id": "F-G-consensys-diligence-full-ecosystem-phase-2-2018-09-20-GIDX-001",
+      "slug": "feemanager-by-default-design-might-introduce-flaws-in-the-token-economy-investigation-scope",
+      "reportId": "G-consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "reportName": "consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "title": "Unnecessary complexity in toXLengthString functions in PoaCommon",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:18.139Z",
+      "summary": "Unnecessary complexity in toXLengthString functions in PoaCommon affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:24.801Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "FeeManager -by-default design might introduce flaws in the token economy",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "FeeManager -by-default design might introduce flaws in the token economy affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "feemanager -by-default design might introduce flaws in the token economy",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "3.1|unnecessary complexity in toxlengthstring functions in poacommon|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "Unnecessary complexity in toXLengthString functions in PoaCommon",
+        "sourceText": "3.1 Unnecessary complexity in toXLengthString functions in PoaCommon Medium",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Unnecessary complexity in toXLengthString functions in PoaCommon",
+      "canonicalKey": "3.1|unnecessary complexity in toxlengthstring functions in poacommon|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-full-ecosystem-phase-2-2018-09-20-GIDX-002",
+      "slug": "feemanager-by-default-design-might-introduce-flaws-in-the-token-economy-investigation-scope",
+      "reportId": "G-consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "reportName": "consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "title": "No plan for how a physical tokenized asset would handle a chain split",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:18.139Z",
+      "summary": "No plan for how a physical tokenized asset would handle a chain split affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:24.801Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "FeeManager -by-default design might introduce flaws in the token economy",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "FeeManager -by-default design might introduce flaws in the token economy affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "feemanager -by-default design might introduce flaws in the token economy",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "3.2|no plan for how a physical tokenized asset would handle a chain split|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "No plan for how a physical tokenized asset would handle a chain split",
+        "sourceText": "3.2 No plan for how a physical tokenized asset would handle a chain split Medium",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "No plan for how a physical tokenized asset would handle a chain split",
+      "canonicalKey": "3.2|no plan for how a physical tokenized asset would handle a chain split|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-full-ecosystem-phase-2-2018-09-20-GIDX-003",
+      "slug": "feemanager-by-default-design-might-introduce-flaws-in-the-token-economy-investigation-scope",
+      "reportId": "G-consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "reportName": "consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "title": "Usage of random storage slots in the Proxy adds too much complexity",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:18.139Z",
+      "summary": "Usage of random storage slots in the Proxy adds too much complexity affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:24.801Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "FeeManager -by-default design might introduce flaws in the token economy",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "FeeManager -by-default design might introduce flaws in the token economy affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "feemanager -by-default design might introduce flaws in the token economy",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "3.3|usage of random storage slots in the proxy adds too much complexity|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "Usage of random storage slots in the Proxy adds too much complexity",
+        "sourceText": "3.3 Usage of random storage slots in the Proxy adds too much complexity Medium",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Usage of random storage slots in the Proxy adds too much complexity",
+      "canonicalKey": "3.3|usage of random storage slots in the proxy adds too much complexity|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-full-ecosystem-phase-2-2018-09-20-GIDX-004",
+      "slug": "feemanager-by-default-design-might-introduce-flaws-in-the-token-economy-investigation-scope",
+      "reportId": "G-consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "reportName": "consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "title": "Unnecessary usage of low-level .call() method",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:18.139Z",
+      "summary": "Unnecessary usage of low-level .call() method affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:24.801Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "FeeManager -by-default design might introduce flaws in the token economy",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "FeeManager -by-default design might introduce flaws in the token economy affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "feemanager -by-default design might introduce flaws in the token economy",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "3.4|unnecessary usage of low level call method|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "Unnecessary usage of low-level .call() method",
+        "sourceText": "3.4 Unnecessary usage of low-level .call() method Medium",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Unnecessary usage of low-level .call() method",
+      "canonicalKey": "3.4|unnecessary usage of low level call method|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-full-ecosystem-phase-2-2018-09-20-GIDX-005",
+      "slug": "feemanager-by-default-design-might-introduce-flaws-in-the-token-economy-investigation-scope",
+      "reportId": "G-consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "reportName": "consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "title": "Withdraw method does not check if balance is sufficient for the withdrawal",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:18.139Z",
+      "summary": "Withdraw method does not check if balance is sufficient for the withdrawal affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:24.801Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "FeeManager -by-default design might introduce flaws in the token economy",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "FeeManager -by-default design might introduce flaws in the token economy affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "feemanager -by-default design might introduce flaws in the token economy",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "3.5|withdraw method does not check if balance is sufficient for the withdrawal|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "Withdraw method does not check if balance is sufficient for the withdrawal",
+        "sourceText": "3.5 Withdraw method does not check if balance is sufficient for the withdrawal Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Withdraw method does not check if balance is sufficient for the withdrawal",
+      "canonicalKey": "3.5|withdraw method does not check if balance is sufficient for the withdrawal|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-full-ecosystem-phase-2-2018-09-20-GIDX-006",
+      "slug": "feemanager-by-default-design-might-introduce-flaws-in-the-token-economy-investigation-scope",
+      "reportId": "G-consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "reportName": "consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "title": "Can lock and unlock 0 BBK in AccessToken",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:18.139Z",
+      "summary": "Can lock and unlock 0 BBK in AccessToken affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:24.801Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "FeeManager -by-default design might introduce flaws in the token economy",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "FeeManager -by-default design might introduce flaws in the token economy affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "feemanager -by-default design might introduce flaws in the token economy",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "3.6|can lock and unlock 0 bbk in accesstoken|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "Can lock and unlock 0 BBK in AccessToken",
+        "sourceText": "3.6 Can lock and unlock 0 BBK in AccessToken Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Can lock and unlock 0 BBK in AccessToken",
+      "canonicalKey": "3.6|can lock and unlock 0 bbk in accesstoken|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-full-ecosystem-phase-2-2018-09-20-GIDX-007",
+      "slug": "feemanager-by-default-design-might-introduce-flaws-in-the-token-economy-investigation-scope",
+      "reportId": "G-consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "reportName": "consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "title": "Precision in percent function can overflow",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:18.139Z",
+      "summary": "Precision in percent function can overflow affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:24.801Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "FeeManager -by-default design might introduce flaws in the token economy",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "FeeManager -by-default design might introduce flaws in the token economy affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "feemanager -by-default design might introduce flaws in the token economy",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "3.7|precision in percent function can overflow|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "Precision in percent function can overflow",
+        "sourceText": "3.7 Precision in percent function can overflow Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Precision in percent function can overflow",
+      "canonicalKey": "3.7|precision in percent function can overflow|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-full-ecosystem-phase-2-2018-09-20-GIDX-008",
+      "slug": "feemanager-by-default-design-might-introduce-flaws-in-the-token-economy-investigation-scope",
+      "reportId": "G-consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "reportName": "consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "title": "Transaction order dependence issue in ExchangeRates",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:18.139Z",
+      "summary": "Transaction order dependence issue in ExchangeRates affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:24.801Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "FeeManager -by-default design might introduce flaws in the token economy",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "FeeManager -by-default design might introduce flaws in the token economy affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "feemanager -by-default design might introduce flaws in the token economy",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "3.8|transaction order dependence issue in exchangerates|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "Transaction order dependence issue in ExchangeRates",
+        "sourceText": "3.8 Transaction order dependence issue in ExchangeRates Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Transaction order dependence issue in ExchangeRates",
+      "canonicalKey": "3.8|transaction order dependence issue in exchangerates|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-full-ecosystem-phase-2-2018-09-20-GIDX-009",
+      "slug": "feemanager-by-default-design-might-introduce-flaws-in-the-token-economy-investigation-scope",
+      "reportId": "G-consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "reportName": "consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "title": "Non-optimal ordering of instructions in PoaProxy and PoaToken fallback functions",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:18.139Z",
+      "summary": "Non-optimal ordering of instructions in PoaProxy and PoaToken fallback functions affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:24.801Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "FeeManager -by-default design might introduce flaws in the token economy",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "FeeManager -by-default design might introduce flaws in the token economy affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "feemanager -by-default design might introduce flaws in the token economy",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "3.9|non optimal ordering of instructions in poaproxy and poatoken fallback functions|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "Non-optimal ordering of instructions in PoaProxy and PoaToken fallback functions",
+        "sourceText": "3.9 Non-optimal ordering of instructions in PoaProxy and PoaToken fallback functions Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Non-optimal ordering of instructions in PoaProxy and PoaToken fallback functions",
+      "canonicalKey": "3.9|non optimal ordering of instructions in poaproxy and poatoken fallback functions|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-full-ecosystem-phase-2-2018-09-20-GIDX-010",
+      "slug": "feemanager-by-default-design-might-introduce-flaws-in-the-token-economy-investigation-scope",
+      "reportId": "G-consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "reportName": "consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "title": "ExchangeRateProvider callback check for access control is non-optimal",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:18.139Z",
+      "summary": "ExchangeRateProvider callback check for access control is non-optimal affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:24.801Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "FeeManager -by-default design might introduce flaws in the token economy",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "FeeManager -by-default design might introduce flaws in the token economy affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "feemanager -by-default design might introduce flaws in the token economy",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "3.10|exchangerateprovider callback check for access control is non optimal|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "ExchangeRateProvider callback check for access control is non-optimal",
+        "sourceText": "3.10 ExchangeRateProvider callback check for access control is non-optimal Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "ExchangeRateProvider callback check for access control is non-optimal",
+      "canonicalKey": "3.10|exchangerateprovider callback check for access control is non optimal|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-full-ecosystem-phase-2-2018-09-20-GIDX-011",
+      "slug": "feemanager-by-default-design-might-introduce-flaws-in-the-token-economy-investigation-scope",
+      "reportId": "G-consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "reportName": "consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "title": "Inaccurate specification comment for setFailed() method in PoaCrowdsale",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:18.139Z",
+      "summary": "Inaccurate specification comment for setFailed() method in PoaCrowdsale affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:24.801Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "FeeManager -by-default design might introduce flaws in the token economy",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "FeeManager -by-default design might introduce flaws in the token economy affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "feemanager -by-default design might introduce flaws in the token economy",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "3.11|inaccurate specification comment for setfailed method in poacrowdsale|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "Inaccurate specification comment for setFailed() method in PoaCrowdsale",
+        "sourceText": "3.11 Inaccurate specification comment for setFailed() method in PoaCrowdsale Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Inaccurate specification comment for setFailed() method in PoaCrowdsale",
+      "canonicalKey": "3.11|inaccurate specification comment for setfailed method in poacrowdsale|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-full-ecosystem-phase-2-2018-09-20-GIDX-012",
+      "slug": "feemanager-by-default-design-might-introduce-flaws-in-the-token-economy-investigation-scope",
+      "reportId": "G-consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "reportName": "consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "title": "Unnecessary fallback functions to refuse payments",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:18.139Z",
+      "summary": "Unnecessary fallback functions to refuse payments affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:24.801Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "FeeManager -by-default design might introduce flaws in the token economy",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "FeeManager -by-default design might introduce flaws in the token economy affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "feemanager -by-default design might introduce flaws in the token economy",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "3.12|unnecessary fallback functions to refuse payments|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "Unnecessary fallback functions to refuse payments",
+        "sourceText": "3.12 Unnecessary fallback functions to refuse payments Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Unnecessary fallback functions to refuse payments",
+      "canonicalKey": "3.12|unnecessary fallback functions to refuse payments|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-full-ecosystem-phase-2-2018-09-20-GIDX-013",
+      "slug": "feemanager-by-default-design-might-introduce-flaws-in-the-token-economy-investigation-scope",
+      "reportId": "G-consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "reportName": "consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "title": "Comment about upgrade path is incorrect",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:18.139Z",
+      "summary": "Comment about upgrade path is incorrect affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:24.801Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "FeeManager -by-default design might introduce flaws in the token economy",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "FeeManager -by-default design might introduce flaws in the token economy affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "feemanager -by-default design might introduce flaws in the token economy",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "3.13|comment about upgrade path is incorrect|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "Comment about upgrade path is incorrect",
+        "sourceText": "3.13 Comment about upgrade path is incorrect Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Comment about upgrade path is incorrect",
+      "canonicalKey": "3.13|comment about upgrade path is incorrect|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-full-ecosystem-phase-2-2018-09-20-GIDX-014",
+      "slug": "feemanager-by-default-design-might-introduce-flaws-in-the-token-economy-investigation-scope",
+      "reportId": "G-consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "reportName": "consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "title": "buyAndEndFunding ends by calling buyAndContinueFunding",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:18.139Z",
+      "summary": "buyAndEndFunding ends by calling buyAndContinueFunding affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:24.801Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "FeeManager -by-default design might introduce flaws in the token economy",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "FeeManager -by-default design might introduce flaws in the token economy affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "feemanager -by-default design might introduce flaws in the token economy",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "3.14|buyandendfunding ends by calling buyandcontinuefunding|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "buyAndEndFunding ends by calling buyAndContinueFunding",
+        "sourceText": "3.14 buyAndEndFunding ends by calling buyAndContinueFunding Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "buyAndEndFunding ends by calling buyAndContinueFunding",
+      "canonicalKey": "3.14|buyandendfunding ends by calling buyandcontinuefunding|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-full-ecosystem-phase-2-2018-09-20-GIDX-015",
+      "slug": "feemanager-by-default-design-might-introduce-flaws-in-the-token-economy-investigation-scope",
+      "reportId": "G-consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "reportName": "consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "title": "Unused variable has no dummy check-in ExchangeRateProviderStub",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:18.139Z",
+      "summary": "Unused variable has no dummy check-in ExchangeRateProviderStub affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:24.801Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "FeeManager -by-default design might introduce flaws in the token economy",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "FeeManager -by-default design might introduce flaws in the token economy affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "feemanager -by-default design might introduce flaws in the token economy",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "3.15|unused variable has no dummy check in exchangerateproviderstub|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "Unused variable has no dummy check-in ExchangeRateProviderStub",
+        "sourceText": "3.15 Unused variable has no dummy check-in ExchangeRateProviderStub Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Unused variable has no dummy check-in ExchangeRateProviderStub",
+      "canonicalKey": "3.15|unused variable has no dummy check in exchangerateproviderstub|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-full-ecosystem-phase-2-2018-09-20-GIDX-016",
+      "slug": "feemanager-by-default-design-might-introduce-flaws-in-the-token-economy-investigation-scope",
+      "reportId": "G-consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "reportName": "consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "title": "FeeManager open-by-default design might introduce flaws in the token economy",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:18.139Z",
+      "summary": "FeeManager open-by-default design might introduce flaws in the token economy affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:24.801Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "FeeManager -by-default design might introduce flaws in the token economy",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "FeeManager -by-default design might introduce flaws in the token economy affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "feemanager -by-default design might introduce flaws in the token economy",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "3.16|feemanager open by default design might introduce flaws in the token economy|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "FeeManager open-by-default design might introduce flaws in the token economy",
+        "sourceText": "3.16 FeeManager open-by-default design might introduce flaws in the token economy Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "FeeManager open-by-default design might introduce flaws in the token economy",
+      "canonicalKey": "3.16|feemanager open by default design might introduce flaws in the token economy|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-full-ecosystem-phase-2-2018-09-20-GIDX-017",
+      "slug": "feemanager-by-default-design-might-introduce-flaws-in-the-token-economy-investigation-scope",
+      "reportId": "G-consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "reportName": "consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "title": "Unnecessary refund action in PoaCrowdsale",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:18.139Z",
+      "summary": "Unnecessary refund action in PoaCrowdsale affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:24.801Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "FeeManager -by-default design might introduce flaws in the token economy",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "FeeManager -by-default design might introduce flaws in the token economy affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "feemanager -by-default design might introduce flaws in the token economy",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "3.17|unnecessary refund action in poacrowdsale|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "Unnecessary refund action in PoaCrowdsale",
+        "sourceText": "3.17 Unnecessary refund action in PoaCrowdsale Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Unnecessary refund action in PoaCrowdsale",
+      "canonicalKey": "3.17|unnecessary refund action in poacrowdsale|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-full-ecosystem-phase-2-2018-09-20-GIDX-018",
+      "slug": "feemanager-by-default-design-might-introduce-flaws-in-the-token-economy-investigation-scope",
+      "reportId": "G-consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "reportName": "consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "title": "this should be explicitly typecast to address",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:18.139Z",
+      "summary": "this should be explicitly typecast to address affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:24.801Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "FeeManager -by-default design might introduce flaws in the token economy",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "FeeManager -by-default design might introduce flaws in the token economy affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "feemanager -by-default design might introduce flaws in the token economy",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "3.18|this should be explicitly typecast to address|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "this should be explicitly typecast to address",
+        "sourceText": "3.18 this should be explicitly typecast to address Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "this should be explicitly typecast to address",
+      "canonicalKey": "3.18|this should be explicitly typecast to address|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-full-ecosystem-phase-2-2018-09-20-GIDX-019",
+      "slug": "feemanager-by-default-design-might-introduce-flaws-in-the-token-economy-investigation-scope",
+      "reportId": "G-consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "reportName": "consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "title": "Blocking conditions in buyFiat",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:18.139Z",
+      "summary": "Blocking conditions in buyFiat affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:24.801Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "FeeManager -by-default design might introduce flaws in the token economy",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "FeeManager -by-default design might introduce flaws in the token economy affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "feemanager -by-default design might introduce flaws in the token economy",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "3.19|blocking conditions in buyfiat|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "Blocking conditions in buyFiat",
+        "sourceText": "3.19 Blocking conditions in buyFiat Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Blocking conditions in buyFiat",
+      "canonicalKey": "3.19|blocking conditions in buyfiat|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-full-ecosystem-phase-2-2018-09-20-GIDX-020",
+      "slug": "feemanager-by-default-design-might-introduce-flaws-in-the-token-economy-investigation-scope",
+      "reportId": "G-consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "reportName": "consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "title": "Use of ever-growing unsigned integers in PoaToken is dangerous",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:18.139Z",
+      "summary": "Use of ever-growing unsigned integers in PoaToken is dangerous affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:24.801Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "FeeManager -by-default design might introduce flaws in the token economy",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "FeeManager -by-default design might introduce flaws in the token economy affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "feemanager -by-default design might introduce flaws in the token economy",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "3.20|use of ever growing unsigned integers in poatoken is dangerous|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "Use of ever-growing unsigned integers in PoaToken is dangerous",
+        "sourceText": "3.20 Use of ever-growing unsigned integers in PoaToken is dangerous Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Use of ever-growing unsigned integers in PoaToken is dangerous",
+      "canonicalKey": "3.20|use of ever growing unsigned integers in poatoken is dangerous|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-full-ecosystem-phase-2-2018-09-20-GIDX-021",
+      "slug": "feemanager-by-default-design-might-introduce-flaws-in-the-token-economy-investigation-scope",
+      "reportId": "G-consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "reportName": "consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "title": "Use of ever-growing unsigned integers in AccessToken is dangerous",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:18.139Z",
+      "summary": "Use of ever-growing unsigned integers in AccessToken is dangerous affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:24.801Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "FeeManager -by-default design might introduce flaws in the token economy",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "FeeManager -by-default design might introduce flaws in the token economy affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "feemanager -by-default design might introduce flaws in the token economy",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "3.21|use of ever growing unsigned integers in accesstoken is dangerous|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "Use of ever-growing unsigned integers in AccessToken is dangerous",
+        "sourceText": "3.21 Use of ever-growing unsigned integers in AccessToken is dangerous Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Use of ever-growing unsigned integers in AccessToken is dangerous",
+      "canonicalKey": "3.21|use of ever growing unsigned integers in accesstoken is dangerous|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-full-ecosystem-phase-2-2018-09-20-GIDX-022",
+      "slug": "feemanager-by-default-design-might-introduce-flaws-in-the-token-economy-investigation-scope",
+      "reportId": "G-consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "reportName": "consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "title": "Non-optimal stage checking condition in PoaToken",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:18.139Z",
+      "summary": "Non-optimal stage checking condition in PoaToken affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:24.801Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "FeeManager -by-default design might introduce flaws in the token economy",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "FeeManager -by-default design might introduce flaws in the token economy affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "feemanager -by-default design might introduce flaws in the token economy",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "3.22|non optimal stage checking condition in poatoken|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "Non-optimal stage checking condition in PoaToken",
+        "sourceText": "3.22 Non-optimal stage checking condition in PoaToken Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Non-optimal stage checking condition in PoaToken",
+      "canonicalKey": "3.22|non optimal stage checking condition in poatoken|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-full-ecosystem-phase-2-2018-09-20-GIDX-023",
+      "slug": "feemanager-by-default-design-might-introduce-flaws-in-the-token-economy-investigation-scope",
+      "reportId": "G-consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "reportName": "consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "title": "Contradicting comment on POAManager",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:18.139Z",
+      "summary": "Contradicting comment on POAManager affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:24.801Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "FeeManager -by-default design might introduce flaws in the token economy",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "FeeManager -by-default design might introduce flaws in the token economy affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "feemanager -by-default design might introduce flaws in the token economy",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "3.23|contradicting comment on poamanager|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "Contradicting comment on POAManager",
+        "sourceText": "3.23 Contradicting comment on POAManager Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Contradicting comment on POAManager",
+      "canonicalKey": "3.23|contradicting comment on poamanager|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-full-ecosystem-phase-2-2018-09-20-GIDX-024",
+      "slug": "feemanager-by-default-design-might-introduce-flaws-in-the-token-economy-investigation-scope",
+      "reportId": "G-consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "reportName": "consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "title": "Inconsistent type used for decimals",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:18.139Z",
+      "summary": "Inconsistent type used for decimals affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:24.801Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "FeeManager -by-default design might introduce flaws in the token economy",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "FeeManager -by-default design might introduce flaws in the token economy affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "feemanager -by-default design might introduce flaws in the token economy",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "3.24|inconsistent type used for decimals|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "Inconsistent type used for decimals",
+        "sourceText": "3.24 Inconsistent type used for decimals Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Inconsistent type used for decimals",
+      "canonicalKey": "3.24|inconsistent type used for decimals|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-full-ecosystem-phase-2-2018-09-20-GIDX-025",
+      "slug": "feemanager-by-default-design-might-introduce-flaws-in-the-token-economy-investigation-scope",
+      "reportId": "G-consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "reportName": "consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "title": "Inconsistent event naming",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:18.139Z",
+      "summary": "Inconsistent event naming affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:24.801Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "FeeManager -by-default design might introduce flaws in the token economy",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "FeeManager -by-default design might introduce flaws in the token economy affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "feemanager -by-default design might introduce flaws in the token economy",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "3.25|inconsistent event naming|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "Inconsistent event naming",
+        "sourceText": "3.25 Inconsistent event naming Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Inconsistent event naming",
+      "canonicalKey": "3.25|inconsistent event naming|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-full-ecosystem-phase-2-2018-09-20-GIDX-026",
+      "slug": "feemanager-by-default-design-might-introduce-flaws-in-the-token-economy-investigation-scope",
+      "reportId": "G-consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "reportName": "consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "title": "Incorrect name of parameter in BBKUnlockedEvent",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:18.139Z",
+      "summary": "Incorrect name of parameter in BBKUnlockedEvent affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:24.801Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "FeeManager -by-default design might introduce flaws in the token economy",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "FeeManager -by-default design might introduce flaws in the token economy affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "feemanager -by-default design might introduce flaws in the token economy",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "3.26|incorrect name of parameter in bbkunlockedevent|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "Incorrect name of parameter in BBKUnlockedEvent",
+        "sourceText": "3.26 Incorrect name of parameter in BBKUnlockedEvent Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Incorrect name of parameter in BBKUnlockedEvent",
+      "canonicalKey": "3.26|incorrect name of parameter in bbkunlockedevent|investigation scope||||||"
+    },
+    {
+      "id": "F-G-consensys-diligence-full-ecosystem-phase-2-2018-09-20-GIDX-027",
+      "slug": "feemanager-by-default-design-might-introduce-flaws-in-the-token-economy-investigation-scope",
+      "reportId": "G-consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "reportName": "consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "title": "Usage of EntityState for both brokers and tokens in PoaManager is an anti-separation-of-concerns pattern",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:32:18.139Z",
+      "summary": "Usage of EntityState for both brokers and tokens in PoaManager is an anti-separation-of-concerns pattern affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:32:24.801Z",
+          "status": "In Review",
+          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+        }
+      ],
+      "reported": {
+        "title": "FeeManager -by-default design might introduce flaws in the token economy",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "FeeManager -by-default design might introduce flaws in the token economy affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "3.16 FeeManager open-by-default design might introduce flaws in the token economy",
+        "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "feemanager -by-default design might introduce flaws in the token economy",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "3.27|usage of entitystate for both brokers and tokens in poamanager is an anti separation of concerns pattern|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 87,
+        "sourceSectionTitle": "Usage of EntityState for both brokers and tokens in PoaManager is an anti-separation-of-concerns pattern",
+        "sourceText": "3.27 Usage of EntityState for both brokers and tokens in PoaManager is an anti-separation-of-concerns pattern Minor",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "inferred",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Usage of EntityState for both brokers and tokens in PoaManager is an anti-separation-of-concerns pattern",
+      "canonicalKey": "3.27|usage of entitystate for both brokers and tokens in poamanager is an anti separation of concerns pattern|investigation scope||||||"
+    }
+  ],
+  "eval": {
+    "enableNlp": true,
+    "expectedCount": 27,
+    "actualCount": 27,
+    "expectedSeverityCounts": {
+      "Critical": 0,
+      "High": 0,
+      "Medium": 4,
+      "Low": 23
+    },
+    "actualSeverityCounts": {
+      "Critical": 0,
+      "High": 0,
+      "Medium": 4,
+      "Low": 23
+    },
+    "duplicates": 0,
+    "negativeHits": 0,
+    "pass": true
+  }
+}

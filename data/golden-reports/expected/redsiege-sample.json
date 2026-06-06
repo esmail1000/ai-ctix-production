@@ -1,0 +1,19 @@
+{
+  "id": "redsiege-sample",
+  "expectedCount": 10,
+  "notes": ["Seed golden report. Count gate only in phase 1."],
+  "negativeSections": [
+    "Table of Contents",
+    "Contents",
+    "Index",
+    "Scope",
+    "Executive Summary",
+    "Severity Definitions",
+    "Risk Scale",
+    "Methodology",
+    "Conclusion",
+    "Appendix",
+    "Disclaimer",
+    "Rules of Engagement"
+  ]
+}

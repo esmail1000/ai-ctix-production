@@ -1,0 +1,436 @@
+{
+  "manifest": {
+    "id": "cure53-dnsmasq-report",
+    "vendor": "Cure53",
+    "family": "cure53",
+    "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+    "sourcePath": "Cure53/Dnsmasq-report.pdf",
+    "textPath": "data/golden-reports/extracted-text/cure53-dnsmasq-report.txt",
+    "expectedPath": "data/golden-reports/expected/cure53-dnsmasq-report.json"
+  },
+  "expected": {
+    "id": "cure53-dnsmasq-report",
+    "expectedCount": 6,
+    "expectedSeverityCounts": {
+      "Critical": 0,
+      "High": 0,
+      "Medium": 1,
+      "Low": 5
+    },
+    "notes": [
+      "Promoted from verified Stage 6 V7 Cure53 review queue.",
+      "Source review id: cure53-dnsmasq-report-15848bd4",
+      "Requires ENABLE_GENERIC_INDEX_ALIGNMENT=true for generic official index / Cure53 official ID recovery gates.",
+      "Cure53 severity labels are normalized into Critical, High, Medium, and Low. Info/Informational/Note are normalized to Low only when they are official severity-rated entries."
+    ]
+  },
+  "report": {
+    "id": "G-cure53-dnsmasq-report",
+    "slug": "cure53-dnsmasq-report",
+    "name": "cure53-dnsmasq-report",
+    "type": "PDF",
+    "uploadedAt": "2026-06-05T23:33:49.753Z",
+    "owner": "AI CTIX Analyzer",
+    "status": "Ready",
+    "findings": 6,
+    "critical": 0,
+    "high": 0,
+    "medium": 1,
+    "low": 5,
+    "summary": "Mario Heiderich, Cure53 Rudolf Reusch Str. Mario Heiderich, Mike Wege, Dario Weißer Index Introduction Scope Identified Vulnerabilities DM-01-001 Uninitialized buffer leads to memory leakage (Medium)",
+    "parsingStatus": "parsed",
+    "analysisVersion": 1,
+    "parserVersion": 1,
+    "parsingNotes": [
+      "Structured parser found no blocks; heuristic fallback was used.",
+      "NLP hybrid extraction produced 4 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+      "Aligned findings with generic official index: 4 -> 6."
+    ],
+    "content": "Dr.-Ing. Mario Heiderich, Cure53\nRudolf Reusch Str. 33\nD 10367 Berlin\ncure53.de · mario@cure53.de\nPentest-Report dnsmasq 05.-06.2016\nCure53, Dr.-Ing. Mario Heiderich, Mike Wege, Dario Weißer\nIndex\nIntroduction\nScope\nIdentified Vulnerabilities\nDM-01-001 Uninitialized buffer leads to memory leakage (Medium)\nDM-01-003 Makefile lacks security parameters for gcc (Low)\nDM-01-006 Allocated memory is not cleared (Low)\nMiscellaneous Issues\nDM-01-002 Unchecked return value can lead to NULL pointer dereference (Low)\nDM-01-004 Wrong assumption about return value of snprintf()/vsnprintf() (Low)\nDM-01-005 Hardcoded values in fscanf() format strings with aliased buffers (Low)\nConclusion\nIntroduction\n“Dnsmasq provides network infrastructure for small networks: DNS, DHCP, router\nadvertisement and network boot. It is designed to be lightweight and have a small\nfootprint, suitable for resource constrained routers and firewalls.\nIt has also been widely used for tethering on smartphones and portable hotspots, and to\nsupport virtual networking in virtualisation frameworks. Supported platforms include\nLinux (with glibc and uclibc), Android, *BSD, and Mac OS X. Dnsmasq is included in\nmost Linux distributions and the ports systems of FreeBSD, OpenBSD and NetBSD.\nDnsmasq provides full IPv6 support.”\nFrom http://www.thekelleys.org.uk/dnsmasq/doc.html\nThis report documents the findings of the penetration test and security assessment\nconducted by the Cure53 team against the dnsmasq server. The project was generously\nfunded from the SOS programme run by Mozilla. Carried out over a period of two weeks\nin May and June 2016, this assignment involved three members of the Cure53 team.\nCure53, Berlin · 06/22/16 1/10\n\n-- 1 of 10 --\n\nDr.-Ing. Mario Heiderich, Cure53\nRudolf Reusch Str. 33\nD 10367 Berlin\ncure53.de · mario@cure53.de\nRegarding the approach and scope, the test was performed as a tool-assisted code\naudit. Getting full coverage of the available dnsmasq sources was attempted and the\ntests were aimed at several specific attacks and vulnerability patterns, namely buffer\noverflows, parsing errors, information leaks, cryptographic errors and usage of weak\nfunctions.\nAs for the results, the tests have only uncovered six issues, with three among them\nclassified as actual security vulnerabilities. It has to be underscored that neither issues\nwith “Critical” nor with “High” severity rankings were found, denoting that the discoveries\nare not particularly salient in terms of their impact, scope, and the risk they pose.\nScope\n• dnsmasq Sources\n◦ http://thekelleys.org.uk/gitweb/?p=dnsmasq.git;a=summary\nIdentified Vulnerabilities\nThe following sections list both vulnerabilities and implementation issues spotted during\nthe testing period. Note that findings are listed in a chronological order rather than by\ntheir degree of severity and impact. The aforementioned severity rank is simply given in\nbrackets following the title heading for each vulnerability. Each vulnerability is\nadditionally given a unique identifier (e.g. DM-01-001) for the purpose of facilitating any\nfuture follow-up correspondence.\nDM-01-001 Uninitialized buffer leads to memory leakage (Medium)\nIt was discovered that the application does not properly initialize the buffer for incoming\nand outgoing packets. This leads to a partial disclosure of the previously received or\nsent packets. Taking advantage of this issue made it possible to leak up to\n[28+tftp_prefix_length] bytes from a packet that another party had sent to the server. The\nattack is limited in scope and impact since only the network data can be leaked. It is\nfurther constrained by the condition that the packets must be greater than 530 bytes in\nsize. However, it cannot be excluded that an attacker could work around these\nlimitations by using other services, although this option has not been investigated further\nduring this test.\nIn the following example one can observe a setup comprising the server, a victim and an\nattacker. The victim sends a long packet (around 550 bytes) to the server. Since this is\nonly a proof of concept the content is inconsequential here.\nCure53, Berlin · 06/22/16 2/10\n\n-- 2 of 10 --\n\nDr.-Ing. Mario Heiderich, Cure53\nRudolf Reusch Str. 33\nD 10367 Berlin\ncure53.de · mario@cure53.de\nVictim → Server:\nperl -e 'print \"LeakMe\"x91' | nc -u 192.168.1.1 53\nHaving completed sending assignments, the daemon->packet buffer is filled with the\ndata from the client’s request. In essence, the attacker can now run their attack aimed at\nleaking a few bytes. The packet that is used here is a TFTP1 request to read a file.\nAttacker → Server:\nperl -e 'print \"\\x00\\x01\".(\"A\"x500).\"\\x00octet\\x00\"' | nc -u 192.168.1.1 69\nThe file is not accessible and the server responds with the corresponding error\nmessage. Since the buffer holding the packet is not flushed, it still holds the contents\nfrom the previous communication with the victim.\nServer → Attacker:\n17:39:33.558152 IP (tos 0x0, ttl 64, id 65025, offset 0, flags [none], proto UDP\n(17), length 570)\n192.168.1.1.47255 > 192.168.1.3.50423: [udp sum ok] UDP, length 542\n0x0000: 0800 27d0 e35c 0800 2788 9fcd 0800 4500 ..'..\\..'.....E.\n0x0010: 023a fe01 0000 4011 f75c c0a8 0101 c0a8 .:....@..\\......\n0x0020: 0103 b897 c4f7 0226 9f78 0005 0000 6361 .......&.x....ca\n0x0030: 6e6e 6f74 2072 6561 6420 2f6c 656c 2f41 nnot.read./lel/A\n0x0040: 4141 4141 4141 4141 4141 4141 4141 4141 AAAAAAAAAAAAAAAA\n...\n0x0210: 4141 4141 4141 4141 4141 4141 4141 4141 AAAAAAAAAAAAAAAA\n0x0220: 4100 6374 6574 0065 4c65 616b 4d65 4c65 A.ctet.eLeakMeLe\n0x0230: 616b 4d65 4c65 616b 4d65 4c65 616b 4d65 akMeLeakMeLeakMe\n0x0240: 4c65 616b 4d65 4c65 LeakMeLe\nIt is evident that the message sent to the attacker should by no means contain data sent\nby the victim. The vulnerability is caused by two different flaws described next.\n1. No initialization of buffers:\nThe packet buffer “packet” located in the “daemon” structure is used to store requests\nand responses for different protocols. The server does not fork when UDP packets are\nreceived, signifying that the buffer becomes reusable for different connections from\ndifferent hosts. Because the memory is not cleared between the connections, the buffer\nmight technically contain old data.\n1 https://en.wikipedia.org/wiki/Trivial_File_Transfer_Protocol\nCure53, Berlin · 06/22/16 3/10\n\n-- 3 of 10 --\n\nDr.-Ing. Mario Heiderich, Cure53\nRudolf Reusch Str. 33\nD 10367 Berlin\ncure53.de · mario@cure53.de\n2. Incorrect use of snprintf():\nIt can be inferred from the existing schemes that the author of the code probably\nbelieved that the return value of snprintf()2 equals the number of bytes written into the\ndestination buffer. In fact this is only the case if the source string is smaller or equal to\nthe limit value. Snprintf returns the number of bytes that could have been written if there\nwas no limitation in place.\nThe tftp_request function is called frequently in order to check for new requests on the\ntftp socket. Basically, the file requests are handled here but, prior to a file being available\nfor reading, the accessibility needs to be verified. After checking the permissions and\npotentially reading the requested file, a response of size len is sent to the client.\nAffected File:\n/src/tftp.c\nAffected Code:\nvoid tftp_request(struct listener *listen, time_t now)\n{\n…\nif ((transfer->file = check_tftp_fileperm(&len, prefix))) {\n...\n}\nwhile (sendto(transfer->sockfd, packet, len, 0,\n(struct sockaddr *)&peer, sa_len(&peer)) == -1\n&& errno == EINTR);\nCheck_tftp_fileperm performs a permission check and tries to open the file. If it turns out\nimpossible then an error message is generated and written into the packet buffer.\nstatic struct tftp_file *check_tftp_fileperm(ssize_t *len, char *prefix)\n{\n…\nif ((fd = open(namebuff, O_RDONLY)) == -1)\n{\nif (errno == ENOENT)\n{\n*len = tftp_err(ERR_FNF, packet,\n_(\"file %s not found\"), namebuff);\nreturn NULL;\n}\nelse if (errno == EACCES)\n2 https://en.wikipedia.org/wiki/C_file_input/output#sprintf\nCure53, Berlin · 06/22/16 4/10\n\n-- 4 of 10 --\n\nDr.-Ing. Mario Heiderich, Cure53\nRudolf Reusch Str. 33\nD 10367 Berlin\ncure53.de · mario@cure53.de\ngoto perm;\nelse\ngoto oops;\n}\n…\noops:\n*len = tftp_err_oops(packet, namebuff);\nif (fd != -1)\nclose(fd);\nreturn NULL;\nThe problem occurs in tftp_err where the error message is written into the message\nbuffer. The return value of snprintf() is used to determine the size of the final message\nthat is sent to the user. While the maximum number of bytes snprintf can write is in fact\n500, the return value equals the length of the string before it is truncated at 500 bytes.\nThus more data than what is actually in the buffer is sent to the user.\nstatic ssize_t tftp_err_oops(char *packet, char *file)\n{\n/* May have >1 refs to file, so potentially mangle a copy of the name */\nstrcpy(daemon->namebuff, file);\nreturn tftp_err(ERR_NOTDEF, packet,\n_(\"cannot read %s: %s\"), daemon->namebuff);\n}\nstatic ssize_t tftp_err(int err, char *packet, char *message, char *file)\n{\nstruct errmess {\nunsigned short op, err;\nchar message[];\n} *mess = (struct errmess *)packet;\n...\nssize_t ret = 4;\nret += (snprintf(mess->message, 500, message, file, errstr) + 1);\n...\nreturn ret;\n}\nIt is recommended to overwrite buffers with zero, both before receiving data and after\nsending it. Furthermore tftp_err needs to be adjusted to return the correct size.\nCure53, Berlin · 06/22/16 5/10\n\n-- 5 of 10 --\n\nDr.-Ing. Mario Heiderich, Cure53\nRudolf Reusch Str. 33\nD 10367 Berlin\ncure53.de · mario@cure53.de\nDM-01-003 Makefile lacks security parameters for gcc (Low)\nPosition-independant executable3 (PIE) is a security mechanism that makes exploitation\nof vulnerabilities much more difficult. Binaries without the PIE are always mapped to the\nsame address when being executed. An attacker who already has found a vulnerability\ncan use this information to read data from a known address or to create a ROP\npayload4. A binary compiled with PIE is mapped to a random memory location when\nbeing executed and eliminates all predictable addresses.\nBy default, the Executables are mapped to the address 0x400000 on the 64bit Linux\nsystems.\nMemory maps without PIE:\n00400000-0044f000 r-xp 00000000 08:01 271825\n/root/dnsmasq/src/dnsmasq\n0064f000-00653000 rw-p 0004f000 08:01 271825\n/root/dnsmasq/src/dnsmasq\n00872000-00893000 rw-p 00000000 00:00 0 [heap]\nWith PIE enabled, the Executable no longer remains at 0x400000 but has a random\naddress which is chosen when the program is started.\nMemory maps with PIE:\n7f2292f5f000-7f2292fb1000 r-xp 00000000 08:01 271827\n/root/dnsmasq/src/dnsmasq\n7f22931a5000-7f22931a9000 rw-p 00000000 00:00 0\n7f22931ae000-7f22931b1000 rw-p 00000000 00:00 0\n7f22931b1000-7f22931b5000 rw-p 00052000 08:01 271827\n/root/dnsmasq/src/dnsmasq\n7f2293616000-7f2293637000 rw-p 00000000 00:00 0 [heap]\nPIE should be enabled by default on all systems that support this feature. Furthermore,\nadding subsequent compiler security flags should be considered. Some of them are\ndescribed in the debian wiki5.\n3 https://en.wikipedia.org/wiki/Position-independent_code#PIE\n4 https://en.wikipedia.org/wiki/Return-oriented_programming\n5 https://wiki.debian.org/Hardening#gcc_-Wformat_-Wformat-security\nCure53, Berlin · 06/22/16 6/10\n\n-- 6 of 10 --\n\nDr.-Ing. Mario Heiderich, Cure53\nRudolf Reusch Str. 33\nD 10367 Berlin\ncure53.de · mario@cure53.de\nDM-01-006 Allocated memory is not cleared (Low)\nThe application uses malloc()6 to allocate memory for buffers and data structures. This\nfunction returns a pointer to the allocated space but leaves its contents untouched. In\nother words, the previously freed data can remain in the area in which it will then be\ncontained by the buffer. This can lead to memory disclosure if this type of buffer is sent\nvia network without being filled properly.\nThe problem can be avoided by overwriting buffers with 0’s immediately after allocation.\nIt is recommended to use calloc() instead of the current function in order to avoid the\npitfalls of malloc(). The buffers that are allocated on the stack must be nulled manually.\nAs already described in DM-01-001, it is important to clear buffers prior to any re-usage.\nMiscellaneous Issues\nThis section covers those noteworthy findings that did not lead to an exploit but might aid\nan attacker in achieving their malicious goals in the future. Most of these results are\nvulnerable code snippets that did not provide an easy way to be called. Conclusively,\nwhile a vulnerability is present, an exploit might not always be possible.\nDM-01-002 Unchecked return value can lead to NULL pointer dereference (Low)\nThe functions send_ra_alias and periodic_slaac do not check the return value of\nexpand. Therefore, they might lead to a possible read from 0. Expand resizes a buffer\nand returns the pointer on success and, if malloc fails to allocate enough memory, NULL\nis returned. The result would be an invalid dereference call which effectively crashes the\nprogram.\nAffected File:\n/src/slaac.c\nAffected Code:\nping = expand(sizeof(struct ping_packet));\nping->type = ICMP6_ECHO_REQUEST;\nping->code = 0;\nAffected File:\n/src/radv.c\n6 https://en.wikipedia.org/wiki/C_dynamic_memory_allocation\nCure53, Berlin · 06/22/16 7/10\n\n-- 7 of 10 --\n\nDr.-Ing. Mario Heiderich, Cure53\nRudolf Reusch Str. 33\nD 10367 Berlin\ncure53.de · mario@cure53.de\nAffected Code:\nra = expand(sizeof(struct ra_packet));\nra->type = ND_ROUTER_ADVERT;\nra->code = 0;\nra->hop_limit = hop_limit;\nIt is recommended to check the return values of Expand and to make sure that the\noperation is aborted in case of the 0 value..\nDM-01-004 Wrong assumption about return value of snprintf()/vsnprintf() (Low)\nAs already discussed, particularly in the realm of DM-01-001, the return value of\nsnprintf()/vsnprintf() is inappropriately used across various locations. While this can\nfortunately result only in a mangled output in the cases described below, it is\nnevertheless recommended to fix this oversight.\nAffected File:\n/src/log.c\nAffected Code:\nlen = p - entry->payload;\nva_start(ap, format);\nlen += vsnprintf(p, MAX_MESSAGE - len, format, ap) + 1; /* include zero-\nterminator */\nva_end(ap);\nentry->length = len > MAX_MESSAGE ? MAX_MESSAGE : len;\nAffected File:\n/src/rfc2131.c\nAffected Code:\nchar *s = option_string(AF_INET, req_options[i], NULL, 0, NULL, 0);\nq += snprintf(q, MAXDNAME - (q - daemon->namebuff),\n\"%d%s%s%s\",\nreq_options[i],\nstrlen(s) != 0 ? \":\" : \"\",\ns,\nreq_options[i+1] == OPTION_END ? \"\" : \", \")\nAffected File:\n/src/rfc3315.c\nCure53, Berlin · 06/22/16 8/10\n\n-- 8 of 10 --\n\nDr.-Ing. Mario Heiderich, Cure53\nRudolf Reusch Str. 33\nD 10367 Berlin\ncure53.de · mario@cure53.de\nAffected Code:\nchar *s = option_string(AF_INET6, opt6_uint(oro, i, 2), NULL, 0, NULL, 0);\nq += snprintf(q, MAXDNAME - (q - daemon->namebuff),\n\"%d%s%s%s\",\nopt6_uint(oro, i, 2),\nstrlen(s) != 0 ? \":\" : \"\",\ns,\n(i > opt6_len(oro) - 3) ? \"\" : \", \");\nA recommendation stemming from the above is to use the return value according to\nRETURN VALUE and NOTES in the respective man-page or, alternatively, have it\nproperly implemented in /src/cache.c.\nDM-01-005 Hardcoded values in fscanf() format strings with aliased buffers (Low)\nThe problem described here concerns the usage of hard-coded string length values.\nMore specifically, it is the values with calls to fscanf() with borrowed buffers that can\neasily lead to buffer overflow in the event of code changes being deployed. This does\nnot currently lead to any buffer overflows because the buffer sizes are large enough.\nMoreover the referenced names of the aliased buffers are specific to the original case\nand not to the reuse or more general case.\nAffected File:\n/src/lease.c\nAffected Code:\n/* client-id max length is 255 which is 255*2 digits + 254 colons\nborrow DNS packet buffer which is always larger than 1000 bytes */\nif (leasestream)\nwhile (fscanf(leasestream, \"%255s %255s\",\ndaemon->dhcp_buff3, daemon->dhcp_buff2) == 2)\n{\nAffected Code:\nei = atol(daemon->dhcp_buff3);\nif (fscanf(leasestream, \" %64s %255s %764s\",\ndaemon->namebuff, daemon->dhcp_buff,\ndaemon->packet) != 3)\nbreak;\nIt is recommended to use the allocated buffer size constants modulo the maximum\nexpected lengths from the respective header file and double-apply the stringify operator\nto embed the resulting values in the format strings. The downside to this solution is that\nit will likely not increase the readability of the code.\nCure53, Berlin · 06/22/16 9/10\n\n-- 9 of 10 --\n\nDr.-Ing. Mario Heiderich, Cure53\nRudolf Reusch Str. 33\nD 10367 Berlin\ncure53.de · mario@cure53.de\nConclusion\nDescribing the results of the spring 2016 security assessment of the dnsmasq server\ncarried out by the Cure53 team, this report highlights the overall positive impression that\nthe state of security at the dnsmasq makes. At the same time, some attention should be\ngiven to the fact that six issues were still found. Three of the discoveries constitute\nactual security vulnerabilities and should be addressed as soon as possible.\nLooking at all findings of the audit, which was notably sponsored by the Mozilla SOS\nProgram, one has to underline that only one issue, namely the DM-01-001 revealing a\nmemory leak, was eventually classified as “Medium” in terms of severity. Consequently,\nthe remaining problems were less impactful, effectively suggesting not only the\nrobustness of the code, but also pointing to the predicted relative ease of implementing\nfixes.\nThe overall impression of the code quality shared by the Cure53 testing team was\npositive, with further notes being made about the code’s mature feel. At the same time,\nsome of the numerous hand hand-crafted parsers and serializers/deserializers were\nsomewhat questionable, thus leaving room for further investigations of the dnsmasq\nserver. The main problem appears to be the largely missing documentation of the great\nmajority of the existing code. As a result, it can be forecasted that future maintainers of\neither the main branch or the potential forks of the codebase, will have considerable\ndifficulty in fully understanding the implementation in place. This needs to be discussed\nand reflected upon when the long-term perspective of the dnsmasq evolution is\nconsidered.\nOne general technical recommendation for improving the security of the dnsmasq is to\nreplace or further restrict unbounded string handling calls. This applies to strcat(),\nstrcpy(), strlen(), sprintf(), strtok() with their respective n-limited functions. At any rate,\nthe proper usage of the signed length values needs to be ensured as it otherwise leads\nto a potential for buffer under- and over- flows. The application of an internal random\nnumber generator over the system-rng/prng has not left the Cure53 overly confident\nabout its suitability and aptness. However, no obviously problematic usage of this\nmechanism for the cryptographically relevant operations could be identified during the\ntests.\nCure53 would like to thank Gervase Markham and Chris Riley of Mozilla for their\nexcellent project coordination, support and assistance, both before and during this\nassignment.\nCure53, Berlin · 06/22/16 10/10\n\n-- 10 of 10 --",
+    "sourceFileName": "Dnsmasq-report.pdf",
+    "createdAtIso": "2026-06-05T23:34:00.339Z",
+    "updatedAtIso": "2026-06-05T23:34:00.339Z"
+  },
+  "findings": [
+    {
+      "id": "F-cure53-001",
+      "slug": "uninitialized-buffer-leads-to-memory-leakage-investigation-scope",
+      "reportId": "G-cure53-dnsmasq-report",
+      "reportName": "cure53-dnsmasq-report",
+      "title": "Uninitialized buffer leads to memory leakage",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:49.753Z",
+      "summary": "Uninitialized buffer leads to memory leakage affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: DM-01-001",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:34:00.330Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "Uninitialized buffer leads to memory leakage",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Uninitialized buffer leads to memory leakage affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: DM-01-001",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "uninitialized buffer leads to memory leakage",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "DM-01-001|uninitialized buffer leads to memory leakage|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Uninitialized buffer leads to memory leakage",
+        "sourceText": "DM-01-001 Uninitialized buffer leads to memory leakage (Medium)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Uninitialized buffer leads to memory leakage",
+      "canonicalKey": "DM-01-001|uninitialized buffer leads to memory leakage|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-002",
+      "slug": "makefile-lacks-security-parameters-for-gcc-investigation-scope",
+      "reportId": "G-cure53-dnsmasq-report",
+      "reportName": "cure53-dnsmasq-report",
+      "title": "Makefile lacks security parameters for gcc",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:49.753Z",
+      "summary": "Makefile lacks security parameters for gcc affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: DM-01-003",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:34:00.330Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "Makefile lacks security parameters for gcc",
+        "severity": "Low",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Makefile lacks security parameters for gcc affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: DM-01-003",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "makefile lacks security parameters for gcc",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "DM-01-003|makefile lacks security parameters for gcc|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Makefile lacks security parameters for gcc",
+        "sourceText": "DM-01-003 Makefile lacks security parameters for gcc (Low)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Makefile lacks security parameters for gcc",
+      "canonicalKey": "DM-01-003|makefile lacks security parameters for gcc|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-003",
+      "slug": "allocated-memory-is-not-cleared-investigation-scope",
+      "reportId": "G-cure53-dnsmasq-report",
+      "reportName": "cure53-dnsmasq-report",
+      "title": "Allocated memory is not cleared",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:49.753Z",
+      "summary": "Allocated memory is not cleared affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: DM-01-006",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:34:00.331Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "Allocated memory is not cleared",
+        "severity": "Low",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Allocated memory is not cleared affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: DM-01-006",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "allocated memory is not cleared",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "DM-01-006|allocated memory is not cleared|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Allocated memory is not cleared",
+        "sourceText": "DM-01-006 Allocated memory is not cleared (Low)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Allocated memory is not cleared",
+      "canonicalKey": "DM-01-006|allocated memory is not cleared|investigation scope||||||"
+    },
+    {
+      "id": "F-G-cure53-dnsmasq-report-GIDX-004",
+      "slug": "uninitialized-buffer-leads-to-memory-leakage-investigation-scope",
+      "reportId": "G-cure53-dnsmasq-report",
+      "reportName": "cure53-dnsmasq-report",
+      "title": "Unchecked return value can lead to NULL pointer dereference",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:49.753Z",
+      "summary": "Unchecked return value can lead to NULL pointer dereference affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: DM-01-001",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:34:00.330Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "Uninitialized buffer leads to memory leakage",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Uninitialized buffer leads to memory leakage affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: DM-01-001",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "uninitialized buffer leads to memory leakage",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "DM-01-002|unchecked return value can lead to null pointer dereference|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Unchecked return value can lead to NULL pointer dereference",
+        "sourceText": "DM-01-002 Unchecked return value can lead to NULL pointer dereference (Low)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Unchecked return value can lead to NULL pointer dereference",
+      "canonicalKey": "DM-01-002|unchecked return value can lead to null pointer dereference|investigation scope||||||"
+    },
+    {
+      "id": "F-G-cure53-dnsmasq-report-GIDX-005",
+      "slug": "uninitialized-buffer-leads-to-memory-leakage-investigation-scope",
+      "reportId": "G-cure53-dnsmasq-report",
+      "reportName": "cure53-dnsmasq-report",
+      "title": "Wrong assumption about return value of snprintf()/vsnprintf()",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:49.753Z",
+      "summary": "Wrong assumption about return value of snprintf()/vsnprintf() affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: DM-01-001",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:34:00.330Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "Uninitialized buffer leads to memory leakage",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Uninitialized buffer leads to memory leakage affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: DM-01-001",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "uninitialized buffer leads to memory leakage",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "DM-01-004|wrong assumption about return value of snprintf vsnprintf|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Wrong assumption about return value of snprintf()/vsnprintf()",
+        "sourceText": "DM-01-004 Wrong assumption about return value of snprintf()/vsnprintf() (Low)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-recovery"
+      },
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Wrong assumption about return value of snprintf()/vsnprintf()",
+      "canonicalKey": "DM-01-004|wrong assumption about return value of snprintf vsnprintf|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-004",
+      "slug": "hardcoded-values-in-fscanf-format-strings-with-aliased-buffers-investigation-scope",
+      "reportId": "G-cure53-dnsmasq-report",
+      "reportName": "cure53-dnsmasq-report",
+      "title": "Hardcoded values in fscanf() format strings with aliased buffers",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:33:49.753Z",
+      "summary": "Hardcoded values in fscanf() format strings with aliased buffers affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: DM-01-005",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:34:00.331Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "Hardcoded values in fscanf() format strings with aliased buffers",
+        "severity": "Low",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Hardcoded values in fscanf() format strings with aliased buffers affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: DM-01-005",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "hardcoded values in fscanf() format strings with aliased buffers",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "DM-01-005|hardcoded values in fscanf format strings with aliased buffers|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Hardcoded values in fscanf() format strings with aliased buffers",
+        "sourceText": "DM-01-005 Hardcoded values in fscanf() format strings with aliased buffers (Low)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Hardcoded values in fscanf() format strings with aliased buffers",
+      "canonicalKey": "DM-01-005|hardcoded values in fscanf format strings with aliased buffers|investigation scope||||||"
+    }
+  ],
+  "eval": {
+    "enableNlp": true,
+    "expectedCount": 6,
+    "actualCount": 6,
+    "expectedSeverityCounts": {
+      "Critical": 0,
+      "High": 0,
+      "Medium": 1,
+      "Low": 5
+    },
+    "actualSeverityCounts": {
+      "Critical": 0,
+      "High": 0,
+      "Medium": 1,
+      "Low": 5
+    },
+    "duplicates": 0,
+    "negativeHits": 0,
+    "pass": true
+  }
+}

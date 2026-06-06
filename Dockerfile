@@ -2,7 +2,7 @@ FROM node:22-bookworm-slim
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y python3 python3-pip tesseract-ocr poppler-utils && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y python3 python3-pip tesseract-ocr poppler-utils curl unzip && rm -rf /var/lib/apt/lists/*
 
 COPY package*.json ./
 RUN npm ci
@@ -14,6 +14,19 @@ COPY waf_simulation/requirements.txt.txt ./waf_simulation/requirements.txt.txt
 RUN python3 -m pip install --break-system-packages -r ./waf_simulation/requirements.txt.txt
 
 COPY . .
+
+ARG CYBERBERT_MODEL_URL="https://github.com/esmail1000/ai-ctix-production/releases/download/model-v2/cyberbert-ner-runtime.zip"
+
+RUN rm -rf /app/nlp_engine/models/cyberbert-ner \
+    && mkdir -p /app/nlp_engine/models/cyberbert-ner \
+    && curl -L "$CYBERBERT_MODEL_URL" -o /tmp/cyberbert-ner-runtime.zip \
+    && unzip -o /tmp/cyberbert-ner-runtime.zip -d /app/nlp_engine/models/cyberbert-ner \
+    && rm /tmp/cyberbert-ner-runtime.zip \
+    && test -f /app/nlp_engine/models/cyberbert-ner/config.json \
+    && test -f /app/nlp_engine/models/cyberbert-ner/model.safetensors \
+    && test -f /app/nlp_engine/models/cyberbert-ner/tokenizer.json \
+    && test -f /app/nlp_engine/models/cyberbert-ner/tokenizer_config.json \
+    && test -f /app/nlp_engine/models/cyberbert-ner/label_map.json
 
 RUN npx prisma generate
 RUN npm run build

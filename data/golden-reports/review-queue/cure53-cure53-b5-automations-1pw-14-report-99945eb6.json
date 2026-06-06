@@ -1,0 +1,148 @@
+{
+  "id": "cure53-cure53-b5-automations-1pw-14-report-99945eb6",
+  "status": "ready_for_review",
+  "source": {
+    "sourcePath": "Cure53/Cure53-B5_automations_1PW-14-report.pdf",
+    "absolutePath": "C:\\Users\\Esmail Azoz\\Downloads\\public-pentesting-reports-master\\public-pentesting-reports-master\\Cure53\\Cure53-B5_automations_1PW-14-report.pdf",
+    "fileName": "Cure53-B5_automations_1PW-14-report.pdf",
+    "vendorGuess": "Cure53",
+    "sizeMb": 0.26,
+    "extractionMethod": "pdf-parse",
+    "textPath": "data/golden-reports/review-queue-text/cure53-cure53-b5-automations-1pw-14-report-99945eb6.txt"
+  },
+  "modelRun": {
+    "enableNlp": true,
+    "actualFindings": 7,
+    "severityCounts": {
+      "Critical": 0,
+      "High": 0,
+      "Medium": 2,
+      "Low": 5
+    },
+    "warnings": [
+      "Structured parser found no blocks; heuristic fallback was used.",
+      "NLP hybrid extraction produced 10 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+      "Aligned findings with generic official index: 10 -> 7."
+    ]
+  },
+  "reviewChecklist": {
+    "expectedCount": null,
+    "expectedSeverityCounts": {
+      "Critical": null,
+      "High": null,
+      "Medium": null,
+      "Low": null
+    },
+    "reviewerNotes": [],
+    "promoteToGolden": false,
+    "promoteToTraining": false,
+    "rejectedReason": null
+  },
+  "findings": [
+    {
+      "id": "F-cure53-001",
+      "title": "DoS on SCIM bridge via Groups route",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "cve": "—",
+      "score": 35,
+      "status": "In Review",
+      "summary": "DoS on SCIM bridge via Groups route affecting investigation-scope; extractor found type Denial of Service.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "DoS on SCIM bridge via Groups route",
+      "canonicalKey": "1PW-14-002|dos on scim bridge via groups route|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-002",
+      "title": "ACL bypass of Events via JWT token manipulation",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "cve": "—",
+      "score": 64,
+      "status": "In Review",
+      "summary": "ACL bypass of Events via JWT token manipulation affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "ACL bypass of Events via JWT token manipulation",
+      "canonicalKey": "1PW-14-003|acl bypass of events via jwt token manipulation|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-003",
+      "title": "Client-side DoS via missing sign-in URL validation",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "cve": "—",
+      "score": 35,
+      "status": "In Review",
+      "summary": "Client-side DoS via missing sign-in URL validation affecting investigation-scope; extractor found type Denial of Service.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Client-side DoS via missing sign-in URL validation",
+      "canonicalKey": "1PW-14-006|client side dos via missing sign in url validation|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-004",
+      "title": "General HTTP security headers missing",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "cve": "—",
+      "score": 64,
+      "status": "In Review",
+      "summary": "General HTTP security headers missing affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "General HTTP security headers missing",
+      "canonicalKey": "1PW-14-001|general http security headers missing|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-005",
+      "title": "Security of events endpoint weakened by gob parsing",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "cve": "—",
+      "score": 35,
+      "status": "In Review",
+      "summary": "Security of events endpoint weakened by gob parsing affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Security of events endpoint weakened by gob parsing",
+      "canonicalKey": "1PW-14-004|security of events endpoint weakened by gob parsing|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-006",
+      "title": "HTTP path traversal in CLI login implementation",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "cve": "—",
+      "score": 35,
+      "status": "In Review",
+      "summary": "HTTP path traversal in CLI login implementation affecting investigation-scope; extractor found type Path Traversal.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "HTTP path traversal in CLI login implementation",
+      "canonicalKey": "1PW-14-005|http path traversal in cli login implementation|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-007",
+      "title": "Cross-Origin-related HTTP security headers missing",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "cve": "—",
+      "score": 35,
+      "status": "In Review",
+      "summary": "Cross-Origin-related HTTP security headers missing affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Cross-Origin-related HTTP security headers missing",
+      "canonicalKey": "1PW-14-007|cross origin related http security headers missing|investigation scope||||||"
+    }
+  ]
+}

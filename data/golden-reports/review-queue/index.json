@@ -1,0 +1,618 @@
+{
+  "generatedAt": "2026-06-05T21:07:16.150Z",
+  "corpusRoot": "C:\\Users\\Esmail Azoz\\Downloads\\public-pentesting-reports-master\\public-pentesting-reports-master",
+  "enableNlp": true,
+  "limit": 25,
+  "vendorFilter": null,
+  "maxMb": 25,
+  "includeHeld": false,
+  "skippedHeldReports": 44,
+  "heldReviewSourcePaths": [
+    "Bishop Fox/Bishop-Fox-Research-Report-Efficacy-of-micro-segmentation-V01.pdf",
+    "Bishop Fox/stj_expert_witness_report.pdf",
+    "Consensys/Diligence/vyper-audit-2019-10.pdf",
+    "CPTC/2019/letter to competitors.pdf",
+    "CPTC/2019/nationalsC-report-redacted.pdf",
+    "CPTC/2019/nationalsD-report-redacted.pdf",
+    "CPTC/2019/nationalsE-report-redacted.pdf",
+    "CPTC/2019/nationalsF-report-redacted.pdf",
+    "CPTC/2019/nationalsH-report-redacted.pdf",
+    "CPTC/2019/nationalsI-report-redacted.pdf",
+    "CPTC/2020/Finals-A-report-redacted.pdf",
+    "CPTC/2020/Finals-B-report-redacted.pdf",
+    "CPTC/2020/Finals-C-report-redacted.pdf",
+    "CPTC/2020/Finals-D-report-redacted.pdf",
+    "CPTC/2020/Finals-E-report-redacted.pdf",
+    "CPTC/2020/Finals-F-report-redacted.pdf",
+    "CPTC/2020/Finals-G-report-redacted.pdf"
+  ],
+  "heldReviewSourcePrefixes": [
+    "CPTC/",
+    "Cryptography Research/"
+  ],
+  "knownGoldenSourceAliases": [
+    "Cure53/Cure53-1PW17-report.pdf",
+    "Cure53/Cure53-1PW18-report.pdf",
+    "Cure53/HLM-01-report.pdf"
+  ],
+  "totalPdfFilesFound": 394,
+  "candidatesAfterFiltering": 308,
+  "selected": 25,
+  "items": [
+    {
+      "id": "cure53-1pw-23-cure53-report-1password-mobile-v2-8e4a91a4",
+      "sourcePath": "Cure53/1PW-23-Cure53-report-1Password_Mobile.v2.pdf",
+      "absolutePath": "C:\\Users\\Esmail Azoz\\Downloads\\public-pentesting-reports-master\\public-pentesting-reports-master\\Cure53\\1PW-23-Cure53-report-1Password_Mobile.v2.pdf",
+      "fileName": "1PW-23-Cure53-report-1Password_Mobile.v2.pdf",
+      "vendorGuess": "Cure53",
+      "textPath": "data/golden-reports/review-queue-text/cure53-1pw-23-cure53-report-1password-mobile-v2-8e4a91a4.txt",
+      "reviewPath": "data/golden-reports/review-queue/cure53-1pw-23-cure53-report-1password-mobile-v2-8e4a91a4.json",
+      "status": "needs_attention",
+      "textChars": 25265,
+      "actualFindings": 0,
+      "severityCounts": {
+        "Critical": 0,
+        "High": 0,
+        "Medium": 0,
+        "Low": 0
+      },
+      "warnings": [
+        "Structured parser found no blocks; heuristic fallback was used.",
+        "NLP hybrid extraction produced 2 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+        "Generic official index suppression applied: No new severity-rated vulnerability findings were reported."
+      ]
+    },
+    {
+      "id": "cure53-analysis-report-bxaq-a972d918",
+      "sourcePath": "Cure53/analysis-report_bxaq.pdf",
+      "absolutePath": "C:\\Users\\Esmail Azoz\\Downloads\\public-pentesting-reports-master\\public-pentesting-reports-master\\Cure53\\analysis-report_bxaq.pdf",
+      "fileName": "analysis-report_bxaq.pdf",
+      "vendorGuess": "Cure53",
+      "textPath": "data/golden-reports/review-queue-text/cure53-analysis-report-bxaq-a972d918.txt",
+      "reviewPath": "data/golden-reports/review-queue/cure53-analysis-report-bxaq-a972d918.json",
+      "status": "needs_attention",
+      "textChars": 25354,
+      "actualFindings": 0,
+      "severityCounts": {
+        "Critical": 0,
+        "High": 0,
+        "Medium": 0,
+        "Low": 0
+      },
+      "warnings": [
+        "Structured parser found no blocks; heuristic fallback was used.",
+        "NLP hybrid extraction produced 4 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+        "Generic official index suppression applied: Cure53 analysis/classification report without severity-rated vulnerability findings."
+      ]
+    },
+    {
+      "id": "cure53-analysis-report-ijop-011406e1",
+      "sourcePath": "Cure53/analysis-report_ijop.pdf",
+      "absolutePath": "C:\\Users\\Esmail Azoz\\Downloads\\public-pentesting-reports-master\\public-pentesting-reports-master\\Cure53\\analysis-report_ijop.pdf",
+      "fileName": "analysis-report_ijop.pdf",
+      "vendorGuess": "Cure53",
+      "textPath": "data/golden-reports/review-queue-text/cure53-analysis-report-ijop-011406e1.txt",
+      "reviewPath": "data/golden-reports/review-queue/cure53-analysis-report-ijop-011406e1.json",
+      "status": "needs_attention",
+      "textChars": 80457,
+      "actualFindings": 0,
+      "severityCounts": {
+        "Critical": 0,
+        "High": 0,
+        "Medium": 0,
+        "Low": 0
+      },
+      "warnings": [
+        "Structured parser found no blocks; heuristic fallback was used.",
+        "NLP hybrid extraction produced 1 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+        "Generic official index suppression applied: Cure53 analysis/classification report without severity-rated vulnerability findings."
+      ]
+    },
+    {
+      "id": "cure53-analysis-report-pomerium-f9038a95",
+      "sourcePath": "Cure53/analysis-report_Pomerium.pdf",
+      "absolutePath": "C:\\Users\\Esmail Azoz\\Downloads\\public-pentesting-reports-master\\public-pentesting-reports-master\\Cure53\\analysis-report_Pomerium.pdf",
+      "fileName": "analysis-report_Pomerium.pdf",
+      "vendorGuess": "Cure53",
+      "textPath": "data/golden-reports/review-queue-text/cure53-analysis-report-pomerium-f9038a95.txt",
+      "reviewPath": "data/golden-reports/review-queue/cure53-analysis-report-pomerium-f9038a95.json",
+      "status": "ready_for_review",
+      "textChars": 24570,
+      "actualFindings": 5,
+      "severityCounts": {
+        "Critical": 0,
+        "High": 2,
+        "Medium": 1,
+        "Low": 2
+      },
+      "warnings": [
+        "Structured parser found no blocks; heuristic fallback was used.",
+        "NLP hybrid extraction produced 5 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+        "Aligned findings with generic official index: 5 -> 5."
+      ]
+    },
+    {
+      "id": "cure53-analysis-report-sgn-843d6df8",
+      "sourcePath": "Cure53/analysis-report_sgn.pdf",
+      "absolutePath": "C:\\Users\\Esmail Azoz\\Downloads\\public-pentesting-reports-master\\public-pentesting-reports-master\\Cure53\\analysis-report_sgn.pdf",
+      "fileName": "analysis-report_sgn.pdf",
+      "vendorGuess": "Cure53",
+      "textPath": "data/golden-reports/review-queue-text/cure53-analysis-report-sgn-843d6df8.txt",
+      "reviewPath": "data/golden-reports/review-queue/cure53-analysis-report-sgn-843d6df8.json",
+      "status": "needs_attention",
+      "textChars": 32618,
+      "actualFindings": 0,
+      "severityCounts": {
+        "Critical": 0,
+        "High": 0,
+        "Medium": 0,
+        "Low": 0
+      },
+      "warnings": [
+        "Structured parser found no blocks; heuristic fallback was used.",
+        "NLP hybrid extraction produced 6 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+        "Generic official index suppression applied: Cure53 analysis/classification report without severity-rated vulnerability findings."
+      ]
+    },
+    {
+      "id": "cure53-cure53-b5-1pw-06-report-v2-6a6f5640",
+      "sourcePath": "Cure53/Cure53-B5_1PW-06-report.v2.pdf",
+      "absolutePath": "C:\\Users\\Esmail Azoz\\Downloads\\public-pentesting-reports-master\\public-pentesting-reports-master\\Cure53\\Cure53-B5_1PW-06-report.v2.pdf",
+      "fileName": "Cure53-B5_1PW-06-report.v2.pdf",
+      "vendorGuess": "Cure53",
+      "textPath": "data/golden-reports/review-queue-text/cure53-cure53-b5-1pw-06-report-v2-6a6f5640.txt",
+      "reviewPath": "data/golden-reports/review-queue/cure53-cure53-b5-1pw-06-report-v2-6a6f5640.json",
+      "status": "ready_for_review",
+      "textChars": 38352,
+      "actualFindings": 10,
+      "severityCounts": {
+        "Critical": 0,
+        "High": 1,
+        "Medium": 2,
+        "Low": 7
+      },
+      "warnings": [
+        "Structured parser found no blocks; heuristic fallback was used.",
+        "NLP hybrid extraction produced 11 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+        "Aligned findings with generic official index: 11 -> 10."
+      ]
+    },
+    {
+      "id": "cure53-cure53-b5-automations-1pw-14-report-99945eb6",
+      "sourcePath": "Cure53/Cure53-B5_automations_1PW-14-report.pdf",
+      "absolutePath": "C:\\Users\\Esmail Azoz\\Downloads\\public-pentesting-reports-master\\public-pentesting-reports-master\\Cure53\\Cure53-B5_automations_1PW-14-report.pdf",
+      "fileName": "Cure53-B5_automations_1PW-14-report.pdf",
+      "vendorGuess": "Cure53",
+      "textPath": "data/golden-reports/review-queue-text/cure53-cure53-b5-automations-1pw-14-report-99945eb6.txt",
+      "reviewPath": "data/golden-reports/review-queue/cure53-cure53-b5-automations-1pw-14-report-99945eb6.json",
+      "status": "ready_for_review",
+      "textChars": 44274,
+      "actualFindings": 7,
+      "severityCounts": {
+        "Critical": 0,
+        "High": 0,
+        "Medium": 2,
+        "Low": 5
+      },
+      "warnings": [
+        "Structured parser found no blocks; heuristic fallback was used.",
+        "NLP hybrid extraction produced 10 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+        "Aligned findings with generic official index: 10 -> 7."
+      ]
+    },
+    {
+      "id": "cure53-dnsmasq-report-15848bd4",
+      "sourcePath": "Cure53/Dnsmasq-report.pdf",
+      "absolutePath": "C:\\Users\\Esmail Azoz\\Downloads\\public-pentesting-reports-master\\public-pentesting-reports-master\\Cure53\\Dnsmasq-report.pdf",
+      "fileName": "Dnsmasq-report.pdf",
+      "vendorGuess": "Cure53",
+      "textPath": "data/golden-reports/review-queue-text/cure53-dnsmasq-report-15848bd4.txt",
+      "reviewPath": "data/golden-reports/review-queue/cure53-dnsmasq-report-15848bd4.json",
+      "status": "ready_for_review",
+      "textChars": 19098,
+      "actualFindings": 6,
+      "severityCounts": {
+        "Critical": 0,
+        "High": 0,
+        "Medium": 1,
+        "Low": 5
+      },
+      "warnings": [
+        "Structured parser found no blocks; heuristic fallback was used.",
+        "NLP hybrid extraction produced 4 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+        "Aligned findings with generic official index: 4 -> 6."
+      ]
+    },
+    {
+      "id": "cure53-jaeger-cure53-20190504-5a1e085f",
+      "sourcePath": "Cure53/Jaeger_Cure53_20190504.pdf",
+      "absolutePath": "C:\\Users\\Esmail Azoz\\Downloads\\public-pentesting-reports-master\\public-pentesting-reports-master\\Cure53\\Jaeger_Cure53_20190504.pdf",
+      "fileName": "Jaeger_Cure53_20190504.pdf",
+      "vendorGuess": "Cure53",
+      "textPath": "data/golden-reports/review-queue-text/cure53-jaeger-cure53-20190504-5a1e085f.txt",
+      "reviewPath": "data/golden-reports/review-queue/cure53-jaeger-cure53-20190504-5a1e085f.json",
+      "status": "ready_for_review",
+      "textChars": 28351,
+      "actualFindings": 3,
+      "severityCounts": {
+        "Critical": 0,
+        "High": 0,
+        "Medium": 0,
+        "Low": 3
+      },
+      "warnings": [
+        "Structured parser found no blocks; heuristic fallback was used.",
+        "NLP hybrid extraction produced 3 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+        "Aligned findings with generic official index: 3 -> 3."
+      ]
+    },
+    {
+      "id": "cure53-pentest-report-accessmyinfo-5bc82d43",
+      "sourcePath": "Cure53/pentest-report_accessmyinfo.pdf",
+      "absolutePath": "C:\\Users\\Esmail Azoz\\Downloads\\public-pentesting-reports-master\\public-pentesting-reports-master\\Cure53\\pentest-report_accessmyinfo.pdf",
+      "fileName": "pentest-report_accessmyinfo.pdf",
+      "vendorGuess": "Cure53",
+      "textPath": "data/golden-reports/review-queue-text/cure53-pentest-report-accessmyinfo-5bc82d43.txt",
+      "reviewPath": "data/golden-reports/review-queue/cure53-pentest-report-accessmyinfo-5bc82d43.json",
+      "status": "ready_for_review",
+      "textChars": 27353,
+      "actualFindings": 9,
+      "severityCounts": {
+        "Critical": 1,
+        "High": 1,
+        "Medium": 1,
+        "Low": 6
+      },
+      "warnings": [
+        "Structured parser found no blocks; heuristic fallback was used.",
+        "NLP hybrid extraction produced 9 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+        "Aligned findings with generic official index: 9 -> 9."
+      ]
+    },
+    {
+      "id": "cure53-pentest-report-bitwarden-7e80ee51",
+      "sourcePath": "Cure53/pentest-report_bitwarden.pdf",
+      "absolutePath": "C:\\Users\\Esmail Azoz\\Downloads\\public-pentesting-reports-master\\public-pentesting-reports-master\\Cure53\\pentest-report_bitwarden.pdf",
+      "fileName": "pentest-report_bitwarden.pdf",
+      "vendorGuess": "Cure53",
+      "textPath": "data/golden-reports/review-queue-text/cure53-pentest-report-bitwarden-7e80ee51.txt",
+      "reviewPath": "data/golden-reports/review-queue/cure53-pentest-report-bitwarden-7e80ee51.json",
+      "status": "ready_for_review",
+      "textChars": 34086,
+      "actualFindings": 11,
+      "severityCounts": {
+        "Critical": 3,
+        "High": 2,
+        "Medium": 1,
+        "Low": 5
+      },
+      "warnings": [
+        "Structured parser found no blocks; heuristic fallback was used.",
+        "NLP hybrid extraction produced 11 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+        "Aligned findings with generic official index: 11 -> 11."
+      ]
+    },
+    {
+      "id": "cure53-pentest-report-briar-8f57b02f",
+      "sourcePath": "Cure53/pentest-report_briar.pdf",
+      "absolutePath": "C:\\Users\\Esmail Azoz\\Downloads\\public-pentesting-reports-master\\public-pentesting-reports-master\\Cure53\\pentest-report_briar.pdf",
+      "fileName": "pentest-report_briar.pdf",
+      "vendorGuess": "Cure53",
+      "textPath": "data/golden-reports/review-queue-text/cure53-pentest-report-briar-8f57b02f.txt",
+      "reviewPath": "data/golden-reports/review-queue/cure53-pentest-report-briar-8f57b02f.json",
+      "status": "ready_for_review",
+      "textChars": 29849,
+      "actualFindings": 12,
+      "severityCounts": {
+        "Critical": 0,
+        "High": 1,
+        "Medium": 4,
+        "Low": 7
+      },
+      "warnings": [
+        "Structured parser found no blocks; heuristic fallback was used.",
+        "NLP hybrid extraction produced 12 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+        "Aligned findings with generic official index: 12 -> 12."
+      ]
+    },
+    {
+      "id": "cure53-pentest-report-casebox-1-726fabf1",
+      "sourcePath": "Cure53/pentest-report_casebox-1.pdf",
+      "absolutePath": "C:\\Users\\Esmail Azoz\\Downloads\\public-pentesting-reports-master\\public-pentesting-reports-master\\Cure53\\pentest-report_casebox-1.pdf",
+      "fileName": "pentest-report_casebox-1.pdf",
+      "vendorGuess": "Cure53",
+      "textPath": "data/golden-reports/review-queue-text/cure53-pentest-report-casebox-1-726fabf1.txt",
+      "reviewPath": "data/golden-reports/review-queue/cure53-pentest-report-casebox-1-726fabf1.json",
+      "status": "ready_for_review",
+      "textChars": 67478,
+      "actualFindings": 30,
+      "severityCounts": {
+        "Critical": 6,
+        "High": 10,
+        "Medium": 8,
+        "Low": 6
+      },
+      "warnings": [
+        "Structured parser found no blocks; heuristic fallback was used.",
+        "NLP hybrid extraction produced 30 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+        "Aligned findings with generic official index: 30 -> 30."
+      ]
+    },
+    {
+      "id": "cure53-pentest-report-casebox-2-b8d04deb",
+      "sourcePath": "Cure53/pentest-report_casebox-2.pdf",
+      "absolutePath": "C:\\Users\\Esmail Azoz\\Downloads\\public-pentesting-reports-master\\public-pentesting-reports-master\\Cure53\\pentest-report_casebox-2.pdf",
+      "fileName": "pentest-report_casebox-2.pdf",
+      "vendorGuess": "Cure53",
+      "textPath": "data/golden-reports/review-queue-text/cure53-pentest-report-casebox-2-b8d04deb.txt",
+      "reviewPath": "data/golden-reports/review-queue/cure53-pentest-report-casebox-2-b8d04deb.json",
+      "status": "ready_for_review",
+      "textChars": 30599,
+      "actualFindings": 18,
+      "severityCounts": {
+        "Critical": 0,
+        "High": 2,
+        "Medium": 11,
+        "Low": 5
+      },
+      "warnings": [
+        "Structured parser found no blocks; heuristic fallback was used.",
+        "NLP hybrid extraction produced 17 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+        "Aligned findings with generic official index: 17 -> 18."
+      ]
+    },
+    {
+      "id": "cure53-pentest-report-clipperz-d4001db8",
+      "sourcePath": "Cure53/pentest-report_clipperz.pdf",
+      "absolutePath": "C:\\Users\\Esmail Azoz\\Downloads\\public-pentesting-reports-master\\public-pentesting-reports-master\\Cure53\\pentest-report_clipperz.pdf",
+      "fileName": "pentest-report_clipperz.pdf",
+      "vendorGuess": "Cure53",
+      "textPath": "data/golden-reports/review-queue-text/cure53-pentest-report-clipperz-d4001db8.txt",
+      "reviewPath": "data/golden-reports/review-queue/cure53-pentest-report-clipperz-d4001db8.json",
+      "status": "ready_for_review",
+      "textChars": 47658,
+      "actualFindings": 25,
+      "severityCounts": {
+        "Critical": 4,
+        "High": 2,
+        "Medium": 5,
+        "Low": 14
+      },
+      "warnings": [
+        "Structured parser found no blocks; heuristic fallback was used.",
+        "NLP hybrid extraction produced 26 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+        "Aligned findings with generic official index: 26 -> 25."
+      ]
+    },
+    {
+      "id": "cure53-pentest-report-coredns-846d3103",
+      "sourcePath": "Cure53/pentest-report_CoreDNS.pdf",
+      "absolutePath": "C:\\Users\\Esmail Azoz\\Downloads\\public-pentesting-reports-master\\public-pentesting-reports-master\\Cure53\\pentest-report_CoreDNS.pdf",
+      "fileName": "pentest-report_CoreDNS.pdf",
+      "vendorGuess": "Cure53",
+      "textPath": "data/golden-reports/review-queue-text/cure53-pentest-report-coredns-846d3103.txt",
+      "reviewPath": "data/golden-reports/review-queue/cure53-pentest-report-coredns-846d3103.json",
+      "status": "ready_for_review",
+      "textChars": 22298,
+      "actualFindings": 4,
+      "severityCounts": {
+        "Critical": 1,
+        "High": 0,
+        "Medium": 1,
+        "Low": 2
+      },
+      "warnings": [
+        "Structured parser found no blocks; heuristic fallback was used.",
+        "NLP hybrid extraction produced 4 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+        "Aligned findings with generic official index: 4 -> 4."
+      ]
+    },
+    {
+      "id": "cure53-pentest-report-cryptech-d0b72da6",
+      "sourcePath": "Cure53/pentest-report_cryptech.pdf",
+      "absolutePath": "C:\\Users\\Esmail Azoz\\Downloads\\public-pentesting-reports-master\\public-pentesting-reports-master\\Cure53\\pentest-report_cryptech.pdf",
+      "fileName": "pentest-report_cryptech.pdf",
+      "vendorGuess": "Cure53",
+      "textPath": "data/golden-reports/review-queue-text/cure53-pentest-report-cryptech-d0b72da6.txt",
+      "reviewPath": "data/golden-reports/review-queue/cure53-pentest-report-cryptech-d0b72da6.json",
+      "status": "ready_for_review",
+      "textChars": 44140,
+      "actualFindings": 9,
+      "severityCounts": {
+        "Critical": 3,
+        "High": 2,
+        "Medium": 0,
+        "Low": 4
+      },
+      "warnings": [
+        "Structured parser found no blocks; heuristic fallback was used.",
+        "NLP hybrid extraction produced 9 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+        "Aligned findings with generic official index: 9 -> 9."
+      ]
+    },
+    {
+      "id": "cure53-pentest-report-cryptocat-2-835aa9a1",
+      "sourcePath": "Cure53/pentest-report_Cryptocat-2.pdf",
+      "absolutePath": "C:\\Users\\Esmail Azoz\\Downloads\\public-pentesting-reports-master\\public-pentesting-reports-master\\Cure53\\pentest-report_Cryptocat-2.pdf",
+      "fileName": "pentest-report_Cryptocat-2.pdf",
+      "vendorGuess": "Cure53",
+      "textPath": "data/golden-reports/review-queue-text/cure53-pentest-report-cryptocat-2-835aa9a1.txt",
+      "reviewPath": "data/golden-reports/review-queue/cure53-pentest-report-cryptocat-2-835aa9a1.json",
+      "status": "needs_attention",
+      "textChars": 35761,
+      "actualFindings": 0,
+      "severityCounts": {
+        "Critical": 0,
+        "High": 0,
+        "Medium": 0,
+        "Low": 0
+      },
+      "warnings": [
+        "Structured parser found no blocks; heuristic fallback was used.",
+        "NLP hybrid extraction produced 1 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+        "Generic official index suppression applied: Legacy Cure53 report without stable finding identifiers; keep for manual review."
+      ]
+    },
+    {
+      "id": "cure53-pentest-report-curl-17f9c235",
+      "sourcePath": "Cure53/pentest-report_curl.pdf",
+      "absolutePath": "C:\\Users\\Esmail Azoz\\Downloads\\public-pentesting-reports-master\\public-pentesting-reports-master\\Cure53\\pentest-report_curl.pdf",
+      "fileName": "pentest-report_curl.pdf",
+      "vendorGuess": "Cure53",
+      "textPath": "data/golden-reports/review-queue-text/cure53-pentest-report-curl-17f9c235.txt",
+      "reviewPath": "data/golden-reports/review-queue/cure53-pentest-report-curl-17f9c235.json",
+      "status": "ready_for_review",
+      "textChars": 66351,
+      "actualFindings": 22,
+      "severityCounts": {
+        "Critical": 0,
+        "High": 4,
+        "Medium": 5,
+        "Low": 13
+      },
+      "warnings": [
+        "Structured parser found no blocks; heuristic fallback was used.",
+        "NLP hybrid extraction produced 17 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+        "Aligned findings with generic official index: 17 -> 22."
+      ]
+    },
+    {
+      "id": "cure53-pentest-report-cyph-0565d909",
+      "sourcePath": "Cure53/pentest-report_cyph.pdf",
+      "absolutePath": "C:\\Users\\Esmail Azoz\\Downloads\\public-pentesting-reports-master\\public-pentesting-reports-master\\Cure53\\pentest-report_cyph.pdf",
+      "fileName": "pentest-report_cyph.pdf",
+      "vendorGuess": "Cure53",
+      "textPath": "data/golden-reports/review-queue-text/cure53-pentest-report-cyph-0565d909.txt",
+      "reviewPath": "data/golden-reports/review-queue/cure53-pentest-report-cyph-0565d909.json",
+      "status": "ready_for_review",
+      "textChars": 34991,
+      "actualFindings": 13,
+      "severityCounts": {
+        "Critical": 2,
+        "High": 2,
+        "Medium": 5,
+        "Low": 4
+      },
+      "warnings": [
+        "Structured parser found no blocks; heuristic fallback was used.",
+        "NLP hybrid extraction produced 11 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+        "Aligned findings with generic official index: 11 -> 13."
+      ]
+    },
+    {
+      "id": "cure53-pentest-report-dompurify-55fa3848",
+      "sourcePath": "Cure53/pentest-report_dompurify.pdf",
+      "absolutePath": "C:\\Users\\Esmail Azoz\\Downloads\\public-pentesting-reports-master\\public-pentesting-reports-master\\Cure53\\pentest-report_dompurify.pdf",
+      "fileName": "pentest-report_dompurify.pdf",
+      "vendorGuess": "Cure53",
+      "textPath": "data/golden-reports/review-queue-text/cure53-pentest-report-dompurify-55fa3848.txt",
+      "reviewPath": "data/golden-reports/review-queue/cure53-pentest-report-dompurify-55fa3848.json",
+      "status": "ready_for_review",
+      "textChars": 10171,
+      "actualFindings": 5,
+      "severityCounts": {
+        "Critical": 1,
+        "High": 1,
+        "Medium": 0,
+        "Low": 3
+      },
+      "warnings": [
+        "Structured parser found no blocks; heuristic fallback was used.",
+        "NLP hybrid extraction produced 5 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+        "Aligned findings with generic official index: 5 -> 5."
+      ]
+    },
+    {
+      "id": "cure53-pentest-report-dovecot-f4dc918c",
+      "sourcePath": "Cure53/pentest-report_dovecot.pdf",
+      "absolutePath": "C:\\Users\\Esmail Azoz\\Downloads\\public-pentesting-reports-master\\public-pentesting-reports-master\\Cure53\\pentest-report_dovecot.pdf",
+      "fileName": "pentest-report_dovecot.pdf",
+      "vendorGuess": "Cure53",
+      "textPath": "data/golden-reports/review-queue-text/cure53-pentest-report-dovecot-f4dc918c.txt",
+      "reviewPath": "data/golden-reports/review-queue/cure53-pentest-report-dovecot-f4dc918c.json",
+      "status": "ready_for_review",
+      "textChars": 23171,
+      "actualFindings": 3,
+      "severityCounts": {
+        "Critical": 0,
+        "High": 0,
+        "Medium": 0,
+        "Low": 3
+      },
+      "warnings": [
+        "Structured parser found no blocks; heuristic fallback was used.",
+        "NLP hybrid extraction produced 3 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+        "Aligned findings with generic official index: 3 -> 3."
+      ]
+    },
+    {
+      "id": "cure53-pentest-report-envoy-6dd5377a",
+      "sourcePath": "Cure53/pentest-report_envoy.pdf",
+      "absolutePath": "C:\\Users\\Esmail Azoz\\Downloads\\public-pentesting-reports-master\\public-pentesting-reports-master\\Cure53\\pentest-report_envoy.pdf",
+      "fileName": "pentest-report_envoy.pdf",
+      "vendorGuess": "Cure53",
+      "textPath": "data/golden-reports/review-queue-text/cure53-pentest-report-envoy-6dd5377a.txt",
+      "reviewPath": "data/golden-reports/review-queue/cure53-pentest-report-envoy-6dd5377a.json",
+      "status": "ready_for_review",
+      "textChars": 26747,
+      "actualFindings": 8,
+      "severityCounts": {
+        "Critical": 0,
+        "High": 1,
+        "Medium": 5,
+        "Low": 2
+      },
+      "warnings": [
+        "Structured parser found no blocks; heuristic fallback was used.",
+        "NLP hybrid extraction produced 7 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+        "Aligned findings with generic official index: 7 -> 8."
+      ]
+    },
+    {
+      "id": "cure53-pentest-report-fdroid-9331fc15",
+      "sourcePath": "Cure53/pentest-report_fdroid.pdf",
+      "absolutePath": "C:\\Users\\Esmail Azoz\\Downloads\\public-pentesting-reports-master\\public-pentesting-reports-master\\Cure53\\pentest-report_fdroid.pdf",
+      "fileName": "pentest-report_fdroid.pdf",
+      "vendorGuess": "Cure53",
+      "textPath": "data/golden-reports/review-queue-text/cure53-pentest-report-fdroid-9331fc15.txt",
+      "reviewPath": "data/golden-reports/review-queue/cure53-pentest-report-fdroid-9331fc15.json",
+      "status": "ready_for_review",
+      "textChars": 38394,
+      "actualFindings": 17,
+      "severityCounts": {
+        "Critical": 3,
+        "High": 3,
+        "Medium": 5,
+        "Low": 6
+      },
+      "warnings": [
+        "Structured parser found no blocks; heuristic fallback was used.",
+        "NLP hybrid extraction produced 16 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+        "Aligned findings with generic official index: 16 -> 17."
+      ]
+    },
+    {
+      "id": "cure53-pentest-report-fluent-dc5dcbc0",
+      "sourcePath": "Cure53/pentest-report_fluent.pdf",
+      "absolutePath": "C:\\Users\\Esmail Azoz\\Downloads\\public-pentesting-reports-master\\public-pentesting-reports-master\\Cure53\\pentest-report_fluent.pdf",
+      "fileName": "pentest-report_fluent.pdf",
+      "vendorGuess": "Cure53",
+      "textPath": "data/golden-reports/review-queue-text/cure53-pentest-report-fluent-dc5dcbc0.txt",
+      "reviewPath": "data/golden-reports/review-queue/cure53-pentest-report-fluent-dc5dcbc0.json",
+      "status": "ready_for_review",
+      "textChars": 32057,
+      "actualFindings": 6,
+      "severityCounts": {
+        "Critical": 3,
+        "High": 0,
+        "Medium": 1,
+        "Low": 2
+      },
+      "warnings": [
+        "Structured parser found no blocks; heuristic fallback was used.",
+        "NLP hybrid extraction produced 6 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+        "Aligned findings with generic official index: 6 -> 6."
+      ]
+    }
+  ]
+}

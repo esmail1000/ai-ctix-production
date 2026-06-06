@@ -1,0 +1,18 @@
+{
+  "id": "cure53-1pw18",
+  "expectedCount": 6,
+  "notes": ["Seed golden report. Count gate only in phase 1."],
+  "negativeSections": [
+    "Table of Contents",
+    "Contents",
+    "Index",
+    "Scope",
+    "Executive Summary",
+    "Severity Definitions",
+    "Risk Scale",
+    "Methodology",
+    "Conclusion",
+    "Appendix",
+    "Disclaimer"
+  ]
+}

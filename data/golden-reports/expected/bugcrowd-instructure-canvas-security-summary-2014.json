@@ -1,0 +1,18 @@
+{
+  "id": "bugcrowd-instructure-canvas-security-summary-2014",
+  "expectedCount": 51,
+  "expectedSeverityCounts": {
+    "Critical": 0,
+    "High": 27,
+    "Medium": 8,
+    "Low": 16
+  },
+  "notes": [
+    "Promoted from verified Stage 5 V5 review queue.",
+    "Source review id: bugcrowd-instructure-canvas-security-summary-2014-0c692723",
+    "Requires ENABLE_GENERIC_INDEX_ALIGNMENT=true for generic official index / table recovery gates.",
+    "Major is normalized to High. Minor, Info, Informational, and Note are normalized to Low.",
+    "Promoted from Stage 5 V5 after manual review of the 2014 Canvas security summary tables.",
+    "The public summary contains 51 severity-rated rows recovered from rendered tables."
+  ]
+}

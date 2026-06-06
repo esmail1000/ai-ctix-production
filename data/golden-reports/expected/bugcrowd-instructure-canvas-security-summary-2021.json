@@ -1,0 +1,20 @@
+{
+  "id": "bugcrowd-instructure-canvas-security-summary-2021",
+  "expectedCount": 57,
+  "expectedSeverityCounts": {
+    "Critical": 5,
+    "High": 21,
+    "Medium": 23,
+    "Low": 8
+  },
+  "notes": [
+    "Promoted from verified Stage 4 V4 review queue.",
+    "Source review id: bugcrowd-instructure-canvas-security-summary-2021-ddbdf0d4",
+    "Source path: Bugcrowd/Instructure_Canvas_Security_Summary_2021.pdf",
+    "Info / Informational / Note / Minor findings are normalized to Low by the current app model.",
+    "Major findings are normalized to High by the current app model.",
+    "Requires ENABLE_NLP=true and ENABLE_GENERIC_INDEX_ALIGNMENT=true.",
+    "7ASecurity reports also require ENABLE_7ASECURITY_INDEX_ALIGNMENT=true.",
+    "Do not promote the excluded research / expert-witness / manual-hold reports without separate manual review."
+  ]
+}

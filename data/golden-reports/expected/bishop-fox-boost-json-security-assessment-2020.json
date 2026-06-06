@@ -1,0 +1,20 @@
+{
+  "id": "bishop-fox-boost-json-security-assessment-2020",
+  "expectedCount": 1,
+  "expectedSeverityCounts": {
+    "Critical": 0,
+    "High": 0,
+    "Medium": 0,
+    "Low": 1
+  },
+  "notes": [
+    "Promoted from verified Stage 4 V4 review queue.",
+    "Source review id: bishop-fox-c-plus-plus-alliance-boost-json-security-assessment-2020-assessment-report-2021-b9c3b09d",
+    "Source path: Bishop Fox/C Plus Plus Alliance - Boost JSON Security Assessment 2020 - Assessment Report - 20210317.pdf",
+    "Info / Informational / Note / Minor findings are normalized to Low by the current app model.",
+    "Major findings are normalized to High by the current app model.",
+    "Requires ENABLE_NLP=true and ENABLE_GENERIC_INDEX_ALIGNMENT=true.",
+    "7ASecurity reports also require ENABLE_7ASECURITY_INDEX_ALIGNMENT=true.",
+    "Do not promote the excluded research / expert-witness / manual-hold reports without separate manual review."
+  ]
+}

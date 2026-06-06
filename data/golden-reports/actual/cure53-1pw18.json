@@ -1,0 +1,434 @@
+{
+  "manifest": {
+    "id": "cure53-1pw18",
+    "vendor": "Cure53",
+    "family": "cure53",
+    "sourceRootEnv": "GOLDEN_REPORT_SOURCE_DIR",
+    "sourcePath": "Cure53-1PW18-report.pdf",
+    "textPath": "data/golden-reports/extracted-text/cure53-1pw18.txt",
+    "expectedPath": "data/golden-reports/expected/cure53-1pw18.json"
+  },
+  "expected": {
+    "id": "cure53-1pw18",
+    "expectedCount": 6,
+    "notes": [
+      "Seed golden report. Count gate only in phase 1."
+    ],
+    "negativeSections": [
+      "Table of Contents",
+      "Contents",
+      "Index",
+      "Scope",
+      "Executive Summary",
+      "Severity Definitions",
+      "Risk Scale",
+      "Methodology",
+      "Conclusion",
+      "Appendix",
+      "Disclaimer"
+    ]
+  },
+  "report": {
+    "id": "G-cure53-1pw18",
+    "slug": "cure53-1pw18",
+    "name": "cure53-1pw18",
+    "type": "PDF",
+    "uploadedAt": "2026-06-05T23:28:08.250Z",
+    "owner": "AI CTIX Analyzer",
+    "status": "Ready",
+    "findings": 6,
+    "critical": 0,
+    "high": 1,
+    "medium": 1,
+    "low": 4,
+    "summary": "Mario Heiderich, Cure53 Bielefelder Str. Identified Vulnerabilities 1PW-18-006 WP2: Malware can trivially intercept URL handler (Medium)",
+    "parsingStatus": "parsed",
+    "analysisVersion": 1,
+    "parserVersion": 1,
+    "parsingNotes": [
+      "Structured parser found no blocks; heuristic fallback was used.",
+      "NLP hybrid extraction produced 6 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+      "Aligned findings with generic official index: 6 -> 6."
+    ],
+    "content": "Dr.-Ing. Mario Heiderich, Cure53\n Bielefelder Str. 14\n D 10709 Berlin\n cure53.de · mario@cure53.de \n\nPentest-Report 1Password Core 11.-12.2021\nCure53, Dr.-Ing. M. Heiderich, MSc. S. Moritz, MSc. F. Fäßler\n\nIndex\n\nIntroduction\n\nScope\n\nIdentified Vulnerabilities\n\n1PW-18-003 WP2: Windows malware can trivially backdoor .html and .js (High)\n\n1PW-18-006 WP2: Malware can trivially intercept URL handler (Medium)\n\nMiscellaneous Issues\n\n1PW-18-001 WP1: Insufficient validation of emails in onepassword URL (Info)\n\n1PW-18-002 WP1: Missing deprovisioning of TPM enclave key (Low)\n\n1PW-18-004 WP2: DoS for update via Windows registry deletion (Low)\n\n1PW-18-005 WP1: Outdated Electron version used (Info)\n\nConclusions\n\nIntroduction\n\n“Millions of customers and more than 100,000 businesses trust 1Password to keep their\nmost important information safe. At 1Password we believe everyone deserves to be safe\nonline. That's why we're building modern, accessible apps with privacy and security at\ntheir core.”\n\nFrom https://1password.com/company/\n\nThis report describes the results of a security assessment of the 1Password complex,\nparticularly the 1Password core code and software. Carried out by Cure53 in late\nNovember and early December 2021, the project included a penetration test and a\ndedicated audit of the source code.\n\nRegistered as 1PW-18, the project was requested by 1Password in early 2021 as part of\nthe annual penetration testing plan. It was scheduled for the last quarter of 2021 to allow\nample time for preparations on both sides. The project is the latest of a total of eighteen\ntesting iterations that took place, explaining the test label 1PW-18.\n\nCure53, Berlin · 02/03/22\n\n 1/14\n\n \n\f Dr.-Ing. Mario Heiderich, Cure53\n Bielefelder Str. 14\n D 10709 Berlin\n cure53.de · mario@cure53.de \n\nAs for the precise timeline and specific resources, Cure53 completed the examination as\nscheduled, in CW47 and CW48. A total of fourteen days were invested to reach the\ncoverage expected for this assignment, whereas a team of three senior testers has been\ncomposed and tasked with this project’s preparation, execution and finalization. All\nmembers of the testing team were already familiar with the 1Password software\ncompound via previous project work.\n\nFor optimal structuring and tracking of tasks, the work was split into two separate work\npackages (WPs):\n\n- WP1: 1Password core codebase & software, written predominantly in Rust\n- WP2: High-level research questions asked by the 1Password Team\n\nAs mentioned, this test and audit is part of the yearly penetration testing and code\nauditing routine executed by Cure53 against several elements of the 1Password\nsoftware compound. In this test iteration, it was planned to look at builds for several\nplatforms, but, ultimately, the scope was changed because not all items planned for this\ntesting round were fully ready for testing. In the end, the following areas were covered:\n\n- Key focus on the new Windows Hello feature and\n- Key focus on the Browser + CLI integration on Linux\n- High-level questions regarding macOS client\n\nCure53 was, as usual for engagements between 1Password and Cure53 given access\nto a very detailed scope document explaining all areas of interest and access\nparameters. This was provided alongside sources, binaries, documentation and\neverything else that was needed. The above indicates that white-box methodology was\nthe approach of choice for this project.\n\nThe project progressed effectively on the whole. All preparations were done in CW46 to\nfoster a smooth transition into the testing phase. As usual, preparatory work on the\n1Password team’s side was exceptionally good. Over the course of the engagement, the\ncommunications were done using a private, dedicated and shared Slack channel set up\nbetween the respective workspaces of Cure53 and 1Password. New channel was set up\nand all involved personnel could join the discussions. \n\nThe discussions throughout the test were very good and productive and not many\nquestions had to be asked. The scope was well-prepared and clear, greatly contributing\nto the fact that no noteworthy roadblocks were encountered during the test. It has to be\nstated that the 1Password team, as in other tests before, was very helpful and did\nwhatever was necessary to make it possible for Cure53 to get good coverage over the\n\nCure53, Berlin · 02/03/22\n\n 2/14\n\n \n \n\f Dr.-Ing. Mario Heiderich, Cure53\n Bielefelder Str. 14\n D 10709 Berlin\n cure53.de · mario@cure53.de \n\nscope with the chosen approaches. The assistance spanned fast answers to all\nquestions, very quick turnaround times and generally excellent test-support. Ongoing\ninteractions positively contributed to the overall outcomes of this project.\n\nCure53 offered frequent status updates about the test and the emerging findings. Live-\nreporting was done for several of the findings to allow the 1Password team an early\nreview of the issues and more time to ask questions about the possible fixes to be\ndeveloped and deployed.\n\nThe Cure53 team managed to get very good coverage over the WP1-WP2 scope items.\nAmong five security-relevant discoveries, two were classified to be security\nvulnerabilities and three to be general weaknesses with lower exploitation potential. It\ncan be deduced that the results of this project put 1Password in a very positive light. The\nnumber of issues is small and only one item was marked as High. Cure53 strongly\nbelieves that frequent testing contributes to 1Password maturing and being in a good\nstate. Two of the findings assume malware to be in place to function, whereas others are\nrather limited in terms of actual risks. Note that one of those findings, see 1PW-18-003,\nis quite similar to an issue reported several months ago as 1PW-10-010, so it could have\npotentially been avoided.\n\nIn the following sections, the report will first shed light on the scope and key test\nparameters, as well as the structure and content of the WPs. Next, all findings will be\ndiscussed in grouped vulnerability and miscellaneous categories, then following a\nchronological order in each group. Alongside technical descriptions, PoC and mitigation\nadvice are supplied when applicable. Finally, the report will close with broader\nconclusions about this late 2021 project. Cure53 elaborates on the general impressions\nand reiterates the verdict based on the testing team’s observations and collected\nevidence. Tailored hardening recommendations for the 1Password complex are also\nincorporated into the final section.\n\nCure53, Berlin · 02/03/22\n\n 3/14\n\n \n\f Dr.-Ing. Mario Heiderich, Cure53\n Bielefelder Str. 14\n D 10709 Berlin\n cure53.de · mario@cure53.de \n\nScope\n\n- Penetration tests and code audits against 1Password core code & software\n◦ WP1: 1Password Core codebase & software, written predominantly in Rust\n\n▪ In scope were builds for several platforms and their general security properties.\n▪ Key features in scope for this assignment:\n\n- Newly implemented Windows Hello feature\n- \n- Newly added integration with CLI\n\nImprovements of Browser Integration feature on Linux\n\n◦ WP2: High-level research questions asked by the 1Password team\n\n▪ Q1: \"In what way do we not protect well against system processes running with \n\nthe same privileges as the current user?\"\n\n▪ Q2: \"Can same-user privilege processes perform successful active attacks \n\nagainst the desktop apps?\"\n\n▪ Q3: \"Can same-user privilege processes learn anything about vault contents of \n\nthe desktop application when it’s locked?\"\n\n▪ Q4: \"In what way can we reasonably improve our resilience against attacks that \n\nuse administrative privileges?\"\n\n▪ Q5: \"Does our application contain exploitable desktop/electron based \n\nvulnerabilities, potentially those that can be leveraged by shared vaults?\"\n\n▪ Q6: \"Is browser communication something that can be hijacked?\"\n\n- \n\nTest-user-accounts\n◦ Account 1:\n\n▪ https://seba-1pw18.b5test.com/\n▪ U: seba@cure53.de\n\n◦ Account 2:\n\n▪ https://fabian1pw18.b5test.com/\n @cure53.de\n▪ U: fabian\n\n- All relevant binaries have been shared with Cure53:\n- Detailed test-supporting material has been shared with Cure53\n- All relevant sources have been shared with Cure53\n\nCure53, Berlin · 02/03/22\n\n 4/14\n\n \n \n \n \n \n \n \n \n\f Dr.-Ing. Mario Heiderich, Cure53\n Bielefelder Str. 14\n D 10709 Berlin\n cure53.de · mario@cure53.de \n\nIdentified Vulnerabilities\n\nThe following sections list both vulnerabilities and implementation issues spotted during\nthe testing period. Note that findings are listed in chronological order rather than by their\ndegree of severity and impact. The aforementioned severity rank is simply given in\nbrackets following the title heading for each vulnerability. Each vulnerability is\nadditionally given a unique identifier (e.g. 1PW-18-001) for the purpose of facilitating any\nfuture follow-up correspondence.\n\n1PW-18-003 WP2: Windows malware can trivially backdoor .html and .js (High)\n\nNote: Like many Windows applications, 1Password installs to a location in the user’s\nlocal application directory, which comes with the important limitations noted. The\ndevelopers are working on ways to make a protected installation which installs to the\nProgram Files directory more widely available.\n\nFor enterprise customers, 1Password already offer an MSI installer for enterprise\ndeployments that installs to the Program Files directory and is not affected by this issue.\nFor regular installs, 1Password is working on a solution that provides a protected install\nfor as many users as possible. Unfortunately, this does come with certain trade-offs in\nthe reliability and security of the 1Password for Windows’ installation and automatic\nupdates. 1Password wants to get those trade-offs just right before they roll out a fix.\n\nDuring a previous engagement dedicated to reviewing the macOS client, it was noticed\nthat malware can trivially backdoor the Electron files (see 1PW-10-010). This was also\nconfirmed to be the case on Windows. This happens when files are not installed into a\ntrusted folder, as is currently the case. Malware can simply modify the HTML and\nJavaScript code of the 1Password client, making extractions of unlocked passwords\ntrivial.\n\nSteps to reproduce (on Windows):\n\n1. Ensure that 1Password has been terminated\n2. Go to the location of the app.asar file, i.e., C:\\Users\\<Username>\\AppData\\Local\\\n\n1Password\\app\\8\\resources\n\n3. Unpack the application files with npx asar extract app.asar app_unpacked\n4. The unpacked files are now written to the app_unpacked folder. To show the \nbackdooring capabilities, simply create a backdoor.js file and load it in the \nprimary.html via <script src=\"backdoor.js\"></script>\n\n5. The backdoor.js file will be executed when the 1Password app is opened. A \n\nsimple alert(1) can prove the successful JavaScript execution. To simply extract\nall revealed passwords from the UI elements, the innerText property of the root \nelement document.getElementById('root').innerText can be read.\n\nCure53, Berlin · 02/03/22\n\n 5/14\n\n \n\f Dr.-Ing. Mario Heiderich, Cure53\n Bielefelder Str. 14\n D 10709 Berlin\n cure53.de · mario@cure53.de \n\n6. Once the modification is done, simply repack the application rm app.asar; npx \n\nasar pack ./app_unpacked app.asar\n\n7. Start 1Password.app and observe the alert popping up.\n\nAs it was recommended in the previous ticket, 1Password should put a stronger\nemphasis on making it possible to install the application into a safe place. This usually\nrequires the user to confirm the User Account Control dialog and disrupts the user\nexperience of installation, but otherwise the trivial backdooring remains possible.\n\n1PW-18-006 WP2: Malware can trivially intercept URL handler (Medium)\n\nNote: As noted in the recommendation of this finding, this issue is hard to resolve. On\nWindows and Linux, limitations exist in terms of how much custom applications URIs -\nand many other means of inter-process communication - can be trusted when assuming\na compromised machine.\n\nThe 1Password Security Design white-paper notes that there are limited protections for\ncertain information - including the secret key - on compromised machines. This issue\nunfortunately highlights a security limitation of these platforms in that same category.\n1Password can’t fix this issue right now, but if anything changes on Windows or Linux\ndesktops that allows the developers to defend against this in the future they will make\nuse of it.\n\nIt is trivial for Windows or Linux malware running as the same user as 1Password to\nmodify the onepassword:// URL handler in the registry. This allows the malware to\nintercept each URL handler invocation, log the data and forward it to the real 1Password\nbinary. For the user there is no noticeable difference that this is happening.\n\nPoC for Windows:\n\nThe following code is a simple C# application that prints the received arguments and\nthen passes the arguments to 1Password. This application should be compiled and\nnamed 1Password.exe.\n\nusing System.Diagnostics;\n\nConsole.WriteLine(\"Intercepting onepassword://\");\nif (args != null && args.Length > 1)\n{\n Console.WriteLine(\"Received program arguments:\");\n for (int i = 0; i<args.Length; i++)\n Console.WriteLine(\" | \"+args[i]);\n Console.WriteLine(\"Redirect to 1Password\");\n\nCure53, Berlin · 02/03/22\n\n 6/14\n\n \n\f Dr.-Ing. Mario Heiderich, Cure53\n Bielefelder Str. 14\n D 10709 Berlin\n cure53.de · mario@cure53.de \n\n Process.Start(\"C:\\\\Users\\\\visua\\\\AppData\\\\Local\\\\1Password\\\\app\\\\\n8\\\\1Password.exe\", args[0] + \" \" + args[1]);\n}\nConsole.ReadKey();\n\nSteps to reproduce on Windows:\n\n1. Find the onepassword entry in HKEY_USERS\\...\\Classes\\onepassword\n2. Go to …\\onepassword\\shell\\open and modify the 1Password.exe path to the \n\nPoC’s interception application from above.\n\n3. Open any onepassword:// URL from the browser and observe how the PoC \n\napplication dumps the forwarded data\n\n4. onepassword://team-account/add?email=mrrooni%401password.com&key=A3-\n\n46REFP-XBLVZ5-YB5DZ-SPS9L-XFEFG-T3SV3&server=https://dark-\nmode.b5dev.com\n\nSteps to reproduce on Linux:\n\n1. Copy /usr/share/applications/1password.desktop to a new file called \n\nfake1Password.desktop\n\n2. Modify the file to execute a program that should intercept the URL handler.\n3.\n\nInstall the new URL handler definition with\nxdg-desktop-menu install fake1Password.desktop --novendor\n\n4. Open a onepassword:// URI.\n\nIt is a very difficult task to protect 1Password from malware running on the same\nmachine. Registering the same URL handler is a particularly easy method for malware to\nleak credentials from 1Password. Note that the Android equivalent of this attack is called\n“insecure activity start”.\n\nThere seems to be no easy way to fix this because Windows does not offer any way to\ntie registry permissions to process signatures. Thus, any program running as the same\nuser has access to the same registry. It probably would require a much more complex\nprogram architecture, wherein a privileged 1Password service is running in parallel to\nbeing responsible for management of the registry entries. The increased complexity\nwould also add the risk of privilege escalation exploits.\n\nCure53, Berlin · 02/03/22\n\n 7/14\n\n \n\f Dr.-Ing. Mario Heiderich, Cure53\n Bielefelder Str. 14\n D 10709 Berlin\n cure53.de · mario@cure53.de \n\nMiscellaneous Issues\n\nThis section covers those noteworthy findings that did not lead to an exploit but might aid\nan attacker in achieving their malicious goals in the future. Most of these results are\nvulnerable code snippets that did not provide an easy way to be called. Conclusively,\nwhile a vulnerability is present, an exploit might not always be possible.\n\n1PW-18-001 WP1: Insufficient validation of emails in onepassword URL (Info)\n\nNote: The 1Password team has accepted this finding as a best practice issue and are\nlooking to have this addressed in a future version of the app. That version will use\nimproved validation of email addresses.\n\nIt was found that the application does not properly validate contents of the email\nparameter received via onepassword:// URLs. While other parts - such as the server\nvalue - are correctly validated, the email parameter allows any characters, for example\n\"://\",\"<>\",\"{}\",\"[]\". Additionally, the domain name part can also be empty. This\nunnecessarily increases its usability for other exploitation scenarios. However, due to the\nfact that the application properly escapes content added to the sign-in form, the behavior\ncan currently be used for some Phishing and similar approaches exclusively, as shown\nbelow.\n\nExample URL:\nonepassword://team-account/add?email=if+not+work+visit+https://\nevil.com+for+login@&key=A3-P76RPV-6MS29W-569CZ-PGMR2-DJHHY-XXXXX&server=https%3A\n%2F%2Fseba-1pw18.b5test.com%2F\n\nWhile this does not introduce a security issue itself, it is nevertheless recommended to\nintroduce a proper input-validation that only permits characters that are allowed during\naccount-creation.\n\n1PW-18-002 WP1: Missing deprovisioning of TPM enclave key (Low)\n\nNote: The 1Password team has accepted this finding as a best practice issue and has\naddressed it. Cure53 tested an early version of this feature, but publicly available\nversions of the app with this feature are not affected. Released versions of the app will\ndeprovision the TPM secrets upon disabling the associated feature or when users\nuninstall the app.\n\nDuring the assessment of the newly introduced Windows Hello feature, the discovery\nwas made that the enclave key remains in the Microsoft Passport Key Storage after the\napplication has been closed or uninstalled. Since Windows binds access to those keys\n\nCure53, Berlin · 02/03/22\n\n 8/14\n\n \n\f Dr.-Ing. Mario Heiderich, Cure53\n Bielefelder Str. 14\n D 10709 Berlin\n cure53.de · mario@cure53.de \n\non the application-level and generally prevents exporting the private key, the risk can be\nconsidered rather low.\n\nShow stored keys:\ncertutil -csp \"Microsoft Passport Key Storage Provider\" -key\n\nRemaining key material:\nS-1-5-21-2039661907-1149013884-2761926641-1001/336fcb5c-76ce-46f4-b491-\n84fdabd1729b/S-1-5-21-2039661907-1149013884-2761926641-1001//1Password-Enclave-\nKey\n\nNevertheless, in order to further harden the application against potential local malware\nthreats, it is recommended to also remove the key material from the key storage after\nthe 1Password application was closed or at least deinstalled. This can be done via the\nDeleteAsync1 function of the KeyCredentialManager API.\n\n1PW-18-004 WP2: DoS for update via Windows registry deletion (Low)\n\nNote: The 1Password team has accepted this finding as a low priority issue and is\nlooking to have this addressed in a future version of the app. That version will not fail if\nthe Windows registry doesn’t contain the expected information.\n\nThe Windows registry is generally an important threat surface for 1Password because\neven when installed in a trusted location, other apps could modify the values. It was\nfound that when the registry entry is deleted, the 1Password application silently fails to\ncheck for updates. Visually there are no indications that it failed; the user simply sees it\nas if the latest version was being used.\n\nSteps to reproduce:\n\n1. Use the registry editor or programmatically delete the complete entry\n\n\\HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\\nUninstall\\1Password\n\n2. Restart 1Password and click on “Check for Updates…”\n3. The settings screen will then display “Version 8.5.0” with no way to actually \n\ncheck for an update.\n\n1Password has to be very careful using the Windows registry as a trusted source for\ndata, as it can easily be manipulated by malware on the same machine. This threat\nsurface will still exist once 1Password is installed in a protected folder, thus it has to be\nused with care; see also 1PW-18-006 for additional comments.\n\n1 https://docs.microsoft.com/en-us/uwp/api/windows.security.credentials.keycre...ger.deleteasync\n\nCure53, Berlin · 02/03/22\n\n 9/14\n\n \n\f Dr.-Ing. Mario Heiderich, Cure53\n Bielefelder Str. 14\n D 10709 Berlin\n cure53.de · mario@cure53.de \n\n1PW-18-005 WP1: Outdated Electron version used (Info)\n\nNote: The developers have investigated this finding and have confirmed this is an\nartifact of the testing process. As a result they have not accepted this issue. At the time\nCure53’s testing started, the provided build indeed used a slightly older version of\nElectron. However, there are internal processes in place to update to the latest version\nof Electron in a timely fashion. 1Password updated to a version of Electron unaffected\nby the issues mentioned in this finding on December 1st, 2021, soon after Cure53\nstarted their test.\n\nDuring the assessment of the provided sources, the discovery was made that the\n1Password Core application is linked to an outdated version of Electron. \n\nAt the time of writing, the latest available version in 15 is 15.3.22 and the linked version is\n15.2.0. In version 15.3.13 some security updates for the embedded Chromium browser\nwere added. They address some heap buffer overflows and ‘use-after-free’ problems in\nSkia, V8 engine and other components. Under certain conditions, this might allow an\nadversary to escape the sandbox via a crafted HTML page.\n\nHowever, the resulting impact can be considered rather low due to the fact that an\nattacker needs to be able to render own HTML within the 1Password applications.\nNevertheless, it is recommended to always keep the version of Electron up to date. If an\nupdate is not immediately feasible, it is recommended to at least ensure the patch notes\ndo not contain any security-relevant fixes.\n\n2 https://www.electronjs.org/releases/stable?version=15\n3 https://www.electronjs.org/releases/stable?version=15#other-changes-1531\n\nCure53, Berlin · 02/03/22\n\n 10/14\n\n \n\f Dr.-Ing. Mario Heiderich, Cure53\n Bielefelder Str. 14\n D 10709 Berlin\n cure53.de · mario@cure53.de \n\nConclusions\n\nIn this round of audit, Cure53 was tasked with reviewing the newest, next iteration of\n1Password Core apps, with a particular emphasis on new features for Windows and\nLinux. To clarify, these features were the Windows Hello integration, the improved\nbrowser integration on Linux and the CLI integration on Linux. While a special focus was\ngiven to the aforementioned areas, other parts of the applications were also examined\nby Cure53 in considerable depth.\n\nTo reiterate the context and resources, three members of the Cure53 team completed\nthe project over the course of fourteen days in November and December 2021. While\nthe overall number of six issues were found during the audit, two of them are exploitable\nand four can be considered as a hardening recommendation and best practice advice.\n\nThe report separates issues into two Work Packages. The first package (WP1) relates to\nproblems found in the special focus areas, while the second work package (WP2) shows\nissues that can affect 1Password Core applications if targeted systems are vulnerable\nvia local malware.\n\nCure53 needs to underline that the provided builds generally share the same codebase\nand differ mainly in the parts that have to do with providing the applications’ functionality\non the respective operating systems. This also made it rather easy to compare different\nfunctionalities between the operating systems, fostering understanding why and how\ncertain types of issues can be applicable to the other operating systems as well.\n\nIn the first step, Cure53 reanalyzed the configuration of the Electron framework, so as to\nsee if any new changes had been made. All the important flags, such as nodeIntegration\nand contextIsolation, are set accordingly, thus reducing the impact of post-exploitation.\nHowever, the current used version lacks important patches that address some buffer\noverflows and ‘use after free’ flaws in the embedded Chromium browser (see 1PW-18-\n005). It is, therefore, recommended to ensure that an update to the latest version takes\neffect.\n\nAn additional task added to the test encompassed diving deeper into the IPC\nmechanism of 1Password on Linux. Even though it was an extra task, it fit well into the\nmain focus area of this round and did not lead to a narrower coverage for the original\nareas. 1Password is planning to simplify the authentication of the IPC on Linux by\nchecking the effective group ID of the connected peer. This implementation was\nreviewed and tested, especially with regards to user-namespaces and whether they\ncould fool the check. No issues could be found in this realm.\n\nCure53, Berlin · 02/03/22\n\n 11/14\n\n \n\f Dr.-Ing. Mario Heiderich, Cure53\n Bielefelder Str. 14\n D 10709 Berlin\n cure53.de · mario@cure53.de \n\nOne of the main focus items on Cure53’s priority-list was the newly implemented\nWindows Hello feature and the corresponding TPM usage. A TPM is generally used by\nWindows for creating and storing cryptographic keys. It also can offer system\nmeasurements for verifying system’s integrity in terms of secure usage of a TPM. Most\nof the TPM functionality is provisioned by Windows itself, whereby access is generally\nhandled via corresponding Windows APIs, such as TPM Base Services (TBSI)4 or the\nKeyCredentialManager API. Thus, the 1Password application makes proper use of those\nfunctions during key derivation. In particular, reliance on RequestCreateAsync or\nOpenAsync of the KeyCredentialManager API signifies that implementation standards\nproposed by Microsoft are followed in the Windows Hello integration by 1Password.\n\nThe sources revealed that 1Password uses a static credential name. However, a further\ntest revealed that Windows separates access to those keys at the application-level. It\nwas neither possible to access credentials created by another process. nor to create a\nfake credential entry with that static name. This is because Windows generally separates\nsuch entries via SIDs and other UUIDs, doing so at the application-level. Additionally,\nmeasures are correctly used to properly verify the system's integrity. Particularly, PCR\nbanks are checked for zero entries which could miss a compromise of the integrity of the\nsystem.\n\nOnly one issue was found by Cure53 in the area above and is related to a missing\ndeprovisioning of the created key entry. However, due to the fact that private keys\ngenerally cannot be extracted from the TPM, this risk can be considered low and was\nonly added as a hardening recommendation to prevent abuse in potential post-\nexploitation scenarios (see 1PW-18-002). \n\nGenerally, the Windows Hello feature follows a new approach of trusting key material\ncreated in the TPM. While this makes perfect sense, it also introduces some new risks in\nother areas of Windows Hello. For example, a vulnerability to bypass Windows Hello\nlogin via face recognition feature5 was found. While Windows generally trusts USB\ndevices during authentication for using webcams, the attack surface remains. Although\nWindows fixed the found issue, this shows that 1Password could be affected in the\nfuture if another Windows Hello bypass emerges. Nevertheless, Cure53 sees the\nlikelihood of being exploited as low, due to the fact that Windows might fix these types of\nvulnerabilities in a shorter time.\n\nCure53 also examined the slightly improved changes related to the Browser Integration\nfeature on Linux and the corresponding keyring helper handling, which did not lead to\n\n4 https://docs.microsoft.com/en-us/windows/win32/api/tbs/\n5 https://www.cyberark.com/resources/threat-research-blog/bypassing-windows-hello...lastic-surgery\n\nCure53, Berlin · 02/03/22\n\n 12/14\n\n \n\f Dr.-Ing. Mario Heiderich, Cure53\n Bielefelder Str. 14\n D 10709 Berlin\n cure53.de · mario@cure53.de \n\nany finding in this area. Next, Cure53 also reviewed the 1Password Core applications in\nterms of security against several local attack scenarios.\n\nDuring a previous round it was found that malware on macOS could trivially backdoor\nthe html/js source files, which allows very simple access to the data stored in\n1Password. As this round had a focus on Windows, the issue resurfaced in this OS.\n1Password is currently installed into AppData which allows basic malware to easily\nmodify and backdoor the app (see 1PW-18-003). However, it was already announced\nthat 1Password might be installed into the Program Files, which would protect against\nthese threats.\n\nAnother general threat surface on Windows that has not been clearly documented\nbefore spans non-administrative malware which can easily modify the registry entries\nused by 1Password. A small Denial-of-Service issue was found when the entry was\ndeleted: the application fails to check for updates and shows no indication of that issue\nto the user (see 1PW-18-004).\n\nThis also leads to another general attack technique that malware on Windows and Linux\ncould succeed with. For Windows and Linux, it is easy for unprivileged malware to\nmodify the URL handlers, as demonstrated in 1PW-18-006. This can be used to easily\nredirect and “intercept” onepassword:// URLs. These URLs carry some important data,\nbut do not allow for a full vault takeover due to the missing password.\n\nWhen looking at the reported issues with moderate severities, they are all in the realm of\na threat model that 1Password cannot really protect against anyway. Yet, it is still\ncommendable that 1Password has an interest in tackling this threat surface. The efforts\ncan significantly lower the risk of very simple malware attacking 1Password users.\n\nIt is generally a good design to have no privileged helper component as part of\n1Password. This approach eradicates the attack surface for privilege escalations.\nHowever, a middle-ground of using a privileged installer, which can manage locking\ndown Windows registry keys, installing the application into a safe location and so forth, is\na good step. On Linux this is already the case and prevents easy backdooring from\nmalware, which has proven possible on Windows.\n\nIn addition, the examined codebase of the corresponding 1Password Core applications\nseem solid in regard to the security posture. It adheres to common best practices, which\nresults in this very good state. \nIn particular, it was checked whether the application makes use of dangerous functions\nor implemented common pitfalls that could lead to major vulnerabilities, such as\n\nCure53, Berlin · 02/03/22\n\n 13/14\n\n \n\f Dr.-Ing. Mario Heiderich, Cure53\n Bielefelder Str. 14\n D 10709 Berlin\n cure53.de · mario@cure53.de \n\ninjection-based attacks, insufficient escaping of user input, path traversal issues, remote\ncode executions or privilege escalations attacks. None such flaws were spotted.\n\nAll in all, the examined 1Password Core applications for Windows, Linux and macOS\nand the related specific areas leave a very good impression in terms of security. Cure53\nmore broadly confirmed during this audit that the provided builds have the capacity to\nfend off many different attacks. This clearly shows that the 1Password team is aware of\nthe problems that modern applications tend to face. As a result, only one High and one\nMedium-scored exploitable issues related to local malware threats could be found in this\ntest.\n\nThe very good result from this audit also clearly shows that 1Password is versed in using\nand implementing existing security measures as much as possible. This helps\naccordingly protect the applications against a range of different threats. However, some\nweaknesses were found, mostly affecting the Windows client. They basically allowed a\ntrivial injection of malicious HTML/JavaScript into the context of the running application.\nAdditionally, some new attack vectors were discovered and show how registry entries\ncan also be used to attack the application. Still, well-chosen languages, such as Rust in\ncombination with a well-designed architecture complex underlines the solid picture\nCure53 acquired during the audit. Assuming that all relevant issues get fixed, Cure53\ncan evaluate 1Password Core applications as properly secured for a continued\nproduction use. The complex is capable of delivering a secure foundation.\n\nCure53 would like to thank Stephen Haywood, Adam Caudill and Rick van Galen from\nthe 1Password team for their excellent project coordination, support and assistance,\nboth before and during this assignment.\n\nCure53, Berlin · 02/03/22\n\n 14/14",
+    "sourceFileName": "Cure53-1PW18-report.pdf",
+    "createdAtIso": "2026-06-05T23:28:14.849Z",
+    "updatedAtIso": "2026-06-05T23:28:14.849Z"
+  },
+  "findings": [
+    {
+      "id": "F-cure53-001",
+      "slug": "windows-malware-can-trivially-backdoor-html-and-js-investigation-scope",
+      "reportId": "G-cure53-1pw18",
+      "reportName": "cure53-1pw18",
+      "title": "Windows malware can trivially backdoor .html and .js",
+      "cve": "—",
+      "severity": "High",
+      "asset": "investigation-scope",
+      "score": 84,
+      "status": "Open",
+      "detectedAt": "2026-06-05T23:28:08.250Z",
+      "summary": "Windows malware can trivially backdoor .html and .js affecting investigation-scope; extractor found type Malware Indicator.",
+      "impact": "Potential impact includes credential theft, command-and-control communication, lateral movement, or unauthorized remote execution involving investigation-scope.",
+      "evidence": "Finding IDs: 1PW-18-003",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:28:14.838Z",
+          "status": "Open",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "Windows malware can trivially backdoor .html and .js",
+        "severity": "High",
+        "asset": "investigation-scope",
+        "status": "Open",
+        "summary": "Windows malware can trivially backdoor .html and .js affecting investigation-scope; extractor found type Malware Indicator.",
+        "impact": "Potential impact includes credential theft, command-and-control communication, lateral movement, or unauthorized remote execution involving investigation-scope.",
+        "evidence": "Finding IDs: 1PW-18-003",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "windows malware can trivially backdoor .html and .js",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "1PW-18-003|windows malware can trivially backdoor html and js|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Windows malware can trivially backdoor .html and .js",
+        "sourceText": "1PW-18-003 WP2: Windows malware can trivially backdoor .html and .js (High)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Windows malware can trivially backdoor .html and .js",
+      "canonicalKey": "1PW-18-003|windows malware can trivially backdoor html and js|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-002",
+      "slug": "malware-can-trivially-intercept-url-handler-investigation-scope",
+      "reportId": "G-cure53-1pw18",
+      "reportName": "cure53-1pw18",
+      "title": "Malware can trivially intercept URL handler",
+      "cve": "—",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "score": 64,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:28:08.250Z",
+      "summary": "Malware can trivially intercept URL handler affecting investigation-scope; extractor found type Malware Indicator.",
+      "impact": "Potential impact includes credential theft, command-and-control communication, lateral movement, or unauthorized remote execution involving investigation-scope.",
+      "evidence": "Finding IDs: 1PW-18-006",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:28:14.838Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "Malware can trivially intercept URL handler",
+        "severity": "Medium",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Malware can trivially intercept URL handler affecting investigation-scope; extractor found type Malware Indicator.",
+        "impact": "Potential impact includes credential theft, command-and-control communication, lateral movement, or unauthorized remote execution involving investigation-scope.",
+        "evidence": "Finding IDs: 1PW-18-006",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "malware can trivially intercept url handler",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "1PW-18-006|malware can trivially intercept url handler|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Malware can trivially intercept URL handler",
+        "sourceText": "1PW-18-006 WP2: Malware can trivially intercept URL handler (Medium)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Malware can trivially intercept URL handler",
+      "canonicalKey": "1PW-18-006|malware can trivially intercept url handler|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-003",
+      "slug": "insufficient-validation-of-emails-in-onepassword-url-investigation-scope",
+      "reportId": "G-cure53-1pw18",
+      "reportName": "cure53-1pw18",
+      "title": "Insufficient validation of emails in onepassword URL",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:28:08.250Z",
+      "summary": "Insufficient validation of emails in onepassword URL affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: 1PW-18-001",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:28:14.838Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "Insufficient validation of emails in onepassword URL",
+        "severity": "Low",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Insufficient validation of emails in onepassword URL affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: 1PW-18-001",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "insufficient validation of emails in onepassword url",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "1PW-18-001|insufficient validation of emails in onepassword url|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Insufficient validation of emails in onepassword URL",
+        "sourceText": "1PW-18-001 WP1: Insufficient validation of emails in onepassword URL (Info)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Insufficient validation of emails in onepassword URL",
+      "canonicalKey": "1PW-18-001|insufficient validation of emails in onepassword url|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-004",
+      "slug": "missing-deprovisioning-of-tpm-enclave-key-investigation-scope",
+      "reportId": "G-cure53-1pw18",
+      "reportName": "cure53-1pw18",
+      "title": "Missing deprovisioning of TPM enclave key",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:28:08.250Z",
+      "summary": "Missing deprovisioning of TPM enclave key affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: 1PW-18-002",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:28:14.839Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "Missing deprovisioning of TPM enclave key",
+        "severity": "Low",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Missing deprovisioning of TPM enclave key affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: 1PW-18-002",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "missing deprovisioning of tpm enclave key",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "1PW-18-002|missing deprovisioning of tpm enclave key|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Missing deprovisioning of TPM enclave key",
+        "sourceText": "1PW-18-002 WP1: Missing deprovisioning of TPM enclave key (Low)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Missing deprovisioning of TPM enclave key",
+      "canonicalKey": "1PW-18-002|missing deprovisioning of tpm enclave key|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-005",
+      "slug": "dos-for-update-via-windows-registry-deletion-investigation-scope",
+      "reportId": "G-cure53-1pw18",
+      "reportName": "cure53-1pw18",
+      "title": "DoS for update via Windows registry deletion",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:28:08.250Z",
+      "summary": "DoS for update via Windows registry deletion affecting investigation-scope; extractor found type Denial of Service.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: 1PW-18-004",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:28:14.839Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "DoS for update via Windows registry deletion",
+        "severity": "Low",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "DoS for update via Windows registry deletion affecting investigation-scope; extractor found type Denial of Service.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: 1PW-18-004",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "dos for update via windows registry deletion",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "1PW-18-004|dos for update via windows registry deletion|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "DoS for update via Windows registry deletion",
+        "sourceText": "1PW-18-004 WP2: DoS for update via Windows registry deletion (Low)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "DoS for update via Windows registry deletion",
+      "canonicalKey": "1PW-18-004|dos for update via windows registry deletion|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-006",
+      "slug": "outdated-electron-version-used-investigation-scope",
+      "reportId": "G-cure53-1pw18",
+      "reportName": "cure53-1pw18",
+      "title": "Outdated Electron version used",
+      "cve": "—",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "score": 35,
+      "status": "In Review",
+      "detectedAt": "2026-06-05T23:28:08.250Z",
+      "summary": "Outdated Electron version used affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "evidence": "Finding IDs: 1PW-18-005",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "history": [
+        {
+          "atIso": "2026-06-05T23:28:14.839Z",
+          "status": "In Review",
+          "note": "Finding generated from the high-recall catalog fallback. Detailed body section was not confidently detected."
+        }
+      ],
+      "reported": {
+        "title": "Outdated Electron version used",
+        "severity": "Low",
+        "asset": "investigation-scope",
+        "status": "In Review",
+        "summary": "Outdated Electron version used affecting investigation-scope; extractor found security indicators from the submitted report.",
+        "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+        "evidence": "Finding IDs: 1PW-18-005",
+        "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest."
+      },
+      "normalization": {
+        "normalizedTitle": "outdated electron version used",
+        "normalizedAsset": "investigation-scope",
+        "canonicalKey": "1PW-18-005|outdated electron version used|investigation scope||||||"
+      },
+      "provenance": {
+        "extractionMethod": "nlp-hybrid",
+        "parserConfidence": 78,
+        "sourceSectionTitle": "Outdated Electron version used",
+        "sourceText": "1PW-18-005 WP1: Outdated Electron version used (Info)",
+        "sourceSpans": [],
+        "fieldSources": {
+          "title": "reported",
+          "severity": "reported",
+          "asset": "inferred",
+          "status": "inferred",
+          "summary": "derived",
+          "impact": "inferred",
+          "evidence": "reported",
+          "remediation": "inferred"
+        },
+        "method": "generic-official-index-alignment"
+      },
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Outdated Electron version used",
+      "canonicalKey": "1PW-18-005|outdated electron version used|investigation scope||||||"
+    }
+  ],
+  "eval": {
+    "enableNlp": true,
+    "expectedCount": 6,
+    "actualCount": 6,
+    "actualSeverityCounts": {
+      "Critical": 0,
+      "High": 1,
+      "Medium": 1,
+      "Low": 4
+    },
+    "duplicates": 0,
+    "negativeHits": 0,
+    "pass": true
+  }
+}

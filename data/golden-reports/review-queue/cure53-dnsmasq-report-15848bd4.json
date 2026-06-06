@@ -1,0 +1,133 @@
+{
+  "id": "cure53-dnsmasq-report-15848bd4",
+  "status": "ready_for_review",
+  "source": {
+    "sourcePath": "Cure53/Dnsmasq-report.pdf",
+    "absolutePath": "C:\\Users\\Esmail Azoz\\Downloads\\public-pentesting-reports-master\\public-pentesting-reports-master\\Cure53\\Dnsmasq-report.pdf",
+    "fileName": "Dnsmasq-report.pdf",
+    "vendorGuess": "Cure53",
+    "sizeMb": 0.24,
+    "extractionMethod": "pdf-parse",
+    "textPath": "data/golden-reports/review-queue-text/cure53-dnsmasq-report-15848bd4.txt"
+  },
+  "modelRun": {
+    "enableNlp": true,
+    "actualFindings": 6,
+    "severityCounts": {
+      "Critical": 0,
+      "High": 0,
+      "Medium": 1,
+      "Low": 5
+    },
+    "warnings": [
+      "Structured parser found no blocks; heuristic fallback was used.",
+      "NLP hybrid extraction produced 4 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+      "Aligned findings with generic official index: 4 -> 6."
+    ]
+  },
+  "reviewChecklist": {
+    "expectedCount": null,
+    "expectedSeverityCounts": {
+      "Critical": null,
+      "High": null,
+      "Medium": null,
+      "Low": null
+    },
+    "reviewerNotes": [],
+    "promoteToGolden": false,
+    "promoteToTraining": false,
+    "rejectedReason": null
+  },
+  "findings": [
+    {
+      "id": "F-cure53-001",
+      "title": "Uninitialized buffer leads to memory leakage",
+      "severity": "Medium",
+      "asset": "investigation-scope",
+      "cve": "—",
+      "score": 64,
+      "status": "In Review",
+      "summary": "Uninitialized buffer leads to memory leakage affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Uninitialized buffer leads to memory leakage",
+      "canonicalKey": "DM-01-001|uninitialized buffer leads to memory leakage|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-002",
+      "title": "Makefile lacks security parameters for gcc",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "cve": "—",
+      "score": 35,
+      "status": "In Review",
+      "summary": "Makefile lacks security parameters for gcc affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Makefile lacks security parameters for gcc",
+      "canonicalKey": "DM-01-003|makefile lacks security parameters for gcc|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-003",
+      "title": "Allocated memory is not cleared",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "cve": "—",
+      "score": 35,
+      "status": "In Review",
+      "summary": "Allocated memory is not cleared affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Allocated memory is not cleared",
+      "canonicalKey": "DM-01-006|allocated memory is not cleared|investigation scope||||||"
+    },
+    {
+      "id": "F-Q-cure53-dnsmasq-report-15848bd4-GIDX-004",
+      "title": "Unchecked return value can lead to NULL pointer dereference",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "cve": "—",
+      "score": 35,
+      "status": "In Review",
+      "summary": "Unchecked return value can lead to NULL pointer dereference affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Unchecked return value can lead to NULL pointer dereference",
+      "canonicalKey": "DM-01-002|unchecked return value can lead to null pointer dereference|investigation scope||||||"
+    },
+    {
+      "id": "F-Q-cure53-dnsmasq-report-15848bd4-GIDX-005",
+      "title": "Wrong assumption about return value of snprintf()/vsnprintf()",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "cve": "—",
+      "score": 35,
+      "status": "In Review",
+      "summary": "Wrong assumption about return value of snprintf()/vsnprintf() affecting investigation-scope; finding recovered from the official report index and requires review.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "method": "generic-official-index-recovery",
+      "sourceSectionTitle": "Wrong assumption about return value of snprintf()/vsnprintf()",
+      "canonicalKey": "DM-01-004|wrong assumption about return value of snprintf vsnprintf|investigation scope||||||"
+    },
+    {
+      "id": "F-cure53-004",
+      "title": "Hardcoded values in fscanf() format strings with aliased buffers",
+      "severity": "Low",
+      "asset": "investigation-scope",
+      "cve": "—",
+      "score": 35,
+      "status": "In Review",
+      "summary": "Hardcoded values in fscanf() format strings with aliased buffers affecting investigation-scope; extractor found security indicators from the submitted report.",
+      "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
+      "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
+      "method": "generic-official-index-alignment",
+      "sourceSectionTitle": "Hardcoded values in fscanf() format strings with aliased buffers",
+      "canonicalKey": "DM-01-005|hardcoded values in fscanf format strings with aliased buffers|investigation scope||||||"
+    }
+  ]
+}

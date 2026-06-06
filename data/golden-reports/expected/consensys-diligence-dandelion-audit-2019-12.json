@@ -1,0 +1,16 @@
+{
+  "id": "consensys-diligence-dandelion-audit-2019-12",
+  "expectedCount": 7,
+  "expectedSeverityCounts": {
+    "Critical": 1,
+    "High": 0,
+    "Medium": 3,
+    "Low": 3
+  },
+  "notes": [
+    "Promoted from verified Stage 5 V5 review queue.",
+    "Source review id: consensys-diligence-dandelion-audit-2019-12-8957291e",
+    "Requires ENABLE_GENERIC_INDEX_ALIGNMENT=true for generic official index / table recovery gates.",
+    "Major is normalized to High. Minor, Info, Informational, and Note are normalized to Low."
+  ]
+}

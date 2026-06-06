@@ -1,0 +1,20 @@
+{
+  "id": "bishop-fox-winston-privacy-assessment",
+  "expectedCount": 7,
+  "expectedSeverityCounts": {
+    "Critical": 1,
+    "High": 4,
+    "Medium": 1,
+    "Low": 1
+  },
+  "notes": [
+    "Promoted from verified Stage 4 V4 review queue.",
+    "Source review id: bishop-fox-bishop-fox-assessment-report-winston-privacy-2a382196",
+    "Source path: Bishop Fox/Bishop Fox Assessment Report - Winston Privacy.pdf",
+    "Info / Informational / Note / Minor findings are normalized to Low by the current app model.",
+    "Major findings are normalized to High by the current app model.",
+    "Requires ENABLE_NLP=true and ENABLE_GENERIC_INDEX_ALIGNMENT=true.",
+    "7ASecurity reports also require ENABLE_7ASECURITY_INDEX_ALIGNMENT=true.",
+    "Do not promote the excluded research / expert-witness / manual-hold reports without separate manual review."
+  ]
+}

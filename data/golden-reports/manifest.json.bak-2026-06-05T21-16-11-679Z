@@ -1,0 +1,373 @@
+{
+  "reports": [
+    {
+      "id": "hlm-01-cure53",
+      "vendor": "Cure53",
+      "family": "cure53",
+      "sourceRootEnv": "GOLDEN_REPORT_SOURCE_DIR",
+      "sourcePath": "HLM-01-report.pdf",
+      "textPath": "data/golden-reports/extracted-text/hlm-01-cure53.txt",
+      "expectedPath": "data/golden-reports/expected/hlm-01-cure53.json"
+    },
+    {
+      "id": "cure53-1pw17",
+      "vendor": "Cure53",
+      "family": "cure53",
+      "sourceRootEnv": "GOLDEN_REPORT_SOURCE_DIR",
+      "sourcePath": "Cure53-1PW17-report.pdf",
+      "textPath": "data/golden-reports/extracted-text/cure53-1pw17.txt",
+      "expectedPath": "data/golden-reports/expected/cure53-1pw17.json"
+    },
+    {
+      "id": "cure53-1pw18",
+      "vendor": "Cure53",
+      "family": "cure53",
+      "sourceRootEnv": "GOLDEN_REPORT_SOURCE_DIR",
+      "sourcePath": "Cure53-1PW18-report.pdf",
+      "textPath": "data/golden-reports/extracted-text/cure53-1pw18.txt",
+      "expectedPath": "data/golden-reports/expected/cure53-1pw18.json"
+    },
+    {
+      "id": "ncc-zcash-nu5",
+      "vendor": "NCC Group",
+      "family": "nccgroup",
+      "sourceRootEnv": "GOLDEN_REPORT_SOURCE_DIR",
+      "sourcePath": "NCC_Group_Zcash_NU5_PublicReportFinal.pdf",
+      "textPath": "data/golden-reports/extracted-text/ncc-zcash-nu5.txt",
+      "expectedPath": "data/golden-reports/expected/ncc-zcash-nu5.json"
+    },
+    {
+      "id": "amneziavpn",
+      "vendor": "AmneziaVPN",
+      "family": "amneziavpn",
+      "sourceRootEnv": "GOLDEN_REPORT_SOURCE_DIR",
+      "sourcePath": "pentest-report-amneziavpn.pdf",
+      "textPath": "data/golden-reports/extracted-text/amneziavpn.txt",
+      "expectedPath": "data/golden-reports/expected/amneziavpn.json"
+    },
+    {
+      "id": "redsiege-sample",
+      "vendor": "Red Siege",
+      "family": "redsiege",
+      "sourceRootEnv": "GOLDEN_REPORT_SOURCE_DIR",
+      "sourcePath": "RedSiege-SampleReport.pdf",
+      "textPath": "data/golden-reports/extracted-text/redsiege-sample.txt",
+      "expectedPath": "data/golden-reports/expected/redsiege-sample.json"
+    },
+    {
+      "id": "doyensec-teleport-q42020",
+      "vendor": "Doyensec",
+      "family": "doyensec",
+      "sourceRootEnv": "GOLDEN_REPORT_SOURCE_DIR",
+      "sourcePath": "Doyensec_Gravitational_Teleport_Testing_Q42020.pdf",
+      "textPath": "data/golden-reports/extracted-text/doyensec-teleport-q42020.txt",
+      "expectedPath": "data/golden-reports/expected/doyensec-teleport-q42020.json"
+    },
+    {
+      "id": "7asecurity-psiphon-e",
+      "vendor": "7ASecurity",
+      "family": "7asecurity",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "7ASecurity/pentest-report_psiphon-e.pdf",
+      "textPath": "data/golden-reports/extracted-text/7asecurity-psiphon-e.txt",
+      "expectedPath": "data/golden-reports/expected/7asecurity-psiphon-e.json"
+    },
+    {
+      "id": "7asecurity-wepn",
+      "vendor": "7ASecurity",
+      "family": "7asecurity",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "7ASecurity/pentest-report_wepn.pdf",
+      "textPath": "data/golden-reports/extracted-text/7asecurity-wepn.txt",
+      "expectedPath": "data/golden-reports/expected/7asecurity-wepn.json"
+    },
+    {
+      "id": "7asecurity-amneziavpn",
+      "vendor": "7ASecurity",
+      "family": "7asecurity",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "7ASecurity/pentest-report-amneziavpn.pdf",
+      "textPath": "data/golden-reports/extracted-text/7asecurity-amneziavpn.txt",
+      "expectedPath": "data/golden-reports/expected/7asecurity-amneziavpn.json"
+    },
+    {
+      "id": "7asecurity-leavehomesafe",
+      "vendor": "7ASecurity",
+      "family": "7asecurity",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "7ASecurity/pentest-report-leavehomesafe.pdf",
+      "textPath": "data/golden-reports/extracted-text/7asecurity-leavehomesafe.txt",
+      "expectedPath": "data/golden-reports/expected/7asecurity-leavehomesafe.json"
+    },
+    {
+      "id": "7asecurity-minivpn",
+      "vendor": "7ASecurity",
+      "family": "7asecurity",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "7ASecurity/pentest-report-minivpn.pdf",
+      "textPath": "data/golden-reports/extracted-text/7asecurity-minivpn.txt",
+      "expectedPath": "data/golden-reports/expected/7asecurity-minivpn.json"
+    },
+    {
+      "id": "7asecurity-requests-urllib3-cachecontrol-rc1-3",
+      "vendor": "7ASecurity",
+      "family": "7asecurity",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "7ASecurity/pentest-report-requests-urllib3-cachecontrol-RC1.3.pdf",
+      "textPath": "data/golden-reports/extracted-text/7asecurity-requests-urllib3-cachecontrol-rc1-3.txt",
+      "expectedPath": "data/golden-reports/expected/7asecurity-requests-urllib3-cachecontrol-rc1-3.json"
+    },
+    {
+      "id": "adalogics-jackson-report-shared",
+      "vendor": "ADALogics",
+      "family": "adalogics",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "ADALogics/Jackson-Report-Shared.pdf",
+      "textPath": "data/golden-reports/extracted-text/adalogics-jackson-report-shared.txt",
+      "expectedPath": "data/golden-reports/expected/adalogics-jackson-report-shared.json"
+    },
+    {
+      "id": "assuredab-mullvad-api-audit-2022",
+      "vendor": "AssuredAB",
+      "family": "assuredab",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "AssuredAB/Assured_Mullvad_API_audit_report_2022.pdf",
+      "textPath": "data/golden-reports/extracted-text/assuredab-mullvad-api-audit-2022.txt",
+      "expectedPath": "data/golden-reports/expected/assuredab-mullvad-api-audit-2022.json"
+    },
+    {
+      "id": "assuredab-cdr001v-cdr-link",
+      "vendor": "AssuredAB",
+      "family": "assuredab",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "AssuredAB/Assured-AB-CDR001v_CDR_Link.pdf",
+      "textPath": "data/golden-reports/extracted-text/assuredab-cdr001v-cdr-link.txt",
+      "expectedPath": "data/golden-reports/expected/assuredab-cdr001v-cdr-link.json"
+    },
+    {
+      "id": "atredis-mullvad-vpn-platform-security-assessment-v1-0",
+      "vendor": "Atredis",
+      "family": "atredis",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "Atredis/Atredis+Partners+-+Mullvad+VPN+Platform+Security+Assessment+-+Report+v1.0.pdf",
+      "textPath": "data/golden-reports/extracted-text/atredis-mullvad-vpn-platform-security-assessment-v1-0.txt",
+      "expectedPath": "data/golden-reports/expected/atredis-mullvad-vpn-platform-security-assessment-v1-0.json"
+    },
+    {
+      "id": "atredis-agoric-api-kernel-assessment-v1-1",
+      "vendor": "Atredis",
+      "family": "atredis",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "Atredis/Final-Atredis-Agoric-API-Kernel-Assessment-Report-V1.1.pdf",
+      "textPath": "data/golden-reports/extracted-text/atredis-agoric-api-kernel-assessment-v1-1.txt",
+      "expectedPath": "data/golden-reports/expected/atredis-agoric-api-kernel-assessment-v1-1.json"
+    },
+    {
+      "id": "atredis-agoric-inter-protocol-assessment-v1-1",
+      "vendor": "Atredis",
+      "family": "atredis",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "Atredis/Final-Atredis-Partners-Agoric-Inter-Protocol-Assessment-v1.1.pdf",
+      "textPath": "data/golden-reports/extracted-text/atredis-agoric-inter-protocol-assessment-v1-1.txt",
+      "expectedPath": "data/golden-reports/expected/atredis-agoric-inter-protocol-assessment-v1-1.json"
+    },
+    {
+      "id": "bishop-fox-adobe-coldfusion-security-assessment-2016",
+      "vendor": "Bishop Fox",
+      "family": "bishop-fox",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "Bishop Fox/Adobe Systems - Coldfusion Security Assessment - Executive Report - 2016.pdf",
+      "textPath": "data/golden-reports/extracted-text/bishop-fox-adobe-coldfusion-security-assessment-2016.txt",
+      "expectedPath": "data/golden-reports/expected/bishop-fox-adobe-coldfusion-security-assessment-2016.json"
+    },
+    {
+      "id": "bishop-fox-beast-hybrid-application-assessment-2017",
+      "vendor": "Bishop Fox",
+      "family": "bishop-fox",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "Bishop Fox/Beast - Hybrid Application Assessment 2017 - Assessment Report - 20171114.pdf",
+      "textPath": "data/golden-reports/extracted-text/bishop-fox-beast-hybrid-application-assessment-2017.txt",
+      "expectedPath": "data/golden-reports/expected/bishop-fox-beast-hybrid-application-assessment-2017.json"
+    },
+    {
+      "id": "bishop-fox-winston-privacy-assessment",
+      "vendor": "Bishop Fox",
+      "family": "bishop-fox",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "Bishop Fox/Bishop Fox Assessment Report - Winston Privacy.pdf",
+      "textPath": "data/golden-reports/extracted-text/bishop-fox-winston-privacy-assessment.txt",
+      "expectedPath": "data/golden-reports/expected/bishop-fox-winston-privacy-assessment.json"
+    },
+    {
+      "id": "bishop-fox-boost-json-security-assessment-2020",
+      "vendor": "Bishop Fox",
+      "family": "bishop-fox",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "Bishop Fox/C Plus Plus Alliance - Boost JSON Security Assessment 2020 - Assessment Report - 20210317.pdf",
+      "textPath": "data/golden-reports/extracted-text/bishop-fox-boost-json-security-assessment-2020.txt",
+      "expectedPath": "data/golden-reports/expected/bishop-fox-boost-json-security-assessment-2020.json"
+    },
+    {
+      "id": "blaze-annihilatio-smart-contract-security-review-1-0",
+      "vendor": "BlazeInformationSecurity",
+      "family": "blazeinformationsecurity",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "BlazeInformationSecurity/Annihilatio smart contract security review 1.0 final.pdf",
+      "textPath": "data/golden-reports/extracted-text/blaze-annihilatio-smart-contract-security-review-1-0.txt",
+      "expectedPath": "data/golden-reports/expected/blaze-annihilatio-smart-contract-security-review-1-0.json"
+    },
+    {
+      "id": "blaze-public-jury-online-smart-contract-security-review",
+      "vendor": "BlazeInformationSecurity",
+      "family": "blazeinformationsecurity",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "BlazeInformationSecurity/Public Jury.Online Smart Contract Security Review.pdf",
+      "textPath": "data/golden-reports/extracted-text/blaze-public-jury-online-smart-contract-security-review.txt",
+      "expectedPath": "data/golden-reports/expected/blaze-public-jury-online-smart-contract-security-review.json"
+    },
+    {
+      "id": "bugcrowd-instructure-canvas-security-summary-2015",
+      "vendor": "Bugcrowd",
+      "family": "bugcrowd",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "Bugcrowd/Instructure_Canvas_Security_Summary_2015.pdf",
+      "textPath": "data/golden-reports/extracted-text/bugcrowd-instructure-canvas-security-summary-2015.txt",
+      "expectedPath": "data/golden-reports/expected/bugcrowd-instructure-canvas-security-summary-2015.json"
+    },
+    {
+      "id": "bugcrowd-instructure-canvas-security-summary-2021",
+      "vendor": "Bugcrowd",
+      "family": "bugcrowd",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "Bugcrowd/Instructure_Canvas_Security_Summary_2021.pdf",
+      "textPath": "data/golden-reports/extracted-text/bugcrowd-instructure-canvas-security-summary-2021.txt",
+      "expectedPath": "data/golden-reports/expected/bugcrowd-instructure-canvas-security-summary-2021.json"
+    },
+    {
+      "id": "certik-bhp-mobile-wallet-penetration-test-2021-01-09",
+      "vendor": "CertiK",
+      "family": "certik",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "CertiK/BHP_Mobile_Wallet_Penetration_Test_Report_01-09-2021.pdf",
+      "textPath": "data/golden-reports/extracted-text/certik-bhp-mobile-wallet-penetration-test-2021-01-09.txt",
+      "expectedPath": "data/golden-reports/expected/certik-bhp-mobile-wallet-penetration-test-2021-01-09.json"
+    },
+    {
+      "id": "coinspect-zcash-2016-source-code-review",
+      "vendor": "Coinspect",
+      "family": "coinspect",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "Coinspect/CoinspectReportZcash2016.pdf",
+      "textPath": "data/golden-reports/extracted-text/coinspect-zcash-2016-source-code-review.txt",
+      "expectedPath": "data/golden-reports/expected/coinspect-zcash-2016-source-code-review.json"
+    },
+    {
+      "id": "comsats-trinity-wallet-threat-modeling",
+      "vendor": "COMSATS_Islamabad-CyberSecurityLab",
+      "family": "comsats",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "COMSATS_Islamabad-CyberSecurityLab/Threat_Modeling_Trinity_Wallet.pdf",
+      "textPath": "data/golden-reports/extracted-text/comsats-trinity-wallet-threat-modeling.txt",
+      "expectedPath": "data/golden-reports/expected/comsats-trinity-wallet-threat-modeling.json"
+    },
+    {
+      "id": "consensys-diligence-0x-v3-audit-2019-09",
+      "vendor": "Consensys",
+      "family": "consensys",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "Consensys/Diligence/0x-v3-audit-2019-09.pdf",
+      "textPath": "data/golden-reports/extracted-text/consensys-diligence-0x-v3-audit-2019-09.txt",
+      "expectedPath": "data/golden-reports/expected/consensys-diligence-0x-v3-audit-2019-09.json"
+    },
+    {
+      "id": "consensys-diligence-0x-v3-staking-audit-2019-10",
+      "vendor": "Consensys",
+      "family": "consensys",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "Consensys/Diligence/0x-v3-staking-audit-2019-10.pdf",
+      "textPath": "data/golden-reports/extracted-text/consensys-diligence-0x-v3-staking-audit-2019-10.txt",
+      "expectedPath": "data/golden-reports/expected/consensys-diligence-0x-v3-staking-audit-2019-10.json"
+    },
+    {
+      "id": "consensys-diligence-full-ecosystem-phase-2-2018-09-20",
+      "vendor": "Consensys",
+      "family": "consensys",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "Consensys/Diligence/2018-09-20 - Full Ecosystem [Phase 2] - Audit by ConsenSys final.pdf",
+      "textPath": "data/golden-reports/extracted-text/consensys-diligence-full-ecosystem-phase-2-2018-09-20.txt",
+      "expectedPath": "data/golden-reports/expected/consensys-diligence-full-ecosystem-phase-2-2018-09-20.json"
+    },
+    {
+      "id": "bugcrowd-instructure-canvas-security-summary-2014",
+      "vendor": "Bugcrowd",
+      "family": "bugcrowd",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "Bugcrowd/Instructure_Canvas_Security_Summary_2014.pdf",
+      "textPath": "data/golden-reports/extracted-text/bugcrowd-instructure-canvas-security-summary-2014.txt",
+      "expectedPath": "data/golden-reports/expected/bugcrowd-instructure-canvas-security-summary-2014.json"
+    },
+    {
+      "id": "consensys-diligence-rexmls-audit-report",
+      "vendor": "Consensys",
+      "family": "consensys-diligence",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "Consensys/Diligence/ConsenSys Diligence Audit Report.pdf",
+      "textPath": "data/golden-reports/extracted-text/consensys-diligence-rexmls-audit-report.txt",
+      "expectedPath": "data/golden-reports/expected/consensys-diligence-rexmls-audit-report.json"
+    },
+    {
+      "id": "consensys-diligence-dandelion-audit-2019-12",
+      "vendor": "Consensys",
+      "family": "consensys-diligence",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "Consensys/Diligence/dandelion-audit-2019-12.pdf",
+      "textPath": "data/golden-reports/extracted-text/consensys-diligence-dandelion-audit-2019-12.txt",
+      "expectedPath": "data/golden-reports/expected/consensys-diligence-dandelion-audit-2019-12.json"
+    },
+    {
+      "id": "consensys-diligence-foam-controller-audit-2018-08-24",
+      "vendor": "Consensys",
+      "family": "consensys-diligence",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "Consensys/Diligence/foam-controller-audit-report-2018-08-24-master.pdf",
+      "textPath": "data/golden-reports/extracted-text/consensys-diligence-foam-controller-audit-2018-08-24.txt",
+      "expectedPath": "data/golden-reports/expected/consensys-diligence-foam-controller-audit-2018-08-24.json"
+    },
+    {
+      "id": "consensys-diligence-omisego-morevp-audit-2019-10",
+      "vendor": "Consensys",
+      "family": "consensys-diligence",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "Consensys/Diligence/omisego-morevp-audit-2019-10.pdf",
+      "textPath": "data/golden-reports/extracted-text/consensys-diligence-omisego-morevp-audit-2019-10.txt",
+      "expectedPath": "data/golden-reports/expected/consensys-diligence-omisego-morevp-audit-2019-10.json"
+    },
+    {
+      "id": "consensys-diligence-orchid-audit-2019-10",
+      "vendor": "Consensys",
+      "family": "consensys-diligence",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "Consensys/Diligence/orchid-audit-2019-10.pdf",
+      "textPath": "data/golden-reports/extracted-text/consensys-diligence-orchid-audit-2019-10.txt",
+      "expectedPath": "data/golden-reports/expected/consensys-diligence-orchid-audit-2019-10.json"
+    },
+    {
+      "id": "consensys-diligence-simplemultisigwallet-audit",
+      "vendor": "Consensys",
+      "family": "consensys-diligence",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "Consensys/Diligence/SimpleMultisigWallet_Audit.pdf",
+      "textPath": "data/golden-reports/extracted-text/consensys-diligence-simplemultisigwallet-audit.txt",
+      "expectedPath": "data/golden-reports/expected/consensys-diligence-simplemultisigwallet-audit.json"
+    },
+    {
+      "id": "consensys-diligence-vega-vegatoken-audit-2020-01",
+      "vendor": "Consensys",
+      "family": "consensys-diligence",
+      "sourceRootEnv": "PUBLIC_REPORT_CORPUS_DIR",
+      "sourcePath": "Consensys/Diligence/vega-vegatoken-audit-2020-01.pdf",
+      "textPath": "data/golden-reports/extracted-text/consensys-diligence-vega-vegatoken-audit-2020-01.txt",
+      "expectedPath": "data/golden-reports/expected/consensys-diligence-vega-vegatoken-audit-2020-01.json"
+    }
+  ]
+}

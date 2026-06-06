@@ -1,0 +1,16 @@
+{
+  "id": "7asecurity-amneziavpn",
+  "expectedCount": 16,
+  "expectedSeverityCounts": {
+    "Critical": 3,
+    "High": 1,
+    "Medium": 6,
+    "Low": 6
+  },
+  "notes": [
+    "Promoted from verified 7ASecurity review queue.",
+    "Source review id: 7asecurity-pentest-report-amneziavpn-c31e82d1",
+    "Info / Informational findings are normalized to Low by the current app model.",
+    "Requires ENABLE_7ASECURITY_INDEX_ALIGNMENT=true for 7ASecurity index recovery gates."
+  ]
+}

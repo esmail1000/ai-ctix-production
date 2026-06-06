@@ -1,0 +1,16 @@
+{
+  "id": "consensys-diligence-vega-vegatoken-audit-2020-01",
+  "expectedCount": 1,
+  "expectedSeverityCounts": {
+    "Critical": 0,
+    "High": 0,
+    "Medium": 0,
+    "Low": 1
+  },
+  "notes": [
+    "Promoted from verified Stage 5 V5 review queue.",
+    "Source review id: consensys-diligence-vega-vegatoken-audit-2020-01-80b9d69f",
+    "Requires ENABLE_GENERIC_INDEX_ALIGNMENT=true for generic official index / table recovery gates.",
+    "Major is normalized to High. Minor, Info, Informational, and Note are normalized to Low."
+  ]
+}

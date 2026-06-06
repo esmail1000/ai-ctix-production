@@ -1573,7 +1573,7 @@ def get_client_ip():
         return real_ip.strip()
 
     return request.remote_addr or "unknown"
-    ip = request.remote_addr
+    ip = get_client_ip()
     method = request.method
     path = request.full_path
     headers = dict(request.headers)

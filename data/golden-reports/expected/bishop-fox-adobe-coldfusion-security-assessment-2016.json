@@ -1,0 +1,20 @@
+{
+  "id": "bishop-fox-adobe-coldfusion-security-assessment-2016",
+  "expectedCount": 12,
+  "expectedSeverityCounts": {
+    "Critical": 2,
+    "High": 5,
+    "Medium": 5,
+    "Low": 0
+  },
+  "notes": [
+    "Promoted from verified Stage 4 V4 review queue.",
+    "Source review id: bishop-fox-adobe-systems-coldfusion-security-assessment-executive-report-2016-e90a190b",
+    "Source path: Bishop Fox/Adobe Systems - Coldfusion Security Assessment - Executive Report - 2016.pdf",
+    "Info / Informational / Note / Minor findings are normalized to Low by the current app model.",
+    "Major findings are normalized to High by the current app model.",
+    "Requires ENABLE_NLP=true and ENABLE_GENERIC_INDEX_ALIGNMENT=true.",
+    "7ASecurity reports also require ENABLE_7ASECURITY_INDEX_ALIGNMENT=true.",
+    "Do not promote the excluded research / expert-witness / manual-hold reports without separate manual review."
+  ]
+}
