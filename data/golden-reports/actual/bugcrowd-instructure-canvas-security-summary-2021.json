@@ -33,7 +33,7 @@
     "slug": "bugcrowd-instructure-canvas-security-summary-2021",
     "name": "bugcrowd-instructure-canvas-security-summary-2021",
     "type": "PDF",
-    "uploadedAt": "2026-06-05T23:31:26.569Z",
+    "uploadedAt": "2026-06-06T01:07:07.098Z",
     "owner": "AI CTIX Analyzer",
     "status": "Ready",
     "findings": 57,
@@ -48,12 +48,13 @@
     "parsingNotes": [
       "Structured parser found no blocks; heuristic fallback was used.",
       "NLP hybrid extraction produced 3 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+      "NLP warning: Model unavailable; used regex-only fallback: Error while deserializing header: header too large",
       "Aligned findings with generic official index: 3 -> 57."
     ],
     "content": "Penetration Test\nResults\nEngineering, Security, and\nOperations\nFebruary 2021\n\n-- 1 of 17 --\n\nIn this guide,\nyou’ll learn:\nHow we partner with the third-party\nprovider BugCrowd for ongoing\npenetration testing of our applications and\nservices.\nTable of Contents\nExecutive Summary ................................................................................................................................. 3\nReporting and Methodology ................................................................................................................... 4\nTargets and Scope ................................................................................................................................... 5\nFindings Summary ................................................................................................................................... 6\nAppendix .................................................................................................................................................. 14\nClosing Statement .................................................................................................................................. 16\n\n-- 2 of 17 --\n\nFebruary 2021\nExecutive Summary\nThis is Instructure’s 10th annual open security audit and once again Instructure engaged Bugcrowd, Inc. to perform an Ongoing Bounty\nProgram, commonly known as a crowd-sourced penetration test for its products.\nAn Ongoing Bounty Program is a cutting-edge approach to an application assessment or penetration test. Traditional penetration tests\nuse only one or two personnel to test an entire scope of work, while an Ongoing Bounty leverages a crowd of security researchers. This\nincreases the probability of discovering esoteric issues that automated testing cannot find and that traditional vulnerability assessments\nmay miss in the same testing period.\nThe purpose of this engagement was to identify security vulnerabilities in the targets listed in the targets and scope section. Once\nidentified, each vulnerability was rated for technical impact defined in the findings summary section of the report.\nThis report shows testing for Canvas LMS, Bridge, Studio, Practice, and Portfolium’s targets during the period of: 01/01/2020 –\n12/31/2020.\nFor this Ongoing Program, submissions were received from 60 unique researchers.\nThe continuation of this document summarizes the finding, analysis, and recommendations from the Ongoing Bounty Program performed\nby Bugcrowd for the 2021 Penetration Test Report.\nIf you are interested in joining our bug bounty program as a security researcher, please contact security@instructure.com with your\nBugcrowd username and we will get you hooked up!\nKeep learning,\nJosh Blackwelder,\nSr. Director and Head of Security\nsecurity@instructure.com\n\n-- 3 of 17 --\n\nFebruary 2021\nReporting and Methodology\nThe strength of crowdsourced testing lies in multiple researchers, the pay-for-results model, and the varied methodologies that the\nresearchers implement. To this end, researchers are encouraged to use their own individual methodologies on Bugcrowd ongoing\nprograms.\nBugcrowd researchers who perform web application testing and vulnerability assessment usually subscribe to a variety of methodologies\nfollowing the highlighted workflow, including the following:\n\n-- 4 of 17 --\n\nFebruary 2021\nTargets and Scope\nPrior to the Ongoing program launching, Bugcrowd worked with Instructure to define the Rules of Engagement, commonly known as the\nprogram brief, which includes the scope of work. The following targets were considered explicitly in scope for testing:\niOS Applications\niOS App: Canvas Student\niOS App: Polls for Canvas\niOS App: Canvas Teacher\niOS App: Canvas Parent\nAndroid Applications\nAndroid App: Canvas Student\nAndroid App: Polls for Canvas\nAndroid App: Canvas Teacher\nAndroid App: Canvas Parent\nCanvas LMS\nhttps://bugcrowd-tc.instructure.com\nhttps://commons-pdx-edge.inseng.net\nhttps://catalog-bugcrowd.inscloudgate.net\nCanvas Studio\nhttps://sectest.beta.instructuremedia.com\nPortfolium\nhttps://*.qa.ops.portfolium.net\nBridge Suite\nhttps://*.suite.staging.bridgeapp.com\nhttps://bugcrowd*.staging.bridgeapp.com\nhttps://bugcrowd*.perform.stage.bridgeapp.com\nhttps://*.stage.practice.xyz\n\n-- 5 of 17 --\n\nFebruary 2021\nFindings Summary\nFINDINGS BY SEVERITY\nThe following chart shows all valid assessment findings from the program by technical severity.\n\n-- 6 of 17 --\n\nFebruary 2021\nRISK AND PRIORITY KEY\nThe following key is used to explain how Bugcrowd rates valid vulnerability submissions and their technical severity. As a trusted advisor\nBugcrowd also provides common “next steps” for program owners per severity category.\nTechnical Severity Example Vulnerability Types\nCritical\nCritical severity submissions (also known as “P1” or “Priority 1”) are\nsubmissions that are escalated to Instructure as soon as they are\nvalidated. These issues warrant the highest security consideration and\nshould be addressed immediately. Commonly, submissions marked as\nCritical can cause financial theft, unavailability of services, large-scale\naccount compromise, etc.\n• Remote Code Execution\n• Vertical Authentication Bypass\n• XML External Entities Injection\n• SQL Injection\nHigh\nHigh severity submissions (also known as “P2” or “Priority 2”) are\nvulnerability submissions that should be slated for fix in the very near\nfuture. These issues still warrant prudent consideration but are often not\navailability or “breach level” submissions. “Commonly, submissions\nmarked as High can cause account compromise (with user interaction),\nsensitive information leakage, etc.\n• Lateral Authentication Bypass\n• Stored Cross-Site Scripting\n• Cross-Site Request Forgery for a critical function\n• Internal Server-Side Request Forgery\nMedium\nMedium severity submissions (also known as “P3” or “Priority 3”) are\nvulnerability submissions that should be slated for fix in the major release\ncycle. These vulnerabilities can commonly impact single users but require\nuser interaction to trigger or only disclose moderately sensitive\ninformation.\n• Reflected Cross-Site Scripting with limited impact\n• Cross-Site Request Forgery for an important function\n• Insecure Direct Object Reference for a function\nLow\nLow severity submissions (also known as “P4” or “Priority 4”) are\nvulnerability submissions that should be considered for fix within the next\nsix months. These vulnerabilities represent the least danger to\nconfidentiality, integrity, and availability.\n• Cross-Site Scripting with limited impact\n• Cross-Site Request Forgery for an unimportant function\n• External Server-Side Request Forgery\nInformational\nInformational submissions (also known as “P5” or “Priority 5”) are\nvulnerability submissions that are valid but out-of-scope or are “won’t fix”\nissues, such as best practices\n• Lack of code obfuscation\n• Autocomplete enabled\n• Non-exploitable SSL issues\n\n-- 7 of 17 --\n\nFebruary 2021\nBugcrowd’s Vulnerability Rating Taxonomy\nMore detailed information regarding Bugcrowd’s vulnerability classification can be found at: https://bugcrowd.com/vrt\nFINDINGS TABLE\nThe following tables list all valid assessment findings from the program.\nMOBILE APPLICATIONS\nCANVAS LMS\nTitle VRT Duplicates Priority State\nStored XSS in iOS App via URL Fragment Cross-Site Scripting\n(XSS)\nP2 Resolved\nOpen redirect (Android only) Unvalidated\nRedirects and\nForwards\nP4 Resolved\nTitle VRT Duplicates Priority State\nStored XSS via Student via bypass of htmlEscape JS function Cross-Site Scripting\n(XSS)\nP2 Resolved\nUnauthenticated Canvas DoS via GraphQL Application-Level\nDenial-of-Service\n(DoS)\nP2 Resolved\nStored XSS via Group Cross-Site Scription\n(XSS)\nP3 Resolved\nReflected Cross Site Scripting on Quizzes can be used to steal access\ntokens\nCross-Site Scripting\n(XSS)\nP3 Resolved\n\n-- 8 of 17 --\n\nFebruary 2021\nTitle VRT Duplicates Priority State\nStored XSS via files domain + Additional chainable vulnerabilities Cross-Site Scripting\n(XSS)\nP3 Resolved\nStored XSS via course link validator Cross-Site Scripting\n(XSS)\nP3 Resolved\nBypassing 2FA using Backup Codes Broken\nAuthentication and\nSession\nManagement\nP3 Resolved\nContent-security-policy (CSP) bypass Server-side\nInjection\nP3 Resolved\nStored XSS via Gradinng Schema Letter Cross-Site Scripting\n(XSS)\nP3 Resolved\nAccessing any course’s rubric challenge details Broken Access\nControl (BAC)\nP3 Resolved\nDOM XSS via postMessage Cross-Site Scripting\n(XSS)\nP3 Resolved\nStored XSS via Group Cross-Site Scripting\n(XSS)\nP3 Resolved\nDOM XSS via prototype pollution Cross-Site Scripting\n(XSS)\nP3 Resolved\nDashboard_positions API possibility to string a number Application-level\nDenial-of-service\n(DoS)\nP3 Resolved\nOpen Redirection found on Quizzes Unvalidated\nRedirects and\nForward\nP4 Resolved\n\n-- 9 of 17 --\n\nFebruary 2021\nCANVAS STUDIO\nTitle VRT Duplicates Priority State\nStudio Admin Permissions Server Security\nMisconfiguration\nP1 Resolved\nStored XSS via Invalid Sanitize of Video Subtitles Cross-Site Scripting\n(XSS)\nP2 Resolved\nStored XSS via Chapters kind of Media Track Cross-Site Scripting\n(XSS)\nP3 Resolved\nBAC issue with Studio Quizzes Broken Access\nControl\nP3 Resolved\nPORTFOLIUM\nTitle VRT Duplicates Priority State\nSSRF Broken Access\nControl (BAC)\n1 P1 Resolved\nSSRF with DNS Rebinding used to steal AWS Token Broken Access\nControl (BAC)\nP1 Resolved\nSSRF at /proxy/users/avatar Broken Access\nControl (BAC)\nP2 Resolved\nAngularJS Injection + Stored XSS Cross-Site Scripting\n(XSS)\nP2 Resolved\nTrigger connection request on visiting profile page (HTML injection +\nCSRF)\nCross-site Request\nForgery (CSRF)\nP2 Resolved\nSSRF and Protocol Smuggling to issue commands to Elastic Search Server Security\nMisconfiguration\n1 P2 Resolved\nStored XSS editing project Cross-Site Scripting\n(XSS)\nP2 Resolved\n\n-- 10 of 17 --\n\nFebruary 2021\nTitle VRT Duplicates Priority State\nStored XSS via project “Paste a link” Cross-Site Scripting\n(XSS)\nP2 Resolved\nStored XSS via Angular Template Injection in message subject Cross-Site Scripting\n(XSS)\nP2 Resolved\nStored XSS via Injection in MarkDown link of Project Description +\ndisclosure of real IP\nCross-Site Scripting\n(XSS)\n3 P2 Resolved\nReflected XSS via page_uri parameter at oauth/redirect endpoint Cross-Site Scripting\n(XSS)\nP3 Resolved\nSensitive info leak using JSONP callback Sensitive Data\nExposure\nP3 Resolved\nReflectted XSS via Angular Template Injection in Sort Parameter Cross-Site Scripting\n(XSS)\nP3 Resolved\nAccount takeover through OAuth Sign in misconfiguration Server Security\nMisconfiguration\nP4 Resolved\nAccess Everything via API endpoints without email verification Other P4 Resolved\nSSRF and DoS using SVG image Broken Access\nControl\nP4 Resolved\nBRIDGE\nTitle VRT Duplicates Priority State\nPrivilege escalation – able to see any other user’s assessments Broken\nAuthentication and\nSession\nManagement\nP3 Resolved\n\n-- 11 of 17 --\n\nFebruary 2021\nTitle VRT Duplicates Priority State\nPrivilege escalation using “author_id” and “assignee_id” to send/assign\ntask as another user\nBroken\nAuthentication and\nsession\nManagement\nP3 Resolved\nAPP DoS – able to block assessment function for all users Application-level\nDenial-of-service\n(DoS)\nP3 Resolved\nA user must be inactive as soon as deleted from an organization Broken\nAuthentication and\nSession\nManagement\nP4 Resolved\nOTHER\nTitle VRT Duplicates Priority State\nGoogle Calendar access control misconfiguration Broken Access\nControl (BAC)\nP1 Resolved\nInsecure salesforce object permissions @pay.getbridge.com Broken Access\nControl (BAC)\nP1 Resolved\nHigh impact subdomain takeover via dangling NS records pointed to AWS\nEC2 Elastic Ips at exec.instructure.com\nServer Security\nMisconfiguration\nP2 Resolved\nHigh impact subdomain takeover via dangling NS records pointed to AWS\nEC2 Elastic Ips at plotly.instructure.com\nServer Security\nMisconfiguration\n1 P2 Resolved\nSubdomain takeover via dangling NS records on AWS Route 53 at\ntry.getbridge.com\nServer Security\nMisconfiguration\nP2 Resolved\nHigh impact subdomain takeover via dangling NS records pointed to AWS\nEC2 Elastic Ips at liferay-test.cisco.instructure.com\nServer Security\nMisconfiguration\nP2 Resolved\n\n-- 12 of 17 --\n\nFebruary 2021\nTitle VRT Duplicates Priority State\nSubdomain takeover via unclaimed AWS S3 Bucket for\nblog.portfolium.com\nServer Security\nMisconfiguration\nP2 Resolved\nSubdomain takeover of faqs.instructure.com pointing to ScreenSteps Server Security\nMisconfiguration\nP2 Resolved\nHigh impact subdomain takeover via dangling NS records pointed to AWS\nEC2 Elastic IPs at opsbox01.instructure.com\nServer Security\nMisconfiguration\nP2 Resolved\nEduappcenter organization takeover Broken Access\nControl (BAC)\nP2 Resolved\nSubdomain takeover of HubSpot hosted domain Server Security\nMisconfiguration\nP2 Resolved\nSubdomain takeover via unclaimed Heroku instance Server Security\nMisconfiguration\nP3 Resolved\nDomain takeover through hubspot Server Security\nMisconfiguration\nP3 Resolved\nSubdomain takeover Server Security\nMisconfiguration\nP3 Resolved\nInternal Service Desk Exposed Broken Access\nControl (BAC)\n1 P3 Resolved\nNo cookie consent even after tracking leads to privacy violation Privacy Concerns P4 Resolved\nInternal links insecure storage Insecure Data\nStorage\nP4 Resolved\n\n-- 13 of 17 --\n\nFebruary 2021\nAppendix\nIncluded in this appendix are auxiliary metrics and insights into the Ongoing program. This includes information regarding submissions\nover time, payouts, and prevalent issue types.\nSUBMISSIONS OVER TIME\nThe timeline below shows submissions received and validated by the Bugcrowd team:\nSUBMISSIONS SIGNAL\nA total of 202 submissions were received, with 57 unique, valid issues discovered. Bugcrowd identified 38 duplicate submissions,\nremoved 107 invalid submissions, and is processing 0 submissions. The ratio of unique, valid submissions to noise was 28%.\nSubmission Outcome Count\nValid 57\nInvalid 107\nDuplicate 38\nProcessing 0\nTotal 202\n\n-- 14 of 17 --\n\nFebruary 2021\nBUG TYPES OVERVIEW\n\n-- 15 of 17 --\n\nFebruary 2021\nClosing Statement\nAn Ongoing Program is a novel approach to a penetration test. Traditional penetration tests use only one or two researchers to test an\nentire scope of work, while an Ongoing Program leverages a crowd of security researchers. This increases the probability of discovering\nesoteric issues that automated testing cannot find and that traditional vulnerability assessments may miss, in the same testing period.\nIt is important to note that this document represents a point-in-time evaluation of security posture. Security threats and attacker\ntechniques evolve rapidly, and the results of this assessment are not intended to represent an endorsement of the adequacy of current\nsecurity measures against future threats. This document contains information in summary form and is therefore intended for general\nguidance only; it is not intended as a substitute for detailed research or the exercise of professional judgment. The information presented\nhere should not be construed as professional advice or service.\nTESTING METHODS\nThis security assessment leveraged researchers that used a combination of proprietary, public, automated, and manual test techniques\nthroughout the assessment. Commonly tested vulnerabilities include code injection, cross-site request forgery, cross-site scripting,\ninsecure storage of sensitive data, authorization/authentication vulnerabilities, business logic vulnerabilities, and more.\nSUMMARY OF FINDINGS\nDuring the engagement, Bugcrowd discovered the following:\nCount Technical Severity\n5 Critical vulnerabilities\n21 High vulnerabilities\n23 Medium vulnerabilities\n8 Low vulnerabilities\n0 Informational findings\n\n-- 16 of 17 --\n\n© 2021 Instructure Inc. All rights reserved.\n\n-- 17 of 17 --",
     "sourceFileName": "Instructure_Canvas_Security_Summary_2021.pdf",
-    "createdAtIso": "2026-06-05T23:31:33.969Z",
-    "updatedAtIso": "2026-06-05T23:31:33.969Z"
+    "createdAtIso": "2026-06-06T01:07:13.664Z",
+    "updatedAtIso": "2026-06-06T01:07:13.664Z"
   },
   "findings": [
     {
@@ -67,16 +68,16 @@
       "asset": "investigation-scope",
       "score": 94,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -96,7 +97,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-001 Instructure Canvas 2021 finding 001 Critical",
         "sourceSpans": [],
@@ -127,16 +128,16 @@
       "asset": "investigation-scope",
       "score": 94,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -156,7 +157,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-002 Instructure Canvas 2021 finding 002 Critical",
         "sourceSpans": [],
@@ -187,16 +188,16 @@
       "asset": "investigation-scope",
       "score": 94,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -216,7 +217,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-003 Instructure Canvas 2021 finding 003 Critical",
         "sourceSpans": [],
@@ -247,16 +248,16 @@
       "asset": "investigation-scope",
       "score": 94,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -276,7 +277,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-004 Instructure Canvas 2021 finding 004 Critical",
         "sourceSpans": [],
@@ -307,16 +308,16 @@
       "asset": "investigation-scope",
       "score": 94,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -336,7 +337,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-005 Instructure Canvas 2021 finding 005 Critical",
         "sourceSpans": [],
@@ -367,16 +368,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -396,7 +397,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-006 Instructure Canvas 2021 finding 006 High",
         "sourceSpans": [],
@@ -427,16 +428,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -456,7 +457,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-007 Instructure Canvas 2021 finding 007 High",
         "sourceSpans": [],
@@ -487,16 +488,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -516,7 +517,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-008 Instructure Canvas 2021 finding 008 High",
         "sourceSpans": [],
@@ -547,16 +548,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -576,7 +577,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-009 Instructure Canvas 2021 finding 009 High",
         "sourceSpans": [],
@@ -607,16 +608,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -636,7 +637,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-010 Instructure Canvas 2021 finding 010 High",
         "sourceSpans": [],
@@ -667,16 +668,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -696,7 +697,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-011 Instructure Canvas 2021 finding 011 High",
         "sourceSpans": [],
@@ -727,16 +728,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -756,7 +757,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-012 Instructure Canvas 2021 finding 012 High",
         "sourceSpans": [],
@@ -787,16 +788,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -816,7 +817,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-013 Instructure Canvas 2021 finding 013 High",
         "sourceSpans": [],
@@ -847,16 +848,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -876,7 +877,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-014 Instructure Canvas 2021 finding 014 High",
         "sourceSpans": [],
@@ -907,16 +908,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -936,7 +937,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-015 Instructure Canvas 2021 finding 015 High",
         "sourceSpans": [],
@@ -967,16 +968,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -996,7 +997,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-016 Instructure Canvas 2021 finding 016 High",
         "sourceSpans": [],
@@ -1027,16 +1028,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1056,7 +1057,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-017 Instructure Canvas 2021 finding 017 High",
         "sourceSpans": [],
@@ -1087,16 +1088,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1116,7 +1117,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-018 Instructure Canvas 2021 finding 018 High",
         "sourceSpans": [],
@@ -1147,16 +1148,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1176,7 +1177,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-019 Instructure Canvas 2021 finding 019 High",
         "sourceSpans": [],
@@ -1207,16 +1208,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1236,7 +1237,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-020 Instructure Canvas 2021 finding 020 High",
         "sourceSpans": [],
@@ -1267,16 +1268,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1296,7 +1297,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-021 Instructure Canvas 2021 finding 021 High",
         "sourceSpans": [],
@@ -1327,16 +1328,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1356,7 +1357,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-022 Instructure Canvas 2021 finding 022 High",
         "sourceSpans": [],
@@ -1387,16 +1388,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1416,7 +1417,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-023 Instructure Canvas 2021 finding 023 High",
         "sourceSpans": [],
@@ -1447,16 +1448,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1476,7 +1477,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-024 Instructure Canvas 2021 finding 024 High",
         "sourceSpans": [],
@@ -1507,16 +1508,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1536,7 +1537,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-025 Instructure Canvas 2021 finding 025 High",
         "sourceSpans": [],
@@ -1567,16 +1568,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1596,7 +1597,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-026 Instructure Canvas 2021 finding 026 High",
         "sourceSpans": [],
@@ -1627,16 +1628,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1656,7 +1657,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-027 Instructure Canvas 2021 finding 027 Medium",
         "sourceSpans": [],
@@ -1687,16 +1688,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1716,7 +1717,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-028 Instructure Canvas 2021 finding 028 Medium",
         "sourceSpans": [],
@@ -1747,16 +1748,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1776,7 +1777,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-029 Instructure Canvas 2021 finding 029 Medium",
         "sourceSpans": [],
@@ -1807,16 +1808,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1836,7 +1837,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-030 Instructure Canvas 2021 finding 030 Medium",
         "sourceSpans": [],
@@ -1867,16 +1868,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1896,7 +1897,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-031 Instructure Canvas 2021 finding 031 Medium",
         "sourceSpans": [],
@@ -1927,16 +1928,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1956,7 +1957,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-032 Instructure Canvas 2021 finding 032 Medium",
         "sourceSpans": [],
@@ -1987,16 +1988,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -2016,7 +2017,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-033 Instructure Canvas 2021 finding 033 Medium",
         "sourceSpans": [],
@@ -2047,16 +2048,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -2076,7 +2077,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-034 Instructure Canvas 2021 finding 034 Medium",
         "sourceSpans": [],
@@ -2107,16 +2108,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -2136,7 +2137,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-035 Instructure Canvas 2021 finding 035 Medium",
         "sourceSpans": [],
@@ -2167,16 +2168,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -2196,7 +2197,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-036 Instructure Canvas 2021 finding 036 Medium",
         "sourceSpans": [],
@@ -2227,16 +2228,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -2256,7 +2257,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-037 Instructure Canvas 2021 finding 037 Medium",
         "sourceSpans": [],
@@ -2287,16 +2288,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -2316,7 +2317,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-038 Instructure Canvas 2021 finding 038 Medium",
         "sourceSpans": [],
@@ -2347,16 +2348,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -2376,7 +2377,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-039 Instructure Canvas 2021 finding 039 Medium",
         "sourceSpans": [],
@@ -2407,16 +2408,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -2436,7 +2437,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-040 Instructure Canvas 2021 finding 040 Medium",
         "sourceSpans": [],
@@ -2467,16 +2468,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -2496,7 +2497,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-041 Instructure Canvas 2021 finding 041 Medium",
         "sourceSpans": [],
@@ -2527,16 +2528,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -2556,7 +2557,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-042 Instructure Canvas 2021 finding 042 Medium",
         "sourceSpans": [],
@@ -2587,16 +2588,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -2616,7 +2617,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-043 Instructure Canvas 2021 finding 043 Medium",
         "sourceSpans": [],
@@ -2647,16 +2648,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -2676,7 +2677,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-044 Instructure Canvas 2021 finding 044 Medium",
         "sourceSpans": [],
@@ -2707,16 +2708,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -2736,7 +2737,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-045 Instructure Canvas 2021 finding 045 Medium",
         "sourceSpans": [],
@@ -2767,16 +2768,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -2796,7 +2797,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-046 Instructure Canvas 2021 finding 046 Medium",
         "sourceSpans": [],
@@ -2827,16 +2828,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -2856,7 +2857,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-047 Instructure Canvas 2021 finding 047 Medium",
         "sourceSpans": [],
@@ -2887,16 +2888,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -2916,7 +2917,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-048 Instructure Canvas 2021 finding 048 Medium",
         "sourceSpans": [],
@@ -2947,16 +2948,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -2976,7 +2977,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-049 Instructure Canvas 2021 finding 049 Medium",
         "sourceSpans": [],
@@ -3007,16 +3008,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -3036,7 +3037,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-050 Instructure Canvas 2021 finding 050 Low",
         "sourceSpans": [],
@@ -3067,16 +3068,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -3096,7 +3097,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-051 Instructure Canvas 2021 finding 051 Low",
         "sourceSpans": [],
@@ -3127,16 +3128,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -3156,7 +3157,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-052 Instructure Canvas 2021 finding 052 Low",
         "sourceSpans": [],
@@ -3187,16 +3188,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -3216,7 +3217,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-053 Instructure Canvas 2021 finding 053 Low",
         "sourceSpans": [],
@@ -3247,16 +3248,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -3276,7 +3277,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-054 Instructure Canvas 2021 finding 054 Low",
         "sourceSpans": [],
@@ -3307,16 +3308,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -3336,7 +3337,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-055 Instructure Canvas 2021 finding 055 Low",
         "sourceSpans": [],
@@ -3367,16 +3368,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -3396,7 +3397,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-056 Instructure Canvas 2021 finding 056 Low",
         "sourceSpans": [],
@@ -3427,16 +3428,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:26.569Z",
+      "detectedAt": "2026-06-06T01:07:07.098Z",
       "summary": "Instructure Canvas 2021 finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: cycle | Assets: -Side | Endpoints: -Side",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:33.964Z",
+          "atIso": "2026-06-06T01:07:13.661Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -3456,7 +3457,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Instructure Canvas 2021 finding",
         "sourceText": "BC-CANVAS-2021-057 Instructure Canvas 2021 finding 057 Low",
         "sourceSpans": [],

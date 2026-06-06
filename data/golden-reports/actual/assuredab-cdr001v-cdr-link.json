@@ -33,7 +33,7 @@
     "slug": "assuredab-cdr001v-cdr-link",
     "name": "assuredab-cdr001v-cdr-link",
     "type": "PDF",
-    "uploadedAt": "2026-06-05T23:29:57.025Z",
+    "uploadedAt": "2026-06-06T01:05:54.254Z",
     "owner": "AI CTIX Analyzer",
     "status": "Ready",
     "findings": 30,
@@ -48,12 +48,13 @@
     "parsingNotes": [
       "Structured parser found no blocks; heuristic fallback was used.",
       "NLP hybrid extraction produced 29 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+      "NLP warning: Model unavailable; used regex-only fallback: Error while deserializing header: header too large",
       "Aligned findings with generic official index: 29 -> 30."
     ],
     "content": "Report\nCenter for Digital Resilience - Link\nPenetration Test\nDennis Dubrefjord, Albin Eldstål-Ahrens, Filip Olsson\nEliot Roxbergh, Eduardo Bravo Ortega\nProject Version Date\nCDR001v 2 2026-01-08\n\n-- 1 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\nExecutive summary\nBetween 2024-10-07 and 2024-10-22 Assured Security Consultants performed an appli-\ncation penetration test on behalf of the Center for Digital Resilience (CDR). The test covered\nCDR Link, a human rights helpdesk application used to provide various types of support for\nactivists and other communities exposed to rights violations.\nThe test included the Link application itself, its integrations with common chat networks\nWhatsApp and Signal, as well as the deployment and hosting infrastructure underlying a\ntypical Link instance.\nThis report lists the security issues found, along with recommendations for fixing or miti-\ngating them. In our conclusions we discuss the issues and address apparent patterns in\nareas where security is lacking.\nA verification test was performed from 2025-12-12 to 2025-12-17 to validate fixes and mit-\nigations in response to the original test.\nObservations in this report are tagged to indicate their status at the time of verification:\n• FIXED for verified fixed findings.\n• PARTIALLY FIXED for findings where we found partial mitigation in effect.\n• REMAINING where the finding was verified still valid.\nObservations were made with the following risk severity assessments (number of issues):\nCritical 1 High 3 Medium 10 Low 6 Note 10\nOne attack chain of critical severity was identified, which allowed an attacker to gain full\naccess to Link via a malicious ticket submission. This vulnerability was reported and fixed\nin a short timeframe, and is no longer present in the production instances of Link at the\ntime this report is published.\nA number of lower-severity vulnerabilities were also identified, with impacts ranging from\nspoofed information to session handling weaknesses.\nAssured would like to thank Sarah Sloan and Darren Clarke, Ana Custura, and Iain Lear-\nmonth from the Center for Digital Resilience for their support during this test. We are happy\nto answer any questions and provide further advice.\nAssured would also like to thank the Open Technology Fund (OTF) for funding the test.\ni\n\n-- 2 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\nContents\n1 Introduction 1\n1.1 Background . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1\n1.2 Constraints and disclaimer . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1\n1.3 Project period and staffing . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1\n1.4 Risk rating . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 2\n1.4.1 OWASP Risk Rating Methodology . . . . . . . . . . . . . . . . . . . . . . 2\n1.5 Assured Security Consultants . . . . . . . . . . . . . . . . . . . . . . . . . . . . 2\n2 Scope and methodology 3\n2.1 Key risks and threat model . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3\n2.2 Scope . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3\n2.2.1 Application penetration test . . . . . . . . . . . . . . . . . . . . . . . . . 3\n2.2.2 Audit of CDR Link deployment . . . . . . . . . . . . . . . . . . . . . . . . 3\n2.3 Methodology . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 4\n2.3.1 Application penetration test . . . . . . . . . . . . . . . . . . . . . . . . . 4\n2.3.2 Audit of CDR Link deployment . . . . . . . . . . . . . . . . . . . . . . . . 4\n2.3.3 Tools used . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 4\n2.4 Limitations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 5\n3 Observations 6\n3.1 Application . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6\n3.1.1 CRIT FIXED SSRF in API gateway . . . . . . . . . . . . . . . . . . . . . 6\n3.1.2 HIGH FIXED HTML injection in ticket chat . . . . . . . . . . . . . . . . 8\n3.1.3 HIGH FIXED Potential timing attack in login . . . . . . . . . . . . . . . 10\n3.1.4 MED FIXED Possible to create Zammad customer account via email 11\n3.1.5 MED PARTIALLY FIXED User IP address shows internal IP address . . 12\n3.1.6 MED FIXED Link authentication token long validity . . . . . . . . . . . 14\n3.1.7 MED FIXED Link session not invalidated by Device removal . . . . . 15\n3.1.8 MED FIXED Link session not invalidated on logout . . . . . . . . . . . 16\n3.1.9 MED FIXED Zammad cookie not removed client-side on logout . . . 16\n3.1.10 LOW REMAINING HTML injection in voice webhook . . . . . . . . . . . 17\n3.1.11 LOW FIXED Account lockout may cause denial of service . . . . . . . 18\n3.1.12 LOW PARTIALLY FIXED Zammad API allows for password and token\nauthentication . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 19\n3.1.13 NOTE PII of users available to Agents . . . . . . . . . . . . . . . . . . . 20\n3.1.14 NOTE User token permissions may be set arbitrarily . . . . . . . . . . 22\n3.1.15 NOTE Code execution via Zammad admin privileges . . . . . . . . . . 24\n3.1.16 NOTE Zammad report shows detailed error logs . . . . . . . . . . . . . 24\n3.1.17 NOTE Outdated third-party dependency . . . . . . . . . . . . . . . . . 25\n3.1.18 NOTE Strict-Transport-Security header included twice . . . . . . . . . 25\nii\n\n-- 3 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n3.1.19 NOTE Weaker TLS ciphers allowed . . . . . . . . . . . . . . . . . . . . . 26\n3.2 Deployment . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 27\n3.2.1 HIGH FIXED Shared administration account . . . . . . . . . . . . . . . 27\n3.2.2 MED FIXED Docker guest runs as root . . . . . . . . . . . . . . . . . . 28\n3.2.3 MED FIXED Docker daemon runs as root . . . . . . . . . . . . . . . . 30\n3.2.4 MED FIXED Containers with write privileges to configuration volumes 31\n3.2.5 MED FIXED Potential cloud metadata access . . . . . . . . . . . . . . 32\n3.2.6 LOW REMAINING Postgres database accessible without password . 33\n3.2.7 LOW FIXED Redis database accessible without authentication . . . 35\n3.2.8 LOW REMAINING /proc filesystem mounted in container . . . . . . . . 36\n3.2.9 NOTE Docker UID shared with administrative user . . . . . . . . . . . . 37\n3.2.10 NOTE Docker socket mounted inside containers . . . . . . . . . . . . . 38\n3.2.11 NOTE SSH root login inconsistency . . . . . . . . . . . . . . . . . . . . 39\n4 Conclusions and recommendations 40\niii\n\n-- 4 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n1 Introduction\n1.1 Background\nAssured AB (Assured) was contracted to perform a penetration test of Link, a helpdesk\napplication developed and managed by the Center for Digital Resiliency (CDR). Link runs\natop well-known open-source helpdesk software Zammad1. Link provides a simplified user\nexperience for support Agents to receive support requests via channels such as E-mail,\nWhatsapp or Signal. Agents can then manage support requests and respond to the original\ncreator as needed.\n1.2 Constraints and disclaimer\nThis report contains a summary of the observations made during the project period. This\nreport should not be considered as a complete list of all vulnerabilities, security flaws and/or\nmisconfigurations.\n1.3 Project period and staffing\nAssured started the penetration test on 2024-10-07 and finished on 2024-10-22.\nVerification of CDR’s fixes and mitigations took place between 2025-12-12 and 2025-12-\n18.\nThis report was last reviewed on 2026-01-08.\nInvolved in the penetration testing were Assured security consultants Dennis Dubrefjord,\nAlbin Eldstål-Ahrens, Filip Olsson and Eliot Roxbergh.\nThe verification test was performed by Assured security consultant Eduardo Bravo Or-\ntega.\n1https://zammad.com\n1\n\n-- 5 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n1.4 Risk rating\n1.4.1 OWASP Risk Rating Methodology\nIn this report we have assessed the severity of issues and identified vulnerabilities accord-\ning to the OWASP Risk Rating Methodology [1].\nTable 1: OWASP Risk Rating overall severity model\nOverall risk severity\nHIGH Medium High Critical\nMEDIUM Low Medium High\nLOW Note Low Medium\nImpact\nLOW MEDIUM HIGH\nLikelihood\nAs Table 1 visualizes, the overall risk assessment is determined from a combined likelihood\nand impact of an identified vulnerability or security issue. A value from 0 to 9 is assessed\nfor each variable, where 0-2 is determined LOW, 3-5 is MEDIUM and 6-9 is HIGH.\nLikelihood is dependent on attributes related to threat actors and the identified vulnerability,\nwith factors such as: the skill level and motivations of the threat agents; how easily the\nvulnerability can be found and exploited, and; how likely an exploit may be detected.\nImpact depends on technical and business factors, such as: level of loss of confidentiality,\nintegrity, availability and accountability; potential financial damage; potential brand dam-\nage, and; potential violations of privacy.\nPlease note that the severity assessment is made by Assured consultants and ratings may\ndiffer from the resource owners’ ratings.\n1.5 Assured Security Consultants\nAssured Security Consultants (Assured AB2) was founded in 2015 with the mission to pro-\nvide premier technical cybersecurity services as an independent consultancy, not affiliated\nwith any vendor. Our team of experienced and dedicated cybersecurity specialists perform\npenetration testing, red team activities, secure design, embedded development, advisory,\ntraining and similar services.\nWe are committed to the security community as OWASP chapter leaders, event organizers\nand podcasters. We also take active part in security research projects into areas such as\ncryptography and automotive security.\n2Assured AB, Org.nr. 556985-8276, registered in Sweden. www.assured.se\n2\n\n-- 6 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n2 Scope and methodology\n2.1 Key risks and threat model\nThe threats facing Link and its users includes a complex mixture of high-level adversaries,\nsuch as state actors, state-sponsored actors, oppressive regimes and criminal organiza-\ntions. Due to the sensitive nature of the Link userbase, testing was centered not only on\ncommon vulnerabilities such as access control, but additional focus was also placed on the\nprotection of Personally Identifiable Information (PII).\nAn additional threat is that the platform is made unavailable and prevent its users from\naccessing it. Government threat actors have multiple means to perform attacks to suc-\ncessfully realize these threats. These include DNS and network manipulation, social engi-\nneering, or DDoS attacks.\n2.2 Scope\nThe test was divided into two separate scopes, carried out in parallel. The first scope covers\nthe Link application itself, including two custom messaging bridges (Signal and Whatsapp)\nimplemented by CDR. The second scope was concerned with the deployment and infras-\ntructure surrounding the application when a new application instance is created.\n2.2.1 Application penetration test\nThe Link application consists of a web front-end and API wrapper around Zammad, a well-\nknown helpdesk software suite. Link includes its own web portal, login system and ticket\nmanagement interface, but uses Zammad in the back-end for storage, access control and\nother features. In addition to this front-end, CDR had also developed custom message\nbridges between Zammad and popular messaging platforms WhatsApp and Signal. These\nbridges were also included in the test scope.\nTesters had full access to the Link source code, which is made available for public access at\nhttps://gitlab.com/digiresilience/link. Accounts with Administrative and Agent privi-\nleges were provided for the test.\n2.2.2 Audit of CDR Link deployment\nThe test environment consisted of a single Virtual Machine hosted at GreenHost. The ma-\nchine runs Debian Linux and hosts the application and its various dependencies in separate\nDocker containers.\nTesters were given full administrative access to the test server, as well as access to de-\nployment scripts and playbooks.\n3\n\n-- 7 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n2.3 Methodology\n2.3.1 Application penetration test\nTesting of Link was performed by using two approaches: Source code review and dynamic\ntests against the running test environment. The source code was reviewed using auto-\nmated static analysis and manual inspection. Dynamic tests were mainly carried out man-\nually, aided by automation tools as listed below.\nThe Link interface is only intended to be accessed by Administrators and Agents, not by\nregular users (”Customers” in Zammad parlance). After finding a way to still create a Cus-\ntomer user account, tests were performed from this position as well.\nTesting covered various common types of vulnerabilities, ranging from login weaknesses\nto access control and information leakage as well as threats against the back-end ser-\nvice.\n2.3.2 Audit of CDR Link deployment\nThe system hosting the test environment at assured.cdr.link was inspected for config-\nuration issues which could reduce the security posture of Link when deployed for public\nuse. Since the application components are run in separate Docker containers, privilege\nescalation tests were carried out from two perspectives: i) A compromised application in-\nside a container, and ii) An attacker having escaped a container and attempting to elevate\nprivileges.\nIn addition to privilege escalation vulnerabilities, the system was inspected for potential\ninformation leaks and avenues of lateral movement. One example of this is internally ex-\nposed services, which may be accessible to an attacker who has gained a limited foothold\ninside an application container.\n2.3.3 Tools used\n• Burp Suite Professional (https://portswigger.net/burp)\n• Semgrep (https://semgrep.dev\n• Brakeman (https://brakemanscanner.org/)\n• testssl (https://testssl.sh)\n• Trivy (https://github.com/aquasecurity/trivy)\n• LinPEAS (https://github.com/peass-ng/PEASS-ng)\n• CDK (https://github.com/cdk-team/CDK)\n4\n\n-- 8 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n2.4 Limitations\nAt the time of the test, the Signal integration was not yet functional in the test environ-\nment. The source code of the integration was inspected, but no dynamic tests were per-\nformed.\n5\n\n-- 9 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n3 Observations\nThis chapter details the observations made during the test. The first section covers vul-\nnerabilities related to the Link application itself, and its interaction with Zammad. The sec-\nond section covers observations related to the deployment and infrastructure of a Link\ninstance.\n3.1 Application\n3.1.1 CRIT FIXED SSRF in API gateway\nLikelihood: HIGH (8), Impact: HIGH (8)\nNote: This vulnerability was reported to CDR during the test, and immediately mitigated. Assured\nhas verified the fix, and that the vulnerability is no longer present in the test environment. Within 24\nhours of reporting, the fix had been deployed to production instances of Link.\nAny request starting with /zammad redirects to the Zammad system URL, and simply ap-\npends everything after /zammad to form (and then performs a request to) a URL on the\nform http://zammad-nginx:8080[USER-INPUT].\nIf a user inputs a string starting with an @ sign, the resulting URL will be interpreted differ-\nently and allow the user to control the full target host and path. For example, by providing\nthe input @assured.se, the URL that Link redirects to becomes http://zammad-nginx:8080\n@assured.se, which is treated as an authentication attempt to the host assured.se, with the\nusername zammad-nginx and the password 8080. The original request headers are added to\nthis request, meaning that the session cookies of the user can be retrieved by redirecting\nthe request to an attacker-controlled URL. Moreover, we could also use the vulnerability as\nan SSRF, sending the request to any system, internal or external. Since the response of\nthis request is sent back to the end user, it would be possible to retrieve any data sent from\nthe system (such as tokens).\nFigure 1 shows the request received by our system, after we manipulated the redirect as\noutlined above. Note in particular the leaked Cookies, which belong to the Link user who\nvisited the malicious URL.\nBy tricking a Link user into visiting a malicious link URL, such as https://assured.cdr.link/za-\nmmad@attacker.net, an attacker is able to redirect the user’s request to an external desti-\nnation. This allows for a full session takeover, since the user’s session token is included in\nthe request.\n6\n\n-- 10 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\nFigure 1: The attacker receives a redirected request, which includes the user’s session token\nWhen combined with Finding 3.1.2, this can be done automatically and invisibly to the user;\nby injecting an iframe in a ticket and setting the iframe to use the SSRF, the session token\nof any Link agent who views the ticket is sent to the attacker without user interaction.\nWhen combined with Finding 3.2.5, an SSRF can give an attacker access to sensitive re-\nsources in a cloud hosting environment such as Amazon AWS. The ability to insert arbitrary\nheaders allows an attacker to circumvent common protection mechanisms for these APIs,\nintended to prevent access from ”simple” SSRF attacks.\nWe recommend adding a trailing slash to the template URL, i.e. making it http://zammad-\nnginx:8080/ to prevent the user from being able to control the host portion of the URL.\nSince this vulnerability is both of high impact and can be exploited via an email or WhatsApp\nmessage (See Finding 3.1.2) without authentication, we highly recommend investigating\nwhether any similar attack has already been carried out in the production environments. A\nclear indicator is either an @ URL in the access logs of Zammad or any HTML in plaintext\ntickets.\nDue to the additional risk that malicious tickets have been edited or removed after suc-\ncessful attack, we also recommend investigating the email inboxes associated with ticket\nsubmission to find potentially malicious payloads.\nAn attacker who gains Administrative privileges will also be able to execute code server-\nside (see Finding 3.1.15), and can potentially use this to further eliminate evidence in email\nor WhatsApp histories.\n7\n\n-- 11 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n3.1.2 HIGH FIXED HTML injection in ticket chat\nLikelihood: HIGH (7), Impact: MEDIUM (5)\nVerification note: Responses where the contents of a ticket are displayed, both in Link and the\nZammad interface, are properly HTML encoded.\nPlaintext emails sent to Zammad are included directly in their ticket conversations with-\nout filtering. This means that an attacker can send an email with malicious contents and\nthereby modify the contents of the page viewed by an Agent. Figure 2 shows a plaintext\n(i.e. not HTML-encoded) email sent to the support system. Figure 3 shows the same mes-\nsage being viewed in Link by an agent. The HTML elements are rendered by the browser,\nincluding a link with a malicious target.\nFigure 2: A plaintext email with HTML in the text\nFigure 3: The malicious message rendered in Link. JavaScript is not executed.\n8\n\n-- 12 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\nSimilar links are properly neutralized by Zammad when they originate from HTML-encoded\nemail. When a message is sent as plaintext, this sanitization does not take place and the\nmalicious text is insecurely included in the page DOM by Link.\nThe same vulnerability applies to WhatApp messages, whose text is also insecurely included\nin the DOM without sanitization.\nThe CSP (Content Security Policy) of the application successfully prevents this attack from\nexecuting JavaScript. An attacker can still insert malicious HTML and CSS stylesheets to\nalter the contents of the page (e.g. render a fake document on top of the actual one) and\nuse this for phishing or other types of attacks.\nWe recommend sanitizing all user input before using it in a sensitive context such as HTML\ncontent. Using insecure methods such as the JavaScript built-in innerHTML may allow an\nattacker to inject malicious scripts or markup.\n9\n\n-- 13 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n3.1.3 HIGH FIXED Potential timing attack in login\nLikelihood: HIGH (6), Impact: MEDIUM (5)\nVerification note: Basic Auth has been disabled. Only SSO through a Google account, along user-\nname and password, is possible at the time of verification.\nThe Link and Zammad APIs allow HTTP Basic Auth, where a header is included in each\nrequest containing an encoded email address and password. A small timing discrepancy\nwas observed between an invalid email/password and a valid email with an invalid pass-\nword.\nThis may allow an attacker to test whether a given email address is registered in the sys-\ntem for an Administrator, Agent or Customer. Repeated attempts against the same email\naddress will quickly lock the account, but this is not likely to prevent the timing attack from\nbeing successful.\nWe recommend disabling Basic Auth entirely, since it is not used in the application directly.\nIf this is not feasible, we recommend notifying the Zammad development team of the vul-\nnerability in order for a constant-time authentication method to be implemented.\n10\n\n-- 14 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n3.1.4 MED FIXED Possible to create Zammad customer account via email\nLikelihood: MEDIUM (5), Impact: MEDIUM (3)\nVerification note: The endpoints under /api/v1 are now locked behind authentication.\nWhen a ticket is entered into Zammad via any channel (such as email, WhatsApp, or Signal),\na Zammad customer account is automatically established for the originating person. No\npassword is associated with the account, and Link does not expose a login form to use it.\nIt is still possible to abuse the /api/v1 passthrough between Link and Zammad to perform\na password reset and thus activate the Zammad account.\nAn attacker can do this by the following process:\n1. Create a ticket via email\n2. Call the endpoint /api/v1/signshow to receive a CSRF token and Zammad session\ncookie\n3. Call the endpoint /api/v1/users/password_reset to send a reset token via email\n4. Call the endpoint /api/v1/users/password_reset_verify to set a password\n5. Call the endpoint /api/v1/signin to sign in\n6. Use the Zammad session cookie to call arbitrary Zammad endpoints via /api/v1\nThe account gets Customer access only, and can only interact with its own tickets this way.\nIn the test environment it was possible to alter some metadata of tickets (e.g. the title) but\nnot the ticket contents (body, attachments, and so on)\nThis gives an attacker a small foothold inside the application; it allows for an unauthorized\nuser to gain a low-privilege account in Zammad and interact with its API. If vulnerabil-\nities are identified in Zammad, they may be possible to exploit using this Customer ac-\ncount.\nWe recommend disabling the password reset functionality in Link by refusing to route to\nthe associated endpoints. In addition, investigate options to prevent login from Customer\naccounts altogether. In general, the entire /api/v1/ redirect should be locked down behind\nauthorization checks to prevent access to sensitive Zammad endpoints by unauthenticated\nor Customer-level users.\n11\n\n-- 15 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n3.1.5 MED PARTIALLY FIXED User IP address shows internal IP address\nLikelihood: MEDIUM (4), Impact: MEDIUM (5)\nVerification note: Mail notifications that disclosed the internal ip address are no longer sent. But\nuser session address remains to be an internal ip instead of the user’s IP.\nZammad helpdesk does not seem to store the actual user IP, instead an internal address\nis shown (specifically 172.18.0.9). This makes it harder for users and administrators to\nidentify suspicious logins. The IP address is leaked to user in the web UI, as well as in the\n”Zammad Helpdesk login from a new device” email, as shown in Figure 4. Additionally, this\nemail is sent several times as the application is used, even if it is from the same device\n(Figure 5).\nFigure 4: Users receive email showing internal IP address upon login\nFigure 5: The user receives many emails even if the same device is used throughout\n12\n\n-- 16 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\nFigure 6: The administrator’s view: storing only an internal IP address obscures the actual\nIP from which users connect.\nExternal users thereby gain limited insight into internal IP addresses used, and are not able\nto identify unusual login locations. Similarly, administrators cannot see the actual user login\nIP addresses from the web UI (as shown in Figure 6). It is possible that server-side logging\nmay also be partially faulty in the same manner, preventing proper auditing after a breach,\nalthough this was not the case in the system logs we observed.\nThe email notification itself is an account security measure intended to alert users to un-\nusual account activity. Excessive emails and incorrect contents make this mechanism\nless effective, since users will rapidly learn to ignore messages and cannot trust their con-\ntents.\nWe recommend ensuring that the proper user IP address is logged and shown to users.\nMake sure the proper IP is stored in logs. Minimize the number of emails sent to users, for\nexample by only notifying them when an IP address is observed which has not been seen\nin use recently.\n13\n\n-- 17 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n3.1.6 MED FIXED Link authentication token long validity\nLikelihood: MEDIUM (3), Impact: MEDIUM (5)\nVerification note: Authentication token duration has been reduced to four days.\nThe session token used for access to Link has a long validity (one month) and can be re-\nfreshed indefinitely. The session token can also be used to request a new Zammad token\nfor the same account, allowing a user with a valid token to maintain access forever.\nIf an attacker is able to steal a user’s Link cookie (e.g. using Finding 3.1.1), it allows the\nattacker to maintain persistent access to the system indefinitely.\nWe recommend implementing a more secure flow with a short-lived session token and a\nseparate refresh token. The refresh token should be protected from unauthorized access\n(i.e. if it is a cookie, it should have HTTP-only set) and if possible it should also be limited\nto a different scope (e.g. cookie domain) than the session token. The refresh token should\nonly be included in requests to a bespoke token refresh endpoint, to minimize the risk of\nleaking.\nThis setup would allow the more exposed session token to have a shorter validity, while still\nallowing client-side code to obtain a new session token without forcing the user to repeat\nthe login process.\n14\n\n-- 18 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n3.1.7 MED FIXED Link session not invalidated by Device removal\nLikelihood: MEDIUM (3), Impact: MEDIUM (5)\nVerification note: Removing a device now destroys the corresponding session. Furthermore, con-\ncurrent sessions of the same user are not allowed.\nThe Link user profile exposes a list of logged-in device sessions and allows the user to\nremove sessions as needed. This is an important security feature, which gives each user an\noverview of their logged in sessions and an opportunity to detect and invalidate malicious\nlogins. Sessions removed from the interface are not properly invalidated, and thus their\nassociated session tokens remain active and functional even after explicit removal.\nAn attacker who is able to steal a user’s session token is able to both hide their activity\n(by ”removing” the device from the list of visible sessions) and maintain access even if a\nuser explicitly attempts to end the session. This gives a user no recourse upon detecting a\nmalicious or forgotten session.\nWe recommend deactivating user sessions server-side upon requested deletion from the\nsession list. If this for some reason is not possible, the feature should be disabled as to not\nmislead users.\n15\n\n-- 19 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n3.1.8 MED FIXED Link session not invalidated on logout\nLikelihood: MEDIUM (3), Impact: MEDIUM (5)\nVerification note: Signing out properly invalidates the session token.\nUser sessions are not invalidated server-side when the user logs out of Link.\nAn attacker who is able to steal a user’s session token (e.g. using Finding 3.1.1) is able to\ncontinue using the same token even after the user explicitly logs out.\nWe recommend deactivating sessions server-side upon explicit user logout. This is impor-\ntant, since the session token itself may remain in cookie storage, caches, proxy logs, etc.\nafter a user signs out.\n3.1.9 MED FIXED Zammad cookie not removed client-side on logout\nLikelihood: MEDIUM (3), Impact: MEDIUM (5)\nVerification note: Signing out from Link logs the user out from Zammad, as well as removing the\nsession cookie.\nDuring normal use of Link, a logged-in user will have two separate access tokens: one for\nLink and one for the underlying Zammad system. When the user explicitly logs out of Link,\nthe Zammad token remains stored client-side in a cookie.\nThis means that after logging out of Link, the machine remains ”logged in” to Zammad with\nthe same privileges. If a system is shared between Agents, their login sessions may leak\nbetween users. If a Link Administrator has signed into a system, their Zammad adminis-\ntrator privileges will be granted to the next Agent to log in as well.\nWe recommend explicitly clearing the Zammad cookie when a user logs out of Link. In\naddition, consider setting a short validity on the Zammad cookie, since the user’s Link token\ncan be used to fetch a new Zammad token as needed.\n16\n\n-- 20 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n3.1.10 LOW REMAINING HTML injection in voice webhook\nLikelihood: LOW (2), Impact: MEDIUM (3)\nVerification note: Affected lines of code have not implemented the Rails built-in mechanism to\nprevent this issue.\nThe webhook implementation used for the Voice channel in Link is vulnerable to HTML injec-\ntion from a number of its parameters. Figure 7 shows the affected code location, where an\nHTML fragment is created as a string by including values from webhook parameters.\nFigure 7: Code injection vulnerability in voice webhook\nThe webhook requires a valid token to call, and the CSP of the application successfully\nprevents any malicious JavaScript execution. The vulnerability could allow an attacker to\nspoof parts of the document, for example to forge a login form for phishing purposes.\nWe recommend sanitizing user input before including it in sensitive contexts such as\nHTML. Rails has built-in support for this through the ActionView::Helpers::SanitizeHelper\nclass.\n17\n\n-- 21 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n3.1.11 LOW FIXED Account lockout may cause denial of service\nLikelihood: MEDIUM (5), Impact: LOW (2)\nVerification note: Basic Auth is disabled and the /api/v1 endpoints are now locked behind authen-\ntication.\nHTTP Basic Auth is enabled, which allows a user to attempt authentication by calling any\nAPI endpoint. After five failed attempts, the associated account is locked and must be\nunlocked by an administrator.\nAn attacker who has mapped out the email addresses of agents and administrators of a\nLink instance can effectively halt the system by locking the accounts. This does not affect\nthe ability of users to submit new tickets since they do not require login.\nWe recommend disabling HTTP Basic Auth, since it is not used in the Link setup. In addi-\ntion, consider requiring MFA for sensitive accounts to prevent this type of abuse through\nother channels (e.g. SSO provider). In general, the entire /api/v1/ redirect should be locked\ndown behind authorization checks to prevent access to sensitive Zammad endpoints by\nunauthenticated or Customer-level users.\n18\n\n-- 22 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n3.1.12 LOW PARTIALLY FIXED Zammad API allows for password and token au-\nthentication\nLikelihood: MEDIUM (3), Impact: LOW (2)\nVerification note: The conditions that led to this finding remain mostly unchanged. The main\ndifference being the removal of token authentication.\nAn admin or agent can create a password or a personal access token to access Zammad\ndirectly. This creates a second method of access to the application, bypassing the SSO\nlogin on Link. No multi-factor authentication is used.\nWe also note that access tokens by default have no expiry.\nApplication access without multi-factor authentication is prone to password spraying or\nbrute-force attacks. As this login can include powerful administrative access, this creates\na clear risk to the application.\nMoreover, even if an acceptable password policy is in place on Zammad, an admin is not\nlimited by this and can change users’ passwords, creating a potential risk of weak creden-\ntials. However, even if the password policy could be improved, multi-factor authentication\nis the main concern as this greater protects against phishing attacks and password reuse\nissues.\nWe recommend implementing MFA as part of user authentication. MFA should be manda-\ntory at least for administrators and forced on logins from new devices and for certain sen-\nsitive actions.\n19\n\n-- 23 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n3.1.13 NOTE PII of users available to Agents\nTwo endpoints exist which allow users with Agent privileges in Link to list personal informa-\ntion about all users. This includes other Agents and Administrators, as well as ”customers”\nwho have submitted tickets but not otherwise used Link. Figure 8 shows an Agent who\nis not a member of the ”users” group (no access to any tickets) listing the first and last\nnames as well as email address of a user who has only submitted tickets via email. Fig-\nure 9 shows an Agent listing users with a different endpoint, and revealing the WhatsApp\naccount number of a user who has submitted a ticket.\nFigure 8: A support Agent is able to list PII of a support customer\n20\n\n-- 24 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\nFigure 9: An Agent listing the WhatsApp contact number of a ticket submitter\nIf the identity of support users is intended to be secret from some Agents (for example\nusing Zammad groups such as ”Users”), this can be circumvented by performing Zammad\nAPI calls.\nWe recommend investigating if the sensitive endpoints need to be limited. This may be\npossible by implementing a filtering proxy to the Zammad API, or it may be implemented by\npatching Zammad itself to limit the permissions of Agent users.\n21\n\n-- 25 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n3.1.14 NOTE User token permissions may be set arbitrarily\nA personal access token can be set (via https://assured.cdr.link/profile) by Admins and\nAgents. This request may however be modified in any way (shown in Figure 10), whereby\nan agent can add restricted administrative permissions (or completely arbitrary text) to\nthe created token (shown in Figure 11). However, this did not have any impact for the\napplication, and the user was still limited according to their permissions.\nFigure 10: Creating an ”Admin” access token as an Agent\n22\n\n-- 26 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\nFigure 11: The new user access token shows that custom values are accepted and stored\nWe recommend ensuring server-side, in addition to client-side, that fields have the ex-\npected data, to prevent inconsistencies or risk of future misconfiguration that could enable\na vulnerability.\n23\n\n-- 27 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n3.1.15 NOTE Code execution via Zammad admin privileges\nAny user who has Administrative privileges in Zammad is able to install addons via the web\nAPI. This allows the user to execute arbitrary code in the Zammad container.\nBy extension, in combination with Finding 3.2.6, an attacker can move laterally from almost\nany container to code execution in the Zammad container by first creating an administrative\naccount and then uploading a malicious addon.\n3.1.16 NOTE Zammad report shows detailed error logs\nWhen an administrator account was logged in and viewing the CDR Link web interface at\nhttps://assured.cdr.link/zammad#report and pressed ”Closed”, a detailed error log was\nshown including basic information about internal service http://opensearch:9200/, namely:\nUnable to process GET request to elasticsearch URL 'http://opensearch:9200/\nzammad_production_ticket/_search'. Check the response and payload for detailed information:\nResponse:\n#<UserAgent::Result:0x0000774cefb31600 @success=false, @body=\"{\\\"error\\\":{\\\"root_cause\\\":[{\\\"\ntype\\\":\\\"query_shard_exception\\\",\\\"reason\\\":\\\"No mapping found for [close_at] in order to\nsort on\\\",\\\"index\\\":\\\"zammad_production_ticket\\\",\\\"index_uuid\\\":\\\"DX7ZeqEVShqx5kER9d6epQ\n\\\"}],\\\"type\\\":\\\"search_phase_execution_exception\\\",\\\"reason\\\":\\\"all shards failed\\\",\\\"phase\n\\\":\\\"query\\\",\\\"grouped\\\":true,\\\"failed_shards\\\":[{\\\"shard\\\":0,\\\"index\\\":\\\"\nzammad_production_ticket\\\",\\\"node\\\":\\\"ICFOCFjlQvu1zhZ_ETUpGQ\\\",\\\"reason\\\":{\\\"type\\\":\\\"\nquery_shard_exception\\\",\\\"reason\\\":\\\"No mapping found for [close_at] in order to sort on\n\\\",\\\"index\\\":\\\"zammad_production_ticket\\\",\\\"index_uuid\\\":\\\"DX7ZeqEVShqx5kER9d6epQ\\\"}}]},\\\"\nstatus\\\":400}\", @data=nil, @code=\"400\", @content_type=nil, @error=\"Client Error: #<Net::\nHTTPBadRequest 400 Bad Request readbody=true>!\", @header={\"content-type\"=>\"application/json;\ncharset=UTF-8\", \"content-length\"=>\"585\"}>\nPayload:\n{\"size\":100,\"query\":{\"bool\":{\"must\":[{\"range\":{\"close_at\":{\"from\":\"2023-12-31T23:00:00Z\",\"to\n\":\"2024-12-31T22:59:59Z\"}}},{\"bool\":{\"must\":[{\"bool\":{\"must_not\":[{\"term\":{\"state.name.\nkeyword\":\"merged\"}}]}}]}}]}},\"sort\":[{\"close_at\":{\"order\":\"desc\"}},\"_score\"]}\nPayload size: 0M\nThe logs we observed were only viewable by an administrator and could be expected be-\nhavior. However, if such logs were to become available to normal users it would mean\nunwanted information disclosure, as detailed logs and internal server information could be\nuseful for an attacker.\n24\n\n-- 28 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n3.1.17 NOTE Outdated third-party dependency\nTrivy reports that one third-party dependency has a known vulnerability, with a low severity\n(CVE-2024-47764).\nThe package in question is cookie of version 0.5.0 and 0.6.0, which are included several\ntimes in package-lock.json. This vulnerability was only recently reported, on Oct 4th, and\nseems to have no impact in the application.\nWe recommend updating the vulnerable dependency and establishing a vulnerability man-\nagement process to identify and address vulnerabilities in third-party components. Es-\ntablish a process for software and library updates, to prevent applications falling out of\nmaintenance. Software Composition Analysis (SCA) and Supply Chain Management (SCM)\nprocesses can be useful in tracking dependencies, licenses and versions used by your soft-\nware.\n3.1.18 NOTE Strict-Transport-Security header included twice\nThe HTTP Strict-Transport-Security (HSTS) header is used to enforce HTTPS for clients and\navoid HTTP-downgrade attacks.\nDue to a misconfiguration, several endpoints return two HSTS headers, while the client only\nexpects one. An example of this is /overview/recent, where the following response header\nwas observed by the client:\nStrict-Transport-Security: max-age=63072000; includeSubDomains; preload\n.....\nStrict-Transport-Security: max-age=31536000\nIf the second entry were to be used by a client, it would disable the two security features\nincludeSubDomains and preload. As clients are only supposed to parse the first HSTS value\n(according to RFC67973), we deem this to be unlikely. Still, having two different HSTS head-\ners may increase the risk of confusion for system owners and developers, who believe a\ncertain HSTS value is used when in fact it is not.\nWe recommend ensuring that only one HSTS header is set.\n3https://www.rfc-editor.org/rfc/rfc6797#section-8.1\n25\n\n-- 29 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n3.1.19 NOTE Weaker TLS ciphers allowed\nThe TLS configuration is overall good, and only supports TLS v1.2 and v1.3. It does how-\never allow for cipher suites without forward secrecy, and weaker cipher suites such as\nTLS_RSA_WITH_AES_128_CBC_SHA4. This does not currently have any impact, and it may be\nneeded for compatibility reasons. That being said, this configuration could potentially be\nadditionally hardened.\nThe following supported cipher suites were reported by testssl:\nTLSv1.2 (server order)\nxcca8 ECDHE-RSA-CHACHA20-POLY1305 ECDH 253 ChaCha20 256 TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256\nxc02f ECDHE-RSA-AES128-GCM-SHA256 ECDH 253 AESGCM 128 TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256\nxc030 ECDHE-RSA-AES256-GCM-SHA384 ECDH 253 AESGCM 256 TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384\nx9e DHE-RSA-AES128-GCM-SHA256 DH 4096 AESGCM 128 TLS_DHE_RSA_WITH_AES_128_GCM_SHA256\nx9f DHE-RSA-AES256-GCM-SHA384 DH 4096 AESGCM 256 TLS_DHE_RSA_WITH_AES_256_GCM_SHA384\nxc027 ECDHE-RSA-AES128-SHA256 ECDH 253 AES 128 TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256\nxc028 ECDHE-RSA-AES256-SHA384 ECDH 253 AES 256 TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384\nxc013 ECDHE-RSA-AES128-SHA ECDH 253 AES 128 TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA\nxc014 ECDHE-RSA-AES256-SHA ECDH 253 AES 256 TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA\nx67 DHE-RSA-AES128-SHA256 DH 4096 AES 128 TLS_DHE_RSA_WITH_AES_128_CBC_SHA256\nx33 DHE-RSA-AES128-SHA DH 4096 AES 128 TLS_DHE_RSA_WITH_AES_128_CBC_SHA\nx6b DHE-RSA-AES256-SHA256 DH 4096 AES 256 TLS_DHE_RSA_WITH_AES_256_CBC_SHA256\nx39 DHE-RSA-AES256-SHA DH 4096 AES 256 TLS_DHE_RSA_WITH_AES_256_CBC_SHA\nx9c AES128-GCM-SHA256 RSA AESGCM 128 TLS_RSA_WITH_AES_128_GCM_SHA256\nx9d AES256-GCM-SHA384 RSA AESGCM 256 TLS_RSA_WITH_AES_256_GCM_SHA384\nx3c AES128-SHA256 RSA AES 128 TLS_RSA_WITH_AES_128_CBC_SHA256\nx3d AES256-SHA256 RSA AES 256 TLS_RSA_WITH_AES_256_CBC_SHA256\nx2f AES128-SHA RSA AES 128 TLS_RSA_WITH_AES_128_CBC_SHA\nx35 AES256-SHA RSA AES 256 TLS_RSA_WITH_AES_256_CBC_SHA\nTLSv1.3 (no server order, thus listed by strength)\nx1302 TLS_AES_256_GCM_SHA384 ECDH 253 AESGCM 256 TLS_AES_256_GCM_SHA384\nx1303 TLS_CHACHA20_POLY1305_SHA256 ECDH 253 ChaCha20 256 TLS_CHACHA20_POLY1305_SHA256\nx1301 TLS_AES_128_GCM_SHA256 ECDH 253 AESGCM 128 TLS_AES_128_GCM_SHA256\n4https://ciphersuite.info/cs/TLS_RSA_WITH_AES_128_CBC_SHA\n26\n\n-- 30 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n3.2 Deployment\n3.2.1 HIGH FIXED Shared administration account\nLikelihood: MEDIUM (3), Impact: HIGH (6)\nVerification note: SSH access and sudo access is managed via FreeIPA/IdM. Moreover, privileges\nare managed in a fine-grained manner by limiting which commands can be executed, and which\nusers and groups can a user impersonate through a sudo policy.\nThe deployment playbook configuration file ansible-cdr-link/inventory/group_vars/all\n.yml adds SSH keys for a number of people to log in as admin on the host system. This\naccount has full access to run arbitrary commands as root using sudo.\nSharing a single account for administrative tasks makes it more difficult to accurately per-\nform audit logging. If one of the private keys is compromised, the shared account makes it\nmore difficult to trace malicious operations and perform incident response.\nWe recommend using separate accounts for all administrative users, and preventing ele-\nvation to the single root account. By forcing administrators to use personal accounts for\nall sensitive operations, audit logging becomes possible.\n27\n\n-- 31 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n3.2.2 MED FIXED Docker guest runs as root\nLikelihood: MEDIUM (3), Impact: MEDIUM (5)\nVerification note: Containers have been migrated to Podman. These containers are no longer\nrunning as root.\nA number of containers, listed in Example 1, run processes with root privileges.\nExample 1: Containers running as root\nnginx_proxy\nnginx_proxy_gen\nnginx_proxy_le\nzammad-zammad-nginx-1\nzammad-zammad-railsserver-1\nzammad-zammad-scheduler-1\nzammad-zammad-websocket-1\nWhile the processes execute in the confinement of Docker containers, the root user (UID 0)\nstill has elevated privileges within the container. The account itself is the same as the root\naccount on the host machine, but with certain capabilities stripped.\nIn the presence of other container configuration vulnerabilities, root access can allow an\nattacker to elevate privileges on the host system. If a kernel vulnerability is found, it is likely\nthat it can be used to escape the container.\nIn addition, a root docker container with RW volumes mounted can be used to elevate priv-\nileges outside the container. If an attacker has a low-privilege foothold in the host and can\nrun code inside the container, these two factors can be used to gain root privileges on the\nhost as shown in Example 2.\n28\n\n-- 32 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\nExample 2: Example of host privilege escalation using a root container\n# Running inside the container\n# /usr/share/nginx/html is an RW volume\nroot@container:/usr/share/nginx/html/assured# cp /usr/bin/chmod root_chmod\nroot@container:/usr/share/nginx/html/assured# chmod 4755 root_chmod\n# The root_chmod executable is now setuid root\n# This is also true in the host:\nadmin@host:~$ sudo ls -lah /var/.../nginx_proxy_html/_data/assured/root_chmod\n-rwsr-xr-x 1 root root 63K Oct 9 07:50 /var/.../nginx_proxy_html/_data/assured/root_chmod\nBy using the root privileges inside the container to make a binary setuid root, that binary\ncan then be run with root privileges on the host as well.\nWe recommend running container guests with non-root privileges. Where possible, use a\nUID which does not overlap with user accounts on the host system. In addition, we recom-\nmend using the nosetuid option on shared filesystems to prevent privilege misuse.\n29\n\n-- 33 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n3.2.3 MED FIXED Docker daemon runs as root\nLikelihood: MEDIUM (3), Impact: MEDIUM (5)\nVerification note: The Podman daemon runs as a custom user assigned to a specific group instead\nof root.\nThe docker daemon can be executed as root (default) or as a regular user. Running the\ndocker daemon as root increases the impact if an attacker would compromise the host\nsystem through docker container breakout attacks.\nAn attacker that successfully performs a breakout from a docker container on the host,\ncan execute system commands and code as the root user. Making the full system com-\npromised.\nWe recommend to evaluate if running the docker daemon in rootless mode is suitable for\nyour design. If rootless mode is not possible, consider using Podman5 as an alternative to\ndocker.\n5https://podman.io/\n30\n\n-- 34 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n3.2.4 MED FIXED Containers with write privileges to configuration volumes\nLikelihood: MEDIUM (3), Impact: MEDIUM (4)\nVerification note: Containers have been migrated to Podman. Podman container configuration\nfiles, like /usr/share/containers/containers.conf and /etc/containers/containers.conf are read-only\ninside of the container.\nSome Docker containers have volumes mounted from the host, containing application con-\nfiguration which are mounted with RW enabled, giving the application write privileges in a\nconfiguration directory on the host.\nExample 3 lists volumes which are mounted with RW enabled, giving the application write\nprivileges in a configuration directory on the host.\nExample 3: Containers and volumes with Read-Write access\nnginx_proxy: nginx_proxy_conf\nnginx_proxy: nginx_proxy_vhost\nnginx_proxy_gen: nginx_proxy_conf\nzammad-zammad-railsserver-1: zammad-database.yml\nAn attacker who uses an application vulnerability to gain a limited foothold (e.g. the ability\nto append data to an arbitrary file) within a container may use these write privileges to gain\nextended access (e.g. Remote Code Execution) or persistence. A malicious update to the\nnginx configuration may allow for transparent (i.e. without losing TLS) hijacking of web\ntraffic.\nWe recommend mounting configuration and other volumes with read-only permissions,\nunless it is strictly necessary for application functionality.\n31\n\n-- 35 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n3.2.5 MED FIXED Potential cloud metadata access\nLikelihood: MEDIUM (4), Impact: MEDIUM (4)\nVerification note: Link and Zammad are now deployed in SR2’s public cloud https://docs.cdr.link/-\ndocs/hosted/. SR2 has seemingly no metadata API to abuse.\nDocker containers are not prevented from accessing external resources, such as the meta-\ndata API of hosting providers like AWS.\nIf the cloud service is configured to allow it, an attacker who gains a foothold inside an ap-\nplication container (e.g. by exploiting a vulnerability in Zammad) can gain access to the\nmetadata API of the cloud provider. Access to the metadata API may give an attacker ac-\ncess to credentials and other sensitive information.\nWe recommend blocking access from containers to the cloud provider metadata API, for\nexample using firewall rules. The implementation of this must be aware of the specific cloud\nhost used for an instance, which may increase the complexity of deployment.\n32\n\n-- 36 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n3.2.6 LOW REMAINING Postgres database accessible without password\nLikelihood: LOW (1), Impact: HIGH (8)\nVerification note:\nThis is an issue that the development team is currently aware of and is taking steps to remediate,\nlike implementing an argument in the deployment script that will override both host and local au-\nthentication for new databases. Furthermore, awareness on the fact that manual intervention will\nbe required for already existing ones is also being taken into account. The severity has been lowered\nsince it would require escalation to root through other means in order to access the database.\nThe PostgreSQL database in the container zammad-zammad-postgresql-1 is accessible in-\nternally on the host using the account name ”postgres” and a blank password. The user has\naccess to the zammad database, including user information as shown in Example 4.\nExample 4: Access to the postgres database from a container. Emails have been redacted.\nroot@d6b81d8cc1ed:/# psql -U postgres --no-password\npsql (16.4 (Debian 16.4-1.pgdg120+2))\nType \"help\" for help.\npostgres=# \\c zammad_production\nYou are now connected to database \"zammad_production\" as user \"postgres\".\nzammad_production=# select email,password from users;\nemail | password\n-------------------------+------------------------------------\n|\na____@sr2.uk | $argon2id$v=19$m=65536,t=3,p=4$Skb3kS...\nsupport@_______.com |\nda______@red_____.com | $argon2id$v=19$m=65536,t=3,p=4$JzuDcT...\n___________@gmail.com |\n____________@assured.se |\n_____________@gmail.com | $argon2id$v=19$m=65536,t=3,p=4$ftiNcE...\n_______@sr2.uk |\n_________@gmail.com |\n_________@assured.se | $argon2id$v=19$m=65536,t=3,p=4$6fetiM...\nThe corresponding port is exposed to the host system, but could not be tested due to the\nhost system missing a postgres client. The database is not exposed to the internet.\nAn attacker who has a foothold in one of the application containers (e.g. Link or one of\nthe messaging bridges) is able to connect to the zammad database and read sensitive\ninformation from it. It is also possible from this position to add new users to Zammad,\nincluding users with administrative privileges.\nThe database contains other possibly sensitive tables:\n• http_logs, which is empty in the test system, suggesting that logs are not collected\nhere\n• store_files, which contains information about file uploads\n33\n\n-- 37 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n• ticket_articles, which contains text from support tickets\nWe recommend disabling the password-less postgres account, and relying only on the\n(already present) database credentials which are secure and unique per instance.\n34\n\n-- 38 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n3.2.7 LOW FIXED Redis database accessible without authentication\nLikelihood: LOW (2), Impact: MEDIUM (3)\nVerification note: Redis requires a password for authentication now. Furthermore, access to redis\nis only allowed from its corresponding container.\nA redis instance is running in its own container, and requires no authentication for connect-\ning clients. The server is accessible to the nginx-proxy docker network, which includes the\nmajority of the running containers.\nThe database was empty during the test, and is likely only used for temporary storage in\nZammad. There is a risk that applications like Zammad trust data from the Redis database,\nand therefore applies less stringent input sanitization to such data.\nWe recommend enabling authentication on all services, even internal ones. Redis sup-\nports password authentication, and this should be enabled to prevent the use of the redis\ndatabase for potential data leakage or pivoting between containers.\n35\n\n-- 39 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n3.2.8 LOW REMAINING /proc filesystem mounted in container\nLikelihood: LOW (2), Impact: MEDIUM (3)\nVerification note: The /proc filesystem is still mounted in the containers.\nA number of containers, listed in Example 5, have the /proc/ filesystem of the host mounted\ninside the guest:\nExample 5: Containers with the /proc filesystem mounted\nnginx_proxy_gen\nzammad-opensearch-1\nzammad-signal-cli-rest-api-1\nzammad-zammad-memcached-1\nIf a guest process has root privileges and read access to the host’s /proc/ filesystem, this\ncan give an attacker information that is useful for container breakout.\nWe recommend not mounting the /proc filesystem inside containers if it is not necessary\nfor application functionality.\n36\n\n-- 40 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n3.2.9 NOTE Docker UID shared with administrative user\nThe test system runs application containers with various identities. In some cases, the UID\n1000 is used for the guest processes. In the host system, this UID belongs to the user\nadmin who has unrestricted sudo rights (effectively root privileges on the host). Example 6\nshows the containers using UID 1000:\nExample 6: Containers running with UID 1000\nzammad-bridge-whatsapp-1\nzammad-bridge-worker-1\nzammad-link-1\nzammad-opensearch-1\nzammad-signal-cli-rest-api-1\nIf an attacker finds a limited container breakout, the foothold as admin in the host system\nprovides a direct path to privilege escalation and subsequently a full system takeover. It is\nunlikely that such a breakout will occur; kernel vulnerabilities which allow breakout tend to\neither require root privileges inside the container or immediately give root privileges in the\nhost.\nWe recommend avoiding UID reuse between host and containers. If possible, assign UIDs\nto containers which have no privileges in the host.\n37\n\n-- 41 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n3.2.10 NOTE Docker socket mounted inside containers\nTwo Docker containers (nginx_proxy_le and nginx_proxy_gen) have the host’s Docker con-\ntrol socket mounted inside the container. This serves as a method for an attacker to break\nout of the container and access the host system, as well as gain root privileges in the host.\nListing 7 shows the mount for the nginx_proxy_gen container.\nExample 7: An excerpt from the container state, showing the mounted control socket\n{\n\"Type\": \"bind\",\n\"Source\": \"/var/run/docker.sock\",\n\"Destination\": \"/tmp/docker.sock\",\n\"Mode\": \"ro\",\n\"RW\": false,\n\"Propagation\": \"rprivate\"\n}\nThe two containers have no exposed ports and do not accept user input. It is therefore\ndeemed unlikely that this has any security impact.\n38\n\n-- 42 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n3.2.11 NOTE SSH root login inconsistency\nThe root user has an SSH public key configured for login. The SSH server configuration\ncontains two conflicting directives as shown in Example 8:\nExample 8: Excerpt from sshd configuration\nPermitRootLogin no\nAllowUsers root admin\nThe AllowUsers directive comes from the link-ops repository, in group_vars/all.yml:\nExample 9: Excerpt from all.yml\nssh_allow_users: root admin\nTesting confirms that root is not permitted to log in.\nThis inconsistency may lead to confusion about the system configuration.\nWe recommend explicitly disallowing direct root login and using personal administration\naccounts as outlined in Finding 3.2.1.\n39\n\n-- 43 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\n4 Conclusions and recommendations\nAssured security consultants performed a penetration test of Link, a human rights help\ndesk application developed by the Center for Digital Resilience (CDR).\nLink is a front-end and API wrapper for well-known Open-Source helpdesk software Za-\nmmad, and deploys its own instance of Zammad in the back-end. Link also adds com-\nmunication bridges for popular chat applications WhatsApp and Signal. The test included\nthese bridges, the Link software and the deployment/hosting security of Link in a bespoke\ntesting environment.\nOne critical vulnerability was identified, which allowed an unauthorized attacker to perform\na partial or complete take-over of a Link instance via email or WhatsApp. The vulnerability\nwas immediately reported and fixed by CDR, and the fix has been deployed to all instances\nof Link at the time this report is published.\nOther vulnerabilities were found in the application code itself, with impacts ranging from\nminor information leaks to spoofing which could aid in phishing attacks against help desk\nAgents. In addition to this, a small number of integration issues were found between Link\nand Zammad, which expose Zammad functionality intended to be disabled or hidden by\nLink.\nA number of observations in this report touch upon account and session security. Ses-\nsion handling was found to be lacking in several regards, making it difficult for a user to\nmanage their active login sessions or prevent, detect and counteract leaks of an active\nsession.\nThe deployment was found to be sound, with a small number of issues resulting in an in-\ncreased risk of privilege escalation or lateral movement after an attacker is able to gain a\nfoothold on the application server. Application components are kept separated from each\nother with industry standard containerization mechanisms, and the report contains a num-\nber of recommendations for hardening this configuration further.\nIn addition, some observations were made which affect audit logging. The recommenda-\ntions related to this can aid in investigations after a possible breach, both in terms of limiting\nthe damage and assessing the extent of compromise.\n40\n\n-- 44 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\nOur recommendations can be summarized as follows:\nRecommendations for web application findings\n• Sanitize all user input before using it in sensitive contexts such as HTML fragments.\n• Consider requiring Multi-Factor Authentication for sensitive accounts.\n• Ensure proper user IP address is logged and shown to users. Send ”new device”\nemails only on new user-agent and/or IP address.\n• Limit personal access token expiration. Do not allow tokens without expiry.\nRecommendations for back-end findings\n• Disable the passwordless postgres account.\n• Avoid mounting the /proc filesystem inside containers, where possible.\n41\n\n-- 45 of 47 --\n\nREPORT\nProject Version Date\nCDR001v 2 2026-01-08\nReferences\n[1] OWASP, “OWASP Risk Rating Methodology.”\nhttps://owasp.org/www-community/OWASP_Risk_Rating_Methodology, 2023.\n42\n\n-- 46 of 47 --\n\n\n-- 47 of 47 --",
     "sourceFileName": "Assured-AB-CDR001v_CDR_Link.pdf",
-    "createdAtIso": "2026-06-05T23:30:05.239Z",
-    "updatedAtIso": "2026-06-05T23:30:05.239Z"
+    "createdAtIso": "2026-06-06T01:06:00.979Z",
+    "updatedAtIso": "2026-06-06T01:06:00.979Z"
   },
   "findings": [
     {
@@ -67,16 +68,16 @@
       "asset": "investigation-scope",
       "score": 94,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:29:57.025Z",
+      "detectedAt": "2026-06-06T01:05:54.254Z",
       "summary": "SSRF in API gateway affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Products: API gateway | Assets: API gateway",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:30:05.224Z",
+          "atIso": "2026-06-06T01:06:00.963Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -96,7 +97,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 87,
+        "parserConfidence": 84,
         "sourceSectionTitle": "SSRF in API gateway",
         "sourceText": "3.1.1 SSRF in API gateway CRIT",
         "sourceSpans": [],
@@ -127,16 +128,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:29:57.025Z",
+      "detectedAt": "2026-06-06T01:05:54.254Z",
       "summary": "HTML injection in ticket chat affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Products: API gateway | Assets: API gateway",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:30:05.224Z",
+          "atIso": "2026-06-06T01:06:00.963Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -156,7 +157,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 87,
+        "parserConfidence": 84,
         "sourceSectionTitle": "HTML injection in ticket chat",
         "sourceText": "3.1.2 HTML injection in ticket chat HIGH",
         "sourceSpans": [],
@@ -187,16 +188,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:29:57.025Z",
+      "detectedAt": "2026-06-06T01:05:54.254Z",
       "summary": "Potential timing attack in login affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Products: API gateway | Assets: API gateway",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:30:05.224Z",
+          "atIso": "2026-06-06T01:06:00.963Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -216,7 +217,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 87,
+        "parserConfidence": 84,
         "sourceSectionTitle": "Potential timing attack in login",
         "sourceText": "3.1.3 Potential timing attack in login HIGH",
         "sourceSpans": [],
@@ -247,16 +248,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:29:57.025Z",
+      "detectedAt": "2026-06-06T01:05:54.254Z",
       "summary": "Possible to create Zammad customer account via email affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: API gateway | Assets: API gateway",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:30:05.224Z",
+          "atIso": "2026-06-06T01:06:00.963Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -276,7 +277,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 87,
+        "parserConfidence": 84,
         "sourceSectionTitle": "Possible to create Zammad customer account via email",
         "sourceText": "3.1.4 Possible to create Zammad customer account via email MED",
         "sourceSpans": [],
@@ -307,16 +308,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:29:57.025Z",
+      "detectedAt": "2026-06-06T01:05:54.254Z",
       "summary": "User IP address shows internal IP address affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: API gateway | Assets: API gateway",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:30:05.224Z",
+          "atIso": "2026-06-06T01:06:00.963Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -336,7 +337,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 87,
+        "parserConfidence": 84,
         "sourceSectionTitle": "User IP address shows internal IP address",
         "sourceText": "3.1.5 User IP address shows internal IP address MED",
         "sourceSpans": [],
@@ -367,16 +368,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:29:57.025Z",
+      "detectedAt": "2026-06-06T01:05:54.254Z",
       "summary": "Link authentication token long validity affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: API gateway | Assets: API gateway",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:30:05.224Z",
+          "atIso": "2026-06-06T01:06:00.963Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -396,7 +397,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 87,
+        "parserConfidence": 84,
         "sourceSectionTitle": "Link authentication token long validity",
         "sourceText": "3.1.6 Link authentication token long validity MED",
         "sourceSpans": [],
@@ -427,16 +428,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:29:57.025Z",
+      "detectedAt": "2026-06-06T01:05:54.254Z",
       "summary": "Link session not invalidated by Device removal affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: API gateway | Assets: API gateway",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:30:05.224Z",
+          "atIso": "2026-06-06T01:06:00.963Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -456,7 +457,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 87,
+        "parserConfidence": 84,
         "sourceSectionTitle": "Link session not invalidated by Device removal",
         "sourceText": "3.1.7 Link session not invalidated by Device removal MED",
         "sourceSpans": [],
@@ -487,16 +488,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:29:57.025Z",
+      "detectedAt": "2026-06-06T01:05:54.254Z",
       "summary": "Link session not invalidated on logout affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: API gateway | Assets: API gateway",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:30:05.224Z",
+          "atIso": "2026-06-06T01:06:00.963Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -516,7 +517,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 87,
+        "parserConfidence": 84,
         "sourceSectionTitle": "Link session not invalidated on logout",
         "sourceText": "3.1.8 Link session not invalidated on logout MED",
         "sourceSpans": [],
@@ -547,16 +548,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:29:57.025Z",
+      "detectedAt": "2026-06-06T01:05:54.254Z",
       "summary": "Zammad cookie not removed client-side on logout affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: API gateway | Assets: API gateway",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:30:05.224Z",
+          "atIso": "2026-06-06T01:06:00.963Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -576,7 +577,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 87,
+        "parserConfidence": 84,
         "sourceSectionTitle": "Zammad cookie not removed client-side on logout",
         "sourceText": "3.1.9 Zammad cookie not removed client-side on logout MED",
         "sourceSpans": [],
@@ -607,16 +608,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:29:57.025Z",
+      "detectedAt": "2026-06-06T01:05:54.254Z",
       "summary": "HTML injection in voice webhook affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: API gateway | Assets: API gateway",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:30:05.224Z",
+          "atIso": "2026-06-06T01:06:00.963Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -636,7 +637,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 87,
+        "parserConfidence": 84,
         "sourceSectionTitle": "HTML injection in voice webhook",
         "sourceText": "3.1.10 HTML injection in voice webhook LOW",
         "sourceSpans": [],
@@ -667,16 +668,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:29:57.025Z",
+      "detectedAt": "2026-06-06T01:05:54.254Z",
       "summary": "Account lockout may cause denial of service affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: API gateway | Assets: API gateway",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:30:05.224Z",
+          "atIso": "2026-06-06T01:06:00.963Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -696,7 +697,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 87,
+        "parserConfidence": 84,
         "sourceSectionTitle": "Account lockout may cause denial of service",
         "sourceText": "3.1.11 Account lockout may cause denial of service LOW",
         "sourceSpans": [],
@@ -727,16 +728,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:29:57.025Z",
+      "detectedAt": "2026-06-06T01:05:54.254Z",
       "summary": "Zammad API allows for password and token authentication affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: API gateway | Assets: API gateway",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:30:05.224Z",
+          "atIso": "2026-06-06T01:06:00.963Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -756,7 +757,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 87,
+        "parserConfidence": 84,
         "sourceSectionTitle": "Zammad API allows for password and token authentication",
         "sourceText": "3.1.12 Zammad API allows for password and token authentication LOW",
         "sourceSpans": [],
@@ -787,16 +788,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:29:57.025Z",
+      "detectedAt": "2026-06-06T01:05:54.254Z",
       "summary": "PII of users available to Agents affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: API gateway | Assets: API gateway",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:30:05.224Z",
+          "atIso": "2026-06-06T01:06:00.963Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -816,7 +817,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 87,
+        "parserConfidence": 84,
         "sourceSectionTitle": "PII of users available to Agents",
         "sourceText": "3.1.13 PII of users available to Agents NOTE",
         "sourceSpans": [],
@@ -847,16 +848,16 @@
       "asset": "-side",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:29:57.025Z",
+      "detectedAt": "2026-06-06T01:05:54.254Z",
       "summary": "User token permissions may be set arbitrarily affecting -side; extractor found type Security Misconfiguration, version Date.",
       "impact": "Potential impact includes increased attacker opportunity against -side if this signal is not reviewed.",
       "evidence": "Versions: Date | Assets: -side | Endpoints: -side, client-side | Services: HTTPS | URLs: https://assured.cdr.link/profile | Domains: assured.cdr.link",
       "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:30:05.230Z",
+          "atIso": "2026-06-06T01:06:00.970Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -880,7 +881,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 90,
+        "parserConfidence": 87,
         "sourceSectionTitle": "User token permissions may be set arbitrarily",
         "sourceText": "3.1.14 User token permissions may be set arbitrarily NOTE",
         "sourceSpans": [],
@@ -911,16 +912,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:29:57.025Z",
+      "detectedAt": "2026-06-06T01:05:54.254Z",
       "summary": "Code execution via Zammad admin privileges affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: API gateway | Assets: API gateway",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:30:05.224Z",
+          "atIso": "2026-06-06T01:06:00.963Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -940,7 +941,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 87,
+        "parserConfidence": 84,
         "sourceSectionTitle": "Code execution via Zammad admin privileges",
         "sourceText": "3.1.15 Code execution via Zammad admin privileges NOTE",
         "sourceSpans": [],
@@ -971,16 +972,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:29:57.025Z",
+      "detectedAt": "2026-06-06T01:05:54.254Z",
       "summary": "Zammad report shows detailed error logs affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: API gateway | Assets: API gateway",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:30:05.224Z",
+          "atIso": "2026-06-06T01:06:00.963Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1000,7 +1001,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 87,
+        "parserConfidence": 84,
         "sourceSectionTitle": "Zammad report shows detailed error logs",
         "sourceText": "3.1.16 Zammad report shows detailed error logs NOTE",
         "sourceSpans": [],
@@ -1031,16 +1032,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:29:57.025Z",
+      "detectedAt": "2026-06-06T01:05:54.254Z",
       "summary": "Outdated third-party dependency affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: API gateway | Assets: API gateway",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:30:05.224Z",
+          "atIso": "2026-06-06T01:06:00.963Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1060,7 +1061,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 87,
+        "parserConfidence": 84,
         "sourceSectionTitle": "Outdated third-party dependency",
         "sourceText": "3.1.17 Outdated third-party dependency NOTE",
         "sourceSpans": [],
@@ -1091,16 +1092,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:29:57.025Z",
+      "detectedAt": "2026-06-06T01:05:54.254Z",
       "summary": "Strict-Transport-Security header included twice affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: API gateway | Assets: API gateway",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:30:05.224Z",
+          "atIso": "2026-06-06T01:06:00.963Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1120,7 +1121,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 87,
+        "parserConfidence": 84,
         "sourceSectionTitle": "Strict-Transport-Security header included twice",
         "sourceText": "3.1.18 Strict-Transport-Security header included twice NOTE",
         "sourceSpans": [],
@@ -1151,16 +1152,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:29:57.025Z",
+      "detectedAt": "2026-06-06T01:05:54.254Z",
       "summary": "Weaker TLS ciphers allowed affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: API gateway | Assets: API gateway",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:30:05.224Z",
+          "atIso": "2026-06-06T01:06:00.963Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1180,7 +1181,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 87,
+        "parserConfidence": 84,
         "sourceSectionTitle": "Weaker TLS ciphers allowed",
         "sourceText": "3.1.19 Weaker TLS ciphers allowed NOTE",
         "sourceSpans": [],
@@ -1211,16 +1212,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:29:57.025Z",
+      "detectedAt": "2026-06-06T01:05:54.254Z",
       "summary": "Shared administration account affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Products: API gateway | Assets: API gateway",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:30:05.224Z",
+          "atIso": "2026-06-06T01:06:00.963Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1240,7 +1241,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 87,
+        "parserConfidence": 84,
         "sourceSectionTitle": "Shared administration account",
         "sourceText": "3.2.1 Shared administration account HIGH",
         "sourceSpans": [],
@@ -1271,16 +1272,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:29:57.025Z",
+      "detectedAt": "2026-06-06T01:05:54.254Z",
       "summary": "Docker guest runs as root affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: API gateway | Assets: API gateway",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:30:05.224Z",
+          "atIso": "2026-06-06T01:06:00.963Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1300,7 +1301,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 87,
+        "parserConfidence": 84,
         "sourceSectionTitle": "Docker guest runs as root",
         "sourceText": "3.2.2 Docker guest runs as root MED",
         "sourceSpans": [],
@@ -1331,16 +1332,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:29:57.025Z",
+      "detectedAt": "2026-06-06T01:05:54.254Z",
       "summary": "Docker daemon runs as root affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: API gateway | Assets: API gateway",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:30:05.224Z",
+          "atIso": "2026-06-06T01:06:00.963Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1360,7 +1361,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 87,
+        "parserConfidence": 84,
         "sourceSectionTitle": "Docker daemon runs as root",
         "sourceText": "3.2.3 Docker daemon runs as root MED",
         "sourceSpans": [],
@@ -1391,16 +1392,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:29:57.025Z",
+      "detectedAt": "2026-06-06T01:05:54.254Z",
       "summary": "Containers with write privileges to configuration volumes affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: API gateway | Assets: API gateway",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:30:05.224Z",
+          "atIso": "2026-06-06T01:06:00.963Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1420,7 +1421,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 87,
+        "parserConfidence": 84,
         "sourceSectionTitle": "Containers with write privileges to configuration volumes",
         "sourceText": "3.2.4 Containers with write privileges to configuration volumes MED",
         "sourceSpans": [],
@@ -1451,16 +1452,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:29:57.025Z",
+      "detectedAt": "2026-06-06T01:05:54.254Z",
       "summary": "Potential cloud metadata access affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: API gateway | Assets: API gateway",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:30:05.224Z",
+          "atIso": "2026-06-06T01:06:00.963Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1480,7 +1481,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 87,
+        "parserConfidence": 84,
         "sourceSectionTitle": "Potential cloud metadata access",
         "sourceText": "3.2.5 Potential cloud metadata access MED",
         "sourceSpans": [],
@@ -1511,16 +1512,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:29:57.025Z",
+      "detectedAt": "2026-06-06T01:05:54.254Z",
       "summary": "Postgres database accessible without password affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: API gateway | Assets: API gateway",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:30:05.224Z",
+          "atIso": "2026-06-06T01:06:00.963Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1540,7 +1541,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 87,
+        "parserConfidence": 84,
         "sourceSectionTitle": "Postgres database accessible without password",
         "sourceText": "3.2.6 Postgres database accessible without password LOW",
         "sourceSpans": [],
@@ -1571,16 +1572,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:29:57.025Z",
+      "detectedAt": "2026-06-06T01:05:54.254Z",
       "summary": "Redis database accessible without authentication affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: API gateway | Assets: API gateway",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:30:05.224Z",
+          "atIso": "2026-06-06T01:06:00.963Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1600,7 +1601,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 87,
+        "parserConfidence": 84,
         "sourceSectionTitle": "Redis database accessible without authentication",
         "sourceText": "3.2.7 Redis database accessible without authentication LOW",
         "sourceSpans": [],
@@ -1631,16 +1632,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:29:57.025Z",
+      "detectedAt": "2026-06-06T01:05:54.254Z",
       "summary": "/proc filesystem mounted in container affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: API gateway | Assets: API gateway",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:30:05.224Z",
+          "atIso": "2026-06-06T01:06:00.963Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1660,7 +1661,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 87,
+        "parserConfidence": 84,
         "sourceSectionTitle": "/proc filesystem mounted in container",
         "sourceText": "3.2.8 /proc filesystem mounted in container LOW",
         "sourceSpans": [],
@@ -1691,16 +1692,16 @@
       "asset": "with UID 1000",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:29:57.025Z",
+      "detectedAt": "2026-06-06T01:05:54.254Z",
       "summary": "Docker UID shared with administrative user affecting with UID 1000; extractor found product with UID 1000.",
       "impact": "Potential impact includes increased attacker opportunity against with UID 1000 if this signal is not reviewed.",
       "evidence": "Finding IDs: BRIDGE-WHATSAPP-1 | Products: with UID 1000 | Assets: with UID 1000 | Endpoints: s, system | Services: Docker",
       "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:30:05.236Z",
+          "atIso": "2026-06-06T01:06:00.975Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1720,7 +1721,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Docker UID shared with administrative user",
         "sourceText": "3.2.9 Docker UID shared with administrative user NOTE",
         "sourceSpans": [],
@@ -1751,16 +1752,16 @@
       "asset": "Docker",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:29:57.025Z",
+      "detectedAt": "2026-06-06T01:05:54.254Z",
       "summary": "Docker socket mounted inside containers affecting Docker; extractor found product Docker, version Date.",
       "impact": "Potential impact includes increased attacker opportunity against Docker if this signal is not reviewed.",
       "evidence": "Products: Docker | Versions: Date | Assets: Docker | Endpoints: s, system, state | Services: Docker | Domains: docker.sock",
       "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:30:05.236Z",
+          "atIso": "2026-06-06T01:06:00.976Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1783,7 +1784,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Docker socket mounted inside containers",
         "sourceText": "3.2.10 Docker socket mounted inside containers NOTE",
         "sourceSpans": [],
@@ -1814,16 +1815,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:29:57.025Z",
+      "detectedAt": "2026-06-06T01:05:54.254Z",
       "summary": "SSH root login inconsistency affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: API gateway | Assets: API gateway",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:30:05.224Z",
+          "atIso": "2026-06-06T01:06:00.963Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1843,7 +1844,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 87,
+        "parserConfidence": 84,
         "sourceSectionTitle": "SSH root login inconsistency",
         "sourceText": "3.2.11 SSH root login inconsistency NOTE",
         "sourceSpans": [],

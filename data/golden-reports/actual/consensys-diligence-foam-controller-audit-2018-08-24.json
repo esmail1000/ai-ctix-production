@@ -29,7 +29,7 @@
     "slug": "consensys-diligence-foam-controller-audit-2018-08-24",
     "name": "consensys-diligence-foam-controller-audit-2018-08-24",
     "type": "PDF",
-    "uploadedAt": "2026-06-05T23:32:48.617Z",
+    "uploadedAt": "2026-06-06T01:08:13.930Z",
     "owner": "AI CTIX Analyzer",
     "status": "Ready",
     "findings": 7,
@@ -44,12 +44,13 @@
     "parsingNotes": [
       "Structured parser found no blocks; heuristic fallback was used.",
       "NLP hybrid extraction produced 4 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+      "NLP warning: Model unavailable; used regex-only fallback: Error while deserializing header: header too large",
       "Aligned findings with generic official index: 4 -> 7."
     ],
     "content": "FOAM Token Controller Audit\n1 Summary\n1.1 Audit Dashboard\n1.2 Audit Goals\n1.3 System Overview\n1.4 Key Observations/Recommendations\n2 Issue Overview\n3 Issue Detail\n3.1 When checking proof of use, an unconfirmed whitelisted pair is used.\n3.2 Whitelisting mechanism allows immediate trading, without proof of use.\n3.3 Blacklist feature is untested\n3.4 Whitelisting logic should be simplified.\n3.5 Token controller contract assumes behavior of other external contracts\n3.6 Variable and function naming should be clearer.\n3.7 Token holders must trust the token controller owner fully.\n4 Tool based analysis\n4.1 Mythril\n4.2 Solhint\n4.3 Surya\n4.4 Odyssey\n5 Test Coverage Measurement\nAppendix 1 - File Hashes\nAppendix 2 - Severity\nA.2.1 - Minor\nA.2.2 - Medium\nA.2.3 - Major\nA.2.4 - Critical\nAppendix 3 - Disclosure\n1 Summary\nFrom August 24th, 2018 to August 31st, 2018, ConsenSys Diligence conducted a security audit on the FOAM token controller. The\nfindings and recommendations are presented here in this report.\n1.1 Audit Dashboard\nAudit Details\nProject Name: FOAM Token Controller\nClient Name: Token Foundry\nClient Contact: Stuart Hunter\nAuditors: Steve Marx, John Mardlin\nGitHub : https://github.com/ConsenSys/foam-controller-audit-2018-08-24\nLanguages: Solidity\nDate: 2018-08-24 to 2018-08-31\nNumber of issues per severity\n3 2 2 0\n0 0 0 0\n1.2 Audit Goals\nThe focus of the audit was to verify that the smart contract system is secure, resilient and working according to its specifications. The\naudit activities can be grouped in the following three categories:\n\n-- 1 of 9 --\n\nSecurity: Identifying security related issues within each contract and within the system of contracts.\nSound Architecture: Evaluation of the architecture of this system through the lens of established smart contract best practices and\ngeneral software best practices.\nCode Correctness and Quality: A full review of the contract source code. The primary areas of focus include:\nCorrectness\nReadability\nSections of code with high complexity\nImproving scalability\nQuantity and quality of test coverage\n1.3 System Overview\nDocumentation\nThe following documentation was available to the audit team:\nThe Foam Token Controller spec explains the goals and basic design of the contract.\nScope\nThe audit focus was on the FoamTokenController contract. The following graph shows how this contract interacts with the token sale\nand FOAM registry contracts. Those contracts were considered out of scope for this audit.\n\n-- 2 of 9 --\n\n\n-- 3 of 9 --\n\nFlow graph\nDesign\nThe token controller contract restricts the ability for FOAM token holders to transfer tokens. Specifically, it requires token holders to\ncomplete \"proof of use\" before freely exchanging tokens.\n1.4 Key Observations/Recommendations\nThe contract design is fairly straightforward and closely follows the behavior described in the spec.\nTest coverage is incomplete: Any contract system that is used on the main net should have as a minimum requirement a 100% test\ncoverage.\nFix all issues: It is recommended to fix all the issues listed in the below chapters, at the very least the ones with severity Critical,\nMajor and Medium. All issues have also been created as issues in a separate audit repository.\nComment the code: There are a few places in the code where comments explaining the logic would make it easier to understand\nthe code.\n2 Issue Overview\nThe following table contains all the issues discovered during the audit. The issues are ordered based on their severity. More detailed\ndescription on the levels of severity can be found in Appendix 2. The table also contains the GitHub status of any discovered issue.\nChapter Issue Title Issue Status Severity\n3.1\nWhen checking proof of\nuse, an unconfirmed\nwhitelisted pair is used.\n3.2\nWhitelisting mechanism\nallows immediate trading,\nwithout proof of use.\n3.3 Blacklist feature is\nuntested\n3.4 Whitelisting logic should\nbe simplified.\n3.5\nToken controller contract\nassumes behavior of other\nexternal contracts\n3.6 Variable and function\nnaming should be clearer.\n3.7\nToken holders must trust\nthe token controller\nowner fully.\n3 Issue Detail\n3.1 When checking proof of use, an unconfirmed whitelisted pair is used.\nSeverity Status Link Remediation Comment\nissues/25 The issue is currently under review\nDescription\nWhen a token holder is part of a whitelisted pair, its proof of use is the sum of both members of the pair. The following code is meant to\ndetermine the other member of a whitelisted pair, but it fails to check that the pairing has been confirmed.\ncontracts/FoamTokenController.sol:L120\naddress secondAddress = whitelisted[_contributor];\nAn attacker can exploit this bug by calling setWhitelisted and passing the address of any non-contributor that has already completed\nthe proof of use requirements. This would instantly allow the attacker to make unrestricted token transfers.\n\n-- 4 of 9 --\n\nRemediation\nAny time a whitelisted pair is considered, it's critical that only confirmed pairings are considered. This can be accomplished after the\nabove code by checking that whitelisted[secondAddress] == _contributor.\n3.2 Whitelisting mechanism allows immediate trading, without proof of use.\nSeverity Status Link Remediation Comment\nissues/24 The issue is currently under review\nDescription\nThe FOAM token controller places restrictions on how tokens can be transferred during the first year after the platform's launch. The\n\"whitelisted pairs\" mechanism, which is intended to allow token holders to use their tokens from a secondary account, has the side effect\nof allowing early token trades.\nA token holder can sell some amount of their tokens to a buyer by whitelisting the buyer and making the transfer. The easiest way to\nguarantee such a trade would be to make the buyer be a contract that transfers funds on receipt of the tokens.\nMore sophisticated schemes would involve whitelisting a contract that acts on the seller's behalf. With a little coordination, a new token\nW-FOAM (\"wrapped FOAM\") could be created, where each W-FOAM can be traded for a FOAM token once tokens can be freely traded\n(e.g. one year after launch). Token holders could lock up their FOAM in contracts that would grant them W-FOAM instead, and W-\nFOAM could be freely traded on existing token exchanges.\nRemediation\nRemoving the \"whitelisting pairs\" feature would mitigate this vulnerability, but it's important to note that no remediation will fully\ndisallow this sort of thing. Determined token holders can always make such financial deals outside of this and associated contracts.\n3.3 Blacklist feature is untested\nSeverity Status Link Remediation Comment\nissues/27 The issue is currently under review\nDescription\nTest coverage reveals that the blacklisting feature is not covered in any existing tests.\nRemediation\nTests should be written that exercise the blacklist. Suggested tests: adding and removing addresses from the list, positive and negative\ntests for transfers from blacklisted accounts.\n3.4 Whitelisting logic should be simplified.\nSeverity Status Link Remediation Comment\nissues/26 The issue is currently under review\nDescription\nThe whitelisted pair mechanism contains subtle logic that makes it hard to use it correctly. Creating a whitelisted pair is a two-step\nprocess:\n1. First, an account that contributed to the token sale must call setWhitelisted(secondAccount).\n2. Second, that other account must call confirmWhitelisted(firstAccount).\nThe whitelisted mapping serves double duty: whitelisted[a] == b by itself does not necessarily mean that a and b form a whitelisted\npair. Instead, it could be that a completed step 1 above, but the pairing was never confirmed.\nThis subtlety directly led to the major vulnerability https://github.com/ConsenSys/foam-controller-audit-2018-08-24/issues/25.\n\n-- 5 of 9 --\n\nRemediation\nRight now, all consumers of the whitelisted mapping must be careful to check both directions of a pairing to verify that it has been\nconfirmed. This could be simplified by splitting whitelisted's double duty into two different mappings as follows:\n1. proposedPair[a] == b means that a has called setWhitelisted(b), but b has not yet confirmed that pairing.\n2. paired[a] == b means that a and b form a confirmed whitelisted pair. This is set in both directions in confirmWhitelisted().\nAll other functions just need to look at paired[x] to see confirmed pairs only.\n3.5 Token controller contract assumes behavior of other external contracts\nSeverity Status Link Remediation Comment\nissues/30 The issue is currently under review\nDescription\nThe token controller contract makes external calls to the sale and registry contracts. These are trusted contracts which are assumed to\nbehave in certain ways. If these assumptions are violated in the future, that could lead to misbehavior on the part of the token controller.\nExamples\ncontracts/FoamTokenController.sol:L45-L46\nsaleTokensPerUnit = sale.saleTokensPerUnit();\nextraTokensPerUnit = sale.extraTokensPerUnit();\nThese two variables from the sale contract are only read once, at the time of deployment. There's an implicit assumption that they're\nconstant, which they probably are in this specific instance.\ncontracts/FoamTokenController.sol:L122\nuint256 contributed = sale.unitContributions(_contributor);\ncontracts/FoamTokenController.sol:L132-L133\nuint256 tokensStaked = registry.totalStaked(_contributor);\nuint256 PoICreated = registry.numApplications(_contributor);\nsale.unitContributions(), registry.totalStaked(), and registry.numApplications() are all called without following the\nChecks-Effects-Interactions pattern. If they in turn were to make calls to untrusted contracts, this might introduce a reentrancy\nvulnerability.\nFurther, the \"whitelisted pair\" mechanism assumes that accounts are in two disjoint sets: token sale contributors and non-contributors. If\nsale.unitContributions() can change after the token controller is deployed, that assumption may no longer hold.\nRemediation\nNo immediate action is required, but it's a good idea to document these requirements. Larger contract systems tend to accrue hidden\ndependencies like this can lead to surprising vulnerabilities in the future.\nReferences\nSecurity Considerations — Solidity 0.4.25 documentation\n3.6 Variable and function naming should be clearer.\nSeverity Status Link Remediation Comment\nissues/29 The issue is currently under review\nDescription\n\n-- 6 of 9 --\n\nDescriptive naming is an important way to improve code readability. This code contains several poorly named variables and functions\nwhich make it hard to understand their purpose and proper use.\nExamples\ncontracts/FoamTokenController.sol:L24\nmapping(address => address) public whitelisted;\nwhitelisted is a poor name, especially when juxtaposed with isBlacklisted. Something like pairedAccounts would be more\ndescriptive.\ncontracts/FoamTokenController.sol:L32\naddress acceptedAddress = '0x36A9b165ef64767230A7Aded71B04F0911bB1283';\nacceptedAddress might be better named blacklistDestinationAddress to make explicit its relationship with the blacklisting feature.\ncontracts/FoamTokenController.sol:L49\nfunction setWhitelisted(address _whitelisted) public {\nsetWhitelisted is a confusing name. Not only is the term \"whitelisted\" confusing, but this function is merely the first step towards\nestablishing a whitelisted pair. Perhaps something like proposePairing would be clearer.\ncontracts/FoamTokenController.sol:L119\nfunction purchaseCheck(address _contributor) internal view returns(bool) {\npurchaseCheck would be better named something like hasMetProofOfUse.\nRemediation\nIt's recommended that a pass be taken through the entire contract to establish more descriptive names.\n3.7 Token holders must trust the token controller owner fully.\nSeverity Status Link Remediation Comment\nissues/28 The issue is currently under review\nDescription\nThe token controller contract gives the owner full control over who can transfer tokens and when. Functions like blacklistAddresses\nand setPlatformLaunchDate make such changes easy for the token controller owner.\nThe owner of the token contract can also swap in an entirely new token controller contract at any time, containing custom logic for when\nto allow or deny transfers.\nThis also makes the contract owner's private key a high-value target, as anyone who acquires that key gains control over the tokens.\nRemediation\nTransparency about the trust model is encouraged. Token holders should understand that the token's functionality is entirely controlled by\nthe the accounts that own the contracts involved.\nSpecial care should be taken to protect the private key for the owning account, including perhaps deploying from a multisig contract to\nmitigate the damage from key compromise.\n4 Tool based analysis\nThe issues from the tool based analysis have been reviewed and the relevant issues have been listed in chapter 3 - Issues.\n\n-- 7 of 9 --\n\n4.1 Mythril\nMythril is a security analysis tool for Ethereum smart contracts. It uses concolic analysis to detect various types\nof issues. The tool was used for automated vulnerability discovery for all audited contracts and libraries. More\ndetails on Mythril's current vulnerability coverage can be found here.\nThe raw output of the Mythril vulnerability scan can be found here.\n4.2 Solhint\nThis is an open source project for linting Solidity code. The project provides both Security and Style Guide\nvalidations. The issues of Solhint were analyzed for security relevant issues only. It is still recommended to use\nSolhint during development to improve code quality while writing smart contracts.\nThe raw output of the Solhint vulnerability scan can be found here.\n4.3 Surya\nSurya is an utility tool for smart contract systems. It provides a number of visual outputs and information about structure of smart\ncontracts. It also supports querying the function call graph in multiple ways to aid in the manual inspection and control flow analysis of\ncontracts.\nA complete list of functions with their visibility and modifiers can be found here.\n4.4 Odyssey\nOdyssey is an audit tool that acts as the glue between developers, auditors and tools. It leverages GitHub as the\nplatform for building software and aligns to the approach that quality needs to be addressed as early as possible in\nthe development life cycle and small iterative security activities spread out through development help to produce a\nmore secure smart contract system. In its current version Odyssey helps to better communicate audit issues to\ndevelopment teams and to successfully close them.\n5 Test Coverage Measurement\nTesting is implemented using Truffle. 50 tests are included in the test suite and they all pass.\nThe Solidity-Coverage tool was used to measure the portion of the code base exercised by the test suite, and identify areas with little or\nno coverage. Specific sections of the code where necessary test coverage is missing are included in chapter 3 - Issues.\nIt's important to note that \"100% test coverage\" is not a silver bullet. Our review also included a inspection of the test suite, to ensure that\ntesting included important edge cases.\nThe state of test coverage at the time of our review can be viewed by opening the index.html file from the coverage report directory in a\nbrowser.\nAppendix 1 - File Hashes\nFind the full list of files in the scope including SHA1 hashes in the Surya tool directory.\nAppendix 2 - Severity\nA.2.1 - Minor\nMinor issues are generally subjective in nature, or potentially deal with topics like \"best practices\" or \"readability\". Minor issues in\ngeneral will not indicate an actual problem or bug in code.\nThe maintainers should use their own judgment as to whether addressing these issues improves the codebase.\nA.2.2 - Medium\nMedium issues are generally objective in nature but do not represent actual bugs or security problems.\nThese issues should be addressed unless there is a clear reason not to.\n\n-- 8 of 9 --\n\nA.2.3 - Major\nMajor issues will be things like bugs or security vulnerabilities. These issues may not be directly exploitable, or may require a certain\ncondition to arise in order to be exploited.\nLeft unaddressed these issues are highly likely to cause problems with the operation of the contract or lead to a situation which allows the\nsystem to be exploited in some way.\nA.2.4 - Critical\nCritical issues are directly exploitable bugs or security vulnerabilities.\nLeft unaddressed these issues are highly likely or guaranteed to cause major problems or potentially a full failure in the operations of the\ncontract.\nAppendix 3 - Disclosure\nConsenSys Diligence (“CD”) typically receives compensation from one or more clients (the “Clients”) for performing the analysis\ncontained in these reports (the “Reports”). The Reports may be distributed through other means, including via ConsenSys publications\nand other distributions.\nThe Reports are not an endorsement or indictment of any particular project or team, and the Reports do not guarantee the security of any\nparticular project. This Report does not consider, and should not be interpreted as considering or having any bearing on, the potential\neconomics of a token, token sale or any other product, service or other asset. Cryptographic tokens are emergent technologies and carry\nwith them high levels of technical risk and uncertainty. No Report provides any warranty or representation to any Third-Party in any\nrespect, including regarding the bugfree nature of code, the business model or proprietors of any such business model, and the legal\ncompliance of any such business. No third party should rely on the Reports in any way, including for the purpose of making any decisions\nto buy or sell any token, product, service or other asset. Specifically, for the avoidance of doubt, this Report does not constitute\ninvestment advice, is not intended to be relied upon as investment advice, is not an endorsement of this project or team, and it is not a\nguarantee as to the absolute security of the project. CD owes no duty to any Third-Party by virtue of publishing these Reports.\nPURPOSE OF REPORTS The Reports and the analysis described therein are created solely for Clients and published with their consent.\nThe scope of our review is limited to a review of Solidity code and only the Solidity code we note as being within the scope of our review\nwithin this report. The Solidity language itself remains under development and is subject to unknown risks and flaws. The review does\nnot extend to the compiler layer, or any other areas beyond Solidity that could present security risks. Cryptographic tokens are emergent\ntechnologies and carry with them high levels of technical risk and uncertainty.\nCD makes the Reports available to parties other than the Clients (i.e., “third parties”) -- on its GitHub account\n(https://github.com/ConsenSys). CD hopes that by making these analyses publicly available, it can help the blockchain ecosystem\ndevelop technical best practices in this rapidly evolving area of innovation.\nLINKS TO OTHER WEB SITES FROM THIS WEB SITE You may, through hypertext or other computer links, gain access to web sites\noperated by persons other than ConsenSys and CD. Such hyperlinks are provided for your reference and convenience only, and are the\nexclusive responsibility of such web sites' owners. You agree that ConsenSys and CD are not responsible for the content or operation of\nsuch Web sites, and that ConsenSys and CD shall have no liability to you or any other person or entity for the use of third party Web sites.\nExcept as described below, a hyperlink from this web Site to another web site does not imply or mean that ConsenSys and CD endorses\nthe content on that Web site or the operator or operations of that site. You are solely responsible for determining the extent to which you\nmay use any content at any other web sites to which you link from the Reports. ConsenSys and CD assumes no responsibility for the use\nof third party software on the Web Site and shall have no liability whatsoever to any person or entity for the accuracy or completeness of\nany outcome generated by such software.\nTIMELINESS OF CONTENT The content contained in the Reports is current as of the date appearing on the Report and is subject to\nchange without notice. Unless indicated otherwise, by ConsenSys and CD.\n\n-- 9 of 9 --",
     "sourceFileName": "foam-controller-audit-report-2018-08-24-master.pdf",
-    "createdAtIso": "2026-06-05T23:32:57.475Z",
-    "updatedAtIso": "2026-06-05T23:32:57.475Z"
+    "createdAtIso": "2026-06-06T01:08:20.553Z",
+    "updatedAtIso": "2026-06-06T01:08:20.553Z"
   },
   "findings": [
     {
@@ -63,16 +64,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:32:48.617Z",
+      "detectedAt": "2026-06-06T01:08:13.930Z",
       "summary": "When checking proof of use, an unconfirmed whitelisted pair is used affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "3.7 Token holders must trust the token controller owner fully.\nSeverity Status Link Remediation Comment",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:57.473Z",
+          "atIso": "2026-06-06T01:08:20.552Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -92,7 +93,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "When checking proof of use, an unconfirmed whitelisted pair is used",
         "sourceText": "3.1 When checking proof of use, an unconfirmed whitelisted pair is used Major",
         "sourceSpans": [],
@@ -123,16 +124,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:32:48.617Z",
+      "detectedAt": "2026-06-06T01:08:13.930Z",
       "summary": "Whitelisting mechanism allows immediate trading, without proof of use affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "3.7 Token holders must trust the token controller owner fully.\nSeverity Status Link Remediation Comment",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:57.473Z",
+          "atIso": "2026-06-06T01:08:20.552Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -152,7 +153,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Whitelisting mechanism allows immediate trading, without proof of use",
         "sourceText": "3.2 Whitelisting mechanism allows immediate trading, without proof of use Major",
         "sourceSpans": [],
@@ -183,16 +184,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:48.617Z",
+      "detectedAt": "2026-06-06T01:08:13.930Z",
       "summary": "Blacklist feature is untested affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "3.7 Token holders must trust the token controller owner fully.\nSeverity Status Link Remediation Comment",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:57.473Z",
+          "atIso": "2026-06-06T01:08:20.552Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -212,7 +213,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Blacklist feature is untested",
         "sourceText": "3.3 Blacklist feature is untested Medium",
         "sourceSpans": [],
@@ -243,16 +244,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:48.617Z",
+      "detectedAt": "2026-06-06T01:08:13.930Z",
       "summary": "Whitelisting logic should be simplified affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "3.7 Token holders must trust the token controller owner fully.\nSeverity Status Link Remediation Comment",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:57.473Z",
+          "atIso": "2026-06-06T01:08:20.552Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -272,7 +273,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Whitelisting logic should be simplified",
         "sourceText": "3.4 Whitelisting logic should be simplified Medium",
         "sourceSpans": [],
@@ -303,16 +304,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:48.617Z",
+      "detectedAt": "2026-06-06T01:08:13.930Z",
       "summary": "Token controller contract assumes behavior of other external contracts affecting investigation-scope; extractor found security indicators from the submitted report.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "3.5 Token controller contract assumes behavior of other external contracts\nSeverity Status Link Remediation Comment",
       "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:57.473Z",
+          "atIso": "2026-06-06T01:08:20.552Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -332,7 +333,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Token controller contract assumes behavior of other external contracts",
         "sourceText": "3.5 Token controller contract assumes behavior of other external contracts Minor",
         "sourceSpans": [],
@@ -363,16 +364,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:48.617Z",
+      "detectedAt": "2026-06-06T01:08:13.930Z",
       "summary": "Variable and function naming should be clearer affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "3.7 Token holders must trust the token controller owner fully.\nSeverity Status Link Remediation Comment",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:57.473Z",
+          "atIso": "2026-06-06T01:08:20.552Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -392,7 +393,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Variable and function naming should be clearer",
         "sourceText": "3.6 Variable and function naming should be clearer Minor",
         "sourceSpans": [],
@@ -423,16 +424,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:48.617Z",
+      "detectedAt": "2026-06-06T01:08:13.930Z",
       "summary": "Token holders must trust the token controller owner fully affecting investigation-scope; extractor found security indicators from the submitted report.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "3.7 Token holders must trust the token controller owner fully.\nSeverity Status Link Remediation Comment",
       "remediation": "Apply the remediation recommended for this specific finding in the source report and verify the issue with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:57.473Z",
+          "atIso": "2026-06-06T01:08:20.552Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -452,7 +453,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Token holders must trust the token controller owner fully",
         "sourceText": "3.7 Token holders must trust the token controller owner fully Minor",
         "sourceSpans": [],

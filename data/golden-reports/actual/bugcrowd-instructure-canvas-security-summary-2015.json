@@ -33,7 +33,7 @@
     "slug": "bugcrowd-instructure-canvas-security-summary-2015",
     "name": "bugcrowd-instructure-canvas-security-summary-2015",
     "type": "PDF",
-    "uploadedAt": "2026-06-05T23:31:19.422Z",
+    "uploadedAt": "2026-06-06T01:07:00.616Z",
     "owner": "AI CTIX Analyzer",
     "status": "Ready",
     "findings": 10,
@@ -48,12 +48,13 @@
     "parsingNotes": [
       "Structured parser found no blocks; heuristic fallback was used.",
       "NLP hybrid extraction produced 1 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+      "NLP warning: Model unavailable; used regex-only fallback: Error while deserializing header: header too large",
       "Aligned findings with generic official index: 1 -> 10."
     ],
     "content": "Instructure’s Canvas\nBugcrowd Flex Program and Retest Results\nMarch 24, 2016\n\n-- 1 of 8 --\n\nExecutive Summary\nInstructure engaged Bugcrowd Inc to perform a Flex Bounty Program (”Flex”), commonly known as a\ncrowd-sourced penetration test, on Instructure’s Canvas. Testing occurred during the period: 11/17/2015 –\n12/11/2015.\nFor this Flex, 56 researchers were invited to participate; 45 accepted the invitation, resulting in 138\nvulnerability submissions received from 26 unique researchers. These issues ranged in scope and severity,\nwith 3 high priority P2 issue(s) discovered. As a whole, researchers with rewardable submissions received\n$19,300 out of a total prize pool of $20,000.\nThis report is just a summary of the information available. You can find all details – including vulnerability\nremediation – of your program in the Bugcrowd Crowdcontrol Tracker: https://tracker.bugcrowd.com. If you\nhave any questions or comments, please contact support@bugcrowd.com.\nBugcrowd Inc – 2016 2 of 8\n\n-- 2 of 8 --\n\nMethodology\nThe strength of crowdsourced testing lies in multiple researchers, the pay-for-results model, and the varied\nmethodologies that the researchers implement. To this end, we encourage researchers to use their own\nindividual methodologies on Bugcrowd Flex programs.\nThe workflow of every penetration test can be divided into four phases: reconnaissance, enumeration,\nexploitation and documentation.\n• Reconnaissance:\nGathering information before the attack\n• Enumeration:\nFinding attack vectors\n• Exploitation:\nVerifying security weaknesses\n• Documentation:\nCollecting results\nBugcrowd researchers who perform web application testing and vulnerability assessment usually subscribe to\na variety of methodologies following this workflow, including: the OWASP 4.0 Testing Guide, the Penetration\nTesters Execution Standard, and the WAHH Methodology.\nBugcrowd Inc – 2016 3 of 8\n\n-- 3 of 8 --\n\nPriority Key\nThe following priority matrix is used as a guideline to classify valid assessment findings:\nPriority Impact Example Vulnerability Types\nP1 – Critical Vulnerabilities that cause a privilege\nescalation from unprivileged to admin or\nallow for remote execution, financial\ntheft, etc.\n• Remote Code Execution\n• Vertical Authentication Bypass\n• XML External Entities Injection\n• SQL Injection\n• Insecure Direct Object Reference for a critical function\nP2 – High Vulnerabilities that affect the security of\nthe platform including the processes it\nsupports\n• Lateral authentication bypass\n• Stored Cross-Site Scripting\n• Cross-Site Request Forgery for a critical function\n• Insecure Direct Object Reference for an important funtion\n• Internal Server-Side Request Forgery\nP3 – Medium Vulnerabilities that affect multiple users\nand require little or no user interaction\nto trigger\n• Reflected Cross-Site Scripting with limited impact\n• Cross-Site Request Forgery for an important fuction\n• Insecure Direct Object Reference for an unimportant fuction\n• URL redirect\nP4 – Low Vulnerabilities that affect singular users\nand require interaction or significant\nprerequisites to trigger (MitM) to trigger\n• Cross-Site Scripting with limited impact\n• Cross-Site Request Forgery for an unimportant function\n• External Server-Side Request Forgery\nBugcrowd Inc – 2016 4 of 8\n\n-- 4 of 8 --\n\nFlex Bounty Program Overview\nA Flex is a novel approach to an application assessment or\npenetration test. Traditional penetration tests use only one or two\nresearchers to test an entire application, while Flexes leverage a\ncrowd of security researchers. This increases the probability of\ndiscovering esoteric issues that automated testing cannot find\nand that traditional vulnerability assessments may miss, in the\nsame testing period.\nThe Flex for Instructure’s Canvas received submissions from 26\nresearchers in the following countries: Afghanistan, Brazil,\nCanada, India, Ireland, Morocco, Netherlands, Philippines,\nPortugal, Romania, Spain, Turkey, United Kingdom, and the\nUnited States. Most of the researchers are based in India.\nA total of 138 submissions were received, with 10\nunique valid issues discovered. Bugcrowd\nidentified 78 duplicate and 28 won’t fix\nsubmission(s), and removed 22 invalid\nsubmission(s).\nThe timeline below shows submissions received and validated by the Bugcrowd team:\nBugcrowd Inc – 2016 5 of 8\n\n-- 5 of 8 --\n\nBugcrowd ranks the technical priority of all\nconfirmed findings on a scale from P1 (Critical) to\nP4 (Low). The results are shown to the right. The\nmajority of submissions to the Instructure’s\nCanvas Flex were P4.\nA comparison of Bugcrowd’s other flexes to the the Instructure’s Canvas Flex is shown below.\nBugcrowd Inc – 2016 6 of 8\n\n-- 6 of 8 --\n\nAll Valid Submissions\nTitle Reference Number Priority Reward Retest\nStored XSS via Groups de61564ce42f9e9013c100f14\n031da9392d5f60b081a886f0\nc0ce605af56d7a0\n2 $6,000.00 Resolved\nStored XSS via Outcomes 7391ca90e0fdf157143b12e0\nc602aa14a03d21e6ec129f80\n171ab9dcc1ed3284\n2 $4,000.00 Resolved\nStored XSS in Quiz Question Bank as\nTeacher\n1fd8f1db7cbd2a8d6076802b\n40cb8993438cea6cdd93b7c2\nb6440d8ab1ca7c19\n2 $3,000.00 Resolved\nPrivilege escalation via IDOR :\nChange the behalf of another user\nAll Notification Preferences\ne31b26d4fe28dc894b4d7a11\n6523f6b69387cc397cd63fff4\n466ed38cbfd0b75\n4 $500.00 Resolved\nContent Spoofing (iframe Injection via\nHTML Editor)\nf224e7c58b711457bb73610d\n7853a5c5f27e25cfc7e43de2b\n220155a5dcb391e\n3 $200.00 Resolved\nUser account information IDOR at\n/users/<user id>\n7d2e91c088b03ebc71ee3350\n4832ebe572ecd8f84bc827e9\ne67cdffaf304e7ac\n3 $200.00 Resolved\nCSV Injection (Gradebook Export) 8944ad7281953f597cf6091b\necbeba36fbfda5dcddb74594\n7c4ccfd14e172e1b\n4 $200.00 Resolved\nCourse Page IDOR 90332ea307577359de9d50b\n47e0b97a112f50c26b664641\n6c4920017bbed518b\n4 $200.00 Resolved\nExternal Authentication Injection via\nHTML Editor\nd8989daebdedcacaf512bf13\n12bfe1d9cfd44979359a833a\n58dda704a1012885\n4 $200.00 Unresolved\nWindow Opener Property Bug via HTML\nEditor\n3d253e7e68775ab8e17b8dfb\nca01d417fe5d59f1ca264f2ce\n933fb5c5541c8e3\n4 $200.00 Resolved\nBugcrowd Inc – 2016 7 of 8\n\n-- 7 of 8 --\n\nDocument History\n• March 24, 2016 – Document Created\nBugcrowd Inc – 2016 8 of 8\n\n-- 8 of 8 --",
     "sourceFileName": "Instructure_Canvas_Security_Summary_2015.pdf",
-    "createdAtIso": "2026-06-05T23:31:26.564Z",
-    "updatedAtIso": "2026-06-05T23:31:26.564Z"
+    "createdAtIso": "2026-06-06T01:07:07.094Z",
+    "updatedAtIso": "2026-06-06T01:07:07.094Z"
   },
   "findings": [
     {
@@ -67,16 +68,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:31:19.422Z",
+      "detectedAt": "2026-06-06T01:07:00.616Z",
       "summary": "Stored XSS via Groups affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Versions: 4.0, 000.00, 500.00, 200.00 | URLs: https://tracker.bugcrowd.com | Domains: tracker.bugcrowd.com | Emails: support@bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:26.563Z",
+          "atIso": "2026-06-06T01:07:07.093Z",
           "status": "Open",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -100,7 +101,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 86,
+        "parserConfidence": 82,
         "sourceSectionTitle": "Stored XSS via Groups",
         "sourceText": "BC-CANVAS-2015-001 Stored XSS via Groups High",
         "sourceSpans": [],
@@ -131,16 +132,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:31:19.422Z",
+      "detectedAt": "2026-06-06T01:07:00.616Z",
       "summary": "Stored XSS via Outcomes affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Versions: 4.0, 000.00, 500.00, 200.00 | URLs: https://tracker.bugcrowd.com | Domains: tracker.bugcrowd.com | Emails: support@bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:26.563Z",
+          "atIso": "2026-06-06T01:07:07.093Z",
           "status": "Open",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -164,7 +165,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 86,
+        "parserConfidence": 82,
         "sourceSectionTitle": "Stored XSS via Outcomes",
         "sourceText": "BC-CANVAS-2015-002 Stored XSS via Outcomes High",
         "sourceSpans": [],
@@ -195,16 +196,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:31:19.422Z",
+      "detectedAt": "2026-06-06T01:07:00.616Z",
       "summary": "Stored XSS in Quiz Question Bank as Teacher affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Versions: 4.0, 000.00, 500.00, 200.00 | URLs: https://tracker.bugcrowd.com | Domains: tracker.bugcrowd.com | Emails: support@bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:26.563Z",
+          "atIso": "2026-06-06T01:07:07.093Z",
           "status": "Open",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -228,7 +229,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 86,
+        "parserConfidence": 82,
         "sourceSectionTitle": "Stored XSS in Quiz Question Bank as Teacher",
         "sourceText": "BC-CANVAS-2015-003 Stored XSS in Quiz Question Bank as Teacher High",
         "sourceSpans": [],
@@ -259,16 +260,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:19.422Z",
+      "detectedAt": "2026-06-06T01:07:00.616Z",
       "summary": "Privilege escalation via IDOR: Change on behalf of another user affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: 4.0, 000.00, 500.00, 200.00 | URLs: https://tracker.bugcrowd.com | Domains: tracker.bugcrowd.com | Emails: support@bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:26.563Z",
+          "atIso": "2026-06-06T01:07:07.093Z",
           "status": "Open",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -292,7 +293,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 86,
+        "parserConfidence": 82,
         "sourceSectionTitle": "Privilege escalation via IDOR: Change on behalf of another user",
         "sourceText": "BC-CANVAS-2015-004 Privilege escalation via IDOR: Change on behalf of another user Low",
         "sourceSpans": [],
@@ -323,16 +324,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:19.422Z",
+      "detectedAt": "2026-06-06T01:07:00.616Z",
       "summary": "Content Spoofing iframe injection via HTML Editor affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: 4.0, 000.00, 500.00, 200.00 | URLs: https://tracker.bugcrowd.com | Domains: tracker.bugcrowd.com | Emails: support@bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:26.563Z",
+          "atIso": "2026-06-06T01:07:07.093Z",
           "status": "Open",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -356,7 +357,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 86,
+        "parserConfidence": 82,
         "sourceSectionTitle": "Content Spoofing iframe injection via HTML Editor",
         "sourceText": "BC-CANVAS-2015-005 Content Spoofing iframe injection via HTML Editor Medium",
         "sourceSpans": [],
@@ -387,16 +388,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:19.422Z",
+      "detectedAt": "2026-06-06T01:07:00.616Z",
       "summary": "User account information IDOR at /users/<user id> affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: 4.0, 000.00, 500.00, 200.00 | URLs: https://tracker.bugcrowd.com | Domains: tracker.bugcrowd.com | Emails: support@bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:26.563Z",
+          "atIso": "2026-06-06T01:07:07.093Z",
           "status": "Open",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -420,7 +421,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 86,
+        "parserConfidence": 82,
         "sourceSectionTitle": "User account information IDOR at /users/<user id>",
         "sourceText": "BC-CANVAS-2015-006 User account information IDOR at /users/<user id> Medium",
         "sourceSpans": [],
@@ -451,16 +452,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:19.422Z",
+      "detectedAt": "2026-06-06T01:07:00.616Z",
       "summary": "CSV Injection Gradebook Export affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: 4.0, 000.00, 500.00, 200.00 | URLs: https://tracker.bugcrowd.com | Domains: tracker.bugcrowd.com | Emails: support@bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:26.563Z",
+          "atIso": "2026-06-06T01:07:07.093Z",
           "status": "Open",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -484,7 +485,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 86,
+        "parserConfidence": 82,
         "sourceSectionTitle": "CSV Injection Gradebook Export",
         "sourceText": "BC-CANVAS-2015-007 CSV Injection Gradebook Export Low",
         "sourceSpans": [],
@@ -515,16 +516,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:19.422Z",
+      "detectedAt": "2026-06-06T01:07:00.616Z",
       "summary": "Course Page IDOR affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: 4.0, 000.00, 500.00, 200.00 | URLs: https://tracker.bugcrowd.com | Domains: tracker.bugcrowd.com | Emails: support@bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:26.563Z",
+          "atIso": "2026-06-06T01:07:07.093Z",
           "status": "Open",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -548,7 +549,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 86,
+        "parserConfidence": 82,
         "sourceSectionTitle": "Course Page IDOR",
         "sourceText": "BC-CANVAS-2015-008 Course Page IDOR Low",
         "sourceSpans": [],
@@ -579,16 +580,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:19.422Z",
+      "detectedAt": "2026-06-06T01:07:00.616Z",
       "summary": "External Authentication Injection via HTML Editor affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: 4.0, 000.00, 500.00, 200.00 | URLs: https://tracker.bugcrowd.com | Domains: tracker.bugcrowd.com | Emails: support@bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:26.563Z",
+          "atIso": "2026-06-06T01:07:07.093Z",
           "status": "Open",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -612,7 +613,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 86,
+        "parserConfidence": 82,
         "sourceSectionTitle": "External Authentication Injection via HTML Editor",
         "sourceText": "BC-CANVAS-2015-009 External Authentication Injection via HTML Editor Low",
         "sourceSpans": [],
@@ -643,16 +644,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:19.422Z",
+      "detectedAt": "2026-06-06T01:07:00.616Z",
       "summary": "Window Opener Property Bug via HTML Editor affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: 4.0, 000.00, 500.00, 200.00 | URLs: https://tracker.bugcrowd.com | Domains: tracker.bugcrowd.com | Emails: support@bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:26.563Z",
+          "atIso": "2026-06-06T01:07:07.093Z",
           "status": "Open",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -676,7 +677,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 86,
+        "parserConfidence": 82,
         "sourceSectionTitle": "Window Opener Property Bug via HTML Editor",
         "sourceText": "BC-CANVAS-2015-010 Window Opener Property Bug via HTML Editor Low",
         "sourceSpans": [],

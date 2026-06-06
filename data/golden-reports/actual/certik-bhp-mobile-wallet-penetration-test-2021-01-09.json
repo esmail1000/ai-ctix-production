@@ -33,7 +33,7 @@
     "slug": "certik-bhp-mobile-wallet-penetration-test-2021-01-09",
     "name": "certik-bhp-mobile-wallet-penetration-test-2021-01-09",
     "type": "PDF",
-    "uploadedAt": "2026-06-05T23:31:33.975Z",
+    "uploadedAt": "2026-06-06T01:07:13.668Z",
     "owner": "AI CTIX Analyzer",
     "status": "Ready",
     "findings": 9,
@@ -48,12 +48,13 @@
     "parsingNotes": [
       "Structured parser found no blocks; heuristic fallback was used.",
       "NLP hybrid extraction produced 2 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+      "NLP warning: Model unavailable; used regex-only fallback: Error while deserializing header: header too large",
       "Aligned findings with generic official index: 2 -> 9."
     ],
     "content": "BHP Mobile Wallet\nSecurity Assessment\nInitial Report: December 30th, 2020\nFirst Revision: January 8th, 2021\nFor :\nBHP Network\n\n-- 1 of 27 --\n\nConfidentiality Statement\nAll information contained in this document is provided in confidence for the sole purpose of\nadjudication of the document and shall not be published or disclosed wholly or in part to any\nother party without CertiK's prior permission in writing and shall be held in safe custody. These\nobligations shall not apply to information that is published or becomes known legitimately from\nsome source other than CertiK.\nAll transactions are subject to the appropriate CertiK Standard Terms and Conditions. Certain\ninformation given in connection with this proposal is marked “In Commercial Confidence”. That\ninformation is communicated in confidence, and disclosure of it to any person other than with\nCertiK’s consent will be a breach of confidence actionable on the part of CertiK.\nDisclaimer\nThis document is provided for information purposes only. CertiK accepts no responsibility for\nany errors or omissions that it may contain.\nThis document is provided without warranty of any kind, express or implied, including but not\nlimited to the warranties of merchantability, fitness for a particular purpose and non-\ninfringement. In no event shall CertiK be liable for any claim, damages or other liability (either\ndirect or indirect or consequential), whether in an action of contract, tort or otherwise, arising\nfrom, out of or in connection with this document or the contents thereof.\nThis document represents our budgetary price proposal for the solution further described in\nthis herein and is provided for information and evaluation purposes only and is not currently a\nformal offer capable of acceptance.\n\n-- 2 of 27 --\n\nOverview\nScope\nAt the start of the engagement, CertiK worked with BHP Network to identify the target and set\nthe limits on the scope of the test. A White Box type of testing approach was done where\nCertiK performed the test with the source code available from the public bhp-wallet GitHub\nrepository.\nApplication Name BHP mobile wallet\nCodebase GitHub Repository\nCommits 507267efa3d788ce4c72821e4efeb3e534d9df16\nUpdated Commits 8d2c8ac4229d21b618264c38f4dff8ca854c179a\nAudit Summary\nDelivery Date Dec. 30, 2020\nMethod of Audit Static Analysis, Dynamic Testing\nConsultants Engaged 2\nTimeline Dec. 22, 2020 - Dec. 30, 2020\nVulnerability Summary\nTotal Issues 9\nTotal Meduim 3\nTotal Low 3\nTotal Informational 3\n\n-- 3 of 27 --\n\nExecutive Summary\nBHP Network engaged CertiK to perform an application penetration test for their mobile wallet.\nThe main objective of the engagement is to test the overall resiliency of the application to\nvarious real-world attacks against the application’s controls and functions, and thereby be able\nto identify its weaknesses and provide recommendations to fix and improve its overall security\nposture.\nCertiK started the test on December 22, 2020 and completed on December 30, 2020.\nAfter a thorough review of the updated application, CertiK believes that the BHP application is\ncurrently at a low risk level. Given the severity of the vulnerabilities on the application, it is\nunlikely that the application will be directly compromised.\nBHP has worked diligently to remediate security vulnerabilities discovered by CertiK,\nsignificantly increasing the overall security posture of their application. Note that because the\nmobile application is built with the \"uni-app(https://uniapp.dcloud.io/)\" framework, some\nfindings can't be directly addressed. In the long term, we recommend the application switch to\nnative apps to take advantage of native APIs to further secure the application.\n\n-- 4 of 27 --\n\nFindings\nID Title Severity Vulnerability\nClass\nStatus\nBHP-01 Unnecessary\nApp permissions\nMedium Security\nMisconfiguration\nFixed\nBHP-02 Custom\nkeyboards not\ndisabled in BHP\nwallet\nMedium Information\nDisclosure\nPartially Fixed\nBHP-03 Information\nleakage via\nscreenshot\nbackgrounding\nLow Information\nDisclosure\nOpen\nBHP-04 No root or\njailbreak\ndetection on\nAndroid/iOS\napplication\nInformational Reverse\nEngineering and\nCode Tampering\nOpen\nBHP-05 Ineffective and\nproblematic\n\"confirm\npassword\"\nimplmentation\nLow Logic Flaws Fixed\nBHP-06 Insecure\nminimum\nAndroid SDK\nversion\nInformational Security\nMisconfiguration\nFixed\nBHP-07 Bad\ncryptography\nimplementation\nMedium Insufficient\nCryptography\nFixed\nBHP-08 Mnemonic Informational Information Open\n\n-- 5 of 27 --\n\ndisplay allow\nscreenshot\nDisclosure\nBHP-09 Uses of insecure\nprotocol\nLow Security\nMisconfiguration\nOpen\n\n-- 6 of 27 --\n\nBHP-01: Unnecessary App permissions\nSeverity: Medium\nDescription\nWhen analyzing the AndroidManifest.xml file in the Android APK, we found that the\napplication requests access to an extensive amount of unnecessary permissions than it\nrequires. Specifically, the application requests the following unnecessary permissions:\nIn AndroidManifest.xml\nImpact\nThe \"android:minSdkVersion=19\" in AndroidManifest.xml indicates the minimal SDK version to\nrun the application is 19. Android grants permissions to the application during installation on\ndevices with SDK version lower than 23. If a user installs the application on such a device, the\napplication will grant more permission than it should. Furthermore, when the BHP application\nis launched for the first time, the application requires users to allow the wallet to make and\nmanage phone calls, as shown in the \"Evidence\" section. However, we found no features in\nthe application that would require the \"CALL_PHONE\" permission.\nRequesting permissions that are not needed by the application could negatively impact the\napplication's user experience and may degrade the application's public reputation.\nEvidence\n<uses-permission android:name=\"android.permission.CALL_PHONE\" />\n<uses-permission android:name=\"android.permission.MOUNT_UNMOUNT_FILESYSTEMS\"\n/>\n<uses-permission android:name=\"android.permission.READ_LOGS\" />\n<uses-permission android:name=\"android.permission.ACCESS_COARSE_LOCATION\"/>\n<uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\"/>\n<uses-permission android:name=\"android.permission.READ_CONTACTS\"/>\n<uses-permission android:name=\"android.permission.MODIFY_AUDIO_SETTINGS\" />\n<uses-permission android:name=\"android.permission.RECORD_AUDIO\" />\n\n-- 7 of 27 --\n\nRecommendation\nPermission requests protect sensitive information available from a device and should only be\nused when access to information is necessary for the functioning of the application.\nWe recommend the following when dealing with Android permissions:\nFor more information about Android application permission and its best practices, please visit\n\"https://developer.android.com/training/permissions/usage-notes\"\nOnly require the permissions necessary for the application to work.\nWhile making a permissions request, be clear about what permission the application is\naccessing and why the application needs that permission.\nProvide continuous indications while accessing sensitive capabilities. Make it clear to the\nuser when the application is collecting data and avoid the perception that the application\nis collecting data surreptitiously.\n\n-- 8 of 27 --\n\nBHP-02: Custom keyboards not disabled in BHP\nwallet\nSeverity: Medium\nDescription:\nThe BHP client does not disable custom keyboards. Since a long time ago, users have been\nable to install custom keyboards that can be used in any app, replacing the system's default\nkeyboard. Custom keyboards can, and very frequently do, log and exfiltrate the data users\nenter.\nThe custom keyboard is allowed to use in the mnemonic input field in the BHP application.\nMalicious third-party keyboards can log and exfiltrate users' mnemonic. The attacker would\nthen have total control over the victim's wallet account.\nExploit Scenario\nBob installed a custom keyboard that logs and exfiltrates data he enters on his device. Bob\nenters his wallet mnemonic with the custom keyboard, and his mnemonic can be collected by\nthe third party keyboard.\nRecommendation\nWe have no information regarding how the app artifact(APK and iPA) is built, as there is no\nbuild file in the Github repository. We are not able to provide specific recommendations to\nmitigate this issue. In general, third-party keyboards should be disabled in sensitive data input\nfields to prevent leakage of sensitive data entered by the user.\nReference:\nhttps://developer.apple.com/documentation/uikit/uiapplication/extensionpointidentifier\n\n-- 9 of 27 --\n\nBHP-03: Information leakage via screenshot\nbackgrounding\nSeverity: Low\nIntoduction\nOn mobile devices, a screenshot of the current activity is taken when an application goes into\nthe background and displayed for aesthetic purposes when the app returns to the foreground.\nThis feature may pose a security risk. Sensitive data may be exposed if the user background\nthe application while sensitive data is displayed. A malicious application that is running on the\ndevice and able to continuously capture the screen may also expose data.\nDescription\nThe BHP application does not use an overlay to hide or obscure sensitive information such as\nwallet balance or the wallet mnemonic on the screen before moving to the background. Such\ninformation may be included in the auto-generated screenshot.\nImpact\nAn attacker with physical access to the unlocked device or a malicious third-party app with\naccess to the auto-generated screenshot of the BHP application can retrieve sensitive\ninformation included in the screenshot.\nEvidence\n\n-- 10 of 27 --\n\nRecommendation\nIt's recommended for the BHP application to add an overlay to hide or obscure the application\nscreen before moving to the background.\nFor iOS, add an overlay screen before the application goes into the background, and remove\nthe screen when the application goes into the foreground.\nFor Android, in addition to adding an overlay, this can be done by setting the FLAG_SECURE\noption. The FLAG_SECURE flag can prevent sensitive information included in the auto-\ngenerated screenshot.\nFor more information about the FLAG_SECURE flag, please see https://developer.android.co\nm/reference/android/view/Display#FLAG_SECURE and https://stackoverflow.com/questions/9\n822076/how-do-i-prevent-android-taking-a-screenshot-when-my-app-goes-to-the-background\n\n-- 11 of 27 --\n\nBHP-04: Ineffective and problematic \"confirm\npassword\" implmentation\nSeverity: Low\nDescription:\nThe BHP wallet requires a user to set up a password while creating the wallet. The user\nneeds to type the same password in both \"Password\" and \"Repeat password\" fields to pass\nthe check. Users are not allowed to finish the wallet creation if two passwords are not the\nsame. We found that the implementation is ineffective and problematic.\nLocation\nCreate wallet interface\nImpact\nThe ineffective and problematic implementation can confuse users and allow users to create\nan unintended password. This would negatively influence the application's user experience.\nStep to Reproduce\n1. Click \"Create Wallet\" in BHP wallet and enter a valid value such as \"111111aa\" in both the\n\"Password\" and the \"Repeat Password\" field.\n2. Change the password in the \"Password\" field to another password such as \"22222aaa\" and\nkeep the \"Repeat Password\" field with \"111111aa\".\n3. Click \"Create wallet\", and notice the application creates a wallet with the password\n\"22222aaa\".\n1. If users modify the value in the \"Repeat password\" field and then modify the value in the\n\"Password\" field, the validation will fail even if two passwords are the same.\n2. If users enter the same password in the \"Repeat password\" field and the value in the\n\"Password\" field, then modify the value in the \"Password\" field, the application would let\nthe user pass the check. However, the value in the \"Password\" field and \"Repeat\npassword\" is different.\n\n-- 12 of 27 --\n\nRecommendation:\nThe application should perform the validation after users modify the value in either the\n\"Password\" field or the \"Repeat Password\" field. Make sure the users enter the same\npassword in both fields.\n\n-- 13 of 27 --\n\nBHP-05: No root or jailbreak detection on\nAndroid/iOS application\nSeverity: Informational\nDescription\nNo root or jailbreak detection is implemented in the application. This allows an attacker to\nmodify the app on a rooted Android or jailbroken iOS device, which means the attacker can\npotentially induce behaviors that otherwise would not occur. Examples of the impact include\naccessing sensitive application data, overwriting critical functions, and an overall wider attack\nsurface.\nImpact\nA malicious application with root permission can access and modify data belongs to the BHP\napplication. Combined with the \"unnecessary app permissions\" issue above, a malicious third-\nparty application can take advantage of the BHP app permissions and perform more\nprivileged actions.\nStep to Reproduce\nInstall and run the BHP wallet on a rooted Android or jailbroken iOS device.\nRecommendation\nImplement root and jailbreak detection at the beginning of the runtime of your application.\nShut down the application or at least display a warning message when a user attempts to use\nthe wallet on a rooted or jailbroken device.\nSome methods to check for a rooted/jailbroken device are listed below:\nAndroid\nCheck for existing su binaries, such as:\n/system/bin/su\n/system/xbin/su\n/sbin/su\n/system/su\n/system/bin/.ext/.su\nAttempt to use the su command directly and compare the current user ID before and\nafter to see if the user was successfully upgraded to root.\n\n-- 14 of 27 --\n\niOS\nUtilize SafetyNet by Google. This was developed to try and detect device modifications\nand will prevent the application from running if the device fails the checks.\nCheck for the existence of common files or directories that are associated with a\njailbroken device. A list of some of the potential files to check can be seen here:\n/Applications/Cydia.app\n/Applications/FakeCarrier.app\n/Applications/Icy.app\n/usr/bin/sshd\nAttempt to write to a file in a location that is outside of the application's virtual sandbox.\nAn example would be to try and write to the /private directory. This attempt would fail on\na non-jailbroken device because the application does not have permission to access\nanything outside of its virtual sandbox, but if the application succeeds in writing to that\nlocation, then it can be deduced that it has root permissions, which means that the\ndevice is jailbroken.\n\n-- 15 of 27 --\n\nBHP-06: Insecure minimum Android SDK version\nSeverity: Informational\nDescription\nThe android:minSdkVersion declared in AndroidManifest.xml is set to 19, which is Android\n4.4. Older versions of Android SDK may contain security vulnerabilities that remain\nunpatched.\nFor example, Android versions below Android 5.1 (API level 22) have multiple vulnerabilities in\nSQLite that can cause another application or service to execute arbitrary SQL queries.\nSuccessful exploitation could result in arbitrary code execution in the context of the target\napplication.\nLocation\nAndroidManifest.xml\nImpact\nThe application may be vulnerable to remote code execution if the application runs on Android\nversion below Android 5.1 (API level 22) and the device has a malicious application installed.\nFurthermore, many other security vulnerabilities are already discovered and remain\nunpatched in an old version of the Android SDK. An attacker can take advantage of known\nvulnerabilities to compromise users' wallets.\nRecommendation\nSet android:minSdkVersion to at least 23, which is Android 6.0. According to Android\nStudio, about 85% of Android devices are Android 6.0 or newer. This can reduce security risks\nwhile not sacrificing the compatibility of the application.\n\n-- 16 of 27 --\n\nBHP-07: Bad cryptography implementation\nSeverity: Medium\nDescription\nThe BHP application stores encrypted private keys and mnemonics in the device. The\napplication implements encryption in the following way:\n1. Generate the sha256 hash of the user password.\n2. Use the AES-ECB algorithm to encrypt the hash from step 1 with the user password as the\nencryption key.\n3. Use the AES-CBC algorithm to encrypt the private key and mnemonics with the ciphertext\nfrom step 2 as the encryption key and plaintext password as IV(initialization vector).\nThe encryption key derivation mechanism and the use of IV are confusing and improper.\nImpact\nA securely generated encryption key should be able to against dictionary attack and brute\nforce attack to some degree. Performing the extra AES-ECB encryption does not extend the\ncost of time to brute force the password. If the attacker gets access to the encrypted wallet\ndata, it's trivially to brute-force the password and decrypts the data.\nRecommendation\nWe recommend using a key derivation function such as Scrypt and Argon2id to generate the\nencryption key. Password-based key derivation algorithms are designed to be slow, memory-\nhard and therefore will frustrate attempts at parallelization and brute-force password cracking.\nThe IV used in the AES-CBC encryption algorithms should be a unique and randomly\ngenerated string. The IV can be appended at the front of the ciphertext and store in the\ndevices. When performing the decryption, simply obtain the IV from the beginning of the\nstored data and use it in the decryption.\nFor more information about Key derivation function, please see:\nhttps://en.wikipedia.org/wiki/Key_derivation_function\n\n-- 17 of 27 --\n\nBHP-08: Mnemonic display allow screenshot\nSeverity: Informational\nDescription\nThe mnemonic phrase is a list of words that can be used to recover a wallet account.\nObtaining the mnemonic can potentially allow the attacker to gain full control of the wallet. The\napplication warns users not to take screenshot before displaying wallet private keys or\nmnemonics. However, on an Android device, screenshot is still allowed while displaying\nmnemonics or private key.\nImpact\nThird-party apps with \"READ_EXTERNAL_STORAGE\" permission on an Android device or\napps with all photo access on an iPhone can read screenshots on the device. Third-party\napps can retrieve the mnemonic if the mnemonic is included in a screenshot taken by the\nuser. Since the application displays warning to the user about not taking screenshots before\nshowing private keys or mnemonics, we set the serverity of this issue to informational.\nStep to Reproduce\n1. Open the BHP wallet and create a new wallet.\n2. Set up a name and password for the wallet, click \"backup\" to naviagte to \"Backup\nMnemonic\" interface.\n3. Take a screenshot including mnemonics.\nRecommendation\nAndroid\nScreen capture can be prevented by setting the FLAG_SECURE option. The FLAG_SECURE\nflag can prevent users and malicious third-party apps from recording the mnemonic screens\nand taking screenshots of sensitive information.\nFor more information about the FLAG_SECURE flag, please see “https://developer.android.co\nm/reference/android/view/Display#FLAG_SECURE”\n\n-- 18 of 27 --\n\nBHP-09: Uses of insecure protocol\nSeverity: Low\nDescription\nThe communication protocol uses between the BHP mobile application and the server running\non rpc.bhpnet.io and 47.244.216.20 is HTTP instead of HTTPS. Communications\nbetween the application and its server should be protected with TLS (Transport Layer\nSecurity).\nLocation\nhttps://github.com/bhpnet/bhp-\nwallet/blob/507267efa3d788ce4c72821e4efeb3e534d9df16/src/api/api.js\nImpact\nAn attacker suitably positioned to view a legitimate user's network traffic could record and\nmonitor their interactions with the application and obtain any information the user supplies.\nFurthermore, an attacker able to modify traffic could use the application as a platform for\nattacks against its users.\nexport function getAccounts(address) {\nreturn axios.get(\"http://rpc.bhpnet.io/auth/accounts/\" + address,\n{ params: {} })\n}\nexport function broadcastTrading(json) {\nreturn axios.post(\"http://rpc.bhpnet.io/txs\", json)\n}\nexport function sendBTC(stx) {\nreturn axios.post(\"http://47.244.216.20:16969/api/sendrawtransaction\",\n{\ntx: stx\n})\n}\n\n-- 19 of 27 --\n\nRecommendation\nApplications should use transport-level encryption (SSL/TLS) to protect all communications\nbetween the client and the server.\n\n-- 20 of 27 --\n\nAppendix – Methodology\nCertiK uses a comprehensive penetration testing methodology which adheres to industry best\npractices and standards in security assessments including from OWASP (Open Web\nApplication Security Project), NIST, PTES (Penetration Testing Execution Standard).\nBelow is a flowchart of our assessment process:\nCoverage and Prioritization\nAs many components as possible will be tested manually. Priority is generally based on three\nfactors: critical security controls, sensitive data, and the likelihood of vulnerability.\nCritical security controls will always receive the top priority in the test. If a vulnerability is\ndiscovered in the critical security control, the entire application is likely to be compromised,\nresulting in a critical-risk to the business. For most applications, critical controls will include the\nlogin page, but it could also include major workflows such as the checkout function in an\nonline store.\n\n-- 21 of 27 --\n\nThe Second priority is given to application components that handle sensitive data. This is\ndependent on business priorities, but common examples include payment card data, financial\ndata, or authentication credentials.\nFinal priority includes areas of the application that are most likely to be vulnerable. This is\nbased on CertiK’ experience with similar applications developed using the same technology or\nwith other applications that fit the same business role. For example, large applications will\noften have older sections that are less likely to utilize modern security techniques.\nReconnaissance\nCertiK gathers information about the target application from various sources depending on the\ntype of test being performed. CertiK obtains whatever information that is possible and\nappropriate from the client during scoping and supplements it with relevant information that\ncan be gathered from public sources. This helps provide a better overall picture and\nunderstanding of the target.\nApplication Mapping\nCertiK examines the application, reviewing its contents, and mapping out all its functionalities\nand components. CertiK makes use of different tools and techniques to traverse the entire\napplication and document all input areas and processes. Automated tools are used to scan\nthe application and it is then manually examined for all its parameters and functionalities.\nWith this, CertiK creates and widens the overall attack surface of the target application.\nVulnerability Discovery\nUsing the information that is gathered, CertiK comes up with various attack vectors to test\nagainst the application. CertiK uses a combination of automated tools and manual techniques\nto identify vulnerabilities and weaknesses. Industry-recognized testing tools will be used,\nincluding Burp Suite, Nikto, Metasploit, and Kali. Furthermore, any controls in place that would\ninhibit the successful exploitation of a particular system will be noted.\nVulnerability Confirmation\nAfter discovering vulnerabilities in the application, CertiK validates the vulnerabilities and\nassesses its overall impact. To validate, CertiK performs a Proof-of-Concept of an attack on\nthe vulnerability, simulating real world scenarios to prove the risk and overall impact of the\nvulnerability.\n\n-- 22 of 27 --\n\nThrough CertiK’ knowledge and experience on attacks and exploitation techniques, CertiK is\nable to process all weaknesses and examine how they can be combined to compromise the\napplication. CertiK may use different attack chains, leveraging different weaknesses to\nescalate and gain a more significant compromise.\nTo minimize any potential negative impact, vulnerability exploitation was only attempted when\nit would not adversely affect production applications and systems, and then only to confirm the\npresence of a specific vulnerability. Any attack with the potential to cause system downtime or\nseriously impact business continuity was not performed. Vulnerabilities were never exploited\nto delete or modify data; only read-level access was attempted. If it appeared possible to\nmodify data, this was noted in the list of vulnerabilities below.\nImmediate escalation of High or Critical Findings\nIf critical or high findings are found whereby application elements are compromised, client’s\nkey security contacts will be notified immediately.\n\n-- 23 of 27 --\n\nVulnerability Classes\nInsecure Data Storage • Sensitive Data Store in Plant Text\n• Use of Public Storage\n• Logging sensitive data\nInformation Disclosure • Directory Indexing\n• Verbose Error Messages\n• HTML CommentsDefault Content\nAccount Policy • Default / Weak Passwords\n• Unlimited Login Attempts\n• Password Reset\n• Insufficient Session Expiration\nSession Management • Session Identifier PredictionSession\nHijacking\n• Cross-Site Request Forgery\nInjection • SQL Injection\n• Cross-Site Scripting\n• HTML InjectionXML Injection\n• OS Command Injection\nBroken Access Control • Authentication Bypass\n• Authorization Bypass\n• Privilege Escalation\n• Insecure Inter-Process\nCommunication(intents, sockets)\nApplication Resource Handling • Path Traversal\n• Predictable Object Identifiers\n• XML External Entity Expansion\n• Local & Remote File Inclusion\nLogic Flaws • Abuse of FunctionalityWorkflow Bypass\nInsufficient Cryptography • Weak Hashing Algorithms\n• Weak Encryption Algorithms\n• Hard Coded Cryptographic Key\n\n-- 24 of 27 --\n\nSecurity Misconfiguration • Missing Security Headers\n• Debugging Enabled\nReverse Engineering and Code Tampering • Lack of Root Detection\n• Lack of Tampering Detection\n• Lack of Code Obfuscation\n\n-- 25 of 27 --\n\nRisk Assessment\nThe following risk levels categorize the risk level of issues presented in the report:\nRisk Level CVSS Score Impact Exploitability\nCritical 9.0-10.0 Root-level or full-\nsystem compromise,\nlarge-scale data\nbreach\nTrivial and\nstraightforward\nHigh 7.0-8.9 Elevated privilege\naccess, significant\ndata loss or\ndowntime\nEasy, vulnerability\ndetails or exploit\ncode are publicly\navailable, but may\nneed additional\nattack vectors (e.g.,\nsocial engineering)\nMedium 4.0-6.9 Limited access but\ncan still cause loss of\ntangible assets,\nwhich may violate,\nharm, or impede the\norg's mission,\nreputation, or\ninterests.\nDifficult, requires a\nskilled attacker,\nneeds additional\nattack vectors,\nattacker must reside\non the same network,\nrequires user\nprivileges\nLow 0.1-3.9 Very little impact on\nan org’s business\nExtremely difficult,\nrequires local or\nphysical system\naccess\nInformational 0.0 Discloses information\nthat may be of\ninterest to an\nattacker.\nNot exploitable but\nrather is a weakness\nthat may be useful to\nan attacker should a\nhigher risk issue be\n\n-- 26 of 27 --\n\nfound that allows for\na system exploit\n\n-- 27 of 27 --",
     "sourceFileName": "BHP_Mobile_Wallet_Penetration_Test_Report_01-09-2021.pdf",
-    "createdAtIso": "2026-06-05T23:31:42.007Z",
-    "updatedAtIso": "2026-06-05T23:31:42.007Z"
+    "createdAtIso": "2026-06-06T01:07:20.136Z",
+    "updatedAtIso": "2026-06-06T01:07:20.136Z"
   },
   "findings": [
     {
@@ -67,16 +68,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:33.975Z",
+      "detectedAt": "2026-06-06T01:07:13.668Z",
       "summary": "Unnecessary App permissions affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: on the | Versions: lower, file | Components: Create wallet interface Impact The ineffective and problematic implementation can confuse users and allow users to create an unintended password. This would negatively influence the application's user experience, /sbin/su, /usr/bin/sshd, AndroidManifest.xml | Assets: Create wallet interface Impact The ineffective and problematic implementation can confuse users and allow users to create an unintended password. This would negatively influence the application's user experience | Endpoints: app-goes-to-the-background | Services: HTTPS | URLs: https://developer.android.com/training/permissions/usage-notes, https://developer.apple.com/documentation/uikit/uiapplication/extensionpointidentifier, https://developer.android.co, https://stackoverflow.com/questions/9 | Domains: developer.android.com, developer.apple.com, developer.android.co, stackoverflow.com, AndroidManifest.xml, android.permission, Cydia.app, FakeCarrier.app, Icy.app | File paths: /sbin/su, /usr/bin/sshd, AndroidManifest.xml | File names: AndroidManifest.xml",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:42.004Z",
+          "atIso": "2026-06-06T01:07:20.134Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -111,7 +112,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 91,
+        "parserConfidence": 89,
         "sourceSectionTitle": "Unnecessary App permissions",
         "sourceText": "BHP-01 Unnecessary App permissions Medium",
         "sourceSpans": [],
@@ -142,16 +143,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:33.975Z",
+      "detectedAt": "2026-06-06T01:07:13.668Z",
       "summary": "Custom keyboards not disabled in BHP affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: on the | Versions: lower, file | Components: Create wallet interface Impact The ineffective and problematic implementation can confuse users and allow users to create an unintended password. This would negatively influence the application's user experience, /sbin/su, /usr/bin/sshd, AndroidManifest.xml | Assets: Create wallet interface Impact The ineffective and problematic implementation can confuse users and allow users to create an unintended password. This would negatively influence the application's user experience | Endpoints: app-goes-to-the-background | Services: HTTPS | URLs: https://developer.android.com/training/permissions/usage-notes, https://developer.apple.com/documentation/uikit/uiapplication/extensionpointidentifier, https://developer.android.co, https://stackoverflow.com/questions/9 | Domains: developer.android.com, developer.apple.com, developer.android.co, stackoverflow.com, AndroidManifest.xml, android.permission, Cydia.app, FakeCarrier.app, Icy.app | File paths: /sbin/su, /usr/bin/sshd, AndroidManifest.xml | File names: AndroidManifest.xml",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:42.004Z",
+          "atIso": "2026-06-06T01:07:20.134Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -186,7 +187,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 91,
+        "parserConfidence": 89,
         "sourceSectionTitle": "Custom keyboards not disabled in BHP",
         "sourceText": "BHP-02 Custom keyboards not disabled in BHP Medium",
         "sourceSpans": [],
@@ -217,16 +218,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:33.975Z",
+      "detectedAt": "2026-06-06T01:07:13.668Z",
       "summary": "Information leakage via screenshot affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: on the | Versions: lower, file | Components: Create wallet interface Impact The ineffective and problematic implementation can confuse users and allow users to create an unintended password. This would negatively influence the application's user experience, /sbin/su, /usr/bin/sshd, AndroidManifest.xml | Assets: Create wallet interface Impact The ineffective and problematic implementation can confuse users and allow users to create an unintended password. This would negatively influence the application's user experience | Endpoints: app-goes-to-the-background | Services: HTTPS | URLs: https://developer.android.com/training/permissions/usage-notes, https://developer.apple.com/documentation/uikit/uiapplication/extensionpointidentifier, https://developer.android.co, https://stackoverflow.com/questions/9 | Domains: developer.android.com, developer.apple.com, developer.android.co, stackoverflow.com, AndroidManifest.xml, android.permission, Cydia.app, FakeCarrier.app, Icy.app | File paths: /sbin/su, /usr/bin/sshd, AndroidManifest.xml | File names: AndroidManifest.xml",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:42.004Z",
+          "atIso": "2026-06-06T01:07:20.134Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -261,7 +262,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 91,
+        "parserConfidence": 89,
         "sourceSectionTitle": "Information leakage via screenshot",
         "sourceText": "BHP-03 Information leakage via screenshot Low",
         "sourceSpans": [],
@@ -292,16 +293,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:33.975Z",
+      "detectedAt": "2026-06-06T01:07:13.668Z",
       "summary": "Ineffective and problematic confirm password flow affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: on the | Versions: lower, file | Components: Create wallet interface Impact The ineffective and problematic implementation can confuse users and allow users to create an unintended password. This would negatively influence the application's user experience, /sbin/su, /usr/bin/sshd, AndroidManifest.xml | Assets: Create wallet interface Impact The ineffective and problematic implementation can confuse users and allow users to create an unintended password. This would negatively influence the application's user experience | Endpoints: app-goes-to-the-background | Services: HTTPS | URLs: https://developer.android.com/training/permissions/usage-notes, https://developer.apple.com/documentation/uikit/uiapplication/extensionpointidentifier, https://developer.android.co, https://stackoverflow.com/questions/9 | Domains: developer.android.com, developer.apple.com, developer.android.co, stackoverflow.com, AndroidManifest.xml, android.permission, Cydia.app, FakeCarrier.app, Icy.app | File paths: /sbin/su, /usr/bin/sshd, AndroidManifest.xml | File names: AndroidManifest.xml",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:42.004Z",
+          "atIso": "2026-06-06T01:07:20.134Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -336,7 +337,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 91,
+        "parserConfidence": 89,
         "sourceSectionTitle": "Ineffective and problematic confirm password flow",
         "sourceText": "BHP-04 Ineffective and problematic confirm password flow Low",
         "sourceSpans": [],
@@ -367,16 +368,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:33.975Z",
+      "detectedAt": "2026-06-06T01:07:13.668Z",
       "summary": "No root or jailbreak detection affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: on the | Versions: lower, file | Components: Create wallet interface Impact The ineffective and problematic implementation can confuse users and allow users to create an unintended password. This would negatively influence the application's user experience, /sbin/su, /usr/bin/sshd, AndroidManifest.xml | Assets: Create wallet interface Impact The ineffective and problematic implementation can confuse users and allow users to create an unintended password. This would negatively influence the application's user experience | Endpoints: app-goes-to-the-background | Services: HTTPS | URLs: https://developer.android.com/training/permissions/usage-notes, https://developer.apple.com/documentation/uikit/uiapplication/extensionpointidentifier, https://developer.android.co, https://stackoverflow.com/questions/9 | Domains: developer.android.com, developer.apple.com, developer.android.co, stackoverflow.com, AndroidManifest.xml, android.permission, Cydia.app, FakeCarrier.app, Icy.app | File paths: /sbin/su, /usr/bin/sshd, AndroidManifest.xml | File names: AndroidManifest.xml",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:42.004Z",
+          "atIso": "2026-06-06T01:07:20.134Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -411,7 +412,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 91,
+        "parserConfidence": 89,
         "sourceSectionTitle": "No root or jailbreak detection",
         "sourceText": "BHP-05 No root or jailbreak detection Informational",
         "sourceSpans": [],
@@ -442,16 +443,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:33.975Z",
+      "detectedAt": "2026-06-06T01:07:13.668Z",
       "summary": "Insecure minimum Android SDK version affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: on the | Versions: lower, file | Components: Create wallet interface Impact The ineffective and problematic implementation can confuse users and allow users to create an unintended password. This would negatively influence the application's user experience, /sbin/su, /usr/bin/sshd, AndroidManifest.xml | Assets: Create wallet interface Impact The ineffective and problematic implementation can confuse users and allow users to create an unintended password. This would negatively influence the application's user experience | Endpoints: app-goes-to-the-background | Services: HTTPS | URLs: https://developer.android.com/training/permissions/usage-notes, https://developer.apple.com/documentation/uikit/uiapplication/extensionpointidentifier, https://developer.android.co, https://stackoverflow.com/questions/9 | Domains: developer.android.com, developer.apple.com, developer.android.co, stackoverflow.com, AndroidManifest.xml, android.permission, Cydia.app, FakeCarrier.app, Icy.app | File paths: /sbin/su, /usr/bin/sshd, AndroidManifest.xml | File names: AndroidManifest.xml",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:42.004Z",
+          "atIso": "2026-06-06T01:07:20.134Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -486,7 +487,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 91,
+        "parserConfidence": 89,
         "sourceSectionTitle": "Insecure minimum Android SDK version",
         "sourceText": "BHP-06 Insecure minimum Android SDK version Informational",
         "sourceSpans": [],
@@ -517,16 +518,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:33.975Z",
+      "detectedAt": "2026-06-06T01:07:13.668Z",
       "summary": "Bad cryptography implementation affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: on the | Versions: lower, file | Components: Create wallet interface Impact The ineffective and problematic implementation can confuse users and allow users to create an unintended password. This would negatively influence the application's user experience, /sbin/su, /usr/bin/sshd, AndroidManifest.xml | Assets: Create wallet interface Impact The ineffective and problematic implementation can confuse users and allow users to create an unintended password. This would negatively influence the application's user experience | Endpoints: app-goes-to-the-background | Services: HTTPS | URLs: https://developer.android.com/training/permissions/usage-notes, https://developer.apple.com/documentation/uikit/uiapplication/extensionpointidentifier, https://developer.android.co, https://stackoverflow.com/questions/9 | Domains: developer.android.com, developer.apple.com, developer.android.co, stackoverflow.com, AndroidManifest.xml, android.permission, Cydia.app, FakeCarrier.app, Icy.app | File paths: /sbin/su, /usr/bin/sshd, AndroidManifest.xml | File names: AndroidManifest.xml",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:42.004Z",
+          "atIso": "2026-06-06T01:07:20.134Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -561,7 +562,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 91,
+        "parserConfidence": 89,
         "sourceSectionTitle": "Bad cryptography implementation",
         "sourceText": "BHP-07 Bad cryptography implementation Medium",
         "sourceSpans": [],
@@ -592,16 +593,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:33.975Z",
+      "detectedAt": "2026-06-06T01:07:13.668Z",
       "summary": "Mnemonic display allow screenshot affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: on the | Versions: lower, file | Components: Create wallet interface Impact The ineffective and problematic implementation can confuse users and allow users to create an unintended password. This would negatively influence the application's user experience, /sbin/su, /usr/bin/sshd, AndroidManifest.xml | Assets: Create wallet interface Impact The ineffective and problematic implementation can confuse users and allow users to create an unintended password. This would negatively influence the application's user experience | Endpoints: app-goes-to-the-background | Services: HTTPS | URLs: https://developer.android.com/training/permissions/usage-notes, https://developer.apple.com/documentation/uikit/uiapplication/extensionpointidentifier, https://developer.android.co, https://stackoverflow.com/questions/9 | Domains: developer.android.com, developer.apple.com, developer.android.co, stackoverflow.com, AndroidManifest.xml, android.permission, Cydia.app, FakeCarrier.app, Icy.app | File paths: /sbin/su, /usr/bin/sshd, AndroidManifest.xml | File names: AndroidManifest.xml",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:42.004Z",
+          "atIso": "2026-06-06T01:07:20.134Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -636,7 +637,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 91,
+        "parserConfidence": 89,
         "sourceSectionTitle": "Mnemonic display allow screenshot",
         "sourceText": "BHP-08 Mnemonic display allow screenshot Informational",
         "sourceSpans": [],
@@ -667,16 +668,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:31:33.975Z",
+      "detectedAt": "2026-06-06T01:07:13.668Z",
       "summary": "Uses of insecure protocol affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: on the | Versions: lower, file | Components: Create wallet interface Impact The ineffective and problematic implementation can confuse users and allow users to create an unintended password. This would negatively influence the application's user experience, /sbin/su, /usr/bin/sshd, AndroidManifest.xml | Assets: Create wallet interface Impact The ineffective and problematic implementation can confuse users and allow users to create an unintended password. This would negatively influence the application's user experience | Endpoints: app-goes-to-the-background | Services: HTTPS | URLs: https://developer.android.com/training/permissions/usage-notes, https://developer.apple.com/documentation/uikit/uiapplication/extensionpointidentifier, https://developer.android.co, https://stackoverflow.com/questions/9 | Domains: developer.android.com, developer.apple.com, developer.android.co, stackoverflow.com, AndroidManifest.xml, android.permission, Cydia.app, FakeCarrier.app, Icy.app | File paths: /sbin/su, /usr/bin/sshd, AndroidManifest.xml | File names: AndroidManifest.xml",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:31:42.004Z",
+          "atIso": "2026-06-06T01:07:20.134Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -711,7 +712,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 91,
+        "parserConfidence": 89,
         "sourceSectionTitle": "Uses of insecure protocol",
         "sourceText": "BHP-09 Uses of insecure protocol Low",
         "sourceSpans": [],

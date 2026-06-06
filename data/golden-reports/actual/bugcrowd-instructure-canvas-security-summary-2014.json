@@ -31,7 +31,7 @@
     "slug": "bugcrowd-instructure-canvas-security-summary-2014",
     "name": "bugcrowd-instructure-canvas-security-summary-2014",
     "type": "PDF",
-    "uploadedAt": "2026-06-05T23:32:24.806Z",
+    "uploadedAt": "2026-06-06T01:07:53.970Z",
     "owner": "AI CTIX Analyzer",
     "status": "Ready",
     "findings": 51,
@@ -46,12 +46,13 @@
     "parsingNotes": [
       "Structured parser found no blocks; heuristic fallback was used.",
       "NLP hybrid extraction produced 3 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+      "NLP warning: Model unavailable; used regex-only fallback: Error while deserializing header: header too large",
       "Aligned findings with generic official index: 3 -> 51."
     ],
     "content": "CANVAS by Instructure\nBugcrowd Flex Program Results\nDecember 2014\n\n-- 1 of 7 --\n\nExecutive Summary\nBugcrowd Inc was engaged by Instructure to perform a Flex Bounty program, commonly known\nas a crowdsourced penetration test, on the CANVAS infrastructure and source code. The testing\nwas performed between October 08 – 22, 2014.\nDuring the test, 322 submissions were received from 63 unique testers. From these\nsubmissions, 59 unique security issues were identified over the course of the two week testing\nwindow on the Instructure CANVAS staging environment. These issues ranged in scope and\nseverity, with no critical issues discovered. The primary finding was a prevalence of Stored XSS\nvulnerabilities, which have now been remediated by the Instructure team.\nWhile there were a large number of issues found in comparison with previous tests run against\nthe CANVAS infrastructure, this is expected with a Bugcrowd Flex Bounty. On average, 73\nfindings are found and reproduced in programs against applications of similar size and scope.\nThe Flex Bounty program for CANVAS produced 59 findings, a significantly lower number\ncompared to other programs.\nGiven data collected while performing Flex Bounty programs for organizations of similar size\nand scope, it is Bugcrowd’s assessment that the CANVAS application was designed and\ndeveloped by engineers who possess an understanding of best practices. The security team’s\nvulnerability response during and after the program was organized and well thought out. Based\non our experience working on bounty programs, the Instructure team takes security seriously.\nFlex Bounty Program Overview\nA Flex Bounty program is a novel approach to an application assessment or penetration test.\nTraditional penetration tests use only one or two researchers, resulting in less overall testing of\nthe application. Bugcrowd researchers routinely\nexamine applications and discover many esoteric\nissues that automated testing cannot find and that\ntraditional vulnerability assessments routinely miss.\nThe Flex Bounty program for CANVAS had 63\ninvited researchers testing the application, from an\narray of countries around the world.\n59 valid\nand reproducible issues were identified out of 322\ntotal submitted issues. Bugcrowd cleaned all data,\nremoving ignored, invalid, and duplicate issues.\nBugcrowd Inc - 2014 Page \u0000 of \u0000 2 7\n\n-- 2 of 7 --\n\nTo the left, the timeline\ndemonstrates submissions\nreceived, validated, and\nthen finally resolved during\nthe program by the\nInstructure team. In\ncombination with the lack of\ncritical findings, it is this\nfinal step, resolution, that\nindicates a mature security\nprogram for CANVAS.\nBugcrowd ranks the technical priority of all confirmed findings on a\nscale from 1 (critical) to 5 (accepted risk). The results can be\nfound to the right. There were no critical issues identified.\nThe comparison of this program to other Flex Bounty programs on\nBugcrowd’s platform is below. The stored XSS findings make the\nPriority 2 ratio slightly higher than other programs but there were\nno priority 1 issues found and fewer overall findings (59 vs. 73 in\nother comparable programs)\nAbove, the overall finding types are compared with other programs of similar size and scope.\nBugcrowd Inc - 2014 Page \u0000 of \u0000 3 7\n\n-- 3 of 7 --\n\nValid submissions on this program averaged a $162.75 payout, with the maximum payout being\n$2000. A total of $8300 was paid out during the course of the two-week program.\nPriority Key\nThe following priority matrix was used to classify the Instructure CANVAS assessment findings.\nPriority\nLevel\nCommon\nName\nDescription Examples\nP1 Critical Vulnerabilities that affect all users of the platform, and\n/ or affect the security of the platform or host\nsystem(s).\nRemote code execution\nVertical authentication\nbypass\nSSRF\nXXE\nSQL injection\nP2 High Vulnerabilities that affect more than one user of the\nplatform, and that require little or no user interaction\nto trigger.\nStored XSS\nDirect object reference\nUser authentication\nbypass\nP3 Medium Vulnerabilities that affect more than one user, but may\nalso require interaction or a specific configuration.\nOpen Redirect,\nReflected XSS,\nCSRF\nP4 Low Issues that affect singular users and require\ninteraction or significant prereqs (MitM) to trigger.\nCommon flaws, Debug\ninformation, Host\nHeader\nBugcrowd Inc - 2014 Page \u0000 of \u0000 4 7\n\n-- 4 of 7 --\n\nFindings Summary Matrix\nFinding Name Priority Finding Status Instructure Response\n3 stored xss in discussions 2 Resolved Fixed.\n3 stored xss in same place (teacher\naccount in syllabus area) 2 Resolved Previously fixed in\nproduction.\nContent Spoofing on uploadify.swf 2 Resolved Upgraded to latest version,\nfixed.\nCSRF in email addition 2 Resolved Ultimately a false positive.\nFlash Based Cross Site Scripting\n(Flash exploit) 2 Resolved Fixed. Only reproducible in\nthe test environment.\nFlash XSS at rapid7-\ntc.instructure.com/ Filename:\nFileAPI.flash.image.swf\n2\nResolved Fixed.\nOpen Direct and XSS at https://\nrapid7-tc.instructure.com/images/\nusers/1?fallback=http://\nwww.bugcrowd.com/\n2\nResolved Ultimately, no sensitive data\ncan be exposed by this XSS.\nQuiz IP Filter bypass 2 Resolved Fixed. Only reproducible in\nthe test environment.\nReflected xss 2 Resolved Fixed.\nstored cross-site-scripting in https://\nrapid7-tc.instructure.com/\neportfolios/19/Home/Welcome\n2\nResolved Fixed. Only reproducible in\nthe test environment.\nstored in files upload 2 Resolved Fixed. Only reproducible in\nthe test environment.\nstored xss 2 Resolved Fixed.\nstored xss 2 Resolved Fixed.\nStored xss 2 Resolved Fixed.\nStored XSS 2 Resolved Fixed.\nStored XSS 2 Resolved Fixed.\nStored XSS - Calendar undated\nitems 2 Resolved Fixed (same underlying\nissue).\nstored xss in calendar title 2 Resolved Fixed.\nStored XSS in filename in Tooltip of\nCalendar Events 2 Resolved Fixed.\nstored xss in https://rapid7-\ntc.instructure.com/dashboard/files 2 Resolved Fixed. Only reproducible in\nthe test environment.\nFinding Name\nBugcrowd Inc - 2014 Page \u0000 of \u0000 5 7\n\n-- 5 of 7 --\n\nStored XSS - Possible answer\nQuizzes 2 Resolved Fixed. Only reproducible in\nthe test environment.\nxss 2 Resolved Fixed.\nXSS\n2\nResolved Not a viable attack vector\n(Self-XSS). Plan to fix\nanyway.\nXss in Enrollment 2 Resolved Fixed.\nxss in https://rapid7-\ntc.instructure.com/ 2 Resolved Fixed.\nXss in Import Content 2 Resolved Fixed.\nXSS via File Upload SWF 2 Resolved Fixed. Only reproducible in\nthe test environment.\nAssigning more than prescribed\nstudents in a group 3\nResolved Not a security bug. Fixed.\nGroup limits are respected\nwhen students are randomly\nassigned.\nFailure to Restrict URL Access\n3\nResolved Ultimately not a viable attack\nvector. Complexity of brute\nforce protection is sufficient.\nForced Browsing by teachers to\naccess unauthorized groups 3 Resolved Working as intended.\nNo rate limiting on conversation\nmessages 3 Resolved Rate limiting being added.\nSending messages for\nunsubscribed courses 3 Resolved Fixed.\nSending messages from\nunsubscribed groups 3 Resolved Fixed.\nUnauthorized access to\nannouncements 3\nResolved Ultimately not a viable attack\nvector. Complexity of brute\nforce protection is sufficient.\nXss in Quiz 3 Resolved Fixed. Only reproducible in\nthe test environment.\nAccepting Old Password As New\nPassword 4\nResolved Fixed. Only reproducible in\nthe test environment. Best\npractice for OSS version\nupdated.\nEncrypted Cookie Store\nmalleability / Key-reuse 4 Resolved Updated cookie store gem.\nFixed in next release.\nForce-Login CSRF on CANVAS 4 Resolved Fixed.\nPriority Finding Status Instructure Response Finding Name\nBugcrowd Inc - 2014 Page \u0000 of \u0000 6 7\n\n-- 6 of 7 --\n\nDocument History\n• January 12, 2015 - Document updated with finding clarification, remove image placeholders.\n• December 20, 2014 - Clarification on number of findings vs other programs.\n• December 19, 2014 - Document updated for public release.\n• October 31, 2014 - Document updated with participation information.\n• October 31, 2014 - Document created.\nHost header attack 4 Resolved Fixed. Only reproducible in\nthe test environment.\nX-Forwarded-Host Host header\nAttack 4 Resolved Fixed. Only reproducible in\nthe test environment.\nMissing DNSSEC 4 Resolved Not a viable attack vector.\nNo rate limitation on email\nconfirmation 4 Resolved Not a viable attack vector.\nNo validation on add email function\n(POST /communication_channels) 4 Resolved Fixed.\nPassword Complexity very low. 4 Resolved Working as intended. Not an\nissue in production.\nPrivilege escalation in calender\n4\nResolved Ultimately not a viable attack\nvector. Complexity of brute\nforce protection is sufficient.\nSending Message from other user id 4 Resolved Not a viable attack vector.\nSession Timeout Not Implemented\nin the application 4 Resolved Working as intended (24\nhour timeout by default).\nSPF issue 4 Resolved Working as intended. Not an\nissue in production.\nssl 3.0 poodle attack 4 Resolved Fixed. Only reproducible in\nthe test environment.\nStored XSS 4 Resolved Fixed (same underlying\nissue).\nUnsafe delete on params hash\n4\nResolved Not currently a viable attack\nvector. 8 Patches deployed.\nCoding practices updated.\nPriority Finding Status Instructure Response Finding Name\nBugcrowd Inc - 2014 Page \u0000 of \u0000 7 7\n\n-- 7 of 7 --",
     "sourceFileName": "Instructure_Canvas_Security_Summary_2014.pdf",
-    "createdAtIso": "2026-06-05T23:32:31.457Z",
-    "updatedAtIso": "2026-06-05T23:32:31.457Z"
+    "createdAtIso": "2026-06-06T01:08:00.544Z",
+    "updatedAtIso": "2026-06-06T01:08:00.544Z"
   },
   "findings": [
     {
@@ -65,16 +66,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "3 stored xss in discussions affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -101,7 +102,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "3 stored xss in discussions",
         "sourceText": "BC-CANVAS-2014-001 3 stored xss in discussions High",
         "sourceSpans": [],
@@ -132,16 +133,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "3 stored xss in same place (teacher account in syllabus area) affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -168,7 +169,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "3 stored xss in same place (teacher account in syllabus area)",
         "sourceText": "BC-CANVAS-2014-002 3 stored xss in same place (teacher account in syllabus area) High",
         "sourceSpans": [],
@@ -199,16 +200,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Content Spoofing on uploadify.swf affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -235,7 +236,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Content Spoofing on uploadify.swf",
         "sourceText": "BC-CANVAS-2014-003 Content Spoofing on uploadify.swf High",
         "sourceSpans": [],
@@ -266,16 +267,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "CSRF in email addition affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -302,7 +303,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "CSRF in email addition",
         "sourceText": "BC-CANVAS-2014-004 CSRF in email addition High",
         "sourceSpans": [],
@@ -333,16 +334,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Flash Based Cross Site Scripting (Flash exploit) affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -369,7 +370,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Flash Based Cross Site Scripting (Flash exploit)",
         "sourceText": "BC-CANVAS-2014-005 Flash Based Cross Site Scripting (Flash exploit) High",
         "sourceSpans": [],
@@ -400,16 +401,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Flash XSS at rapid7-tc.instructure.com / FileAPI.flash.image.swf affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -436,7 +437,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Flash XSS at rapid7-tc.instructure.com / FileAPI.flash.image.swf",
         "sourceText": "BC-CANVAS-2014-006 Flash XSS at rapid7-tc.instructure.com / FileAPI.flash.image.swf High",
         "sourceSpans": [],
@@ -467,16 +468,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Open Redirect and XSS via fallback parameter affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -503,7 +504,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Open Redirect and XSS via fallback parameter",
         "sourceText": "BC-CANVAS-2014-007 Open Redirect and XSS via fallback parameter High",
         "sourceSpans": [],
@@ -534,16 +535,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Quiz IP Filter bypass affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -570,7 +571,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Quiz IP Filter bypass",
         "sourceText": "BC-CANVAS-2014-008 Quiz IP Filter bypass High",
         "sourceSpans": [],
@@ -601,16 +602,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Reflected XSS affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -637,7 +638,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Reflected XSS",
         "sourceText": "BC-CANVAS-2014-009 Reflected XSS High",
         "sourceSpans": [],
@@ -668,16 +669,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Stored cross-site scripting in ePortfolios welcome page affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -704,7 +705,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Stored cross-site scripting in ePortfolios welcome page",
         "sourceText": "BC-CANVAS-2014-010 Stored cross-site scripting in ePortfolios welcome page High",
         "sourceSpans": [],
@@ -735,16 +736,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Stored XSS in files upload affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -771,7 +772,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Stored XSS in files upload",
         "sourceText": "BC-CANVAS-2014-011 Stored XSS in files upload High",
         "sourceSpans": [],
@@ -802,16 +803,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Stored XSS variant affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -838,7 +839,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Stored XSS variant",
         "sourceText": "BC-CANVAS-2014-012 Stored XSS variant 1 High",
         "sourceSpans": [],
@@ -869,16 +870,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Stored XSS variant affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -905,7 +906,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Stored XSS variant",
         "sourceText": "BC-CANVAS-2014-013 Stored XSS variant 2 High",
         "sourceSpans": [],
@@ -936,16 +937,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Stored XSS variant affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -972,7 +973,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Stored XSS variant",
         "sourceText": "BC-CANVAS-2014-014 Stored XSS variant 3 High",
         "sourceSpans": [],
@@ -1003,16 +1004,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Stored XSS variant affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1039,7 +1040,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Stored XSS variant",
         "sourceText": "BC-CANVAS-2014-015 Stored XSS variant 4 High",
         "sourceSpans": [],
@@ -1070,16 +1071,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Stored XSS variant affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1106,7 +1107,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Stored XSS variant",
         "sourceText": "BC-CANVAS-2014-016 Stored XSS variant 5 High",
         "sourceSpans": [],
@@ -1137,16 +1138,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Stored XSS - Calendar undated items affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1173,7 +1174,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Stored XSS - Calendar undated items",
         "sourceText": "BC-CANVAS-2014-017 Stored XSS - Calendar undated items High",
         "sourceSpans": [],
@@ -1204,16 +1205,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Stored XSS in calendar title affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1240,7 +1241,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Stored XSS in calendar title",
         "sourceText": "BC-CANVAS-2014-018 Stored XSS in calendar title High",
         "sourceSpans": [],
@@ -1271,16 +1272,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Stored XSS in filename in Tooltip of Calendar Events affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1307,7 +1308,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Stored XSS in filename in Tooltip of Calendar Events",
         "sourceText": "BC-CANVAS-2014-019 Stored XSS in filename in Tooltip of Calendar Events High",
         "sourceSpans": [],
@@ -1338,16 +1339,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Stored XSS in dashboard files affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1374,7 +1375,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Stored XSS in dashboard files",
         "sourceText": "BC-CANVAS-2014-020 Stored XSS in dashboard files High",
         "sourceSpans": [],
@@ -1405,16 +1406,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Stored XSS - Possible answer Quizzes affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1441,7 +1442,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Stored XSS - Possible answer Quizzes",
         "sourceText": "BC-CANVAS-2014-021 Stored XSS - Possible answer Quizzes High",
         "sourceSpans": [],
@@ -1472,16 +1473,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "XSS variant affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1508,7 +1509,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "XSS variant",
         "sourceText": "BC-CANVAS-2014-022 XSS variant 1 High",
         "sourceSpans": [],
@@ -1539,16 +1540,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Self-XSS finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1575,7 +1576,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Self-XSS finding",
         "sourceText": "BC-CANVAS-2014-023 Self-XSS finding High",
         "sourceSpans": [],
@@ -1606,16 +1607,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "XSS in Enrollment affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1642,7 +1643,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "XSS in Enrollment",
         "sourceText": "BC-CANVAS-2014-024 XSS in Enrollment High",
         "sourceSpans": [],
@@ -1673,16 +1674,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "XSS in Canvas root page affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1709,7 +1710,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "XSS in Canvas root page",
         "sourceText": "BC-CANVAS-2014-025 XSS in Canvas root page High",
         "sourceSpans": [],
@@ -1740,16 +1741,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "XSS in Import Content affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1776,7 +1777,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "XSS in Import Content",
         "sourceText": "BC-CANVAS-2014-026 XSS in Import Content High",
         "sourceSpans": [],
@@ -1807,16 +1808,16 @@
       "asset": "investigation-scope",
       "score": 84,
       "status": "Open",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "XSS via File Upload SWF affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against investigation-scope if this issue remains unaddressed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1843,7 +1844,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "XSS via File Upload SWF",
         "sourceText": "BC-CANVAS-2014-027 XSS via File Upload SWF High",
         "sourceSpans": [],
@@ -1874,16 +1875,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Assigning more than prescribed students in a group affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1910,7 +1911,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Assigning more than prescribed students in a group",
         "sourceText": "BC-CANVAS-2014-028 Assigning more than prescribed students in a group Medium",
         "sourceSpans": [],
@@ -1941,16 +1942,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Failure to Restrict URL Access affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -1977,7 +1978,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Failure to Restrict URL Access",
         "sourceText": "BC-CANVAS-2014-029 Failure to Restrict URL Access Medium",
         "sourceSpans": [],
@@ -2008,16 +2009,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Forced Browsing by teachers to access unauthorized groups affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -2044,7 +2045,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Forced Browsing by teachers to access unauthorized groups",
         "sourceText": "BC-CANVAS-2014-030 Forced Browsing by teachers to access unauthorized groups Medium",
         "sourceSpans": [],
@@ -2075,16 +2076,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "No rate limiting on conversation messages affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -2111,7 +2112,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "No rate limiting on conversation messages",
         "sourceText": "BC-CANVAS-2014-031 No rate limiting on conversation messages Medium",
         "sourceSpans": [],
@@ -2142,16 +2143,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Sending messages for unsubscribed courses affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -2178,7 +2179,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Sending messages for unsubscribed courses",
         "sourceText": "BC-CANVAS-2014-032 Sending messages for unsubscribed courses Medium",
         "sourceSpans": [],
@@ -2209,16 +2210,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Sending messages from unsubscribed groups affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -2245,7 +2246,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Sending messages from unsubscribed groups",
         "sourceText": "BC-CANVAS-2014-033 Sending messages from unsubscribed groups Medium",
         "sourceSpans": [],
@@ -2276,16 +2277,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Unauthorized access to announcements affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -2312,7 +2313,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Unauthorized access to announcements",
         "sourceText": "BC-CANVAS-2014-034 Unauthorized access to announcements Medium",
         "sourceSpans": [],
@@ -2343,16 +2344,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "XSS in Quiz affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -2379,7 +2380,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "XSS in Quiz",
         "sourceText": "BC-CANVAS-2014-035 XSS in Quiz Medium",
         "sourceSpans": [],
@@ -2410,16 +2411,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Accepting Old Password As New Password affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -2446,7 +2447,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Accepting Old Password As New Password",
         "sourceText": "BC-CANVAS-2014-036 Accepting Old Password As New Password Low",
         "sourceSpans": [],
@@ -2477,16 +2478,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Encrypted Cookie Store malleability / Key-reuse affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -2513,7 +2514,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Encrypted Cookie Store malleability / Key-reuse",
         "sourceText": "BC-CANVAS-2014-037 Encrypted Cookie Store malleability / Key-reuse Low",
         "sourceSpans": [],
@@ -2544,16 +2545,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Force-Login CSRF on CANVAS affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -2580,7 +2581,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Force-Login CSRF on CANVAS",
         "sourceText": "BC-CANVAS-2014-038 Force-Login CSRF on CANVAS Low",
         "sourceSpans": [],
@@ -2611,16 +2612,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Host header attack affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -2647,7 +2648,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Host header attack",
         "sourceText": "BC-CANVAS-2014-039 Host header attack Low",
         "sourceSpans": [],
@@ -2678,16 +2679,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "X-Forwarded-Host Host header Attack affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -2714,7 +2715,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "X-Forwarded-Host Host header Attack",
         "sourceText": "BC-CANVAS-2014-040 X-Forwarded-Host Host header Attack Low",
         "sourceSpans": [],
@@ -2745,16 +2746,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Missing DNSSEC affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -2781,7 +2782,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Missing DNSSEC",
         "sourceText": "BC-CANVAS-2014-041 Missing DNSSEC Low",
         "sourceSpans": [],
@@ -2812,16 +2813,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "No rate limitation on email confirmation affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -2848,7 +2849,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "No rate limitation on email confirmation",
         "sourceText": "BC-CANVAS-2014-042 No rate limitation on email confirmation Low",
         "sourceSpans": [],
@@ -2879,16 +2880,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "No validation on add email function (POST /communication_channels) affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -2915,7 +2916,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "No validation on add email function (POST /communication_channels)",
         "sourceText": "BC-CANVAS-2014-043 No validation on add email function (POST /communication_channels) Low",
         "sourceSpans": [],
@@ -2946,16 +2947,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Password Complexity very low affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -2982,7 +2983,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Password Complexity very low",
         "sourceText": "BC-CANVAS-2014-044 Password Complexity very low Low",
         "sourceSpans": [],
@@ -3013,16 +3014,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Privilege escalation in calendar affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -3049,7 +3050,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Privilege escalation in calendar",
         "sourceText": "BC-CANVAS-2014-045 Privilege escalation in calendar Low",
         "sourceSpans": [],
@@ -3080,16 +3081,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Sending Message from other user id affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -3116,7 +3117,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Sending Message from other user id",
         "sourceText": "BC-CANVAS-2014-046 Sending Message from other user id Low",
         "sourceSpans": [],
@@ -3147,16 +3148,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Session Timeout Not Implemented in the application affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -3183,7 +3184,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Session Timeout Not Implemented in the application",
         "sourceText": "BC-CANVAS-2014-047 Session Timeout Not Implemented in the application Low",
         "sourceSpans": [],
@@ -3214,16 +3215,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "SPF issue affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -3250,7 +3251,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "SPF issue",
         "sourceText": "BC-CANVAS-2014-048 SPF issue Low",
         "sourceSpans": [],
@@ -3281,16 +3282,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "SSL 3.0 POODLE attack affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -3317,7 +3318,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "SSL 3.0 POODLE attack",
         "sourceText": "BC-CANVAS-2014-049 SSL 3.0 POODLE attack Low",
         "sourceSpans": [],
@@ -3348,16 +3349,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Stored XSS low-priority duplicate/root-cause finding affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -3384,7 +3385,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Stored XSS low-priority duplicate/root-cause finding",
         "sourceText": "BC-CANVAS-2014-050 Stored XSS low-priority duplicate/root-cause finding Low",
         "sourceSpans": [],
@@ -3415,16 +3416,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:24.806Z",
+      "detectedAt": "2026-06-06T01:07:53.970Z",
       "summary": "Unsafe delete on params hash affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Products: discussions 2 Resolved Fixed | Assets: discussions 2 Resolved Fixed | Services: HTTPS, HTTP | Domains: uploadify.swf, tc.instructure.com, FileAPI.flash.image.swf, rapid7-tc.instructure.com, www.bugcrowd.com",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:31.456Z",
+          "atIso": "2026-06-06T01:08:00.542Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -3451,7 +3452,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 89,
+        "parserConfidence": 86,
         "sourceSectionTitle": "Unsafe delete on params hash",
         "sourceText": "BC-CANVAS-2014-051 Unsafe delete on params hash Low",
         "sourceSpans": [],

@@ -31,7 +31,7 @@
     "slug": "consensys-diligence-rexmls-audit-report",
     "name": "consensys-diligence-rexmls-audit-report",
     "type": "PDF",
-    "uploadedAt": "2026-06-05T23:32:31.461Z",
+    "uploadedAt": "2026-06-06T01:08:00.548Z",
     "owner": "AI CTIX Analyzer",
     "status": "Ready",
     "findings": 7,
@@ -46,12 +46,13 @@
     "parsingNotes": [
       "Structured parser found no blocks; heuristic fallback was used.",
       "NLP hybrid extraction produced 2 finding(s). Heuristic fallback output was suppressed to avoid duplicate findings.",
+      "NLP warning: Model unavailable; used regex-only fallback: Error while deserializing header: header too large",
       "Aligned findings with generic official index: 2 -> 7."
     ],
     "content": "3/28/2018 Dappcentral/rexmls-audit-report-master: RexMLS Smart Contracts Audit by ConsenSys Diligence\nhttps://github.com/Dappcentral/rexmls-audit-report-master 1/13\nRexMLS Smart Contracts Audit by ConsenSys Diligence\nAdd topics\nimages Add project. 22 days ago\nREADME.md Add project. 22 days ago\nDappcentral / rexmls‑audit‑report‑master Private\nEdit\n1 commit 1 branch 0 releases 0 contributors\nClone or download Create new file Upload files Find file master Branch: New pull request\nLatest commit 099844a 22 days ago edoubart Add project.\nREADME.md\nRexMLS Smart Contracts Audit\nTable‑of‑Contents\n1 ‑ Introduction\n1.1 ‑ Review Goals\n1.2 ‑ Summary\n2 ‑ General Findings\n2.1 ‑ Inconsistencies Between White Paper and Smart Contracts\n2.2 ‑ Pragma Not Locked To Specific Compiler Version\n2.3 ‑ Visibility Not Explicitly Specified\n3 ‑ Specific Findings\n3.1 ‑ Pseudo: Excessive Logic in Forward Function\n3.2 ‑ Pseudo: Ineffective Re‑Entrancy Mitigation\n3.3 ‑ ListingRewards: Store Reward Parameters in State Variables\n3.4 ‑ REXToken: Complex Fallback Function\n4 ‑ Optimizations\n4.1 ‑ ListingRewards: Free Unused Storage\n4.2 ‑ ListingRewards: Simplify Management of Reward Request State\n4.3 ‑ Use Require In Place of Assert\n5 ‑ Tool‑based Verification\n5.1 ‑ CALL With Gas to Dynamic Address\n5.2 ‑ Integer Underflow\n5.3 ‑ Integer Underflow\n5.5 ‑ Integer Underflow\n5.6 ‑ CALL With Gas to Dynamic Address\n6 ‑ Test Coverage Analysis\nAppendix 1 ‑ Audit Details\nA.1.1 ‑ Audit Participants\nA.1.2 ‑ File Hashes\nAppendix 2 ‑ Terminology\nA.2.1 ‑ Severity\n\n-- 1 of 13 --\n\n3/28/2018 Dappcentral/rexmls-audit-report-master: RexMLS Smart Contracts Audit by ConsenSys Diligence\nhttps://github.com/Dappcentral/rexmls-audit-report-master 2/13\n1 ‑ Introduction\n1.1 ‑ Review Goals\nConsenSys Diligence has performed an audit of the RexMLS smart contracts. The focus of this review was to ensure the\nfollowing properties:\nSecurity: Identifying security related issues within each contract and within the system of contracts.\nSound Architecture: Evaluation of the architecture of this system through the lens of established smart contract best\npractices and general software best practices.\nCode Correctness and Quality: A full review of the contract source code. The primary areas of focus include:\nCorrectness (does it do what it is supposed to do)\nReadability (How easily it can be read and understood)\nSections of code with high complexity\nImproving scalability\nQuantity and quality of test coverage\n1.2 ‑ Summary\n1.2.1 ‑ General Overview of Contract System\nREX is a global decentralized real estate data exchange. Participants in the system run independent REX nodes to gain\naccess to the ecosystem. The REX node is a combination of the RexIndexer (a decentralized database), Ethereum and\nIPFS nodes.\nA key component of REX is its ratings‑based curation system. REX members can submit new real estate listings to the\nListorData contract for a fee paid in REXToken. Once submitted, a flagging period commences, during which other users\nhave the opportunity to flag the listing as spam. If a listing is flagged, an arbitration period starts during which REX users\ncan vote for or against the listing with REXtokens.\nAt the end of the arbitration period, the pool with the most votes wins and the tokens from the losing pool are distributed\nto the winning pool. Fees and rewards are managed bny the ListingRewards contract. The listor receives a reward in\nREXToken if the listing is successful.\n1.2.2 ‑ Smart Contracts in Scope\nThe audit covered the following smart contracts:\nContract\nName Filename Description\nSubscription subscription.sol Subscriber registry. Stores a mapping between Pseudo contract addresses\nand subscriber status.\nEnterprize enterprize.sol\nSmart contract used by the \"Enterprize\" subscription type. This contract\nstores a special type of listing called \"Enterprize\" listings that can be added in\nbulk.\nRating rating.sol Stores rating information for users (i.e. Pseudo contract addresses). Inherited\nby ListingRewards .\nListorData listordata.sol\nThe listings registry. Contains functions to add, delete and update listings. The\nlisting managent functions can only be called by subscribers, i.e. the sender\naddress must be mapped to a non‑zero subscriber type in the subscriber\nregistry.\n\n-- 2 of 13 --\n\n3/28/2018 Dappcentral/rexmls-audit-report-master: RexMLS Smart Contracts Audit by ConsenSys Diligence\nhttps://github.com/Dappcentral/rexmls-audit-report-master 3/13\nContract\nName Filename Description\nListingRewards listingrewards.sol Manages reward requests, flagging of listings, arbitration, and token payouts\nto users.\nPseudo pseudo.sol\nProxy contract that is deployed for each user. Rex will send transactions\nthrough the Proxy contract (essentially impersonating the users). This is done\nto cover the gas costs for subscribers.\nREXToken Etherscan Token contract that manages balances of REXToken holders.\nAll source code except REXToken was obtained from the RexSoftware Bitbucket repository.\nBranch: develop\nCommit: 84203c9\nNotes:\nREXCoordinator and REXToken had already been deployed on the mainnet before the start of the audit (and the REX\ntoken sale had aleady been completed). The deployed bytecode does not correspond to the code in the Solidity files\nprovided for the audit. REXCoordinator was therefore excluded from the audit.\nFor REXToken, the deployed code was obtained from Etherscan instead.\nBesides Ethereum smart contracts, the REX technology stack also includes a NodeJS web app and IPFS storage. Note\nthat only the smart contracts were in scope of this audit.\n1.2.3 ‑ Overview of Findings\nOverall, we found that the Rex smart contract behaves as intended, and did not discover any game‑breaking\nvulnerabilities. However, the architecture appears to be overly complicated in some places (see issue 3.1 and issue 3.4).\nWe recommend simplifying the architecture for better readability and to prevent mistakes in future updates, and applying\nreadability and efficiency of the code in some locations.\nList of Findings\nFinding Severity\nPseudo: Ineffective Re‑Entrancy Mitigation Medium\nInconsistencies Between White Paper and Smart Contracts Minor\nVisibility Not Explicitly Specified Minor\nPragma Not Locked To Specific Compiler Version Minor\nPseudo: Excessive Logic in Forward Function Minor\nListingRewards: Store Reward Parameters in State Variables Minor\nREXToken: Complex Fallback Function Minor\nListingRewards: Free Unused Storage Optimization\nListingRewards: Simplify Management of Reward Request State Optimization\nUse Require In Place of Assert Optimization\n1.2.4 ‑ General Recommendations\n\n-- 3 of 13 --\n\n3/28/2018 Dappcentral/rexmls-audit-report-master: RexMLS Smart Contracts Audit by ConsenSys Diligence\nhttps://github.com/Dappcentral/rexmls-audit-report-master 4/13\nCurrently, most ListingRewards parameters, including the lengths of flagging and arbitration periods, are hardcoded\ninto the contract. This means that the whole contract must be upgraded if any of the parameters is to be changed. It\nwould be preferable to store those values in state variables that are configurable by the contract owner (the same\npriciples should be applied throughout the whole codebase). See also 3.3 ‑ ListingRewards: Store Reward Parameters\nin State Variables.\nEven though the NodeJS web app was not in scope, it should be pointed out that access to any server‑side\nfunctionality that generates transactions to the subscribers' Pseudo contracts should be rate‑limited. Otherwise,\nmalicious users could very cheaply execute a denial‑of‑service attack by triggering a large amount of transactions and\nusing up the Ether (gas) available to the web server.\n2 ‑ General Findings\n2.1 ‑ Inconsistencies Between White Paper and Smart Contracts\nSeverity: Minor\nWhen comparing the provided code with the specifications outlined in the white paper, we noticed several inconsistencies\nincluding:\nWhitepaper Implementation\nFlagging period is 5 days (4.9) Flagging period is 14 days\nArbitration period is 3 days (4.9, 4.10) Arbitration period is 7 days\nNo mention of tie breaker Arbitration period is extended by 3 days in case of tie\nUser can challenge existing listing (4.12) Not implemented\nRecommendation\nWhen developing smart contracts, it is recommended to create detailed final specifications before any code is written.\nThis makes it possible to verify correctness of the code in respect to the specifications. When specifications are still\nunclear (and the code might still change), no guarantee of correctness can be given.\nClient Response\nAt this point, the values for various parameters are not finalized. This will be done in the near future.\n2.2 ‑ Pragma Not Locked To Specific Compiler Version\nSeverity: Minor\nContracts should be deployed with the same compiler version and flags that they have been tested the most with. Locking\nthe pragma helps ensure that contracts do not accidentally get deployed using, for example, the latest compiler which may\nhave higher risks of undiscovered bugs. Contracts may also be deployed by others and the pragma indicates the compiler\nversion intended by the original authors.\nThis issue affects all smart contracts in the test scope.\nRecommendation\nUse a pragma statement to enforce the compiler version. For example, in listingrewards.sol , change the line:\npragma solidity ^0.4.15;\nTo:\npragma solidity 0.4.21;\n\n-- 4 of 13 --\n\n3/28/2018 Dappcentral/rexmls-audit-report-master: RexMLS Smart Contracts Audit by ConsenSys Diligence\nhttps://github.com/Dappcentral/rexmls-audit-report-master 5/13\n2.3 ‑ Visibility Not Explicitly Specified\nSeverity: Minor\nAs a best practice, the visibility of functions and state variables should always be labeled explictly. Labeling the visibility\nexplicitly will make it easier to catch incorrect assumptions about who can call the function or access the\nvariable.Functions can be specified as being external, public, internal or private. For state variables, external is not\npossible. Labeling the visibility explicitly makes it easier to catch incorrect assumptions about who can call the function or\naccess the variable.\nRecommendation\nExplicitly specify visibility throughout all contracts. For example, in the contract Pseudo, the state variables between line\n21 and 24 could be declared as public in order to allow for easier debugging of the deployed contract:\naddress public user; // Listor account address\naddress public coordinator; // RexCoordinator address\naddress public owner; // Address of account that deploys this contract\nbool public transferred; // Turns true after tokens are transferred(To avoid reentrancy)\nMoreover, the function forward could be declared as external , which would lead to considerable gas savings over time.\nReferences\nSolc: Warning: No visibility specified. Defaulting to \"public\".\nSolium: No visibility specified explicitly for multiple functions.\nSolhint: 'Explicitly mark visibility of state [state‑visibility]'\nSmart contract best practices\n3 ‑ Specific Findings\n3.1 ‑ Pseudo: Excessive Logic in Forward Function\nSeverity: Minor\nThe forward function in the contract Pseudo contains quite complicated logic for deducting REXToken when calls are\nproxied to the ListorData contract:\nThe amount of REX Token to be deducted from the user's account is passed in the function argument value .\nIf a listing request with non‑zero value is submitted, the forwarded calldata (function argument data ) is expected to\nalso contain the same token value.\nThe call is forwarded to the target function ListorData . This function may contain further logic, such as verifying\nthat the token amount is sufficient.\nIf the proxy call returns successfully, it is verified that the amount in the forwarded calldata bytes matches the amount\nin the function argument value . This is done with a piece of inline assembly (pseudo.sol, line 76):\nbytes32 v;\nassembly {\nv := mload(164)\n}\nrequire(v == bytes32(amount));\nIf the values match, the specified token amount is transferred to the ListorData contract.\n\n-- 5 of 13 --\n\n3/28/2018 Dappcentral/rexmls-audit-report-master: RexMLS Smart Contracts Audit by ConsenSys Diligence\nhttps://github.com/Dappcentral/rexmls-audit-report-master 6/13\nThis approach has several drawbacks:\nHigh complexity. Implementing a \"special case\" in the Proxy contract makes the architecture complex and difficult to\nunderstand.\nAny function call that transfers value have the same predefined argument list with uint256 value at a specific position.\nIt is easy to break things if ListorData is updated.\nIncreased gas cost due to additional instructions and function calls being executed (call to\nlistorData.isFreeListing in line 73).\nRecommendation\nWe recommend keeping the Pseudo contract as simple as possible to avoid issues. Simplify the forward function to only\nforward calldata, and move all business logic to the ListorData contract. E.g.:\nfunction forward(bytes _data, address destination) isAuthorised isValidAddress(destination) {\nrequire(destination.call(_data));\n}\n3.2 ‑ Pseudo: Ineffective Re‑Entrancy Mitigation\nSeverity: Medium\nThe function forward in Pseudo implements a mutex (boolean transferred ) that is meant to prevent re‑entrancy\nattacks. However, the implementation is ineffective due to several reasons.\n1. transferred is declared as a local variable. Because transferred is set to false at the beginning of the function\n(line 66), it would always be reset to false after re‑entrancy, and therefore doesn't offer any protection.\n2. Further, transferred is set to true only after the messagecall to REXToken.transfer (line 84). To be effective, it\nwould have to be set before the call.\n3. In a re‑entrancy attack, the proxy call on line 68 directly to call REXToken.transfer . Therefore, the mutex would have\nto be set at the beginning of the function forward .\nRecommendation\nIdeally, the contract architecture should be changed such that a mutex at the proxy level is not needed.\nRe‑entrancy protection could however be added to the forward function as an in‑depth security measure. To be\neffective, the re‑entrancy lock should be implemented as a private state variable. A working implementation is available in\nthe Zeppelin‑Solidity repository (copied below).\npragma solidity ^0.4.18;\n/**\n* @title Helps contracts guard agains reentrancy attacks.\n* @author Remco Bloemen <remco@2π.com>\n* @notice If you mark a function `nonReentrant`, you should also\n* mark it `external`.\n*/\ncontract ReentrancyGuard {\n/**\n* @dev We use a single lock for the whole contract.\n*/\nbool private reentrancy_lock = false;\n/**\n* @dev Prevents a contract from calling itself, directly or indirectly.\n* @notice If you mark a function `nonReentrant`, you should also\n* mark it `external`. Calling one nonReentrant function from\n* another is not supported. Instead, you can implement a\n\n-- 6 of 13 --\n\n3/28/2018 Dappcentral/rexmls-audit-report-master: RexMLS Smart Contracts Audit by ConsenSys Diligence\nhttps://github.com/Dappcentral/rexmls-audit-report-master 7/13\n* `private` function doing the actual work, and a `external`\n* wrapper marked as `nonReentrant`.\n*/\nmodifier nonReentrant() {\nrequire(!reentrancy_lock);\nreentrancy_lock = true;\n_;\nreentrancy_lock = false;\n}\n}\nReferences\nSmart Contract Security Best Practices\n3.3 ‑ ListingRewards: Store Reward Parameters in State Variables\nSeverity: Minor\nCurrently, important parameters of the reward system are hardcoded in several locations. For example, references to the\narbitration period (7 days) are found in the functions checkForVetoWinner (line 317), isValidVoteRequest (lines 212 and\n215). getNumberOfVotesInFavor (line 285) and others. This makes it necessary to ensure consistency between the\nhardcoded numbers manually and increases the likelihood of errors being introduced during updates.\nRecommendation\nUse constant state variables to store key parameters, e.g.:\nuint256 constant private ARBITRATION_PERIOD = 7 days;\nReferences\nSolidity documentation\n3.4 ‑ REXToken: Complex Fallback Function\nFallback functions are called when a contract is sent a message with no arguments (or when no function matches). If\nanother contract sends Ether to the this contract via send() or transfer() , only a gas stipend of 2,300 gas is available.\nComplex functionality in the fallback function will cause such transfers to fail.\nRecommendation\nThe most that should be done in a fallback function is log an event. Use a proper function if a computation or more gas is\nrequired.\n// bad\nfunction() payable { balances[msg.sender] += msg.value; }\n// good\nfunction deposit() payable external { balances[msg.sender] += msg.value; }\nfunction() payable { LogDepositReceived(msg.sender); }\nReferences\nSmart Contract Security Best Practices\n4 ‑ Optimizations\n\n-- 7 of 13 --\n\n3/28/2018 Dappcentral/rexmls-audit-report-master: RexMLS Smart Contracts Audit by ConsenSys Diligence\nhttps://github.com/Dappcentral/rexmls-audit-report-master 8/13\n4.1 ‑ ListingRewards: Free Unused Storage\nThe function cancelRewardRequest in ListingRewards is used to cancel existing reward requests. To delete the existing\nrequest, the listing element of the respective ListingRewardRequestsStruct is set to zero\n(listingrewards.sol,cancelRewardRequest, line 170):\nrequests[_listing].listing = bytes32(0);\nIn function listorPayout (listingrewards.sol, line 268):\n// Avoid reentrancy/Clear the data\ndelete requests[_listing].listing;\nThe same code is used to delete a listing in the function vetosTiePayout (listingrewards.sol, line 417).\nHowever, this the remaining contents of the struct are not cleared, forfeiting the gas refund for returning the storage.\nRecommendation\nDelete the complete request struct as follows:\ndelete requests[_listing];\nReferences\nSolidity developer documentation\n4.2 ‑ ListingRewards: Simplify Management of Reward Request State\nThe ListorData and Enterprize contracts store the reward request state for every listing (e.g. bool\nlistingInfoMapping[_hash].rewardRequested in listorData ). However, this state is only used in ListingRewards . The\nresult of this architecture is that functions in ListingRewards must make message calls into RexCoordinator ,\nListorData and Enterprize contracts to get or set the request status.\nNote for example the calls at the beginning and end of newRewardRequest in ListingRewards :\nRecommendation\nfunction addListing(bytes32 _hash, uint256 amount, bytes4 _feedCode) {\n// Check whether user making the call is registered\nrequire(SubscriptionInterface(RexCoordinatorInterface(coordinator).getAddress(\"subscription\")).subscription\n!= 0);\nrequire(listingAmount <= amount);\n// // Prevent 2 listings from having the same hash and hence being overwritten\nrequire(listingInfoMapping[_hash].listing == bytes32(0));\npseudoListorMapping[msg.sender].listingCount += 1;\npseudoListingMapping[msg.sender].push(_hash);\nlistingInfoMapping[_hash].pseudoAddress = msg.sender;\nlistingInfoMapping[_hash].rewardRequested = false;\nlistingInfoMapping[_hash].listing = _hash;\nlistingInfoMapping[_hash].feedCode = _feedCode;\nuint balance =\nTokenInterface(RexCoordinatorInterface(coordinator).getAddress(\"token\")).balanceOf(msg.sender);\nListingAdded(_hash, msg.sender, _feedCode, balance);\n}\n\n-- 8 of 13 --\n\n3/28/2018 Dappcentral/rexmls-audit-report-master: RexMLS Smart Contracts Audit by ConsenSys Diligence\nhttps://github.com/Dappcentral/rexmls-audit-report-master 9/13\nKeep all state related to reward requests in the ListingRewards contract only to reduce complexity and save gas.\nThe reward request state could be saved in a mapping in ListingRewards , such as:\nmapping (address => boolean) rewardRequested\nClient Response\nThe architecture was designed with upgradeability in mind: If ListingRewards was updated, the reward request details of\nall listings would have to be retrieved and updated in the new contract. This was seen as not feasible.\n4.3 Use Require in Place of Assert\nCurrently, whenever a contract throws the remaining gas is used up. However, after the Byzantium hard fork, calling the\nREVERT instruction will result in the excess gas being refunded to the caller. Note that require() uses the 0xfd\n(REVERT) opcode to cause an error condition, while assert() uses the 0xfe opcode. This means that gas will be\nrefunded only if require() is used.\nRex uses assert() for checks that are likely to fail often. For example, it is used to check the return value of the proxy call\nin Pseudo (function forward , line 68):\nassert(destination.call(_data));\nRecommendation\nConsider using require instead of assert except when enforcing invariants (i.e. conditions that should never occur. For\nexample, in Pseudo , use require to verify the return value of the forwarded calls (function forward , line 68):\nrequire(destination.call(_data));\nThis will save significant gas in the long run, as excess gas will be refunded if the forwarded call fails.\n5 ‑ Tool‑Based Verification\nAn automated anaysis was performed with the Mythril analysis tool. The analysis results were then investigated by the\nauditor. The following section contains the tool output along with a manual assessment of the results. None of the\nreported issues were found to be exploitable in practice.\n5.1 ‑ CALL with gas to dynamic address\nType: Warning\nContract: Enterprize\nFunction name: addListings(bytes32[],bytes4[])\nPC address: 3638\nDescription\nThe function addListings(bytes32[],bytes4[]) contains a function call to an address provided as a function argument.\nThe available gas is forwarded to the called contract. Make sure that the logic of the calling contract is not adversely\naffected if the called contract misbehaves (e.g. reentrancy).\nIn contracts/enterprize.sol:44\nSubscriptionInterface(RexCoordinatorInterface(coordinator).getAddress(\"subscription\")).subscriptionStatus(m\n\n-- 9 of 13 --\n\n3/28/2018 Dappcentral/rexmls-audit-report-master: RexMLS Smart Contracts Audit by ConsenSys Diligence\nhttps://github.com/Dappcentral/rexmls-audit-report-master 10/13\nAuditor Comment\nThe message call was reviewed. There is no risk of re‑entrancy or other types of attack.\n5.2 ‑ Integer Underflow\nType: Warning\nContract: ListorData\nFunction name: deleteListing(bytes32)\nPC address: 5455\nDescription\nA possible integer underflow exists in the function deleteListing(bytes32) . The SUB instruction at address 5455 may\nresult in a value < 0.\nIn contracts/listordata.sol:103\npseudoListorMapping[msg.sender].listingCount -= 1\nAuditor Comment\nWhile there is no explicit underflow check, the underflow is prevented by the smart contract logic. There must be at least\none existing listing to successfully execute the function. This is due to the require statement in line 100:\nrequire(listingInfoMapping[rootHash].pseudoAddress == msg.sender);\n5.3 ‑ Integer Underflow\nType: Warning\nContract: ListingRewards\nFunction name: listorPayout(bytes32)\nPC address: 15311\nDescription\nA possible integer underflow exists in the function listorPayout(bytes32) . The SUB instruction at address 15311 may\nresult in a value < 0.\nIn contracts/rating.sol:25\nratingInfo[user].numOfActions - 1\nAuditor Comment\nWhile there is no explicit underflow check, the underflow is prevented by the smart contract logic.\n5.4 ‑ Integer Underflow\nType: Warning\nContract: ListingRewards\nFunction name: voteInFavorOfListing(bytes32,uint256)\nPC address: 16624\nDescription\n\n-- 10 of 13 --\n\n3/28/2018 Dappcentral/rexmls-audit-report-master: RexMLS Smart Contracts Audit by ConsenSys Diligence\nhttps://github.com/Dappcentral/rexmls-audit-report-master 11/13\nA possible integer underflow exists in the function voteInFavorOfListing(bytes32,uint256) . The SUB instruction at\naddress 16624 may result in a value < 0.\nIn contracts/listingrewards.sol:210\nnow - requests[_listing].vetoDateCreated\nAuditor Comment\nAssuming that the blockchain behaves normally, the now timestamp would always be higher than the\nrequests[_listing].vetoDateCreated .\n5.5 ‑ Integer Underflow\nType: Warning\nContract: ListingRewards\nFunction name: flagListing(bytes32,uint256)\nPC address: 8752\nDescription\nA possible integer underflow exists in the function flagListing(bytes32,uint256) . The SUB instruction at address 8752\nmay result in a value < 0.\nIn contracts/listingrewards.sol:182\nnow - requests[_listing].dateCreated\nAuditor Comment\nAssuming that the blockchain behaves normally, the now timestamp would always be higher than the\nrequests[_listing].dateCreated .\n5.6 ‑ CALL with gas to dynamic address\nType: Warning\nContract: Pseudo\nFunction name: forward(bytes,address,uint256,uint256)\nPC address: 1681\nDescription\nThe function forward(bytes,address,uint256,uint256) contains a function call to an address provided as a function\nargument. The available gas is forwarded to the called contract. Make sure that the logic of the calling contract is not\nadversely affected if the called contract misbehaves (e.g. reentrancy).\nAuditor Comment\nPseudo is a proxy contract, so this is expected behavior.\n6 ‑ Test Coverage Analysis\nTesting is implemented using the Truffle Framework.\nAutomated measurement was done using Solidity‑Coverage.\nFile % Stmts % Branch % Funcs % Lines Uncovered Lines\n\n-- 11 of 13 --\n\n3/28/2018 Dappcentral/rexmls-audit-report-master: RexMLS Smart Contracts Audit by ConsenSys Diligence\nhttps://github.com/Dappcentral/rexmls-audit-report-master 12/13\nFile % Stmts % Branch % Funcs % Lines Uncovered Lines\ncontracts/ 70.57 64.48 70.3 70.41\nenterprize.sol 66.67 31.82 60 60.61 ... 4,95,96,100\nlistingrewards.sol 98.64 89.06 100 98.71 142,157\nlistordata.sol 86.84 70 90.91 80 ... 107,108,110\nmigrations.sol 75 50 75 60 20,21\npseudo.sol 85.71 81.82 66.67 85.19 42,43,58,92\nrating.sol 100 100 100 100\nrexcoordinator.sol 53.33 50 41.67 53.85 ... 163,167,168\nrextoken.sol 22.22 18.97 26.32 22.68 ... 284,285,289\nsafemath.sol 100 50 100 100\nstandardtoken.sol 100 100 100 100\nsubscription.sol 100 100 100 100\nAll files 70.57 64.48 70.3 70.41\nCoverage Rating: **** (4 out of 5)\nAppendix 1 ‑ Audit Details\nA.1.1 ‑ Audit Participants\nSecurity audit was performed by Bernhard Mueller.\nA.1.2 ‑ File Hashes\nThe SHA256 hashes of the source code files provided were as follows.\nd46967cebf159a95ecb650e620b2b4185a04a9200fd85fb2b3361f722bba075c enterprize.sol\n120b21d80ea8323d1c1523909762b1a40e5fcae3a83cc0de281e023f5c4ea883 listingrewards.sol\nb4edc5781ba6ecaf22799a5bc01146fa957085a7cad2f9f233725f083923068c listordata.sol\nd1ba9cc38ae66d7c7b6f2248262205cbe5d76452608f92e0428c2174c7a59376 migrations.sol\nabaacadcebee9fe806e60b40908190c3ef8b4cfb772c038eae4d3eb3c60b0600 pseudo.sol\n0bbe2ed1c68b67dfe60a308d7b1ce695130a02175e1093407bbfc823dd9fe84b rating.sol\nc0a411c065ca0c2a4b55d70c5a72149eacbf61f675e8640b2fc3aca3d6c82dd5 rexcoordinator.sol\ndc5a3660c7610b974fca95348410b268b66cc23118c7b49228c1d75f440a2cca rextoken.sol\nae555adbe9dd2aceb340770e482ee937fa9e4d4d9758ee7f24cdfbf71f9bd2c9 safemath.sol\n3dc6137c5d271bc265d37ce963a1211f0b07a8263fe0af0c22c9b898e4c8d517 standardtoken.sol\ndb5204603645205b3fa360d2aceb31feb285660da9bb108faceb55e629754047 subscription.sol\nAppendix 2 ‑ Terminology\nA.2.1 ‑ Severity\nMeasurement of magnitude of an issue.\nA.2.1.1 ‑ Minor\nMinor issues are generally subjective in nature, or potentially deal with topics like \"best practices\" or \"readability\". Minor\nissues in general will not indicate an actual problem or bug in code.\n\n-- 12 of 13 --\n\n3/28/2018 Dappcentral/rexmls-audit-report-master: RexMLS Smart Contracts Audit by ConsenSys Diligence\nhttps://github.com/Dappcentral/rexmls-audit-report-master 13/13\nThe maintainers should use their own judgement as to whether addressing these issues improves the codebase.\nA.2.1.2 ‑ Medium\nMedium issues are generally objective in nature but do not represent actual bugs or security problems.\nThese issues should be addressed unless there is a clear reason not to.\nA.2.1.3 ‑ Major\nMajor issues will be things like bugs or security vulnerabilities. These issues may not be directly exploitable, or may require\na certain condition to arise in order to be exploited.\nLeft unaddressed these issues are highly likely to cause problems with the operation of the contract or lead to a situation\nwhich allows the system to be exploited in some way.\nA.2.1.4 ‑ Critical\nCritical issues are directly exploitable bugs or security vulnerabilities.\nLeft unaddressed these issues are highly likely or guaranteed to cause major problems or potentially a full failure in the\noperations of the contract.\n\n-- 13 of 13 --",
     "sourceFileName": "ConsenSys Diligence Audit Report.pdf",
-    "createdAtIso": "2026-06-05T23:32:39.121Z",
-    "updatedAtIso": "2026-06-05T23:32:39.121Z"
+    "createdAtIso": "2026-06-06T01:08:07.182Z",
+    "updatedAtIso": "2026-06-06T01:08:07.182Z"
   },
   "findings": [
     {
@@ -65,16 +66,16 @@
       "asset": "investigation-scope",
       "score": 64,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:31.461Z",
+      "detectedAt": "2026-06-06T01:08:00.548Z",
       "summary": "Pseudo: Ineffective Re-Entrancy Mitigation affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: Minor, intended | Components: listingrewards.sol, pseudo.sol | Assets: listingrewards.sol | Endpoints: JS | Services: HTTPS | URLs: https://github.com/Dappcentral/rexmls-audit-report-master | Domains: github.com, listingrewards.sol, variable.Functions, pseudo.sol | File paths: listingrewards.sol, pseudo.sol | File names: listingrewards.sol, pseudo.sol",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:39.115Z",
+          "atIso": "2026-06-06T01:08:07.177Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -101,7 +102,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 90,
+        "parserConfidence": 88,
         "sourceSectionTitle": "Pseudo: Ineffective Re-Entrancy Mitigation",
         "sourceText": "3.2 Pseudo: Ineffective Re-Entrancy Mitigation Medium",
         "sourceSpans": [],
@@ -132,16 +133,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:31.461Z",
+      "detectedAt": "2026-06-06T01:08:00.548Z",
       "summary": "Inconsistencies Between White Paper and Smart Contracts affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: Minor, intended | Components: listingrewards.sol, pseudo.sol | Assets: listingrewards.sol | Endpoints: JS | Services: HTTPS | URLs: https://github.com/Dappcentral/rexmls-audit-report-master | Domains: github.com, listingrewards.sol, variable.Functions, pseudo.sol | File paths: listingrewards.sol, pseudo.sol | File names: listingrewards.sol, pseudo.sol",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:39.115Z",
+          "atIso": "2026-06-06T01:08:07.177Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -168,7 +169,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 90,
+        "parserConfidence": 88,
         "sourceSectionTitle": "Inconsistencies Between White Paper and Smart Contracts",
         "sourceText": "2.1 Inconsistencies Between White Paper and Smart Contracts Minor",
         "sourceSpans": [],
@@ -199,16 +200,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:31.461Z",
+      "detectedAt": "2026-06-06T01:08:00.548Z",
       "summary": "Visibility Not Explicitly Specified affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: Minor, intended | Components: listingrewards.sol, pseudo.sol | Assets: listingrewards.sol | Endpoints: JS | Services: HTTPS | URLs: https://github.com/Dappcentral/rexmls-audit-report-master | Domains: github.com, listingrewards.sol, variable.Functions, pseudo.sol | File paths: listingrewards.sol, pseudo.sol | File names: listingrewards.sol, pseudo.sol",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:39.115Z",
+          "atIso": "2026-06-06T01:08:07.177Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -235,7 +236,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 90,
+        "parserConfidence": 88,
         "sourceSectionTitle": "Visibility Not Explicitly Specified",
         "sourceText": "2.3 Visibility Not Explicitly Specified Minor",
         "sourceSpans": [],
@@ -266,16 +267,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:31.461Z",
+      "detectedAt": "2026-06-06T01:08:00.548Z",
       "summary": "Pragma Not Locked To Specific Compiler Version affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: Minor, intended | Components: listingrewards.sol, pseudo.sol | Assets: listingrewards.sol | Endpoints: JS | Services: HTTPS | URLs: https://github.com/Dappcentral/rexmls-audit-report-master | Domains: github.com, listingrewards.sol, variable.Functions, pseudo.sol | File paths: listingrewards.sol, pseudo.sol | File names: listingrewards.sol, pseudo.sol",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:39.115Z",
+          "atIso": "2026-06-06T01:08:07.177Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -302,7 +303,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 90,
+        "parserConfidence": 88,
         "sourceSectionTitle": "Pragma Not Locked To Specific Compiler Version",
         "sourceText": "2.2 Pragma Not Locked To Specific Compiler Version Minor",
         "sourceSpans": [],
@@ -333,16 +334,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:31.461Z",
+      "detectedAt": "2026-06-06T01:08:00.548Z",
       "summary": "Pseudo: Excessive Logic in Forward Function affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: Minor, intended | Components: listingrewards.sol, pseudo.sol | Assets: listingrewards.sol | Endpoints: JS | Services: HTTPS | URLs: https://github.com/Dappcentral/rexmls-audit-report-master | Domains: github.com, listingrewards.sol, variable.Functions, pseudo.sol | File paths: listingrewards.sol, pseudo.sol | File names: listingrewards.sol, pseudo.sol",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:39.115Z",
+          "atIso": "2026-06-06T01:08:07.177Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -369,7 +370,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 90,
+        "parserConfidence": 88,
         "sourceSectionTitle": "Pseudo: Excessive Logic in Forward Function",
         "sourceText": "3.1 Pseudo: Excessive Logic in Forward Function Minor",
         "sourceSpans": [],
@@ -400,16 +401,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:31.461Z",
+      "detectedAt": "2026-06-06T01:08:00.548Z",
       "summary": "ListingRewards: Store Reward Parameters in State Variables affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: Minor, intended | Components: listingrewards.sol, pseudo.sol | Assets: listingrewards.sol | Endpoints: JS | Services: HTTPS | URLs: https://github.com/Dappcentral/rexmls-audit-report-master | Domains: github.com, listingrewards.sol, variable.Functions, pseudo.sol | File paths: listingrewards.sol, pseudo.sol | File names: listingrewards.sol, pseudo.sol",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:39.115Z",
+          "atIso": "2026-06-06T01:08:07.177Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -436,7 +437,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 90,
+        "parserConfidence": 88,
         "sourceSectionTitle": "ListingRewards: Store Reward Parameters in State Variables",
         "sourceText": "3.3 ListingRewards: Store Reward Parameters in State Variables Minor",
         "sourceSpans": [],
@@ -467,16 +468,16 @@
       "asset": "investigation-scope",
       "score": 35,
       "status": "In Review",
-      "detectedAt": "2026-06-05T23:32:31.461Z",
+      "detectedAt": "2026-06-06T01:08:00.548Z",
       "summary": "REXToken: Complex Fallback Function affecting investigation-scope; finding recovered from the official report index and requires review.",
       "impact": "Potential impact includes increased attacker opportunity against investigation-scope if this signal is not reviewed.",
       "evidence": "Versions: Minor, intended | Components: listingrewards.sol, pseudo.sol | Assets: listingrewards.sol | Endpoints: JS | Services: HTTPS | URLs: https://github.com/Dappcentral/rexmls-audit-report-master | Domains: github.com, listingrewards.sol, variable.Functions, pseudo.sol | File paths: listingrewards.sol, pseudo.sol | File names: listingrewards.sol, pseudo.sol",
       "remediation": "Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.",
       "history": [
         {
-          "atIso": "2026-06-05T23:32:39.115Z",
+          "atIso": "2026-06-06T01:08:07.177Z",
           "status": "In Review",
-          "note": "Finding generated from the balanced NLP hybrid extractor using model predictions and rule enrichment."
+          "note": "Finding generated from the balanced rule/regex extraction path."
         }
       ],
       "reported": {
@@ -503,7 +504,7 @@
       },
       "provenance": {
         "extractionMethod": "nlp-hybrid",
-        "parserConfidence": 90,
+        "parserConfidence": 88,
         "sourceSectionTitle": "REXToken: Complex Fallback Function",
         "sourceText": "3.4 REXToken: Complex Fallback Function Minor",
         "sourceSpans": [],
