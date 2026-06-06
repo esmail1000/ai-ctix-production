@@ -1533,6 +1533,7 @@ waf = WAFCore()
 def waf_middleware():
     if request.path.startswith('/static') or request.path == '/blocked':
         return
+
     # Bypass signature inspection for the threat log ingestion and onboarding endpoints
     if request.path in ['/api/analyze', '/api/onboard']:
         return
@@ -1541,8 +1542,8 @@ def waf_middleware():
     tenant_id = request.args.get('tenant')
     if not tenant_id and request.form:
         tenant_id = request.form.get('tenant')
+
     if not tenant_id:
-        # Fallback to Referer header if query parameter is dropped by form action submit
         referer = request.headers.get('Referer', '')
         if referer and 'tenant=' in referer:
             try:
@@ -1550,8 +1551,9 @@ def waf_middleware():
                 ref_params = urllib.parse.parse_qs(parsed_ref.query)
                 if 'tenant' in ref_params and ref_params['tenant']:
                     tenant_id = ref_params['tenant'][0]
-            except:
+            except Exception:
                 pass
+
     if not tenant_id:
         host = request.headers.get('Host', '').lower()
         if 'acme' in host:
@@ -1561,8 +1563,37 @@ def waf_middleware():
         else:
             tenant_id = 'default_tenant'
 
-    # Save to Flask global context
     g.tenant_id = tenant_id
+
+    ip = get_client_ip()
+    method = request.method
+    path = request.full_path
+    headers = dict(request.headers)
+
+    body_str = ""
+    try:
+        if request.form:
+            body_str = str(request.form.to_dict())
+        else:
+            body_str = request.get_data(as_text=True)
+    except Exception:
+        body_str = ""
+
+    inspection_text = f"{path}\n{body_str}"
+
+    is_attack, attack_type = waf.analyze_request(
+        ip,
+        method,
+        path,
+        headers,
+        inspection_text,
+        tenant_id=g.tenant_id
+    )
+
+    if is_attack:
+        return redirect(url_for('blocked_page', reason=attack_type, tenant=g.tenant_id))
+
+
 def get_client_ip():
     forwarded_for = request.headers.get("X-Forwarded-For", "")
     if forwarded_for:
@@ -1573,22 +1604,6 @@ def get_client_ip():
         return real_ip.strip()
 
     return request.remote_addr or "unknown"
-    ip = get_client_ip()
-    method = request.method
-    path = request.full_path
-    headers = dict(request.headers)
-    body_str = ""
-    try:
-        if request.form:
-            body_str = str(request.form.to_dict())
-        else:
-            body_str = request.get_data(as_text=True)
-    except: pass
-    
-    is_attack, attack_type = waf.analyze_request(ip, method, path, headers, body_str, tenant_id=g.tenant_id)
-    if is_attack:
-        return redirect(url_for('blocked_page', reason=attack_type, tenant=g.tenant_id))
-
 @app.route('/api/onboard', methods=['POST'])
 def onboard_client():
     try:
