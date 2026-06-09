@@ -15,7 +15,7 @@ RUN python3 -m pip install --break-system-packages -r ./waf_simulation/requireme
 
 COPY . .
 
-ARG CYBERBERT_MODEL_URL="https://github.com/esmail1000/ai-ctix-production/releases/download/model-v2/cyberbert-ner-runtime.zip"
+ARG CYBERBERT_MODEL_URL="https://github.com/esmail1000/ai-ctix-production/releases/download/model-v2/cyberbert-ner-verified.zip"
 
 RUN rm -rf /app/nlp_engine/models/cyberbert-ner \
     && mkdir -p /app/nlp_engine/models/cyberbert-ner \
