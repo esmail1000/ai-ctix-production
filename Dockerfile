@@ -18,10 +18,11 @@ COPY . .
 ARG CYBERBERT_MODEL_URL="https://github.com/esmail1000/ai-ctix-production/releases/download/model-v2/cyberbert-ner-verified.zip"
 
 RUN rm -rf /app/nlp_engine/models/cyberbert-ner \
-    && mkdir -p /app/nlp_engine/models/cyberbert-ner \
-    && curl -L "$CYBERBERT_MODEL_URL" -o /tmp/cyberbert-ner-runtime.zip \
-    && unzip -o /tmp/cyberbert-ner-runtime.zip -d /app/nlp_engine/models/cyberbert-ner \
-    && rm /tmp/cyberbert-ner-runtime.zip \
+    && mkdir -p /app/nlp_engine/models/cyberbert-ner /tmp/cyberbert-model \
+    && curl -L "$CYBERBERT_MODEL_URL" -o /tmp/cyberbert-ner-verified.zip \
+    && unzip -o /tmp/cyberbert-ner-verified.zip -d /tmp/cyberbert-model \
+    && cp -a /tmp/cyberbert-model/cyberbert-ner-verified/. /app/nlp_engine/models/cyberbert-ner/ \
+    && rm -rf /tmp/cyberbert-model /tmp/cyberbert-ner-verified.zip \
     && test -f /app/nlp_engine/models/cyberbert-ner/config.json \
     && test -f /app/nlp_engine/models/cyberbert-ner/model.safetensors \
     && test -f /app/nlp_engine/models/cyberbert-ner/tokenizer.json \
