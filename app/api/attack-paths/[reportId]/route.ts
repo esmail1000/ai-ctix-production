@@ -1,3 +1,5 @@
+// app/api/attack-paths/[reportId]/route.ts
+
 import { getAnalysisReportForUser } from '@/lib/server/analysis-repository'
 import { getCurrentSessionFromCookies } from '@/lib/server/current-session'
 import { getAttackPathsForReport } from '@/lib/server/knowledge-graph/attack-path'
@@ -42,7 +44,11 @@ export async function GET(
       ? Math.max(1, Math.min(Math.floor(rawLimit), 50))
       : 10
 
-    const paths = await getAttackPathsForReport(normalizedReportId, limit)
+    const paths = await getAttackPathsForReport(
+      session.userId,
+      normalizedReportId,
+      limit
+    )
 
     return NextResponse.json({ paths })
   } catch (error) {

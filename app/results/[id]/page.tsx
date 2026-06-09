@@ -17,6 +17,13 @@ const APP_TIME_ZONE = 'Africa/Cairo'
 
 const severityOrder: Severity[] = ['Critical', 'High', 'Medium', 'Low']
 
+const severityColors: Record<Severity, string> = {
+  Critical: '#dc2626',
+  High: '#f97316',
+  Medium: '#eab308',
+  Low: '#16a34a',
+}
+
 const severityBadgeClass: Record<Severity, string> = {
   Critical: 'border-red-200 bg-red-50 text-red-700',
   High: 'border-orange-200 bg-orange-50 text-orange-700',
@@ -39,8 +46,12 @@ const riskBandClass: Record<RiskBand, string> = {
 
 function safeText(value: unknown, fallback = 'Unknown') {
   const text = String(value ?? '').trim()
-  if (!text || text === '—' || text === 'ΓÇö' || text === '╬ô├ç├╢') return fallback
+  if (!text || text === 'ΓÇö' || text === '╬ô├ç├╢' || text === 'Γò¼├┤Γö£├ºΓö£Γòó') return fallback
   return text
+}
+
+function clamp(value: number, min = 0, max = 100) {
+  return Math.max(min, Math.min(max, value))
 }
 
 function normalizeConfidence(value: unknown) {
@@ -48,11 +59,9 @@ function normalizeConfidence(value: unknown) {
 
   if (!Number.isFinite(numeric) || numeric <= 0) return 0
 
-  // Backend can store confidence as 0.92 or 92.
-  // This keeps both formats displayed as 92%, never 9200%.
   const percentage = numeric <= 1 ? numeric * 100 : numeric
 
-  return Math.max(0, Math.min(100, Math.round(percentage)))
+  return clamp(Math.round(percentage))
 }
 
 function shortDateTime(value: string) {
@@ -64,19 +73,6 @@ function shortDateTime(value: string) {
       hour: '2-digit',
       minute: '2-digit',
       hour12: true,
-      timeZone: APP_TIME_ZONE,
-    }).format(new Date(value))
-  } catch {
-    return value
-  }
-}
-
-function shortDate(value: string) {
-  try {
-    return new Intl.DateTimeFormat('en', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
       timeZone: APP_TIME_ZONE,
     }).format(new Date(value))
   } catch {
@@ -124,10 +120,13 @@ function reviewState(finding: Finding) {
 }
 
 function relatedSort(a: Finding, b: Finding) {
-  return (
-    severityOrder.indexOf(a.severity) - severityOrder.indexOf(b.severity) ||
-    (b.score ?? 0) - (a.score ?? 0)
-  )
+  return severityOrder.indexOf(a.severity) - severityOrder.indexOf(b.severity) || (b.score ?? 0) - (a.score ?? 0)
+}
+
+function confidenceLabel(value: number) {
+  if (value >= 80) return 'High confidence'
+  if (value >= 50) return 'Medium confidence'
+  return 'Low confidence'
 }
 
 export default async function FindingDetailsPage({
@@ -153,39 +152,41 @@ export default async function FindingDetailsPage({
   const review = reviewState(finding)
   const riskScore = finding.score ?? 0
   const riskBand = scoreBand(riskScore)
-  const related = relatedFindings
-    .filter((item) => item.id !== finding.id)
-    .sort(relatedSort)
-    .slice(0, 5)
-
+  const related = relatedFindings.filter((item) => item.id !== finding.id).sort(relatedSort).slice(0, 5)
   const reportParam = encodeURIComponent(finding.reportId)
+  const hasEvidence = safeText(finding.evidence, '').length > 0
+  const hasRemediation = safeText(finding.remediation, '').length > 0
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#fbfefd] text-[#111827]">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_10%,rgba(34,197,94,0.10),transparent_30%),radial-gradient(circle_at_86%_18%,rgba(8,122,58,0.08),transparent_34%)]" />
-      <div className="pointer-events-none absolute right-0 top-24 h-[420px] w-[560px] rounded-full bg-[#dcf7e7]/60 blur-3xl" />
-      <div className="pointer-events-none absolute left-0 top-[560px] h-[320px] w-[520px] rounded-full bg-[#eefaf3] blur-3xl" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_10%,rgba(34,197,94,0.12),transparent_30%),radial-gradient(circle_at_86%_18%,rgba(8,122,58,0.09),transparent_34%)]" />
+      <div className="pointer-events-none absolute right-0 top-24 h-[440px] w-[580px] rounded-full bg-[#dcf7e7]/65 blur-3xl" />
+      <div className="pointer-events-none absolute left-0 top-[590px] h-[330px] w-[540px] rounded-full bg-[#eefaf3] blur-3xl" />
 
-      <section className="relative mx-auto max-w-[1480px] px-6 pb-16 pt-10 lg:px-8">
-        <header className="relative overflow-hidden rounded-[34px] border border-[#dceee3] bg-white/92 p-7 shadow-[0_24px_80px_rgba(15,43,29,0.07)] backdrop-blur">
-          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(8,122,58,0.05),transparent_42%),radial-gradient(circle_at_86%_24%,rgba(22,163,74,0.12),transparent_28%)]" />
-          <div className="pointer-events-none absolute right-[180px] bottom-8 h-20 w-52 rounded-[50%] border border-[#bfe6cc] bg-gradient-to-b from-white to-[#e5f8ec] shadow-[0_24px_60px_rgba(8,122,58,0.12)] finding-platform" />
-          <div className="pointer-events-none absolute right-20 top-12 h-24 w-24 rounded-full bg-gradient-to-br from-[#dff7e8] to-[#7ddf9b] shadow-[0_22px_55px_rgba(8,122,58,0.14)] finding-float" />
+      <section className="relative mx-auto max-w-[1500px] px-6 pb-16 pt-10 lg:px-8">
+        <Link href={`/results?reportId=${reportParam}`} className="inline-flex text-sm font-semibold text-[#087a3a] hover:underline">
+          Back to report findings
+        </Link>
 
-          <div className="relative grid gap-8 lg:grid-cols-[1fr_0.78fr]">
+        <header className="relative mt-5 overflow-hidden rounded-[36px] border border-[#dceee3] bg-white/92 p-7 shadow-[0_24px_80px_rgba(15,43,29,0.07)] backdrop-blur">
+          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(8,122,58,0.05),transparent_42%),radial-gradient(circle_at_86%_24%,rgba(22,163,74,0.13),transparent_28%)]" />
+          <div className="pointer-events-none absolute right-0 top-0 h-full w-1/2 opacity-20">
+            <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(8,122,58,0.10)_25%,transparent_25%,transparent_50%,rgba(8,122,58,0.10)_50%,rgba(8,122,58,0.10)_75%,transparent_75%,transparent)] bg-[length:24px_24px]" />
+          </div>
+
+          <div className="relative grid gap-8 lg:grid-cols-[1fr_0.82fr]">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#087a3a]">
-                Finding Command View
+                AI Finding Command View
               </p>
 
               <div className="mt-4 flex flex-wrap items-center gap-3">
-                <Badge className={severityBadgeClass[finding.severity]}>
-                  {finding.severity}
-                </Badge>
-                <Badge className={statusBadgeClass[finding.status] ?? statusBadgeClass.Open}>
-                  {finding.status}
-                </Badge>
+                <Badge className={severityBadgeClass[finding.severity]}>{finding.severity}</Badge>
+                <Badge className={statusBadgeClass[finding.status] ?? statusBadgeClass.Open}>{finding.status}</Badge>
                 <Badge className={riskBandClass[riskBand]}>{riskBand}</Badge>
+                <Badge className={review === 'Needs Review' ? 'border-yellow-200 bg-yellow-50 text-yellow-700' : 'border-emerald-200 bg-emerald-50 text-emerald-700'}>
+                  {review}
+                </Badge>
               </div>
 
               <h1 className="mt-4 max-w-4xl text-4xl font-semibold tracking-[-0.04em] text-[#111827] md:text-5xl">
@@ -197,43 +198,46 @@ export default async function FindingDetailsPage({
               </p>
 
               <div className="mt-6 flex flex-wrap gap-3">
-                <InfoPill label="ID" value={finding.id} />
+                <InfoPill label="Finding ID" value={finding.id} />
                 <InfoPill label="Report" value={`${finding.reportId} - ${reportName}`} />
                 <InfoPill label="Detected" value={shortDateTime(finding.detectedAt)} />
               </div>
             </div>
 
-            <div className="rounded-[28px] border border-[#dceee3] bg-white/78 p-5 shadow-[0_20px_60px_rgba(15,43,29,0.07)] backdrop-blur">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#087a3a]">
-                Actions
-              </p>
+            <div className="relative min-h-[315px]">
+              <div className="absolute left-[8%] top-[18%] h-24 w-44 rounded-[50%] border border-[#bfe6cc] bg-gradient-to-b from-white to-[#e5f8ec] shadow-[0_24px_60px_rgba(8,122,58,0.14)] finding-platform" />
+              <div className="absolute right-[12%] top-[8%] h-36 w-36 rounded-full bg-gradient-to-br from-[#ecfff2] via-[#b9edc8] to-[#16a34a] shadow-[0_24px_65px_rgba(8,122,58,0.18)] finding-orb">
+                <span className="absolute inset-4 rounded-full border border-white/70" />
+                <span className="absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_24px_rgba(255,255,255,0.95)]" />
+              </div>
 
-              <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-                <ActionLink href="/results" primary>
-                  Back to Results
-                </ActionLink>
-                <ActionLink href={`/reports/${reportParam}`}>Open Report</ActionLink>
-                <ActionLink href={`/summarization?reportId=${reportParam}`}>Open Summary</ActionLink>
-                <ActionLink href={`/risk-scoring?reportId=${reportParam}`}>Open Risk Scoring</ActionLink>
-                <ActionLink href={`/graph?reportId=${reportParam}`}>Open Attack Graph</ActionLink>
-                <ActionLink href={`/export?reportId=${reportParam}`}>Export Report</ActionLink>
+              <div className="absolute left-[5%] bottom-[7%] w-[280px] rounded-[26px] border border-[#d2eadb] bg-white/88 p-4 shadow-[0_24px_70px_rgba(15,43,29,0.12)] backdrop-blur finding-panel">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#748579]">AI reasoning</p>
+                <p className={`mt-2 text-3xl font-semibold ${scoreTone(riskScore)}`}>{riskScore}</p>
+                <p className="mt-1 text-sm text-[#5f6f66]">{riskLabel(riskScore)}</p>
+                <div className="mt-4 h-2 overflow-hidden rounded-full bg-[#e6f5eb]">
+                  <div className="h-full rounded-full bg-[#087a3a]" style={{ width: `${riskScore}%` }} />
+                </div>
+              </div>
+
+              <div className="absolute right-[3%] bottom-[11%] w-[285px] rounded-[26px] border border-[#d2eadb] bg-white/88 p-4 shadow-[0_24px_70px_rgba(15,43,29,0.12)] backdrop-blur finding-panel-delay">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#748579]">AI confidence</p>
+                <div className="mt-3 flex items-end gap-3">
+                  <p className="text-4xl font-semibold text-[#087a3a]">{confidence}%</p>
+                  <p className="pb-2 text-sm text-[#5f6f66]">{confidenceLabel(confidence)}</p>
+                </div>
+                <div className="mt-4 grid gap-2">
+                  <PulseLine label="Evidence" value={hasEvidence ? confidence : 0} />
+                  <PulseLine label="Remediation" value={hasRemediation ? confidence : 0} />
+                </div>
               </div>
             </div>
           </div>
         </header>
 
         <section className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <MetricCard
-            label="Risk score"
-            value={`${riskScore}/100`}
-            helper={riskLabel(riskScore)}
-            valueClass={scoreTone(riskScore)}
-          />
-          <MetricCard
-            label="Confidence"
-            value={`${confidence}%`}
-            helper={confidence >= 80 ? 'High confidence' : confidence >= 50 ? 'Medium confidence' : 'Low confidence'}
-          />
+          <MetricCard label="Risk score" value={`${riskScore}/100`} helper={riskLabel(riskScore)} valueClass={scoreTone(riskScore)} />
+          <MetricCard label="AI confidence" value={`${confidence}%`} helper={confidenceLabel(confidence)} />
           <MetricCard label="Review state" value={review} helper={finding.status} />
           <MetricCard label="Extraction" value={extractionMethod} helper="Parser provenance" />
         </section>
@@ -246,7 +250,7 @@ export default async function FindingDetailsPage({
               </p>
             </SectionCard>
 
-            <SectionCard title="Evidence from report">
+            <SectionCard title="Evidence extracted by AI">
               <div className="rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-5">
                 <p className="text-sm leading-7 text-[#173128]">
                   {safeText(finding.evidence, 'Evidence was not extracted and should be reviewed manually.')}
@@ -270,24 +274,15 @@ export default async function FindingDetailsPage({
 
             <SectionCard title={`Related findings (${related.length})`}>
               {related.length === 0 ? (
-                <p className="text-sm text-[#5f6f66]">No related findings were found for this report.</p>
+                <p className="text-sm text-[#5f6f66]">No related findings were found.</p>
               ) : (
                 <div className="grid gap-3">
                   {related.map((item) => (
-                    <article
-                      key={item.id}
-                      className="rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-4"
-                    >
+                    <article key={item.id} className="rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-4">
                       <div className="flex flex-wrap items-center gap-3">
-                        <Badge className={severityBadgeClass[item.severity]}>
-                          {item.severity}
-                        </Badge>
-                        <span className={`text-sm font-semibold ${scoreTone(item.score ?? 0)}`}>
-                          Risk {item.score ?? 0}
-                        </span>
-                        <span className="text-sm font-semibold text-[#173128]">
-                          Confidence {normalizeConfidence(item.provenance?.parserConfidence)}%
-                        </span>
+                        <Badge className={severityBadgeClass[item.severity]}>{item.severity}</Badge>
+                        <span className={`text-sm font-semibold ${scoreTone(item.score ?? 0)}`}>Risk {item.score ?? 0}</span>
+                        <span className="text-sm font-semibold text-[#173128]">Confidence {normalizeConfidence(item.provenance?.parserConfidence)}%</span>
                       </div>
 
                       <h3 className="mt-3 text-base font-semibold text-[#111827]">
@@ -299,10 +294,7 @@ export default async function FindingDetailsPage({
                       </p>
 
                       <div className="mt-3">
-                        <Link
-                          href={`/results/${item.id}`}
-                          className="text-sm font-semibold text-[#087a3a] hover:underline"
-                        >
+                        <Link href={`/results/${item.id}`} className="text-sm font-semibold text-[#087a3a] hover:underline">
                           View details
                         </Link>
                       </div>
@@ -314,6 +306,18 @@ export default async function FindingDetailsPage({
           </div>
 
           <aside className="space-y-5">
+            <SidePanel title="Actions">
+              <div className="grid gap-3">
+                <ActionLink href={`/results?reportId=${reportParam}`} primary>Report findings</ActionLink>
+                <ActionLink href={`/reports/${reportParam}`}>Open report</ActionLink>
+                <ActionLink href={`/risk-scoring?reportId=${reportParam}`}>Risk scoring</ActionLink>
+                <ActionLink href={`/graph?reportId=${reportParam}`}>Knowledge graph</ActionLink>
+                <ActionLink href={`/attack-paths?reportId=${reportParam}`}>Attack paths</ActionLink>
+                <ActionLink href={`/recommendations?reportId=${reportParam}`}>Recommendations</ActionLink>
+                <ActionLink href={`/export?reportId=${reportParam}`}>Export report</ActionLink>
+              </div>
+            </SidePanel>
+
             <SidePanel title="Finding context">
               <ContextLine label="Asset" value={safeText(finding.asset, 'investigation-scope')} />
               <ContextLine label="CVE" value={safeText(finding.cve, 'N/A')} />
@@ -324,13 +328,11 @@ export default async function FindingDetailsPage({
               <ContextLine label="Uploaded" value={report?.uploadedAt ? shortDateTime(report.uploadedAt) : 'Unknown'} />
             </SidePanel>
 
-            <SidePanel title="Confidence breakdown">
+            <SidePanel title="AI validation">
               <div className="flex items-center gap-5">
                 <div
                   className="grid h-28 w-28 shrink-0 place-items-center rounded-full"
-                  style={{
-                    background: `conic-gradient(#087a3a ${confidence * 3.6}deg, #e6f5eb 0deg)`,
-                  }}
+                  style={{ background: `conic-gradient(#087a3a ${confidence * 3.6}deg, #e6f5eb 0deg)` }}
                 >
                   <div className="grid h-20 w-20 place-items-center rounded-full bg-white text-center shadow-inner">
                     <div>
@@ -342,30 +344,39 @@ export default async function FindingDetailsPage({
 
                 <div className="flex-1 space-y-3">
                   <ConfidenceLine label="Source coverage" value={confidence} />
-                  <ConfidenceLine label="Evidence quality" value={safeText(finding.evidence, '').length > 0 ? confidence : 0} />
-                  <ConfidenceLine label="Remediation quality" value={safeText(finding.remediation, '').length > 0 ? confidence : 0} />
+                  <ConfidenceLine label="Evidence quality" value={hasEvidence ? confidence : 0} />
+                  <ConfidenceLine label="Remediation quality" value={hasRemediation ? confidence : 0} />
                   <ConfidenceLine label="Extraction method" value={confidence} />
                 </div>
               </div>
-            </SidePanel>
-
-            <SidePanel title="Timeline">
-              <TimelineLine label="Detected" value={shortDateTime(finding.detectedAt)} />
-              <TimelineLine label={review} value={shortDate(new Date().toISOString())} />
-              <TimelineLine label="Current status" value={finding.status} />
             </SidePanel>
           </aside>
         </section>
       </section>
 
       <style>{`
-        @keyframes finding-float {
-          0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-12px) rotate(2deg); }
+        @keyframes finding-orb {
+          0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+          50% { transform: translateY(-14px) rotate(10deg) scale(1.03); }
         }
 
-        .finding-float { animation: finding-float 6.2s ease-in-out infinite; }
+        @keyframes finding-panel {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-9px); }
+        }
+
+        .finding-orb { animation: finding-orb 7s ease-in-out infinite; }
+        .finding-panel { animation: finding-panel 6.5s ease-in-out infinite; }
+        .finding-panel-delay { animation: finding-panel 7.4s ease-in-out infinite; animation-delay: -1.4s; }
         .finding-platform { transform: perspective(800px) rotateX(58deg); }
+
+        @media (prefers-reduced-motion: reduce) {
+          .finding-orb,
+          .finding-panel,
+          .finding-panel-delay {
+            animation: none;
+          }
+        }
       `}</style>
     </main>
   )
@@ -395,11 +406,7 @@ function ActionLink({
 }
 
 function Badge({ className, children }: { className: string; children: React.ReactNode }) {
-  return (
-    <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${className}`}>
-      {children}
-    </span>
-  )
+  return <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${className}`}>{children}</span>
 }
 
 function InfoPill({ label, value }: { label: string; value: string }) {
@@ -424,9 +431,7 @@ function MetricCard({
   return (
     <article className="rounded-[26px] border border-[#dceee3] bg-white p-5 shadow-[0_22px_60px_rgba(15,43,29,0.05)] transition hover:-translate-y-1 hover:shadow-[0_30px_80px_rgba(15,43,29,0.09)]">
       <p className="text-sm font-medium text-[#5a7668]">{label}</p>
-      <p className={`mt-3 text-3xl font-semibold tracking-tight ${valueClass ?? 'text-[#0d2217]'}`}>
-        {value}
-      </p>
+      <p className={`mt-3 text-3xl font-semibold tracking-tight ${valueClass ?? 'text-[#0d2217]'}`}>{value}</p>
       <p className="mt-2 text-sm leading-6 text-[#5a7668]">{helper}</p>
     </article>
   )
@@ -485,12 +490,16 @@ function ConfidenceLine({ label, value }: { label: string; value: number }) {
   )
 }
 
-function TimelineLine({ label, value }: { label: string; value: string }) {
+function PulseLine({ label, value }: { label: string; value: number }) {
   return (
-    <div className="relative border-l border-[#cfe8d8] pb-5 pl-5 last:pb-0">
-      <span className="absolute -left-[5px] top-1 h-2.5 w-2.5 rounded-full bg-[#087a3a]" />
-      <p className="text-sm font-semibold text-[#111827]">{label}</p>
-      <p className="mt-1 text-sm text-[#5f6f66]">{value}</p>
+    <div>
+      <div className="mb-1 flex items-center justify-between text-xs font-semibold text-[#5f6f66]">
+        <span>{label}</span>
+        <span>{value}%</span>
+      </div>
+      <div className="h-1.5 overflow-hidden rounded-full bg-[#e6f5eb]">
+        <div className="h-full rounded-full bg-[#087a3a]" style={{ width: `${value}%` }} />
+      </div>
     </div>
   )
 }

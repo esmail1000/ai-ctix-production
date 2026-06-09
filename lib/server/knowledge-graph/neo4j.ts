@@ -66,6 +66,7 @@ export async function ensureKnowledgeGraphSchema() {
     `CREATE CONSTRAINT impact_id IF NOT EXISTS FOR (n:Impact) REQUIRE n.id IS UNIQUE`,
     `CREATE CONSTRAINT remediation_id IF NOT EXISTS FOR (n:Remediation) REQUIRE n.id IS UNIQUE`,
     `CREATE CONSTRAINT exploit_id IF NOT EXISTS FOR (n:Exploit) REQUIRE n.id IS UNIQUE`,
+    `CREATE CONSTRAINT indicator_id IF NOT EXISTS FOR (n:Indicator) REQUIRE n.id IS UNIQUE`,
   ];
 
   for (const query of constraints) {

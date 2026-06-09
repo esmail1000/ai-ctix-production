@@ -58,6 +58,7 @@ const STRING_ARRAY_FIELDS = [
   "exploits",
   "exploit_available",
   "exploitability",
+  "exploitation_steps",
   "confidentiality_impacts",
   "integrity_impacts",
   "availability_impacts",

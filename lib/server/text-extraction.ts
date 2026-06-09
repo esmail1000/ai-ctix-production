@@ -10,7 +10,7 @@ type PythonCandidate = {
 
 type ExtractionMeta = {
   text: string
-  detectedType: 'PDF' | 'DOCX' | 'TXT'
+  detectedType: 'PDF' | 'DOCX' | 'TXT' | 'HTML'
   extractionMethod?: string
   ocrUsed?: boolean
   warnings?: string[]
@@ -347,6 +347,24 @@ function extractPlainText(buffer: Buffer) {
     .trim()
 }
 
+function extractHtmlText(buffer: Buffer) {
+  return extractPlainText(buffer)
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<br\s*\/?\s*>/gi, '\n')
+    .replace(/<\/(?:p|div|section|article|h[1-6]|li|tr|table)>/gi, '\n')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/[ \t]+/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+}
+
 export async function extractTextFromUpload(
   buffer: Buffer,
   filename: string,
@@ -374,10 +392,12 @@ export async function extractTextFromUpload(
     normalizedMime.startsWith('text/') ||
     normalizedMime.includes('json')
   ) {
+    const isHtml = ext === '.html' || ext === '.htm' || normalizedMime.includes('html')
+
     return {
-      text: extractPlainText(buffer),
-      detectedType: 'TXT',
-      extractionMethod: 'raw-text',
+      text: isHtml ? extractHtmlText(buffer) : extractPlainText(buffer),
+      detectedType: isHtml ? 'HTML' : 'TXT',
+      extractionMethod: isHtml ? 'html-text' : 'raw-text',
       ocrUsed: false,
       warnings: [],
     }

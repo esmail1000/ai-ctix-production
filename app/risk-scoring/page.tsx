@@ -4,6 +4,9 @@
 import Link from 'next/link'
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 
+type Severity = 'Critical' | 'High' | 'Medium' | 'Low'
+type RiskBand = 'Low' | 'Medium' | 'High' | 'Critical'
+
 type Report = {
   id: string
   slug: string
@@ -19,9 +22,6 @@ type Report = {
   low: number
   summary: string
 }
-
-type Severity = 'Critical' | 'High' | 'Medium' | 'Low'
-type RiskBand = 'Low' | 'Medium' | 'High' | 'Critical'
 
 type RiskFactorBreakdown = {
   severity: number
@@ -39,6 +39,7 @@ type FindingRiskResult = {
   reportId: string
   title: string
   asset: string
+  cve?: string
   severity: Severity
   originalScore: number
   riskScore: number
@@ -47,7 +48,74 @@ type FindingRiskResult = {
   factors: RiskFactorBreakdown
 }
 
+type SummaryPayload = {
+  confidence: number
+  grounding: {
+    findingsWithSummary: number
+    findingsWithImpact: number
+    findingsWithEvidence: number
+    findingsWithRemediation: number
+    fullyGroundedFindings: number
+    partiallyGroundedFindings: number
+    averageFieldCoverage: number
+  }
+  executiveSummary: string
+  severityOverview: Record<Severity, number>
+  topRisks: Array<{
+    id: string
+    title: string
+    severity: Severity
+    score: number
+    asset: string
+    reason: string
+  }>
+  stats: {
+    totalFindings: number
+    criticalCount: number
+    highCount: number
+    mediumCount: number
+    lowCount: number
+    openCount: number
+    resolvedCount: number
+    distinctAssets: number
+  }
+}
+
+type RiskPayload = {
+  reportId: string
+  reportName: string
+  generatedAtIso: string
+  overallRiskScore: number
+  overallRiskBand: RiskBand
+  rationale: string[]
+  stats: {
+    totalFindings: number
+    criticalFindings: number
+    highFindings: number
+    mediumFindings: number
+    lowFindings: number
+    openFindings: number
+    findingsWithCve: number
+    distinctAssets: number
+  }
+  topRiskFindings: FindingRiskResult[]
+  allFindings: FindingRiskResult[]
+}
+
+type RiskMetaPayload = {
+  generatedAtIso: string
+  overallRiskScore: number
+  overallRiskBand: RiskBand
+  totalFindings: number
+  openFindings: number
+  findingsWithCve: number
+  distinctAssets: number
+}
+
 type RiskApiResponse = {
+  status: 'cached' | 'generated' | 'missing'
+  canGenerate: boolean
+  message: string | null
   report: {
     id: string
     name: string
@@ -58,127 +126,17 @@ type RiskApiResponse = {
     parserVersion: number | null
     parsingNotes: string[]
   }
-  summary: {
-    confidence: number
-    grounding: {
-      findingsWithSummary: number
-      findingsWithImpact: number
-      findingsWithEvidence: number
-      findingsWithRemediation: number
-      fullyGroundedFindings: number
-      partiallyGroundedFindings: number
-      averageFieldCoverage: number
-    }
-    executiveSummary: string
-    severityOverview: Record<Severity, number>
-    topRisks: Array<{
-      id: string
-      title: string
-      severity: Severity
-      score: number
-      asset: string
-      reason: string
-    }>
-    stats: {
-      totalFindings: number
-      criticalCount: number
-      highCount: number
-      mediumCount: number
-      lowCount: number
-      openCount: number
-      resolvedCount: number
-      distinctAssets: number
-    }
-  }
-  risk: {
-    reportId: string
-    reportName: string
-    generatedAtIso: string
-    overallRiskScore: number
-    overallRiskBand: RiskBand
-    rationale: string[]
-    stats: {
-      totalFindings: number
-      criticalFindings: number
-      highFindings: number
-      mediumFindings: number
-      lowFindings: number
-      openFindings: number
-      findingsWithCve: number
-      distinctAssets: number
-    }
-    topRiskFindings: FindingRiskResult[]
-    allFindings: FindingRiskResult[]
-  }
-  riskMeta: {
-    generatedAtIso: string
-    overallRiskScore: number
-    overallRiskBand: RiskBand
-    totalFindings: number
-    openFindings: number
-    findingsWithCve: number
-    distinctAssets: number
-  }
+  summary: SummaryPayload | null
+  risk: RiskPayload | null
+  riskMeta: RiskMetaPayload | null
 }
 
 const APP_TIME_ZONE = 'Africa/Cairo'
+const severities: Severity[] = ['Critical', 'High', 'Medium', 'Low']
 
 function getReportIdFromUrl() {
   if (typeof window === 'undefined') return ''
   return new URLSearchParams(window.location.search).get('reportId')?.trim() ?? ''
-}
-
-function riskBandClass(band: RiskBand) {
-  switch (band) {
-    case 'Critical':
-      return 'border-red-200 bg-red-50 text-red-700'
-    case 'High':
-      return 'border-orange-200 bg-orange-50 text-orange-700'
-    case 'Medium':
-      return 'border-yellow-200 bg-yellow-50 text-yellow-700'
-    case 'Low':
-      return 'border-emerald-200 bg-emerald-50 text-emerald-700'
-    default:
-      return 'border-slate-200 bg-slate-50 text-slate-700'
-  }
-}
-
-function severityClass(severity: Severity) {
-  switch (severity) {
-    case 'Critical':
-      return 'border-red-200 bg-red-50 text-red-700'
-    case 'High':
-      return 'border-orange-200 bg-orange-50 text-orange-700'
-    case 'Medium':
-      return 'border-yellow-200 bg-yellow-50 text-yellow-700'
-    case 'Low':
-      return 'border-emerald-200 bg-emerald-50 text-emerald-700'
-    default:
-      return 'border-slate-200 bg-slate-50 text-slate-700'
-  }
-}
-
-function scoreTone(score: number) {
-  if (score >= 85) return 'text-red-700'
-  if (score >= 65) return 'text-orange-700'
-  if (score >= 40) return 'text-yellow-700'
-  return 'text-emerald-700'
-}
-
-function ringColor(score: number) {
-  if (score >= 85) return '#dc2626'
-  if (score >= 65) return '#f97316'
-  if (score >= 40) return '#eab308'
-  return '#087a3a'
-}
-
-function percent(part: number, total: number) {
-  if (total === 0) return 0
-  return Math.round((part / total) * 100)
-}
-
-function clamp(value: number, min = 0, max = 100) {
-  return Math.max(min, Math.min(max, value))
 }
 
 function shortDateTime(value: string) {
@@ -197,47 +155,135 @@ function shortDateTime(value: string) {
   }
 }
 
-function topAssets(riskData: RiskApiResponse) {
+function percent(part: number, total: number) {
+  if (!total) return 0
+  return Math.round((part / total) * 100)
+}
+
+function scoreTone(score: number) {
+  if (score >= 90) return 'text-red-700'
+  if (score >= 70) return 'text-orange-700'
+  if (score >= 40) return 'text-yellow-700'
+  return 'text-emerald-700'
+}
+
+function ringColor(score: number) {
+  if (score >= 90) return '#dc2626'
+  if (score >= 70) return '#f97316'
+  if (score >= 40) return '#eab308'
+  return '#087a3a'
+}
+
+function riskBandClass(band: RiskBand) {
+  switch (band) {
+    case 'Critical':
+      return 'border-red-200 bg-red-50 text-red-700'
+    case 'High':
+      return 'border-orange-200 bg-orange-50 text-orange-700'
+    case 'Medium':
+      return 'border-yellow-200 bg-yellow-50 text-yellow-700'
+    case 'Low':
+      return 'border-emerald-200 bg-emerald-50 text-emerald-700'
+  }
+}
+
+function severityClass(severity: Severity) {
+  switch (severity) {
+    case 'Critical':
+      return 'border-red-200 bg-red-50 text-red-700'
+    case 'High':
+      return 'border-orange-200 bg-orange-50 text-orange-700'
+    case 'Medium':
+      return 'border-yellow-200 bg-yellow-50 text-yellow-700'
+    case 'Low':
+      return 'border-emerald-200 bg-emerald-50 text-emerald-700'
+  }
+}
+
+function safeReason(value: string) {
+  return value
+    .replace(/Local wrapper/gi, 'Risk model')
+    .replace(/Calibrated wrapper/gi, 'Risk model')
+    .replace(/wrapper/gi, 'model')
+}
+
+function cveText(value: string | undefined) {
+  const text = String(value ?? '').trim()
+  return /^CVE-\d{4}-\d{4,}$/i.test(text) ? text.toUpperCase() : 'No CVE mapped'
+}
+
+function exploitSignalCount(risk: RiskPayload) {
+  return risk.allFindings.filter((item) => item.factors.exploitability >= 6).length
+}
+
+function missingRemediationCount(summary: SummaryPayload) {
+  return Math.max(
+    0,
+    summary.stats.totalFindings - summary.grounding.findingsWithRemediation
+  )
+}
+
+function riskContribution(item: FindingRiskResult, overallScore: number) {
+  const delta = item.riskScore - item.originalScore
+  if (item.riskScore >= 90) return `Critical driver · ${delta >= 0 ? '+' : ''}${delta}`
+  if (item.riskScore >= 70) return `High driver · ${delta >= 0 ? '+' : ''}${delta}`
+  if (item.riskScore >= Math.max(40, overallScore - 10)) {
+    return `Moderate driver · ${delta >= 0 ? '+' : ''}${delta}`
+  }
+  return `Low driver · ${delta >= 0 ? '+' : ''}${delta}`
+}
+
+function recommendedAction(item: FindingRiskResult) {
+  if (item.factors.cvePresence > 0 && item.riskScore >= 70) {
+    return 'Patch or mitigate the CVE, then retest the affected asset.'
+  }
+
+  if (item.factors.exposure >= 8) {
+    return 'Reduce external exposure and validate access controls.'
+  }
+
+  if (item.factors.exploitability >= 10) {
+    return 'Treat as urgent and verify exploitability with remediation owners.'
+  }
+
+  if (item.factors.mitigationPenalty === 0) {
+    return 'Add a concrete remediation plan before exporting the report.'
+  }
+
+  if (item.riskScore >= 70) {
+    return 'Prioritize remediation and assign an owner.'
+  }
+
+  return 'Track, remediate, and keep the finding in the review queue.'
+}
+
+function topAssets(risk: RiskPayload) {
   const assets = new Map<string, { count: number; maxScore: number; band: RiskBand }>()
 
-  for (const finding of riskData.risk.allFindings) {
+  for (const finding of risk.allFindings) {
     const current = assets.get(finding.asset) ?? {
       count: 0,
       maxScore: 0,
       band: 'Low' as RiskBand,
     }
 
-    const nextScore = Math.max(current.maxScore, finding.riskScore)
+    const maxScore = Math.max(current.maxScore, finding.riskScore)
+
     assets.set(finding.asset, {
       count: current.count + 1,
-      maxScore: nextScore,
+      maxScore,
       band: finding.riskScore >= current.maxScore ? finding.riskBand : current.band,
     })
   }
 
   return Array.from(assets.entries())
-    .map(([asset, value]) => ({ asset, ...value }))
+    .map(([asset, values]) => ({ asset, ...values }))
     .sort((a, b) => b.maxScore - a.maxScore || b.count - a.count)
     .slice(0, 5)
 }
 
-function ActionLink(props: {
-  href: string
-  children: ReactNode
-  primary?: boolean
-}) {
-  return (
-    <Link
-      href={props.href}
-      className={
-        props.primary
-          ? 'inline-flex items-center justify-center rounded-2xl bg-[#087a3a] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_32px_rgba(8,122,58,0.18)] transition hover:-translate-y-0.5 hover:bg-[#066b33]'
-          : 'inline-flex items-center justify-center rounded-2xl border border-[#c4e3cf] bg-white px-5 py-3 text-sm font-semibold text-[#173128] transition hover:-translate-y-0.5 hover:bg-[#f4fff7]'
-      }
-    >
-      {props.children}
-    </Link>
-  )
+function buildErrorMessage(error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback
 }
 
 export default function RiskScoringPage() {
@@ -246,9 +292,9 @@ export default function RiskScoringPage() {
   const [riskData, setRiskData] = useState<RiskApiResponse | null>(null)
   const [isLoadingReports, setIsLoadingReports] = useState(true)
   const [isLoadingRisk, setIsLoadingRisk] = useState(false)
+  const [isGeneratingRisk, setIsGeneratingRisk] = useState(false)
   const [reportsError, setReportsError] = useState('')
   const [riskError, setRiskError] = useState('')
-  const [lastGeneratedAt, setLastGeneratedAt] = useState('')
 
   useEffect(() => {
     let isMounted = true
@@ -270,24 +316,21 @@ export default function RiskScoringPage() {
 
         setReports(nextReports)
 
-        if (nextReports.length > 0) {
-          const requestedReportId = getReportIdFromUrl()
-          const requestedReportExists = nextReports.some(
-            (report) => report.id === requestedReportId
-          )
+        const requestedReportId = getReportIdFromUrl()
+        const requestedReportExists = nextReports.some(
+          (report) => report.id === requestedReportId
+        )
 
-          setSelectedReportId((current) => {
-            if (current) return current
-            if (requestedReportId && requestedReportExists) return requestedReportId
-            return nextReports[0].id
-          })
+        if (requestedReportId && requestedReportExists) {
+          setSelectedReportId(requestedReportId)
+        } else if (nextReports[0]) {
+          setSelectedReportId(nextReports[0].id)
         }
       } catch (error) {
         if (!isMounted) return
-        setReportsError(error instanceof Error ? error.message : 'Failed to load reports.')
+        setReportsError(buildErrorMessage(error, 'Failed to load reports.'))
       } finally {
-        if (!isMounted) return
-        setIsLoadingReports(false)
+        if (isMounted) setIsLoadingReports(false)
       }
     }
 
@@ -300,40 +343,55 @@ export default function RiskScoringPage() {
 
   useEffect(() => {
     if (!selectedReportId) return
-    void handleGenerate(selectedReportId)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    void loadSavedRisk(selectedReportId)
   }, [selectedReportId])
 
-  async function handleGenerate(reportId?: string) {
-    const targetReportId = reportId ?? selectedReportId
-    if (!targetReportId) return
+  async function requestRisk(reportId: string, method: 'GET' | 'POST') {
+    const response = await fetch(`/api/risk-scoring/${encodeURIComponent(reportId)}`, {
+      method,
+      cache: 'no-store',
+    })
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.error ?? 'Failed to load risk scoring.')
+    }
+
+    return data as RiskApiResponse
+  }
+
+  async function loadSavedRisk(reportId = selectedReportId) {
+    if (!reportId) return
 
     try {
       setIsLoadingRisk(true)
       setRiskError('')
-      setLastGeneratedAt('')
-
-      const response = await fetch(`/api/risk-scoring/${targetReportId}`, {
-        cache: 'no-store',
-      })
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error ?? 'Failed to load risk scoring.')
-      }
-
-      setRiskData(data)
-      setLastGeneratedAt(new Date().toISOString())
+      setRiskData(null)
+      setRiskData(await requestRisk(reportId, 'GET'))
     } catch (error) {
       setRiskData(null)
-      setRiskError(error instanceof Error ? error.message : 'Failed to load risk scoring.')
+      setRiskError(buildErrorMessage(error, 'Failed to load saved risk scoring.'))
     } finally {
       setIsLoadingRisk(false)
     }
   }
 
+  async function generateRisk(reportId = selectedReportId) {
+    if (!reportId) return
+
+    try {
+      setIsGeneratingRisk(true)
+      setRiskError('')
+      setRiskData(await requestRisk(reportId, 'POST'))
+    } catch (error) {
+      setRiskError(buildErrorMessage(error, 'Failed to generate risk scoring.'))
+    } finally {
+      setIsGeneratingRisk(false)
+    }
+  }
+
   const selectedReport = useMemo(
-    () => reports.find((item) => item.id === selectedReportId) ?? null,
+    () => reports.find((report) => report.id === selectedReportId) ?? null,
     [reports, selectedReportId]
   )
 
@@ -341,7 +399,12 @@ export default function RiskScoringPage() {
     ? encodeURIComponent(selectedReportId)
     : ''
 
-  const assetExposure = riskData ? topAssets(riskData) : []
+  const hasRisk = Boolean(riskData?.summary && riskData.risk && riskData.riskMeta)
+  const summary = riskData?.summary ?? null
+  const risk = riskData?.risk ?? null
+  const riskMeta = riskData?.riskMeta ?? null
+  const reportInfo = riskData?.report ?? null
+  const assetExposure = risk ? topAssets(risk) : []
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#fbfefd] text-[#111827]">
@@ -355,80 +418,72 @@ export default function RiskScoringPage() {
           <div className="pointer-events-none absolute right-[180px] bottom-8 h-20 w-52 rounded-[50%] border border-[#bfe6cc] bg-gradient-to-b from-white to-[#e5f8ec] shadow-[0_24px_60px_rgba(8,122,58,0.12)] risk-platform" />
           <div className="pointer-events-none absolute right-20 top-12 h-24 w-24 rounded-full bg-gradient-to-br from-[#dff7e8] to-[#7ddf9b] shadow-[0_22px_55px_rgba(8,122,58,0.14)] risk-float" />
 
-          <div className="relative grid gap-8 lg:grid-cols-[1fr_0.78fr]">
+          <div className="relative grid gap-8 lg:grid-cols-[1fr_0.82fr]">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#087a3a]">
-                Risk Command View
+                AI Risk Scoring Center
               </p>
               <h1 className="mt-4 max-w-4xl text-4xl font-semibold tracking-[-0.04em] text-[#111827] md:text-5xl">
-                Report Risk Scoring
+                AI Risk Scoring Center
               </h1>
               <p className="mt-4 max-w-3xl text-base leading-8 text-[#5f6f66]">
-                Overall risk scoring, top-risk findings, factor breakdown, severity
-                coverage, and report-level risk rationale from the backend API.
+                Select a report, load the saved backend score, review the model rationale,
+                and regenerate only when you explicitly need a fresh saved result.
               </p>
 
               <div className="mt-7 flex flex-wrap gap-3">
-                <ActionLink href="/dashboard">Back to Dashboard</ActionLink>
-                <ActionLink href="/reports">All Reports</ActionLink>
+                <ActionLink href="/dashboard">Dashboard</ActionLink>
+                <ActionLink href="/reports">Reports</ActionLink>
                 {selectedReportParam ? (
                   <>
-                    <ActionLink href={`/reports/${selectedReportParam}`}>
-                      Open Report
-                    </ActionLink>
-                    <ActionLink href={`/summarization?reportId=${selectedReportParam}`}>
-                      Summary
-                    </ActionLink>
-                    <ActionLink href={`/results?reportId=${selectedReportParam}`}>
-                      Findings
-                    </ActionLink>
-                    <ActionLink href={`/graph?reportId=${selectedReportParam}`}>
-                      Attack Graph
-                    </ActionLink>
+                    <ActionLink href={`/reports/${selectedReportParam}`}>Open Report</ActionLink>
+                    <ActionLink href={`/results?reportId=${selectedReportParam}`}>Findings</ActionLink>
+                    <ActionLink href={`/graph?reportId=${selectedReportParam}`}>Open Graph</ActionLink>
+                    <ActionLink href={`/recommendations?reportId=${selectedReportParam}`}>Recommendations</ActionLink>
+                    <ActionLink href={`/export?reportId=${selectedReportParam}`}>Export Risk Report</ActionLink>
                   </>
                 ) : null}
               </div>
             </div>
 
             <div className="rounded-[28px] border border-[#dceee3] bg-white/78 p-5 shadow-[0_20px_60px_rgba(15,43,29,0.07)] backdrop-blur">
-              <div className="grid gap-3">
-                <select
-                  value={selectedReportId}
-                  onChange={(event) => setSelectedReportId(event.target.value)}
-                  disabled={isLoadingReports || reports.length === 0}
-                  className="h-12 rounded-2xl border border-[#c4e3cf] bg-[#f6fff9] px-4 text-sm font-semibold text-[#173128] outline-none focus:border-[#087a3a] disabled:cursor-not-allowed disabled:opacity-60"
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#087a3a]">
+                Report selector
+              </p>
+              <select
+                value={selectedReportId}
+                onChange={(event) => setSelectedReportId(event.target.value)}
+                disabled={isLoadingReports || reports.length === 0}
+                className="mt-4 h-12 w-full rounded-2xl border border-[#c4e3cf] bg-[#f6fff9] px-4 text-sm font-semibold text-[#173128] outline-none focus:border-[#087a3a] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {reports.length === 0 ? (
+                  <option value="">No reports available</option>
+                ) : (
+                  reports.map((report) => (
+                    <option key={report.id} value={report.id}>
+                      {report.name} - {report.id}
+                    </option>
+                  ))
+                )}
+              </select>
+
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <button
+                  type="button"
+                  onClick={() => loadSavedRisk()}
+                  disabled={!selectedReportId || isLoadingRisk || isGeneratingRisk}
+                  className="h-12 rounded-2xl border border-[#c4e3cf] bg-white px-5 text-sm font-semibold text-[#173128] transition hover:bg-[#edfdf3] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {reports.length === 0 ? (
-                    <option value="">No reports available</option>
-                  ) : (
-                    reports.map((report) => (
-                      <option key={report.id} value={report.id}>
-                        {report.name} - {report.id}
-                      </option>
-                    ))
-                  )}
-                </select>
-
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <button
-                    onClick={() => handleGenerate()}
-                    disabled={!selectedReportId || isLoadingReports || isLoadingRisk}
-                    className="h-12 rounded-2xl bg-[#087a3a] px-5 text-sm font-semibold text-white transition hover:bg-[#066b33] disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    {isLoadingRisk
-                      ? 'Scoring risk...'
-                      : riskData
-                        ? 'Regenerate Risk'
-                        : 'Generate Risk'}
-                  </button>
-
-                  <Link
-                    href={selectedReportParam ? `/reports/${selectedReportParam}` : '/reports'}
-                    className="inline-flex h-12 items-center justify-center rounded-2xl border border-[#c4e3cf] bg-white px-5 text-sm font-semibold text-[#173128] transition hover:bg-[#edfdf3]"
-                  >
-                    Open Report
-                  </Link>
-                </div>
+                  {isLoadingRisk ? 'Loading saved...' : 'Load Saved'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => generateRisk()}
+                  disabled={!selectedReportId || isLoadingRisk || isGeneratingRisk}
+                  className="h-12 rounded-2xl bg-[#087a3a] px-5 text-sm font-semibold text-white transition hover:bg-[#066b33] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isGeneratingRisk ? 'Generating...' : hasRisk ? 'Regenerate' : 'Generate'}
+                </button>
               </div>
             </div>
           </div>
@@ -437,26 +492,6 @@ export default function RiskScoringPage() {
         {reportsError ? <ErrorBox message={reportsError} /> : null}
         {riskError ? <ErrorBox message={riskError} /> : null}
 
-        {isLoadingRisk ? (
-          <section className="mt-5 rounded-[28px] border border-[#dceee3] bg-white/95 p-6 shadow-[0_22px_60px_rgba(15,43,29,0.05)]">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#087a3a]">
-              Calculating risk score
-            </p>
-            <p className="mt-2 text-sm leading-6 text-[#5a7668]">
-              The system is refreshing report-level risk, scoring factors, and top risk findings.
-            </p>
-            <div className="mt-4 h-2 overflow-hidden rounded-full bg-[#e6f5eb]">
-              <div className="h-full w-2/3 animate-pulse rounded-full bg-[#087a3a]" />
-            </div>
-          </section>
-        ) : null}
-
-        {lastGeneratedAt && riskData ? (
-          <section className="mt-5 rounded-2xl border border-[#c4e3cf] bg-[#f6fff9] px-5 py-3 text-sm font-semibold text-[#087a3a]">
-            Risk score refreshed at {shortDateTime(lastGeneratedAt)}
-          </section>
-        ) : null}
-
         {selectedReport ? (
           <section className="mt-5 rounded-[28px] border border-[#dceee3] bg-white/95 p-5 shadow-[0_22px_60px_rgba(15,43,29,0.05)]">
             <div className="flex flex-wrap items-center gap-3">
@@ -464,44 +499,114 @@ export default function RiskScoringPage() {
               <Pill>{selectedReport.type}</Pill>
               <Pill>{selectedReport.status}</Pill>
               <Pill>Uploaded {shortDateTime(selectedReport.uploadedAt)}</Pill>
+              <Pill>{selectedReport.findings} findings</Pill>
             </div>
             <h2 className="mt-4 text-2xl font-semibold text-[#0d2217]">
               {selectedReport.name}
             </h2>
             <p className="mt-2 max-w-5xl text-sm leading-7 text-[#5a7668]">
-              {selectedReport.summary}
+              {selectedReport.summary || 'No report summary saved yet.'}
             </p>
           </section>
         ) : null}
 
-        {riskData ? (
+        {isLoadingRisk ? (
+          <section className="mt-5 rounded-[28px] border border-[#dceee3] bg-white/95 p-6 shadow-[0_22px_60px_rgba(15,43,29,0.05)]">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#087a3a]">
+              Loading saved risk score
+            </p>
+            <div className="mt-4 h-2 overflow-hidden rounded-full bg-[#e6f5eb]">
+              <div className="h-full w-2/3 animate-pulse rounded-full bg-[#087a3a]" />
+            </div>
+          </section>
+        ) : null}
+
+        {!isLoadingRisk && riskData && !hasRisk ? (
+          <section className="mt-6 rounded-[30px] border border-dashed border-[#c4e3cf] bg-white/95 p-8 text-center shadow-[0_22px_60px_rgba(15,43,29,0.05)]">
+            <p className="text-2xl font-semibold text-[#0d2217]">
+              No saved risk score yet
+            </p>
+            <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-[#5a7668]">
+              {riskData.message ||
+                'This report has no saved risk score in the database. Generate it once to save a real backend result.'}
+            </p>
+            <button
+              type="button"
+              onClick={() => generateRisk()}
+              disabled={!selectedReportId || isGeneratingRisk}
+              className="mt-6 rounded-2xl bg-[#087a3a] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#066b33] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isGeneratingRisk ? 'Generating...' : 'Generate and Save Risk'}
+            </button>
+          </section>
+        ) : null}
+
+        {hasRisk && summary && risk && riskMeta && reportInfo ? (
           <>
+            <section className="mt-5 rounded-2xl border border-[#c4e3cf] bg-[#f6fff9] px-5 py-3 text-sm font-semibold text-[#087a3a]">
+              {riskData?.status === 'generated' ? 'Generated and saved' : 'Loaded saved score'} at{' '}
+              {shortDateTime(riskMeta.generatedAtIso)}
+            </section>
+
             <section className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
               <MetricCard
                 label="Overall risk"
-                value={`${riskData.riskMeta.overallRiskScore}/100`}
-                helper={riskData.riskMeta.overallRiskBand}
-                valueClass={scoreTone(riskData.riskMeta.overallRiskScore)}
+                value={`${riskMeta.overallRiskScore}/100`}
+                helper={riskMeta.overallRiskBand}
+                valueClass={scoreTone(riskMeta.overallRiskScore)}
               />
               <MetricCard
                 label="Summary confidence"
-                value={`${riskData.summary.confidence}%`}
-                helper="Grounded summarization"
+                value={`${summary.confidence}%`}
+                helper="Saved summary signal"
               />
               <MetricCard
-                label="Coverage"
-                value={`${riskData.summary.grounding.averageFieldCoverage}%`}
-                helper="Average field grounding"
+                label="Grounding coverage"
+                value={`${summary.grounding.averageFieldCoverage}%`}
+                helper="Extracted fields coverage"
               />
               <MetricCard
                 label="Open findings"
-                value={String(riskData.riskMeta.openFindings)}
-                helper={`${riskData.riskMeta.totalFindings} total findings`}
+                value={String(riskMeta.openFindings)}
+                helper={`${riskMeta.totalFindings} total findings`}
               />
               <MetricCard
                 label="Findings with CVE"
-                value={String(riskData.riskMeta.findingsWithCve)}
-                helper={`${riskData.riskMeta.distinctAssets} distinct assets`}
+                value={String(riskMeta.findingsWithCve)}
+                helper={`${riskMeta.distinctAssets} distinct assets`}
+              />
+            </section>
+
+            <section className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+              <ReasonSignal
+                label="Critical findings"
+                value={String(risk.stats.criticalFindings)}
+                helper="From saved findings"
+              />
+              <ReasonSignal
+                label="CVEs detected"
+                value={String(risk.stats.findingsWithCve)}
+                helper="Valid CVE references"
+              />
+              <ReasonSignal
+                label="Assets affected"
+                value={String(risk.stats.distinctAssets)}
+                helper="Distinct assets"
+              />
+              <ReasonSignal
+                label="Missing remediation"
+                value={String(missingRemediationCount(summary))}
+                helper="Needs completion"
+              />
+              <ReasonSignal
+                label="Exploit signals"
+                value={String(exploitSignalCount(risk))}
+                helper="Derived from report text"
+              />
+              <ReasonSignal
+                label="Evidence confidence"
+                value={`${summary.confidence}%`}
+                helper="Saved summary signal"
               />
             </section>
 
@@ -511,19 +616,14 @@ export default function RiskScoringPage() {
                   <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
                       <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#087a3a]">
-                        Risk summary
+                        AI explanation
                       </p>
                       <h2 className="mt-2 text-2xl font-semibold text-[#0d2217]">
-                        Overall report risk
+                        Why this report is high risk
                       </h2>
                     </div>
-
-                    <span
-                      className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${riskBandClass(
-                        riskData.risk.overallRiskBand
-                      )}`}
-                    >
-                      {riskData.risk.overallRiskBand}
+                    <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${riskBandClass(risk.overallRiskBand)}`}>
+                      {risk.overallRiskBand}
                     </span>
                   </div>
 
@@ -532,19 +632,13 @@ export default function RiskScoringPage() {
                       <div
                         className="grid h-40 w-40 place-items-center rounded-full"
                         style={{
-                          background: `conic-gradient(${ringColor(
-                            riskData.risk.overallRiskScore
-                          )} ${riskData.risk.overallRiskScore * 3.6}deg, #e6f5eb 0deg)`,
+                          background: `conic-gradient(${ringColor(risk.overallRiskScore)} ${risk.overallRiskScore * 3.6}deg, #e6f5eb 0deg)`,
                         }}
                       >
                         <div className="grid h-28 w-28 place-items-center rounded-full bg-white text-center shadow-inner">
                           <div>
-                            <p
-                              className={`text-4xl font-semibold ${scoreTone(
-                                riskData.risk.overallRiskScore
-                              )}`}
-                            >
-                              {riskData.risk.overallRiskScore}
+                            <p className={`text-4xl font-semibold ${scoreTone(risk.overallRiskScore)}`}>
+                              {risk.overallRiskScore}
                             </p>
                             <p className="text-xs text-[#748579]">Risk score</p>
                           </div>
@@ -553,17 +647,17 @@ export default function RiskScoringPage() {
                     </div>
 
                     <div className="space-y-3">
-                      {riskData.risk.rationale.length === 0 ? (
+                      {risk.rationale.length === 0 ? (
                         <p className="rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-4 text-sm text-[#5a7668]">
-                          No risk rationale was generated.
+                          No rationale was saved for this score.
                         </p>
                       ) : (
-                        riskData.risk.rationale.map((item, index) => (
+                        risk.rationale.map((item, index) => (
                           <p
                             key={`${item}-${index}`}
                             className="rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-4 text-sm leading-7 text-[#173128]"
                           >
-                            {item}
+                            {safeReason(item)}
                           </p>
                         ))
                       )}
@@ -578,59 +672,49 @@ export default function RiskScoringPage() {
                         Top risk findings
                       </p>
                       <h2 className="mt-2 text-2xl font-semibold text-[#0d2217]">
-                        Highest-priority scoring results
+                        Highest-risk findings with actions
                       </h2>
                     </div>
-
                     <Link
                       href={selectedReportParam ? `/results?reportId=${selectedReportParam}` : '/results'}
                       className="rounded-2xl border border-[#c4e3cf] bg-white px-4 py-2 text-sm font-semibold text-[#173128] transition hover:bg-[#edfdf3]"
                     >
-                      Open findings board
+                      Open findings
                     </Link>
                   </div>
 
                   <div className="mt-5 grid gap-4">
-                    {riskData.risk.topRiskFindings.length === 0 ? (
+                    {risk.topRiskFindings.length === 0 ? (
                       <p className="rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-4 text-sm text-[#5a7668]">
                         No risk findings available.
                       </p>
                     ) : (
-                      riskData.risk.topRiskFindings.slice(0, 6).map((item) => (
-                        <article
-                          key={item.findingId}
-                          className="rounded-[24px] border border-[#e4f2e9] bg-[#f8fffa] p-5"
-                        >
+                      risk.topRiskFindings.slice(0, 6).map((item) => (
+                        <article key={item.findingId} className="rounded-[24px] border border-[#e4f2e9] bg-[#f8fffa] p-5">
                           <div className="flex flex-wrap items-center gap-3">
-                            <span
-                              className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${severityClass(
-                                item.severity
-                              )}`}
-                            >
+                            <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${severityClass(item.severity)}`}>
                               {item.severity}
                             </span>
-
-                            <span
-                              className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${riskBandClass(
-                                item.riskBand
-                              )}`}
-                            >
+                            <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${riskBandClass(item.riskBand)}`}>
                               {item.riskBand}
                             </span>
-
                             <span className={`text-sm font-semibold ${scoreTone(item.riskScore)}`}>
                               Risk {item.riskScore}
-                            </span>
-
-                            <span className="rounded-full border border-[#dcefe2] bg-white px-3 py-1 text-xs font-semibold text-[#173128]">
-                              Original {item.originalScore}
                             </span>
                           </div>
 
                           <h3 className="mt-4 text-lg font-semibold text-[#0d2217]">
                             {item.title}
                           </h3>
-                          <p className="mt-1 text-sm text-[#5a7668]">{item.asset}</p>
+                          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                            <FindingMeta label="Asset" value={item.asset} />
+                            <FindingMeta label="CVE" value={cveText(item.cve)} />
+                            <FindingMeta
+                              label="Risk contribution"
+                              value={riskContribution(item, risk.overallRiskScore)}
+                            />
+                            <FindingMeta label="Recommended action" value={recommendedAction(item)} />
+                          </div>
 
                           <div className="mt-4 grid gap-4 xl:grid-cols-[1fr_0.8fr]">
                             <div>
@@ -639,26 +723,18 @@ export default function RiskScoringPage() {
                               </p>
                               <div className="mt-2 space-y-2">
                                 {item.rationale.slice(0, 4).map((reason, index) => (
-                                  <p
-                                    key={`${reason}-${index}`}
-                                    className="text-sm leading-7 text-[#173128]"
-                                  >
-                                    {reason}
+                                  <p key={`${reason}-${index}`} className="text-sm leading-7 text-[#173128]">
+                                    {safeReason(reason)}
                                   </p>
                                 ))}
                               </div>
                             </div>
-
                             <FactorGrid factors={item.factors} />
                           </div>
 
                           <div className="mt-4 flex flex-wrap gap-3">
-                            <ActionLink href={`/results/${item.findingId}`}>
-                              Open Finding
-                            </ActionLink>
-                            <ActionLink href={`/reports/${item.reportId}`}>
-                              Parent Report
-                            </ActionLink>
+                            <ActionLink href={`/results/${encodeURIComponent(item.findingId)}`}>Open Finding</ActionLink>
+                            <ActionLink href={`/reports/${encodeURIComponent(item.reportId)}`}>Parent Report</ActionLink>
                           </div>
                         </article>
                       ))
@@ -668,13 +744,10 @@ export default function RiskScoringPage() {
 
                 <section className="rounded-[32px] border border-[#dceee3] bg-white/95 p-6 shadow-[0_22px_60px_rgba(15,43,29,0.06)] backdrop-blur">
                   <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#087a3a]">
-                    Executive context
-                  </p>
-                  <h2 className="mt-2 text-2xl font-semibold text-[#0d2217]">
                     Summary used for scoring
-                  </h2>
+                  </p>
                   <p className="mt-4 rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-5 text-base leading-8 text-[#173128]">
-                    {riskData.summary.executiveSummary}
+                    {summary.executiveSummary}
                   </p>
                 </section>
               </div>
@@ -682,43 +755,20 @@ export default function RiskScoringPage() {
               <aside className="space-y-5">
                 <Panel title="Coverage and severity">
                   <div className="grid gap-3">
-                    <GroundingRow
-                      label="With summary"
-                      value={riskData.summary.grounding.findingsWithSummary}
-                      total={riskData.summary.stats.totalFindings}
-                    />
-                    <GroundingRow
-                      label="With impact"
-                      value={riskData.summary.grounding.findingsWithImpact}
-                      total={riskData.summary.stats.totalFindings}
-                    />
-                    <GroundingRow
-                      label="With evidence"
-                      value={riskData.summary.grounding.findingsWithEvidence}
-                      total={riskData.summary.stats.totalFindings}
-                    />
-                    <GroundingRow
-                      label="With remediation"
-                      value={riskData.summary.grounding.findingsWithRemediation}
-                      total={riskData.summary.stats.totalFindings}
-                    />
+                    <GroundingRow label="With summary" value={summary.grounding.findingsWithSummary} total={summary.stats.totalFindings} />
+                    <GroundingRow label="With impact" value={summary.grounding.findingsWithImpact} total={summary.stats.totalFindings} />
+                    <GroundingRow label="With evidence" value={summary.grounding.findingsWithEvidence} total={summary.stats.totalFindings} />
+                    <GroundingRow label="With remediation" value={summary.grounding.findingsWithRemediation} total={summary.stats.totalFindings} />
                   </div>
 
                   <div className="mt-5 space-y-3">
-                    {(['Critical', 'High', 'Medium', 'Low'] as Severity[]).map((severity) => (
-                      <div
-                        key={severity}
-                        className="flex items-center justify-between rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] px-4 py-3"
-                      >
-                        <span
-                          className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${severityClass(
-                            severity
-                          )}`}
-                        >
+                    {severities.map((severity) => (
+                      <div key={severity} className="flex items-center justify-between rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] px-4 py-3">
+                        <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${severityClass(severity)}`}>
                           {severity}
                         </span>
                         <span className="text-lg font-semibold text-[#173128]">
-                          {riskData.summary.severityOverview[severity]}
+                          {summary.severityOverview[severity]}
                         </span>
                       </div>
                     ))}
@@ -727,10 +777,10 @@ export default function RiskScoringPage() {
 
                 <Panel title="Risk statistics">
                   <div className="grid grid-cols-2 gap-3">
-                    <QualityBox label="Total findings" value={String(riskData.risk.stats.totalFindings)} helper="Report scope" />
-                    <QualityBox label="Open findings" value={String(riskData.risk.stats.openFindings)} helper="Needs action" />
-                    <QualityBox label="Findings with CVE" value={String(riskData.risk.stats.findingsWithCve)} helper="Mapped IDs" />
-                    <QualityBox label="Distinct assets" value={String(riskData.risk.stats.distinctAssets)} helper="Affected scope" />
+                    <QualityBox label="Total findings" value={String(risk.stats.totalFindings)} helper="Report scope" />
+                    <QualityBox label="Open findings" value={String(risk.stats.openFindings)} helper="Needs action" />
+                    <QualityBox label="Findings with CVE" value={String(risk.stats.findingsWithCve)} helper="Mapped IDs" />
+                    <QualityBox label="Distinct assets" value={String(risk.stats.distinctAssets)} helper="Affected scope" />
                   </div>
                 </Panel>
 
@@ -740,24 +790,15 @@ export default function RiskScoringPage() {
                       <p className="text-sm text-[#5a7668]">No affected assets were identified.</p>
                     ) : (
                       assetExposure.map((asset) => (
-                        <div
-                          key={asset.asset}
-                          className="rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-4"
-                        >
+                        <div key={asset.asset} className="rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-4">
                           <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0">
-                              <p className="truncate font-semibold text-[#0f2b1d]">
-                                {asset.asset}
-                              </p>
+                              <p className="truncate font-semibold text-[#0f2b1d]">{asset.asset}</p>
                               <p className="mt-1 text-sm text-[#5a7668]">
                                 {asset.count} linked finding{asset.count > 1 ? 's' : ''}
                               </p>
                             </div>
-                            <span
-                              className={`shrink-0 rounded-full border px-3 py-1 text-xs font-semibold ${riskBandClass(
-                                asset.band
-                              )}`}
-                            >
+                            <span className={`shrink-0 rounded-full border px-3 py-1 text-xs font-semibold ${riskBandClass(asset.band)}`}>
                               {asset.band}
                             </span>
                           </div>
@@ -771,21 +812,17 @@ export default function RiskScoringPage() {
                 </Panel>
 
                 <Panel title="Parser notes">
-                  <div className="grid gap-3">
-                    <QualityBox
-                      label="Parsing status"
-                      value={riskData.report.parsingStatus}
-                      helper={`Parser version ${riskData.report.parserVersion ?? '-'}`}
-                    />
-
-                    {riskData.report.parsingNotes.length === 0 ? (
+                  <QualityBox
+                    label="Parsing status"
+                    value={reportInfo.parsingStatus}
+                    helper={`Parser version ${reportInfo.parserVersion ?? '-'}`}
+                  />
+                  <div className="mt-3 grid gap-3">
+                    {reportInfo.parsingNotes.length === 0 ? (
                       <p className="text-sm text-[#5a7668]">No parsing notes.</p>
                     ) : (
-                      riskData.report.parsingNotes.slice(0, 4).map((note, index) => (
-                        <p
-                          key={`${note}-${index}`}
-                          className="rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-4 text-sm leading-6 text-[#173128]"
-                        >
+                      reportInfo.parsingNotes.slice(0, 4).map((note, index) => (
+                        <p key={`${note}-${index}`} className="rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-4 text-sm leading-6 text-[#173128]">
                           {note}
                         </p>
                       ))
@@ -795,21 +832,7 @@ export default function RiskScoringPage() {
               </aside>
             </section>
           </>
-        ) : (
-          !isLoadingReports &&
-          !riskError &&
-          reports.length > 0 && (
-            <section className="mt-8 rounded-[28px] border border-dashed border-[#c4e3cf] bg-white p-10 text-center shadow-sm">
-              <p className="text-lg font-semibold text-[#173128]">
-                Select a report to generate risk scoring.
-              </p>
-              <p className="mt-2 text-sm text-[#5a7668]">
-                The page will display overall risk, scoring factors, and grounded
-                metadata from the summarization layer.
-              </p>
-            </section>
-          )
-        )}
+        ) : null}
       </section>
 
       <style>{`
@@ -817,15 +840,45 @@ export default function RiskScoringPage() {
           0%, 100% { transform: translateY(0) rotate(0deg); }
           50% { transform: translateY(-12px) rotate(2deg); }
         }
-
         .risk-float { animation: risk-float 6.2s ease-in-out infinite; }
         .risk-platform { transform: perspective(800px) rotateX(58deg); }
+        @media (prefers-reduced-motion: reduce) {
+          .risk-float { animation: none; }
+        }
       `}</style>
     </main>
   )
 }
 
-function MetricCard(props: {
+function ActionLink({
+  href,
+  children,
+  primary = false,
+}: {
+  href: string
+  children: ReactNode
+  primary?: boolean
+}) {
+  return (
+    <Link
+      href={href}
+      className={
+        primary
+          ? 'inline-flex items-center justify-center rounded-2xl bg-[#087a3a] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_32px_rgba(8,122,58,0.18)] transition hover:-translate-y-0.5 hover:bg-[#066b33]'
+          : 'inline-flex items-center justify-center rounded-2xl border border-[#c4e3cf] bg-white px-5 py-3 text-sm font-semibold text-[#173128] transition hover:-translate-y-0.5 hover:bg-[#f4fff7]'
+      }
+    >
+      {children}
+    </Link>
+  )
+}
+
+function MetricCard({
+  label,
+  value,
+  helper,
+  valueClass,
+}: {
   label: string
   value: string
   helper?: string
@@ -833,13 +886,11 @@ function MetricCard(props: {
 }) {
   return (
     <div className="rounded-[26px] border border-[#dceee3] bg-white p-5 shadow-[0_22px_60px_rgba(15,43,29,0.05)] transition hover:-translate-y-1 hover:shadow-[0_30px_80px_rgba(15,43,29,0.09)]">
-      <p className="text-sm font-medium text-[#5a7668]">{props.label}</p>
-      <p className={`mt-3 text-3xl font-semibold tracking-tight ${props.valueClass ?? 'text-[#0d2217]'}`}>
-        {props.value}
+      <p className="text-sm font-medium text-[#5a7668]">{label}</p>
+      <p className={`mt-3 text-3xl font-semibold tracking-tight ${valueClass ?? 'text-[#0d2217]'}`}>
+        {value}
       </p>
-      {props.helper ? (
-        <p className="mt-2 text-sm leading-6 text-[#5a7668]">{props.helper}</p>
-      ) : null}
+      {helper ? <p className="mt-2 text-sm leading-6 text-[#5a7668]">{helper}</p> : null}
     </div>
   )
 }
@@ -853,37 +904,18 @@ function Panel({ title, children }: { title: string; children: ReactNode }) {
   )
 }
 
-function QualityBox({
-  label,
-  value,
-  helper,
-}: {
-  label: string
-  value: string
-  helper: string
-}) {
+function QualityBox({ label, value, helper }: { label: string; value: string; helper: string }) {
   return (
     <div className="rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-4">
-      <p className="text-xs font-semibold uppercase tracking-wide text-[#5a7668]">
-        {label}
-      </p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-[#5a7668]">{label}</p>
       <p className="mt-2 text-2xl font-semibold text-[#087a3a]">{value}</p>
       <p className="mt-1 text-xs text-[#5a7668]">{helper}</p>
     </div>
   )
 }
 
-function GroundingRow({
-  label,
-  value,
-  total,
-}: {
-  label: string
-  value: number
-  total: number
-}) {
+function GroundingRow({ label, value, total }: { label: string; value: number; total: number }) {
   const width = percent(value, total)
-
   return (
     <div>
       <div className="mb-1 flex items-center justify-between text-sm">
@@ -893,17 +925,14 @@ function GroundingRow({
         </span>
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-[#e6f5eb]">
-        <div
-          className="h-full rounded-full bg-[#087a3a]"
-          style={{ width: `${width}%` }}
-        />
+        <div className="h-full rounded-full bg-[#087a3a]" style={{ width: `${width}%` }} />
       </div>
     </div>
   )
 }
 
 function FactorGrid({ factors }: { factors: RiskFactorBreakdown }) {
-  const rows = [
+  const rows: Array<[string, number]> = [
     ['Severity', factors.severity],
     ['Status', factors.status],
     ['CVE', factors.cvePresence],
@@ -921,15 +950,51 @@ function FactorGrid({ factors }: { factors: RiskFactorBreakdown }) {
       </p>
       <div className="mt-2 grid gap-2 sm:grid-cols-2">
         {rows.map(([label, value]) => (
-          <div
-            key={label}
-            className="rounded-xl border border-[#e4f2e9] bg-white px-3 py-2"
-          >
+          <div key={label} className="rounded-xl border border-[#e4f2e9] bg-white px-3 py-2">
             <p className="text-xs text-[#5a7668]">{label}</p>
             <p className="mt-1 text-sm font-semibold text-[#173128]">{value}</p>
           </div>
         ))}
       </div>
+    </div>
+  )
+}
+
+
+function ReasonSignal({
+  label,
+  value,
+  helper,
+}: {
+  label: string
+  value: string
+  helper: string
+}) {
+  return (
+    <article className="group relative overflow-hidden rounded-[24px] border border-[#dceee3] bg-white p-4 shadow-[0_18px_50px_rgba(15,43,29,0.05)] transition hover:-translate-y-1 hover:shadow-[0_28px_70px_rgba(15,43,29,0.09)]">
+      <div className="pointer-events-none absolute right-3 top-3 h-16 w-16 rounded-full bg-[#e8f8ee] opacity-80 blur-2xl transition duration-500 group-hover:scale-150" />
+      <p className="relative text-xs font-semibold uppercase tracking-[0.14em] text-[#5a7668]">
+        {label}
+      </p>
+      <p className="relative mt-3 text-3xl font-semibold tracking-tight text-[#0d2217]">
+        {value}
+      </p>
+      <p className="relative mt-2 text-xs font-medium leading-5 text-[#087a3a]">
+        {helper}
+      </p>
+    </article>
+  )
+}
+
+function FindingMeta({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-[#e4f2e9] bg-white p-3">
+      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#748579]">
+        {label}
+      </p>
+      <p className="mt-2 line-clamp-3 text-sm font-semibold leading-6 text-[#173128]">
+        {value}
+      </p>
     </div>
   )
 }

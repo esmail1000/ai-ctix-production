@@ -50,8 +50,53 @@ function refreshReportCounts<
 function isNlpResultUsable(params: {
   nlpFindings: StoredFinding[]
   nlpError?: string
+  modelTrusted?: boolean
 }): boolean {
-  return !params.nlpError && params.nlpFindings.length > 0
+  return !params.nlpError && params.nlpFindings.length > 0 && params.modelTrusted !== false
+}
+
+function envFlag(name: string, fallback = false): boolean {
+  const value = String(process.env[name] ?? '').trim().toLowerCase()
+
+  if (!value) return fallback
+  if (['1', 'true', 'yes', 'y', 'on'].includes(value)) return true
+  if (['0', 'false', 'no', 'n', 'off'].includes(value)) return false
+
+  return fallback
+}
+
+function isStrictNlpModelRequired(): boolean {
+  return envFlag('NLP_STRICT_MODEL') || envFlag('NLP_REQUIRE_QUALITY_GATE')
+}
+
+function isTrustedNlpModelResult(result: Awaited<ReturnType<typeof runNlpEngine>>): boolean {
+  const requireQualityGate = envFlag('NLP_REQUIRE_QUALITY_GATE', true)
+
+  if (result.meta?.error) return false
+  if (result.meta?.model_loaded !== true) return false
+  if (result.meta?.fallback_used === true) return false
+
+  if (requireQualityGate && result.meta?.model_quality_gate_passed !== true) {
+    return false
+  }
+
+  return true
+}
+
+function buildNlpReadinessError(result: Awaited<ReturnType<typeof runNlpEngine>>): string {
+  const reasons = [
+    result.meta?.error ? `engine error: ${result.meta.error}` : '',
+    result.meta?.model_loaded !== true ? 'model_loaded is not true' : '',
+    result.meta?.fallback_used === true ? 'fallback_used is true' : '',
+    result.meta?.model_quality_gate_passed !== true
+      ? 'model_quality_gate_passed is not true'
+      : '',
+  ].filter(Boolean)
+
+  const warnings = (result.meta?.warnings ?? []).slice(0, 3).join(' | ')
+  const suffix = warnings ? ` Warnings: ${warnings}` : ''
+
+  return `NLP strict mode blocked analysis because the trained model is not ready (${reasons.join('; ') || 'unknown reason'}).${suffix}`
 }
 
 function compactText(value: unknown) {
@@ -1319,9 +1364,13 @@ function getFindingExternalId(finding: StoredFinding) {
   return extractExternalFindingIdFromText(
     [
       finding.title,
+      finding.evidence,
+      finding.summary,
+      finding.reported?.evidence,
       extended.sourceSectionTitle,
       extended.canonicalKey,
       extended.provenance?.sourceSectionTitle,
+      extended.provenance?.sourceText,
       extended.normalization?.canonicalKey,
     ].join(' ')
   )
@@ -1415,6 +1464,50 @@ function looksLikeReferenceOnlyLine(value: unknown) {
   return words.length > 0 && words.every((word) => weakReferenceWords.has(word))
 }
 
+function hasStrongSecurityFindingEvidence(finding: StoredFinding) {
+  const extended = getExtendedFinding(finding)
+
+  const haystack = compactText(
+    [
+      finding.title,
+      finding.cve,
+      finding.severity,
+      finding.asset,
+      finding.summary,
+      finding.impact,
+      finding.evidence,
+      finding.remediation,
+      extended.provenance?.sourceSectionTitle,
+      extended.provenance?.sourceText,
+      extended.normalization?.canonicalKey,
+      JSON.stringify(finding.reported ?? {}),
+    ].join(' ')
+  )
+
+  const hasCve = /\bCVE-\d{4}-\d{4,7}\b/i.test(haystack)
+  const hasCweOrCvss = /\b(?:CWE-\d{1,6}|CVSS\s*(?:score)?\s*:?\s*\d+(?:\.\d+)?|CVSS:\d\.\d)\b/i.test(haystack)
+  const hasKnownVulnerabilityType = /\b(?:SQL\s+Injection|Remote\s+Code\s+Execution|RCE|Command\s+Injection|Cross[-\s]*Site\s+Scripting|XSS|SSRF|CSRF|XXE|Path\s+Traversal|Authentication\s+Bypass|Authorization\s+Bypass|Insecure\s+Deserialization|File\s+Upload|Privilege\s+Escalation|Information\s+Disclosure|Open\s+Redirect|Denial[-\s]of[-\s]Service|DoS|Security\s+Misconfiguration|Broken\s+Access\s+Control)\b/i.test(haystack)
+  const hasReportFindingContext = /\b(?:Affected\s+Component|Affected\s+URL|Affected\s+IP|Attack\s+Vector|Exploitation\s+Steps|Steps\s+to\s+Reproduce|Proof\s+of\s+Concept|PoC|Impact|Remediation|Recommended\s+Fix|Port\s*:|endpoint|parser|database|attacker|payload|bypass|execute\s+commands?)\b/i.test(haystack)
+
+  const asset = compactText(finding.asset)
+  const hasSpecificAsset = Boolean(
+    asset &&
+      asset !== 'investigation-scope' &&
+      !/^(?:security|vulnerability|vulnerabilities|reference|references|definition|documentation|cve|cwe|owasp|rspec)$/i.test(asset)
+  )
+
+  const hasReportedImpactOrRemediation = Boolean(
+    (finding.impact && !/^Potential impact includes/i.test(finding.impact)) ||
+      (finding.remediation && !/^Review the affected control/i.test(finding.remediation))
+  )
+
+  return (
+    (hasKnownVulnerabilityType && (hasCve || hasCweOrCvss || hasReportFindingContext || hasSpecificAsset)) ||
+    (hasCve && hasReportFindingContext) ||
+    (hasCve && hasReportedImpactOrRemediation)
+  )
+}
+
 function isReferenceOnlyFinding(finding: StoredFinding) {
   const extended = getExtendedFinding(finding)
 
@@ -1435,6 +1528,14 @@ function isReferenceOnlyFinding(finding: StoredFinding) {
   // Real report findings like WPN-01-001 / LHS-01-001 / MIV-01-002
   // must never be filtered.
   if (titleHasRealReportFindingId || sourceTitleHasRealReportFindingId) {
+    return false
+  }
+
+  // Do not suppress real NLP/model findings just because their canonical key
+  // includes CVE/CWE-style identifiers. The reference-only filter is meant for
+  // catalog/documentation rows, not findings with exploit, impact, asset,
+  // severity, and remediation context.
+  if (hasStrongSecurityFindingEvidence(finding)) {
     return false
   }
 
@@ -1538,6 +1639,95 @@ function extract7ASecurityIndexItems(content: string): SevenSecurityIndexItem[] 
   return items
 }
 
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+function extract7ASecurityDetailedBodySection(content: string, item: SevenSecurityIndexItem): string | undefined {
+  const normalized = content
+    .replace(/\r\n?/g, '\n')
+    .replace(/[ \t]+/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+
+  const idPattern = escapeRegExp(item.externalId)
+  const headingPattern = new RegExp(
+    `(?:^|\\n)\\s*${idPattern}\\s+[^\\n()]{4,220}?\\s*\\((?:Critical|High|Medium|Low|Info|Informational)\\)`,
+    'gi'
+  )
+  const nextHeadingPattern = /(?:^|\n)\s*MIV-01-\d{3}\s+[^\n()]{4,220}?\s*\((?:Critical|High|Medium|Low|Info|Informational)\)/gi
+
+  let match: RegExpExecArray | null
+  let best: string | undefined
+
+  while ((match = headingPattern.exec(normalized)) !== null) {
+    nextHeadingPattern.lastIndex = match.index + Math.max(match[0].length, 1)
+    const next = nextHeadingPattern.exec(normalized)
+    const section = normalized
+      .slice(match.index, next?.index ?? Math.min(normalized.length, match.index + 4200))
+      .trim()
+
+    if (!/\b(?:Retest Notes|Affected File|Affected Code|PoC Code|Proof-of-Concept|Root cause|In order to resolve this issue|Proposed Fix|Output:|Step 1|Command:)\b/i.test(section)) {
+      continue
+    }
+
+    if (!best || section.length > best.length) best = section
+  }
+
+  return best
+}
+
+function remediationFrom7ASecurityBody(section: string, title: string): string {
+  const compact = compactText(section)
+  const explicit =
+    compact.match(/\bIn order to resolve this issue,\s+(.{20,520}?)(?:\.|$)/i)?.[1] ??
+    compact.match(/\bIt is recommended to\s+(.{20,520}?)(?:\.|$)/i)?.[1] ??
+    compact.match(/\bit is recommended to\s+(.{20,520}?)(?:\.|$)/i)?.[1]
+
+  if (explicit) return compactText(explicit)
+
+  if (/integer division|blocksize/i.test(title)) return 'Check that blockSize is greater than zero before modulo or padding operations and return an error for invalid block sizes.'
+  if (/nil pointer|dataCipher/i.test(title)) return 'Check that the data channel state and dataCipher are non-null before encrypting or encoding payloads.'
+  if (/index out of range|slice bounds|bounds out of range/i.test(title)) return 'Add strict length and bounds checks before indexing, slicing, or adding compression padding, then retest the crash proof-of-concept.'
+  if (/spoofed udp handshake|handshake/i.test(title)) return 'Implement retry or fallback handling for malformed UDP handshake responses so a single spoofed packet cannot terminate the VPN connection.'
+  if (/predictable port/i.test(title)) return 'Avoid assuming a fixed local port; handle occupied ports safely and allow configurable or random local port selection.'
+  if (/file disclosure|error messages/i.test(title)) return 'Sanitize error output and avoid disclosing local file contents, paths, or implementation details.'
+  if (/fingerprinting|traffic patterns/i.test(title)) return 'Reduce unique traffic fingerprints by normalizing observable traffic patterns and reviewing protocol metadata exposure.'
+  if (/binary hardening/i.test(title)) return 'Apply standard binary hardening flags and verify platform-specific hardening options during release builds.'
+  if (/bootstrap-provider|verification/i.test(title)) return 'Verify bootstrap-provider input values and provider configuration before processing user-supplied paths or provider data.'
+  if (/tls minversion|mitm|missing tls/i.test(title)) return 'Set a secure minimum TLS version and reject legacy TLS configurations that can enable downgrade or MitM risk.'
+
+  return 'Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.'
+}
+
+function impactFrom7ASecurityBody(section: string, title: string, asset: string): string {
+  const compact = compactText(section)
+  const explicit =
+    compact.match(/\b(?:may|might|could|can)\s+leverage\s+this\s+weakness\s+to\s+(.{20,420}?)(?:\.|$)/i)?.[1] ??
+    compact.match(/\bThis led to the following crash error:?[\s“\"]+([^.”\"]{8,220})/i)?.[1]
+
+  if (explicit && !/^panic:/i.test(explicit)) return compactText(explicit)
+
+  if (/spoofed udp handshake|handshake/i.test(title)) {
+    return 'A spoofed UDP response can prevent new VPN connections or disconnect established minivpn clients, causing denial of service.'
+  }
+  if (/dos|denial of service|integer division|nil pointer|index out of range|slice bounds|predictable port/i.test(`${title} ${compact}`)) {
+    return `A malformed input or network condition can trigger a crash or connection failure in ${asset}, causing denial of service and availability loss.`
+  }
+  if (/file disclosure|error messages/i.test(title)) return 'Verbose error messages may disclose local file contents, paths, or implementation details useful to attackers.'
+  if (/fingerprinting|traffic patterns/i.test(title)) return 'Observable traffic patterns may help identify or fingerprint minivpn usage.'
+  if (/tls minversion|mitm|missing tls/i.test(title)) return 'Missing TLS minimum-version enforcement can expose users to downgrade or man-in-the-middle risk.'
+
+  return `Potential impact includes increased attacker opportunity against ${asset} if this signal is not reviewed.`
+}
+
+function extract7ASecurityAsset(section: string): string | undefined {
+  if (/\bminivpn\/vpn\b/i.test(section)) return 'minivpn/vpn'
+  if (/\bminivpn\b/i.test(section)) return 'minivpn OpenVPN Go Client'
+  return undefined
+}
+
 function apply7ASecurityIndexItemToFinding(
   finding: StoredFinding,
   item: SevenSecurityIndexItem
@@ -1573,13 +1763,30 @@ function create7ASecurityIndexFinding(params: {
   reportId: string
   reportName: string
   uploadedAt: string
+  content: string
   templateFinding?: StoredFinding
 }): StoredFinding {
-  const { item, reportId, reportName, uploadedAt, templateFinding } = params
+  const { item, reportId, reportName, uploadedAt, content, templateFinding } = params
 
   const template = templateFinding ?? ({} as StoredFinding)
   const extended = getExtendedFinding(template)
-  const asset = 'investigation-scope'
+  const detailedSection = extract7ASecurityDetailedBodySection(content, item)
+  const recoveredAsset = detailedSection ? extract7ASecurityAsset(detailedSection) : undefined
+  const asset = recoveredAsset ?? 'investigation-scope'
+  const evidence = detailedSection
+    ? `Finding IDs: ${item.externalId} | Source: 7ASecurity detailed report body`
+    : `Finding IDs: ${item.externalId} | Source: 7ASecurity report index`
+  const remediation = detailedSection
+    ? remediationFrom7ASecurityBody(detailedSection, item.title)
+    : 'Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.'
+  const isDos = /\b(?:DoS|Denial\s+of\s+Service|crash|packet|handshake|bounds|pointer|division)\b/i.test(item.title)
+  const impact = detailedSection
+    ? impactFrom7ASecurityBody(detailedSection, item.title, asset)
+    : isDos
+      ? `Potential impact includes service disruption, crash, or availability loss against ${asset} if this finding is confirmed.`
+      : item.severity === 'Critical' || item.severity === 'High'
+        ? `Potential impact includes exploitation or service compromise against ${asset} if this issue remains unaddressed.`
+        : `Potential impact includes increased attacker opportunity against ${asset} if this signal is not reviewed.`
 
   return {
     ...template,
@@ -1595,28 +1802,33 @@ function create7ASecurityIndexFinding(params: {
     score: scoreForSeverity(item.severity),
     status: statusForSeverity(item.severity),
 
-    summary: `${item.title} affecting ${asset}; finding recovered from the 7ASecurity report index and requires review.`,
-
-    impact:
-      item.severity === 'Critical' || item.severity === 'High'
-        ? `Potential impact includes exploitation, unauthorized access, data exposure, or service compromise against ${asset} if this issue remains unaddressed.`
-        : `Potential impact includes increased attacker opportunity against ${asset} if this signal is not reviewed.`,
-
-    remediation:
-      'Review the detailed report body for the original recommendation, then validate and remediate the affected control with a targeted retest.',
-
+    summary: detailedSection
+      ? `${item.title} affecting ${asset}; finding recovered from the detailed 7ASecurity report body.`
+      : `${item.title} affecting ${asset}; finding recovered from the 7ASecurity report index and requires review.`,
+    impact,
+    evidence,
+    remediation,
     detectedAt: uploadedAt,
-    method: '7asecurity-index-recovery',
+    method: detailedSection ? '7asecurity-body-recovery' : '7asecurity-index-recovery',
     sourceSectionTitle: item.title,
     canonicalKey: `${item.externalId}|${normalizeForMatch(
       item.title
     )}|${normalizeForMatch(asset)}||||||`,
 
+    reported: {
+      title: item.title,
+      severity: item.severity,
+      asset,
+      evidence,
+      impact,
+      remediation,
+    },
+
     provenance: {
       ...(extended.provenance ?? {}),
-      method: '7asecurity-index-recovery',
+      method: detailedSection ? '7asecurity-body-recovery' : '7asecurity-index-recovery',
       sourceSectionTitle: item.title,
-      sourceText: item.rawLine,
+      sourceText: detailedSection ?? item.rawLine,
     },
 
     normalization: {
@@ -1629,8 +1841,21 @@ function create7ASecurityIndexFinding(params: {
 }
 
 function dedupeFindingsByExternalIdAndTitle(findings: StoredFinding[]) {
-  const seen = new Set<string>()
-  const deduped: StoredFinding[] = []
+  const byKey = new Map<string, StoredFinding>()
+  const order: string[] = []
+
+  const quality = (finding: StoredFinding) => {
+    const extended = getExtendedFinding(finding)
+    const text = [finding.evidence, finding.impact, finding.remediation, extended.provenance?.sourceText].join(' ')
+    let score = 0
+    if (!/7asecurity-index-recovery/i.test(String(extended.provenance?.method ?? extended.method ?? ''))) score += 20
+    if (/Affected File|Affected Code|PoC Code|Proof-of-Concept|In order to resolve this issue|Retest Notes/i.test(text)) score += 30
+    if (finding.asset && finding.asset !== 'investigation-scope') score += 8
+    if (finding.impact && !/^Potential impact/i.test(finding.impact)) score += 8
+    if (finding.remediation && !/^Review the detailed report body/i.test(finding.remediation)) score += 8
+    score += text.length / 1000
+    return score
+  }
 
   for (const finding of findings) {
     const externalId = getFindingExternalId(finding)
@@ -1639,13 +1864,15 @@ function dedupeFindingsByExternalIdAndTitle(findings: StoredFinding[]) {
       ? `id:${externalId.toLowerCase()}`
       : `title:${titleKey}`
 
-    if (seen.has(key)) continue
+    if (!byKey.has(key)) order.push(key)
 
-    seen.add(key)
-    deduped.push(finding)
+    const existing = byKey.get(key)
+    if (!existing || quality(finding) > quality(existing)) {
+      byKey.set(key, finding)
+    }
   }
 
-  return deduped
+  return order.map((key) => byKey.get(key)).filter(Boolean) as StoredFinding[]
 }
 
 function align7ASecurityFindingsWithIndex(params: {
@@ -1722,6 +1949,7 @@ function align7ASecurityFindingsWithIndex(params: {
     reportId: params.reportId,
     reportName: params.reportName,
     uploadedAt: params.uploadedAt,
+    content: params.content,
     templateFinding,
   })
   )
@@ -1792,7 +2020,14 @@ export async function buildAnalysisReport(params: {
     })
 
     const nlpError = nlpResult.meta?.error
-    const useNlpOnly = isNlpResultUsable({ nlpFindings, nlpError })
+    const strictNlp = isStrictNlpModelRequired()
+    const modelTrusted = isTrustedNlpModelResult(nlpResult)
+
+    if (strictNlp && !modelTrusted) {
+      throw new Error(buildNlpReadinessError(nlpResult))
+    }
+
+    const useNlpOnly = isNlpResultUsable({ nlpFindings, nlpError, modelTrusted })
 
     if (useNlpOnly) {
       findings = nlpFindings

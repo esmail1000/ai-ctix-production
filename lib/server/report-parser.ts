@@ -16,6 +16,7 @@ export type ParsedFindingCandidate = {
   impact?: string
   evidence?: string
   remediation?: string
+  exploitationSteps?: string[]
   cve?: string
   references: string[]
   reported: ParsedFindingFields
@@ -38,6 +39,7 @@ type FieldKey =
   | 'evidence'
   | 'remediation'
   | 'reference'
+  | 'exploitationSteps'
 
 type ParsedFieldBuffer = {
   key: FieldKey
@@ -69,9 +71,10 @@ const LABEL_ALIASES: Record<FieldKey, string[]> = {
   asset: ['Affected Asset', 'Asset', 'Host', 'Target', 'Affected Host', 'System'],
   status: ['Status', 'Finding Status'],
   summary: ['Summary', 'Description', 'Overview'],
-  impact: ['Impact', 'Business Impact'],
+  impact: ['Impact', 'Business Impact', 'Technical Impact', 'Risk Impact'],
   evidence: ['Evidence', 'Observation', 'Proof', 'Details'],
-  remediation: ['Remediation', 'Recommended Remediation', 'Recommendation', 'Recommendations', 'Mitigation', 'Fix'],
+  remediation: ['Remediation', 'Recommended Remediation', 'Recommendation', 'Recommendations', 'Recommended Fix', 'Suggested Fix', 'Mitigation', 'Fix', 'Patch'],
+  exploitationSteps: ['Exploitation Steps', 'Steps to Reproduce', 'Reproduction Steps', 'Proof of Concept', 'PoC', 'Attack Scenario'],
   reference: ['Reference', 'References', 'CVE', 'CVEs', 'CWE', 'CWEs', 'OWASP Mapping', 'MITRE ATT&CK Mapping'],
 }
 
@@ -344,6 +347,43 @@ function extractReferences(text: string | undefined): string[] {
   return Array.from(new Set([...cves, ...extras]))
 }
 
+function extractStepList(text: string | undefined): string[] {
+  const normalized = normalizeWhitespace(text)
+  if (!normalized) return []
+
+  const lines = normalized.split('\n').flatMap((line) =>
+    line
+      .split(/(?=\b(?:step\s*)?\d+[.)-]\s+)/i)
+      .map((item) => normalizeWhitespace(item))
+      .filter(Boolean)
+  )
+
+  const steps: string[] = []
+
+  for (const line of lines) {
+    const numbered = line.match(/^\s*(?:step\s*)?\d+[.)-]\s+(.{8,320})$/i)
+    if (numbered?.[1]) {
+      steps.push(normalizeWhitespace(numbered[1]))
+      continue
+    }
+
+    const bullet = line.match(/^\s*[-*•]\s+(.{8,320})$/)
+    if (bullet?.[1]) steps.push(normalizeWhitespace(bullet[1]))
+  }
+
+  if (steps.length === 0) {
+    steps.push(
+      ...normalized
+        .split(/(?<=[.!?])\s+/)
+        .map((item) => normalizeWhitespace(item))
+        .filter((item) => item.length >= 8 && item.length <= 320)
+    )
+  }
+
+  return Array.from(new Set(steps)).slice(0, 12)
+}
+
+
 function extractHostLike(text: string | undefined): string | undefined {
   const match = normalizeWhitespace(text).match(HOST_LIKE_RE)
   return match?.[0]
@@ -373,6 +413,7 @@ function calculateParserConfidence(params: {
   impact?: string
   evidence?: string
   remediation?: string
+  exploitationSteps?: string[]
   cve?: string
   extractionMethod: ExtractionMethod
 }): number {
@@ -440,6 +481,7 @@ export function parseFindingBlock(block: FindingBlock): ParsedFindingCandidate {
   const impactField = fields.get('impact')?.value
   const evidenceField = fields.get('evidence')?.value
   const remediationField = fields.get('remediation')?.value
+  const exploitationStepsField = fields.get('exploitationSteps')?.value
   const referenceField = fields.get('reference')?.value
 
   const severity = normalizeSeverity(severityField)
@@ -448,6 +490,7 @@ export function parseFindingBlock(block: FindingBlock): ParsedFindingCandidate {
   const impact = normalizeWhitespace(impactField)
   const evidence = normalizeWhitespace(evidenceField)
   const remediation = normalizeWhitespace(remediationField)
+  const exploitationSteps = extractStepList(exploitationStepsField)
 
  const effectiveBlockEnd = getEffectiveBlockEnd(block, title, fields)
 const effectiveBlockText = block.rawText
@@ -488,6 +531,7 @@ const cve =
     impact: impact || undefined,
     evidence: evidence || undefined,
     remediation: remediation || undefined,
+    exploitationSteps: exploitationSteps.length ? exploitationSteps : undefined,
     cve,
     references,
   }
@@ -525,6 +569,7 @@ sourceSpans: buildFieldSpans(block.start, effectiveBlockEnd, title, fields),
       impact: impact ? 'reported' : undefined,
       evidence: evidence ? 'reported' : undefined,
       remediation: remediation ? 'reported' : undefined,
+      exploitationSteps: exploitationSteps.length ? 'reported' : undefined,
       cve: referenceField ? 'reported' : cve ? 'inferred' : undefined,
     },
   }
@@ -538,6 +583,7 @@ sourceSpans: buildFieldSpans(block.start, effectiveBlockEnd, title, fields),
     impact: impact || undefined,
     evidence: evidence || undefined,
     remediation: remediation || undefined,
+    exploitationSteps: exploitationSteps.length ? exploitationSteps : undefined,
     cve,
     references,
     reported,

@@ -6,6 +6,15 @@ import { NextResponse } from 'next/server'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
+function extractCvesFromOwnedReport(value: unknown) {
+  const text =
+    JSON.stringify(value ?? '', (_key, item) =>
+      typeof item === 'bigint' ? item.toString() : item
+    ) ?? ''
+  const matches = text.match(/CVE-\d{4}-\d{4,}/gi) ?? []
+  return Array.from(new Set(matches.map((item) => item.toUpperCase()))).sort()
+}
+
 export async function GET(
   _request: Request,
   context: { params: Promise<{ reportId: string }> }
@@ -36,7 +45,10 @@ export async function GET(
       return NextResponse.json({ error: 'Report not found.' }, { status: 404 })
     }
 
-    const result = await enrichReportThreatIntel(normalizedReportId)
+    const result = await enrichReportThreatIntel(normalizedReportId, {
+      userId: session.userId,
+      fallbackCves: extractCvesFromOwnedReport(report),
+    })
 
     return NextResponse.json(result)
   } catch (error) {

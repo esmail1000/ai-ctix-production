@@ -1,3 +1,5 @@
+// app/api/llm-threat-analysis/[reportId]/route.ts
+
 import { getAnalysisReportForUser } from '@/lib/server/analysis-repository'
 import { getCurrentSessionFromCookies } from '@/lib/server/current-session'
 import { generateThreatScenarios } from '@/lib/server/llm-analysis/threat-scenarios'
@@ -36,7 +38,10 @@ export async function GET(
       return NextResponse.json({ error: 'Report not found.' }, { status: 404 })
     }
 
-    const result = await generateThreatScenarios(normalizedReportId)
+    const result = await generateThreatScenarios(
+      session.userId,
+      normalizedReportId
+    )
 
     return NextResponse.json(result)
   } catch (error) {

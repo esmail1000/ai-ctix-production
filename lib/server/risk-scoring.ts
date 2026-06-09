@@ -20,12 +20,30 @@ export type FindingRiskResult = {
   reportId: string
   title: string
   asset: string
+  cve: string
   severity: Severity
   originalScore: number
   riskScore: number
   riskBand: RiskBand
   rationale: string[]
   factors: RiskFactorBreakdown
+
+  /** Phase 3 threat-aware fields. Optional for backward compatibility with older callers. */
+  reportCvss?: number | null
+  reportCvssVector?: string | null
+  intelCvss?: number | null
+  intelCvssSeverity?: string | null
+  intelCvssVector?: string | null
+  knownExploited?: boolean
+  cisaKev?: boolean
+  mispMatches?: number
+  exploitAvailable?: boolean
+  attackVector?: string | null
+  finalRiskScore?: number
+  riskFactors?: string[]
+  recommendations?: string[]
+  recommendationSources?: string[]
+  riskModelVersion?: string
 }
 
 export type ReportRiskResult = {
@@ -44,6 +62,7 @@ export type ReportRiskResult = {
     openFindings: number
     findingsWithCve: number
     distinctAssets: number
+    knownExploitedFindings?: number
   }
   topRiskFindings: FindingRiskResult[]
   allFindings: FindingRiskResult[]
@@ -421,6 +440,7 @@ export function scoreFindingRisk(finding: StoredFinding): FindingRiskResult {
     reportId: finding.reportId,
     title: normalizeText(finding.title),
     asset: normalizeText(finding.asset) || 'unknown-asset',
+    cve: normalizeText(finding.cve),
     severity: finding.severity,
     originalScore: finding.score,
     riskScore,

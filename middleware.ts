@@ -29,6 +29,14 @@ function applySecurityHeaders(response: NextResponse) {
   return response
 }
 
+
+function getSafeNextPath(value: string | null) {
+  if (!value) return '/dashboard'
+  if (!value.startsWith('/') || value.startsWith('//')) return '/dashboard'
+  if (value.startsWith('/api/')) return '/dashboard'
+  return value
+}
+
 function isPublicPage(pathname: string) {
   if (publicPages.has(pathname)) return true
   if (pathname.startsWith('/reset-password')) return true
@@ -63,8 +71,8 @@ export async function middleware(request: NextRequest) {
     }
 
     if (session && (pathname === '/login' || pathname === '/register')) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/dashboard'
+      const nextPath = getSafeNextPath(request.nextUrl.searchParams.get('next'))
+      const url = new URL(nextPath, request.url)
       return applySecurityHeaders(NextResponse.redirect(url))
     }
 
@@ -79,8 +87,9 @@ export async function middleware(request: NextRequest) {
     }
 
     const url = request.nextUrl.clone()
-    url.pathname = '/register'
-    url.searchParams.set('next', pathname)
+    url.pathname = '/login'
+    url.search = ''
+    url.searchParams.set('next', `${pathname}${request.nextUrl.search}`)
     return applySecurityHeaders(NextResponse.redirect(url))
   }
 

@@ -965,7 +965,117 @@ function extractLabelValue(section: string, label: string): string | undefined {
   return undefined;
 }
 
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+const BLOCK_FIELD_STOP_LABELS = [
+  "Title",
+  "Finding Title",
+  "Name",
+  "Severity",
+  "Risk",
+  "Risk Rating",
+  "Priority",
+  "CVE",
+  "CWE",
+  "CVSS",
+  "CVSS score",
+  "Affected Component",
+  "Affected Components",
+  "Affected URL",
+  "Affected IP",
+  "Affected Asset",
+  "Asset",
+  "Endpoint",
+  "Host",
+  "Port",
+  "Attack Vector",
+  "Exploitability",
+  "Description",
+  "Details",
+  "Evidence",
+  "Impact",
+  "Business Impact",
+  "Technical Impact",
+  "Consequence",
+  "Consequences",
+  "Exploitation Steps",
+  "Steps to Reproduce",
+  "Reproduction Steps",
+  "Proof of Concept",
+  "PoC",
+  "Attack Scenario",
+  "Remediation",
+  "Recommended Remediation",
+  "Recommendation",
+  "Recommendations",
+  "Recommended Fix",
+  "Suggested Fix",
+  "Fix",
+  "Solution",
+  "Mitigation",
+  "Mitigations",
+  "Patch",
+  "Patch Recommendation",
+  "Vendor Recommendation",
+];
+
+function labelAlternation(labels: string[]): string {
+  return labels
+    .slice()
+    .sort((a, b) => b.length - a.length)
+    .map(escapeRegex)
+    .join("|");
+}
+
+function startsWithAnyFieldLabel(line: string, labels: string[] = BLOCK_FIELD_STOP_LABELS): boolean {
+  const trimmed = line.trim();
+  if (!trimmed) return false;
+  return new RegExp(`^(?:${labelAlternation(labels)})\\s*(?:[:=|]|$)`, "i").test(trimmed);
+}
+
+function extractPreservedLabelBlock(section: string, labels: string[], maxLines = 12): string | undefined {
+  const lines = normalizeBlock(section).split("\n").map((line) => line.trimEnd());
+  const wanted = new RegExp(`^\\s*(?:${labelAlternation(labels)})\\s*(?:[:=|])?\\s*(.*)$`, "i");
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const match = lines[index].match(wanted);
+    if (!match) continue;
+
+    const buffer: string[] = [];
+    const inline = stripValue(match[1]);
+    if (inline) buffer.push(inline);
+
+    for (let offset = 1; offset <= maxLines; offset += 1) {
+      const next = lines[index + offset];
+      if (next === undefined) break;
+      const trimmed = next.trim();
+
+      if (/^(?:Finding|Issue|Vulnerability)\s+\d+\b/i.test(trimmed)) break;
+      if (startsWithAnyFieldLabel(trimmed) && buffer.length > 0) break;
+      if (SECTION_STOP_RE.test(trimmed)) break;
+
+      if (!trimmed) {
+        if (buffer.length > 0) buffer.push("");
+        continue;
+      }
+
+      buffer.push(trimmed);
+      if (normalizeText(buffer.join(" ")).length > 1800) break;
+    }
+
+    const cleaned = normalizeBlock(buffer.join("\n"));
+    if (cleaned) return cleaned;
+  }
+
+  return undefined;
+}
+
 function extractMultiLabelBlock(section: string, labels: string[]): string | undefined {
+  const preserved = extractPreservedLabelBlock(section, labels);
+  if (preserved) return normalizeText(preserved);
+
   for (const label of labels) {
     const direct = extractLabelValue(section, label);
     if (direct) return direct;
@@ -1162,20 +1272,90 @@ function extractProductFromSection(section: string): string | undefined {
 }
 
 function extractRemediation(section: string): string | undefined {
+  const minivpnAdvice = minivpnSectionRemediation(section);
+
   return firstOf(
-    extractMultiLabelBlock(section, ["Remediation", "Recommendation", "Recommendations", "Mitigation", "Mitigations", "Fix", "Solution", "Suggested Fix", "Vendor Recommendation"]),
+    extractMultiLabelBlock(section, [
+      "Remediation",
+      "Recommended Remediation",
+      "Recommendation",
+      "Recommendations",
+      "Recommended Fix",
+      "Suggested Fix",
+      "Fix",
+      "Solution",
+      "Mitigation",
+      "Mitigations",
+      "Patch",
+      "Patch Recommendation",
+      "Vendor Recommendation",
+    ]),
     extractRegexValues(section, /\bIt\s+is\s+recommended\s+(?:to|that)\s+([^\n.]{20,260})/gi, 1),
     extractRegexValues(section, /\b(?:Cure53|NCC\s+Group|7ASecurity|Ada\s+Logics|Hacken|Trail\s+of\s+Bits)\s+recommends?\s+(?:that\s+)?([^\n.]{20,260})/gi, 1),
-    extractRegexValues(section, /\b(?:remediate|mitigate|fix|recommended)\s+(?:by|to|that|with|:)\s*([^\n.;]{20,260})/gi, 1)
+    extractRegexValues(section, /\b(?:remediate|mitigate|fix|recommended)\s+(?:by|to|that|with|:)\s*([^\n.;]{20,260})/gi, 1),
+    minivpnAdvice
   );
 }
 
 function extractImpact(section: string): string | undefined {
+  const minivpnImpact = minivpnSectionImpact(section);
+
   return firstOf(
-    extractMultiLabelBlock(section, ["Impact", "Business Impact", "Technical Impact", "Risk", "Consequence", "Consequences"]),
+    extractMultiLabelBlock(section, ["Impact", "Business Impact", "Technical Impact", "Risk Impact", "Consequence", "Consequences"]),
     extractRegexValues(section, /\b(?:allows?|may|could|can)\s+(?:an\s+)?(?:remote\s+)?attackers?\s+to\s+([^\n.;]{20,260})/gi, 1),
-    extractRegexValues(section, /\bimpact\s+(?:is|includes|would\s+be)\s+([^\n.;]{20,260})/gi, 1)
+    extractRegexValues(section, /\bimpact\s+(?:is|includes|would\s+be)\s+([^\n.;]{20,260})/gi, 1),
+    minivpnImpact
   );
+}
+
+function normalizeExploitStep(value: string): string {
+  return stripValue(value)
+    .replace(/^(?:step\s*)?\d+[.)-]\s*/i, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function extractExploitationSteps(section: string): string[] {
+  const direct = extractPreservedLabelBlock(
+    section,
+    ["Exploitation Steps", "Steps to Reproduce", "Reproduction Steps", "Proof of Concept", "PoC", "Attack Scenario"],
+    18
+  );
+
+  const text = direct || section;
+  const lines = normalizeBlock(text)
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const steps: string[] = [];
+
+  for (const line of lines) {
+    const chunks = line
+      .split(/(?=\b(?:step\s*)?\d+[.)-]\s+)/i)
+      .map((chunk) => chunk.trim())
+      .filter(Boolean);
+
+    for (const chunk of chunks.length ? chunks : [line]) {
+      const numbered = chunk.match(/^\s*(?:step\s*)?\d+[.)-]\s+(.{8,320})$/i);
+      if (numbered?.[1]) {
+        steps.push(normalizeExploitStep(numbered[1]));
+        continue;
+      }
+
+      const bullet = chunk.match(/^\s*[-*•]\s+(.{8,320})$/);
+      if (bullet?.[1]) steps.push(normalizeExploitStep(bullet[1]));
+    }
+  }
+
+  if (steps.length === 0 && direct) {
+    const sentences = direct
+      .split(/(?<=[.!?])\s+/)
+      .map(normalizeExploitStep)
+      .filter((item) => item.length >= 8 && item.length <= 320);
+    steps.push(...sentences);
+  }
+
+  return asStringArray(steps).slice(0, 12);
 }
 
 function detectSeverityFromText(text: string): string | undefined {
@@ -1270,6 +1450,7 @@ function buildSectionFindingSources(input: string, result: NlpEngineResult): Int
     const endpoints = extractEndpointNames(section);
     const services = extractServices(section);
     const attackVector = extractAttackVector(section);
+    const exploitationSteps = extractExploitationSteps(section);
     const remediation = extractRemediation(section);
     const impact = extractImpact(section);
     const product = firstOf(
@@ -1316,6 +1497,7 @@ function buildSectionFindingSources(input: string, result: NlpEngineResult): Int
       endpoint: firstOf(endpoints),
       service: firstOf(services),
       attack_vector: attackVector,
+      exploitation_steps: exploitationSteps,
       cve_ids: cveIds,
       cwe_ids: cweIds,
       cvss_scores: cvssScores,
@@ -1429,6 +1611,224 @@ function addMissingCatalogOnlySources(sources: InternalFindingSource[], catalog:
   }
 
   return [...sources, ...fallbacks];
+}
+
+
+function overlapCount(left: string[], right: string[]): number {
+  const rightSet = new Set(right.map((item) => item.toLowerCase()));
+  return left.filter((item) => rightSet.has(item.toLowerCase())).length;
+}
+
+function titleSimilarity(left: string | undefined, right: string | undefined): number {
+  const l = normalizeFindingTitleKey(left ?? "");
+  const r = normalizeFindingTitleKey(right ?? "");
+  if (!l || !r) return 0;
+  if (l === r) return 1;
+  if (l.includes(r) || r.includes(l)) return 0.92;
+  return similarityScore(l, r);
+}
+
+function sourceMatchScore(left: FindingSource, right: FindingSource): number {
+  let score = 0;
+
+  score += overlapCount(sourceArray(left, "cve_ids"), sourceArray(right, "cve_ids")) * 14;
+  score += overlapCount(sourceArray(left, "cwe_ids"), sourceArray(right, "cwe_ids")) * 8;
+  score += overlapCount(sourceArray(left, "cvss_scores"), sourceArray(right, "cvss_scores")) * 4;
+  score += overlapCount(sourceArray(left, "urls"), sourceArray(right, "urls")) * 6;
+  score += overlapCount(sourceArray(left, "ips"), sourceArray(right, "ips")) * 5;
+  score += overlapCount(sourceArray(left, "ports"), sourceArray(right, "ports")) * 2;
+  score += overlapCount(
+    combineArrays(sourceValue(left, "affected_component"), sourceArray(left, "affected_components"), sourceValue(left, "asset"), sourceArray(left, "assets")),
+    combineArrays(sourceValue(right, "affected_component"), sourceArray(right, "affected_components"), sourceValue(right, "asset"), sourceArray(right, "assets"))
+  ) * 5;
+
+  const titleScore = titleSimilarity(sourceSectionTitle(left) ?? sourceValue(left, "vulnerability_type"), sourceSectionTitle(right) ?? sourceValue(right, "vulnerability_type"));
+  if (titleScore >= 0.88) score += 7;
+  else if (titleScore >= 0.72) score += 3;
+
+  return score;
+}
+
+function isWeakImpactText(value: unknown): boolean {
+  const text = normalizeText(value).toLowerCase();
+  if (!text) return true;
+  if (/^potential impact includes\b/.test(text)) return true;
+  if (/^(?:remote code execution|authentication bypass|information disclosure|data leakage|system compromise)$/.test(text)) return true;
+  return text.length < 35;
+}
+
+function isWeakRemediationText(value: unknown): boolean {
+  const text = normalizeText(value).toLowerCase();
+  if (!text) return true;
+  if (/^apply the remediation recommended for this specific finding\b/.test(text)) return true;
+  if (/^patch the affected component, remove unsafe command or code execution paths\b/.test(text)) return true;
+  if (/^validate the affected scope, apply the vendor fix\b/.test(text)) return true;
+  if (/^review the affected control\b/.test(text)) return true;
+  return text.length < 35;
+}
+
+function findSectionAroundIndex(text: string, index: number): string | undefined {
+  const marker = /(?:^|\n)\s*(?:Finding|Issue|Vulnerability)\s+\d+\s*[:.)-]?[^\n]*/gi;
+  const markers = Array.from(text.matchAll(marker)).map((match) => ({ index: match.index ?? 0, text: match[0] }));
+  if (markers.length === 0) return undefined;
+
+  let start = markers[0].index;
+  for (const item of markers) {
+    if (item.index <= index) start = item.index;
+    else break;
+  }
+
+  const next = markers.find((item) => item.index > start + 3);
+  const end = next?.index ?? text.length;
+  const section = text.slice(start, end).trim();
+  return section.length >= 60 ? section : undefined;
+}
+
+function findRawSectionForSource(input: string, source: FindingSource): string | undefined {
+  const text = normalizeBlock(input);
+  const tokens = combineArrays(
+    sourceArray(source, "cve_ids"),
+    sourceArray(source, "cwe_ids"),
+    sourceArray(source, "urls"),
+    sourceValue(source, "affected_component"),
+    sourceArray(source, "affected_components"),
+    sourceValue(source, "product"),
+    sourceValue(source, "vulnerability_type")
+  ).filter((token) => token.length >= 4);
+
+  for (const token of tokens) {
+    const index = text.toLowerCase().indexOf(token.toLowerCase());
+    if (index >= 0) {
+      const section = findSectionAroundIndex(text, index);
+      if (section) return section;
+    }
+  }
+
+  return undefined;
+}
+
+function sectionEnhancementFromRawSection(section: string): InternalFindingSource {
+  const urls = extractUrls(section);
+  const domains = extractDomains(section, urls);
+  const ips = extractIps(section);
+  const ports = extractPorts(section, urls);
+  const components = extractAffectedComponents(section);
+  const product = firstOf(extractProductFromSection(section));
+  const attackVector = extractAttackVector(section);
+  const exploitationSteps = extractExploitationSteps(section);
+
+  return {
+    _sectionScoped: true,
+    _rawSection: section,
+    _sectionTitle: shortHeadingFromSection(section) ?? normalizeLines(section)[0],
+    _findingId: extractAuditIdentifier(section),
+    _qualityScore: sectionQualityScore(section),
+    vulnerability_type: firstOf(detectVulnerabilityTypesFromText(section)),
+    severity: detectSeverityFromText(section),
+    impact: extractImpact(section),
+    remediation: extractRemediation(section),
+    product,
+    asset: firstOf(components, product, domains, ips, urls),
+    affected_components: components,
+    attack_vector: attackVector,
+    attack_vectors: attackVector ? [attackVector] : [],
+    exploitation_steps: exploitationSteps,
+    cve_ids: extractCveIds(section),
+    cwe_ids: extractCweIds(section),
+    cvss_scores: extractCvssScores(section),
+    cvss_vectors: extractCvssVectors(section),
+    urls,
+    domains,
+    ips,
+    ports,
+    services: extractServices(section),
+  };
+}
+
+function mergeStringField(primary: unknown, fallback: unknown): string | undefined {
+  return firstOf(primary) ?? firstOf(fallback);
+}
+
+function mergeModelWithSection(model: InternalFindingSource, section: InternalFindingSource): InternalFindingSource {
+  const sectionImpact = sourceValue(section, "impact");
+  const sectionRemediation = sourceValue(section, "remediation");
+  const modelImpact = sourceValue(model, "impact");
+  const modelRemediation = sourceValue(model, "remediation");
+
+  return {
+    ...model,
+    _sectionScoped: true,
+    _rawSection: sourceRawSection(section) || sourceRawSection(model),
+    _sectionTitle: sourceSectionTitle(section) ?? sourceSectionTitle(model),
+    _findingId: sourceValue(section, "_findingId") ?? sourceValue(model, "_findingId"),
+    _qualityScore: Math.max(safeNumber((model as SourceRecord)._qualityScore) ?? 0, safeNumber((section as SourceRecord)._qualityScore) ?? 0),
+    vulnerability_type: mergeStringField(sourceValue(model, "vulnerability_type"), sourceValue(section, "vulnerability_type")),
+    severity: mergeStringField(sourceValue(model, "severity"), sourceValue(section, "severity")),
+    impact: isWeakImpactText(modelImpact) && sectionImpact ? sectionImpact : mergeStringField(modelImpact, sectionImpact),
+    remediation: isWeakRemediationText(modelRemediation) && sectionRemediation ? sectionRemediation : mergeStringField(modelRemediation, sectionRemediation),
+    product: mergeStringField(sourceValue(model, "product"), sourceValue(section, "product")),
+    asset: mergeStringField(sourceValue(model, "asset"), sourceValue(section, "asset")),
+    affected_component: mergeStringField(sourceValue(model, "affected_component"), sourceValue(section, "affected_component")),
+    endpoint: mergeStringField(sourceValue(model, "endpoint"), sourceValue(section, "endpoint")),
+    service: mergeStringField(sourceValue(model, "service"), sourceValue(section, "service")),
+    attack_vector: mergeStringField(sourceValue(model, "attack_vector"), sourceValue(section, "attack_vector")),
+    cve_ids: combineArrays(sourceArray(model, "cve_ids"), sourceArray(section, "cve_ids")),
+    cwe_ids: combineArrays(sourceArray(model, "cwe_ids"), sourceArray(section, "cwe_ids")),
+    cvss_scores: combineArrays(sourceArray(model, "cvss_scores"), sourceArray(section, "cvss_scores")),
+    cvss_vectors: combineArrays(sourceArray(model, "cvss_vectors"), sourceArray(section, "cvss_vectors")),
+    products: combineArrays(sourceArray(model, "products"), sourceArray(section, "products"), sourceValue(model, "product"), sourceValue(section, "product")),
+    affected_components: combineArrays(sourceArray(model, "affected_components"), sourceArray(section, "affected_components"), sourceValue(model, "affected_component"), sourceValue(section, "affected_component")),
+    assets: combineArrays(sourceArray(model, "assets"), sourceArray(section, "assets"), sourceValue(model, "asset"), sourceValue(section, "asset")),
+    endpoints: combineArrays(sourceArray(model, "endpoints"), sourceArray(section, "endpoints"), sourceValue(model, "endpoint"), sourceValue(section, "endpoint")),
+    services: combineArrays(sourceArray(model, "services"), sourceArray(section, "services"), sourceValue(model, "service"), sourceValue(section, "service")),
+    urls: combineArrays(sourceArray(model, "urls"), sourceArray(section, "urls")),
+    domains: combineArrays(sourceArray(model, "domains"), sourceArray(section, "domains")),
+    ips: combineArrays(sourceArray(model, "ips"), sourceArray(section, "ips")),
+    ports: combineArrays(sourceArray(model, "ports"), sourceArray(section, "ports")),
+    attack_vectors: combineArrays(sourceArray(model, "attack_vectors"), sourceArray(section, "attack_vectors"), sourceValue(model, "attack_vector"), sourceValue(section, "attack_vector")),
+    exploitation_steps: combineArrays(sourceArray(section, "exploitation_steps"), sourceArray(model, "exploitation_steps")),
+    exploits: combineArrays(sourceArray(model, "exploits"), sourceArray(section, "exploits")),
+    exploit_available: combineArrays(sourceArray(model, "exploit_available"), sourceArray(section, "exploit_available")),
+  };
+}
+
+function enrichModelFindingsWithSections(modelFindings: InternalFindingSource[], sectionSources: InternalFindingSource[], input: string): InternalFindingSource[] {
+  return modelFindings.map((model) => {
+    let best: InternalFindingSource | undefined;
+    let bestScore = 0;
+
+    for (const section of sectionSources) {
+      const score = sourceMatchScore(model, section);
+      if (score > bestScore) {
+        best = section;
+        bestScore = score;
+      }
+    }
+
+    if (best && bestScore >= 8) return mergeModelWithSection(model, best);
+
+    const rawSection = findRawSectionForSource(input, model);
+    if (rawSection) return mergeModelWithSection(model, sectionEnhancementFromRawSection(rawSection));
+
+    return model;
+  });
+}
+
+function enrichSectionSourcesWithModel(sectionSources: InternalFindingSource[], modelFindings: InternalFindingSource[]): InternalFindingSource[] {
+  return sectionSources.map((section) => {
+    let best: InternalFindingSource | undefined;
+    let bestScore = 0;
+
+    for (const model of modelFindings) {
+      const score = sourceMatchScore(section, model);
+      if (score > bestScore) {
+        best = model;
+        bestScore = score;
+      }
+    }
+
+    return best && bestScore >= 8 ? mergeModelWithSection(best, section) : section;
+  });
 }
 
 function isSectionScoped(source: FindingSource): boolean {
@@ -1624,12 +2024,109 @@ function buildSummary(source: FindingSource, result: NlpEngineResult, title: str
   return `${title} affecting ${asset}; extractor found security indicators from the submitted report.${warningText}`;
 }
 
-function buildImpact(source: FindingSource, result: NlpEngineResult, asset: string, severity: Severity): string {
+function hasRepairField(section: string, labels: string[]): boolean {
+  return Boolean(extractMultiLabelBlock(section, labels));
+}
+
+function repairSectionScore(section: string): number {
+  if (!normalizeText(section)) return 0;
+
+  let score = Math.min(30, Math.floor(normalizeText(section).length / 80));
+  if (/^\s*(?:Finding|Issue|Vulnerability)\s+\d+/im.test(section)) score += 20;
+  if (hasRepairField(section, ["Impact", "Business Impact", "Technical Impact", "Risk Impact", "Consequence", "Consequences"])) score += 35;
+  if (hasRepairField(section, ["Remediation", "Recommended Remediation", "Recommendation", "Recommendations", "Recommended Fix", "Suggested Fix", "Fix", "Solution", "Mitigation", "Mitigations", "Patch", "Patch Recommendation", "Vendor Recommendation"])) score += 35;
+  if (extractExploitationSteps(section).length > 0) score += 20;
+  if (extractCveIds(section).length > 0) score += 10;
+  if (extractCvssScores(section).length > 0) score += 5;
+
+  return score;
+}
+
+function getSourceRepairSection(input: string | undefined, source: FindingSource): string {
+  const located = input ? findRawSectionForSource(input, source) : undefined;
+  const raw = sourceRawSection(source);
+  const candidates = combineArrays(located, raw).filter(Boolean);
+
+  if (candidates.length === 0) return "";
+
+  return candidates
+    .map((section) => ({ section, score: repairSectionScore(section) }))
+    .sort((a, b) => b.score - a.score || b.section.length - a.section.length)[0]?.section ?? "";
+}
+
+function findRawSectionForResolvedFinding(
+  input: string | undefined,
+  hints: { title?: string; cve?: string; asset?: string; cvssScore?: string }
+): string {
+  const text = normalizeBlock(input);
+  if (!text) return "";
+
+  const tokens = combineArrays(hints.cve, hints.title, hints.asset, hints.cvssScore)
+    .map((token) => stripValue(token))
+    .filter((token) => token.length >= 4 && token !== "—");
+
+  const candidates: string[] = [];
+  const lowerText = text.toLowerCase();
+
+  for (const token of tokens) {
+    const index = lowerText.indexOf(token.toLowerCase());
+    if (index < 0) continue;
+
+    const section = findSectionAroundIndex(text, index);
+    if (section) candidates.push(section);
+  }
+
+  const unique = Array.from(new Map(candidates.map((section) => [normalizeText(section).slice(0, 240), section])).values());
+  if (unique.length === 0) return "";
+
+  return unique
+    .map((section) => ({ section, score: repairSectionScore(section) }))
+    .sort((a, b) => b.score - a.score || b.section.length - a.section.length)[0]?.section ?? "";
+}
+
+function preferReportedImpact(current: string, reported: string | undefined): string {
+  const cleaned = normalizeText(reported);
+  if (!cleaned) return current;
+  if (isWeakImpactText(current)) return cleaned;
+  if (cleaned.length > normalizeText(current).length + 20) return cleaned;
+  return current;
+}
+
+function preferReportedRemediation(current: string, reported: string | undefined): string {
+  const cleaned = normalizeText(reported);
+  if (!cleaned) return current;
+  if (isWeakRemediationText(current)) return cleaned;
+  if (cleaned.length > normalizeText(current).length + 20) return cleaned;
+  return current;
+}
+
+function buildImpact(
+  source: FindingSource,
+  result: NlpEngineResult,
+  asset: string,
+  severity: Severity,
+  input?: string
+): string {
+  const repairSection = getSourceRepairSection(input, source);
+  const sectionImpact = repairSection ? extractImpact(repairSection) : undefined;
   const impact = firstOf(sourceValue(source, "impact"), isSectionScoped(source) ? [] : sourceArray(result, "impacts"));
-  if (impact) return impact;
+
+  if (sectionImpact && (isWeakImpactText(impact) || normalizeText(sectionImpact).length > normalizeText(impact).length + 20)) return sectionImpact;
+  if (impact && !isWeakImpactText(impact)) return impact;
+  if (sectionImpact) return sectionImpact;
 
   if (hasMalwareSignal(source, result)) {
     return `Potential impact includes credential theft, command-and-control communication, lateral movement, or unauthorized remote execution involving ${asset}.`;
+  }
+
+  const typeAndTitle = normalizeText([
+    pickVulnerabilityType(source, result),
+    sourceSectionTitle(source),
+    sourceRawSection(source).slice(0, 500),
+  ].join(' '));
+
+  if (/denial of service|\bdos\b|crash|panic|handshake|vpn connection/i.test(typeAndTitle)) {
+    return `Potential impact includes service disruption, client crash, or VPN connection failure affecting ${asset}.`;
   }
 
   if (severity === "Critical" || severity === "High") {
@@ -1639,7 +2136,9 @@ function buildImpact(source: FindingSource, result: NlpEngineResult, asset: stri
   return `Potential impact includes increased attacker opportunity against ${asset} if this signal is not reviewed.`;
 }
 
-function buildRemediation(source: FindingSource, result: NlpEngineResult, severity: Severity): string {
+function buildRemediation(source: FindingSource, result: NlpEngineResult, severity: Severity, input?: string): string {
+  const repairSection = getSourceRepairSection(input, source);
+  const sectionRemediation = repairSection ? extractRemediation(repairSection) : undefined;
   const remediation = firstOf(
     sourceValue(source, "remediation"),
     sourceArray(source, "remediations"),
@@ -1650,7 +2149,9 @@ function buildRemediation(source: FindingSource, result: NlpEngineResult, severi
     isSectionScoped(source) ? [] : sourceArray(result, "patches")
   );
 
-  if (remediation) return remediation;
+  if (sectionRemediation && (isWeakRemediationText(remediation) || normalizeText(sectionRemediation).length > normalizeText(remediation).length + 20)) return sectionRemediation;
+  if (remediation && !isWeakRemediationText(remediation)) return remediation;
+  if (sectionRemediation) return sectionRemediation;
 
   const type = normalizeText(pickVulnerabilityType(source, result)).toLowerCase();
 
@@ -1714,6 +2215,7 @@ function buildEvidence(source: FindingSource, result: NlpEngineResult, input: st
     ["Endpoints", combineArrays(sourceValue(source, "endpoint"), sourceArray(source, "endpoints"), allowGlobal ? sourceArray(result, "endpoints") : [])],
     ["Services", combineArrays(sourceValue(source, "service"), sourceArray(source, "services"), allowGlobal ? sourceArray(result, "services") : [])],
     ["Attack vectors", combineArrays(sourceValue(source, "attack_vector"), sourceArray(source, "attack_vectors"), allowGlobal ? sourceArray(result, "attack_vectors") : [])],
+    ["Exploitation steps", combineArrays(sourceArray(source, "exploitation_steps"), allowGlobal ? sourceArray(result, "exploitation_steps") : [])],
     ["Attack techniques", combineArrays(sourceValue(source, "attack_technique"), sourceArray(source, "attack_techniques"), allowGlobal ? sourceArray(result, "attack_techniques") : [])],
     ["MITRE", combineArrays(sourceArray(source, "mitre_techniques"), allowGlobal ? sourceArray(result, "mitre_techniques") : [])],
     ["URLs", combineArrays(sourceArray(source, "urls"), allowGlobal ? sourceArray(result, "urls") : [])],
@@ -1836,6 +2338,7 @@ function hasSignalsInSource(source: FindingSource): boolean {
     "hashes",
     "malware",
     "attack_vectors",
+    "exploitation_steps",
     "attack_techniques",
     "mitre_techniques",
     "exploits",
@@ -1853,11 +2356,24 @@ function hasSignalsInSource(source: FindingSource): boolean {
 }
 
 function getFindingSources(result: NlpEngineResult, input: string): FindingSource[] {
-  const sectionSources = buildSectionFindingSources(input, result);
-  if (sectionSources.length >= 1) return sectionSources;
+  const sectionSources = buildSectionFindingSources(input, result).filter(hasSignalsInSource);
+  const modelFindings = Array.isArray(result.findings)
+    ? (result.findings as InternalFindingSource[]).filter(hasSignalsInSource)
+    : [];
 
-  const findings = Array.isArray(result.findings) ? result.findings.filter(hasSignalsInSource) : [];
-  if (findings.length > 0) return findings;
+  const enrichedModelFindings = enrichModelFindingsWithSections(modelFindings, sectionSources, input).filter(hasSignalsInSource);
+  const enrichedSectionSources = enrichSectionSourcesWithModel(sectionSources, modelFindings).filter(hasSignalsInSource);
+
+  /**
+   * Important integration rule:
+   * The Python NLP engine may already return properly segmented findings, while
+   * the TypeScript section parser often has better field-level text for impact,
+   * remediation, and proof-of-concept steps. Keep the most granular source list,
+   * but enrich model findings with matching report sections before saving.
+   */
+  if (enrichedModelFindings.length > enrichedSectionSources.length) return enrichedModelFindings;
+  if (enrichedSectionSources.length > 0) return enrichedSectionSources;
+  if (enrichedModelFindings.length > 0) return enrichedModelFindings;
   if (hasSignalsInSource(result)) return [result];
 
   return [];
@@ -1924,9 +2440,16 @@ function toStoredFinding(params: {
   const score = scoreFromSeverity(severity, cvssScore, exploitAvailable, hasMalwareSignal(params.source, params.result));
   const status = statusFromSeverity(severity);
   const summary = buildSummary(params.source, params.result, title, asset);
-  const impact = buildImpact(params.source, params.result, asset, severity);
-  const remediation = buildRemediation(params.source, params.result, severity);
+  const impact = buildImpact(params.source, params.result, asset, severity, params.input);
+  const remediation = buildRemediation(params.source, params.result, severity, params.input);
+  const resolvedRepairSection = findRawSectionForResolvedFinding(params.input, { title, cve, asset, cvssScore });
+  const finalImpact = preferReportedImpact(impact, resolvedRepairSection ? extractImpact(resolvedRepairSection) : undefined);
+  const finalRemediation = preferReportedRemediation(remediation, resolvedRepairSection ? extractRemediation(resolvedRepairSection) : undefined);
   const evidence = buildEvidence(params.source, params.result, params.input);
+  const exploitationSteps = combineArrays(
+    sourceArray(params.source, "exploitation_steps"),
+    isSectionScoped(params.source) ? [] : sourceArray(params.result, "exploitation_steps")
+  );
   const references = buildReferences(params.source, params.result);
   const findingNumber = params.index + 1;
   const reportSuffix = params.reportId.split("-")[1] || params.reportId.replace(/\W+/g, "");
@@ -1946,9 +2469,9 @@ function toStoredFinding(params: {
     status,
     detectedAt: params.uploadedAt,
     summary,
-    impact,
+    impact: finalImpact,
     evidence,
-    remediation,
+    remediation: finalRemediation,
     history: [
       {
         atIso: new Date().toISOString(),
@@ -1966,6 +2489,7 @@ function toStoredFinding(params: {
       impact,
       evidence,
       remediation,
+      exploitationSteps: exploitationSteps.length ? exploitationSteps : undefined,
       references: references.length ? references : undefined,
     },
     normalization: {
@@ -1988,6 +2512,7 @@ function toStoredFinding(params: {
         impact: reportedFieldSource(firstOf(sourceValue(params.source, "impact"), sourceArray(params.source, "impacts"))),
         evidence: "reported",
         remediation: reportedFieldSource(firstOf(sourceValue(params.source, "remediation"), sourceArray(params.source, "remediations"), sourceArray(params.source, "mitigations"), sourceArray(params.source, "patches"))),
+        exploitationSteps: exploitationSteps.length ? "reported" : undefined,
         cve: cve === "—" ? undefined : "reported",
       },
     },
@@ -2082,6 +2607,7 @@ function makeProfileSource(params: {
   id?: string;
   confidence?: number;
   note?: string;
+  catalogOnly?: boolean;
 }): InternalFindingSource {
   const title = cleanFindingHeading(params.title);
   const evidence = normalizeBlock(params.evidence ?? params.title);
@@ -2092,7 +2618,7 @@ function makeProfileSource(params: {
 
   return {
     _sectionScoped: true,
-    _catalogOnly: true,
+    _catalogOnly: params.catalogOnly ?? true,
     _catalogConfidence: params.confidence ?? 95,
     _rawSection: evidence || title,
     _sectionTitle: title,
@@ -2118,12 +2644,106 @@ function makeProfileSource(params: {
   };
 }
 
+function cloneDelimiterPattern(pattern: RegExp): RegExp {
+  // Do not reuse the global/y RegExp that drives outer exec() loops.
+  // String.match/search can reset lastIndex on global regexes, which can make
+  // profile extraction loop forever on repeated MIV/finding headings.
+  const flags = pattern.flags.replace(/[gy]/g, '');
+  return new RegExp(pattern.source, flags);
+}
+
 function extractDelimitedSection(text: string, start: number, nextPattern: RegExp): string {
   const tail = text.slice(start);
-  const match = tail.slice(1).search(nextPattern);
-  if (match >= 0) return tail.slice(0, match + 1).trim();
+  const delimiter = cloneDelimiterPattern(nextPattern);
+  const currentMatch = delimiter.exec(tail);
+  const searchStart = Math.max(1, currentMatch?.[0]?.length ?? 1);
+  const nextMatch = delimiter.exec(tail.slice(searchStart));
+  if (typeof nextMatch?.index === 'number') return tail.slice(0, searchStart + nextMatch.index).trim();
   return tail.slice(0, 2400).trim();
 }
+
+function hasDetailedReportBodySignals(section: string): boolean {
+  const text = normalizeText(section);
+  return /\b(?:Retest Notes|Affected File|Affected Code|PoC Code|Proof-of-Concept|Root cause|In order to resolve this issue|Proposed Fix|Output:|Step 1|Command:)\b/i.test(text) || text.length >= 900;
+}
+
+function minivpnSectionRemediation(section: string): string | undefined {
+  const text = normalizeText(section);
+
+  const explicit = firstOf(
+    extractRegexValues(text, /\bIn order to resolve this issue,\s+(.{20,520}?)(?:\.|$)/gi, 1),
+    extractRegexValues(text, /\bTo resolve this issue,\s+(.{20,520}?)(?:\.|$)/gi, 1),
+    extractRegexValues(text, /\bit is recommended to\s+(.{20,420}?)(?:\.|$)/gi, 1),
+    extractRegexValues(text, /\brecommended to\s+(.{20,420}?)(?:\.|$)/gi, 1)
+  );
+
+  if (explicit) return explicit.replace(/\s+/g, ' ').trim();
+
+  const title = normalizeText(shortHeadingFromSection(section) ?? '');
+  if (/integer division by zero|blocksize/i.test(title)) {
+    return 'Check that blockSize is greater than zero before modulo or padding operations and return an error for invalid block sizes.';
+  }
+  if (/nil pointer|dataCipher/i.test(title)) {
+    return 'Check that the data channel state and dataCipher are non-null before encrypting or encoding payloads.';
+  }
+  if (/index out of range|slice bounds|bounds out of range|length/i.test(title)) {
+    return 'Add strict length and bounds checks before indexing, slicing, or adding compression padding, then retest the crash proof-of-concept.';
+  }
+  if (/spoofed udp handshake|hard reset|handshake/i.test(title)) {
+    return 'Implement retry or fallback handling for malformed UDP handshake responses so a single spoofed packet cannot terminate the VPN connection.';
+  }
+  if (/predictable port/i.test(title)) {
+    return 'Avoid assuming a fixed local port; handle occupied ports safely and allow configurable or random local port selection.';
+  }
+  if (/file disclosure|error messages/i.test(title)) {
+    return 'Sanitize error output and avoid disclosing local file paths, internal state, or sensitive implementation details.';
+  }
+  if (/fingerprinting|traffic patterns/i.test(title)) {
+    return 'Reduce unique traffic fingerprints by normalizing observable traffic patterns and reviewing protocol metadata exposure.';
+  }
+  if (/binary hardening/i.test(title)) {
+    return 'Apply standard binary hardening flags and verify platform-specific hardening options during release builds.';
+  }
+  if (/bootstrap-provider|verification/i.test(title)) {
+    return 'Verify the bootstrap-provider utility script integrity and authenticity before execution.';
+  }
+  if (/tls minversion|mitm|missing tls/i.test(title)) {
+    return 'Set a secure minimum TLS version and reject legacy TLS configurations that can enable downgrade or MitM risk.';
+  }
+
+  return undefined;
+}
+
+function minivpnSectionImpact(section: string): string | undefined {
+  const text = normalizeText(section);
+  const leveraged = firstOf(
+    extractRegexValues(text, /\b(?:may|might|could|can)\s+leverage\s+this\s+weakness\s+to\s+(.{20,420}?)(?:\.|$)/gi, 1),
+    extractRegexValues(text, /\bwill\s+result\s+in\s+(.{20,320}?)(?:\.|$)/gi, 1),
+    extractRegexValues(text, /\bwhich\s+will\s+result\s+in\s+(.{20,320}?)(?:\.|$)/gi, 1)
+  );
+
+  if (leveraged) return leveraged.replace(/\s+/g, ' ').trim();
+
+  const title = normalizeText(shortHeadingFromSection(section) ?? '');
+  if (/spoofed udp handshake|handshake/i.test(title)) {
+    return 'A spoofed UDP response can prevent new VPN connections or disconnect established minivpn clients, causing denial of service.';
+  }
+  if (/dos|denial of service|integer division|nil pointer|index out of range|slice bounds|predictable port/i.test(`${title} ${text}`)) {
+    return 'A malformed input or network condition can trigger a minivpn crash or connection failure, causing denial of service and availability loss.';
+  }
+  if (/file disclosure|error messages/i.test(title)) {
+    return 'Verbose error messages may disclose local file paths or implementation details useful to attackers.';
+  }
+  if (/fingerprinting|traffic patterns/i.test(title)) {
+    return 'Observable traffic patterns may help identify or fingerprint minivpn usage.';
+  }
+  if (/tls minversion|mitm|missing tls/i.test(title)) {
+    return 'Missing TLS minimum-version enforcement can expose users to downgrade or man-in-the-middle risk.';
+  }
+
+  return undefined;
+}
+
 
 function extractIdLineProfile(text: string, idPattern: RegExp, expectedCount?: number): InternalFindingSource[] {
   const sources: InternalFindingSource[] = [];
@@ -2294,6 +2914,98 @@ function extractBulletproofProfile(text: string): InternalFindingSource[] {
   return uniqueProfileSources(sources, 10);
 }
 
+
+function extractMinivpn7ASecurityProfile(text: string): InternalFindingSource[] {
+  const normalized = normalizeBlock(text);
+  if (!/7ASecurity/i.test(normalized) || !/minivpn/i.test(normalized) || !/MIV-01-\d{3}/i.test(normalized)) {
+    return [];
+  }
+
+  type MinivpnCandidate = {
+    id: string;
+    title: string;
+    severity: string;
+    section: string;
+    detailed: boolean;
+    order: number;
+  };
+
+  const candidates: MinivpnCandidate[] = [];
+  const order: string[] = [];
+  const pattern = /(?:^|\n)\s*(MIV-01-\d{3})\s+([^\n()]{6,180}?)\s*\((Critical|High|Medium|Low|Info|Informational)\)/gi;
+  let match: RegExpExecArray | null;
+
+  while ((match = pattern.exec(normalized)) !== null) {
+    const id = match[1].toUpperCase();
+    const title = cleanFindingHeading(match[2]);
+    const severity = normalizeSeverity(match[3]) as string;
+    const section = extractDelimitedSection(normalized, match.index, pattern);
+    const detailed = hasDetailedReportBodySignals(section);
+
+    if (!order.includes(id)) order.push(id);
+    candidates.push({ id, title, severity, section, detailed, order: order.indexOf(id) });
+  }
+
+  const bestById = new Map<string, MinivpnCandidate>();
+
+  for (const candidate of candidates) {
+    const existing = bestById.get(candidate.id);
+    if (!existing) {
+      bestById.set(candidate.id, candidate);
+      continue;
+    }
+
+    // Prefer the real body section over the table-of-contents/index row. If both
+    // are detailed, keep the larger body block because it normally carries the
+    // PoC, affected file, impact, and remediation text.
+    const candidateRank = (candidate.detailed ? 10_000 : 0) + candidate.section.length;
+    const existingRank = (existing.detailed ? 10_000 : 0) + existing.section.length;
+    if (candidateRank > existingRank) bestById.set(candidate.id, candidate);
+  }
+
+  const sources = order
+    .map((id) => bestById.get(id))
+    .filter((candidate): candidate is MinivpnCandidate => candidate !== undefined)
+    .map((candidate): InternalFindingSource => {
+      const section = candidate.section;
+      const remediation = minivpnSectionRemediation(section);
+      const impact = minivpnSectionImpact(section);
+      const minivpnComponents = extractRegexValues(section, /\bminivpn\/(?:vpn|tun|config|internal|client|cmd)\b/gi);
+      const source = makeProfileSource({
+        id: candidate.id,
+        title: candidate.title,
+        severity: candidate.severity,
+        evidence: section,
+        confidence: candidate.detailed ? 99 : 88,
+        catalogOnly: !candidate.detailed,
+        note: candidate.detailed
+          ? '7ASecurity minivpn profile extracted this finding from the detailed report body.'
+          : '7ASecurity minivpn profile extracted this finding from the report index; review the detailed body if needed.',
+      });
+
+      const titleAndSection = `${candidate.title}\n${section}`;
+      const vulnerabilityType = /tls\s+minversion|mitm/i.test(candidate.title)
+        ? 'Cryptographic Weakness'
+        : firstOf(source.vulnerability_type, detectVulnerabilityTypesFromText(titleAndSection));
+
+      return {
+        ...source,
+        _findingId: candidate.id,
+        _catalogOnly: !candidate.detailed,
+        _catalogConfidence: candidate.detailed ? 99 : 88,
+        _qualityScore: candidate.detailed ? 95 : 60,
+        remediation: remediation ?? source.remediation,
+        impact: impact ?? source.impact,
+        vulnerability_type: vulnerabilityType,
+        affected_components: combineArrays(source.affected_components, minivpnComponents),
+        // Avoid using GitHub URLs, page footers, or incidental prose as the primary asset.
+        asset: firstOf(minivpnComponents, 'minivpn OpenVPN Go Client'),
+      };
+    });
+
+  return uniqueProfileSources(sources, 12);
+}
+
 function getProfileFindingSources(reportName: string, input: string): InternalFindingSource[] {
   const text = normalizeBlock(input);
   const haystack = `${reportName}\n${text.slice(0, 5000)}`.toLowerCase();
@@ -2306,6 +3018,10 @@ function getProfileFindingSources(reportName: string, input: string): InternalFi
   if (/hash0|encfs|defuse/.test(haystack)) return extractDefuseProfile(text);
   if (/gosse|kalmar|hacken/.test(haystack)) return extractHackenOverviewProfile(text);
   if (/bulletproof|kudelski|bp-f-|bp-o-/.test(haystack)) return extractBulletproofProfile(text);
+  if (/7asecurity|minivpn|miv-01/.test(haystack)) {
+    const minivpn = extractMinivpn7ASecurityProfile(text);
+    if (minivpn.length > 0) return minivpn;
+  }
   if (/ncc[_\s-]*group|zcash|protocol\s*labs|opaque/.test(haystack)) {
     const ncc = extractNccFindingProfile(text);
     if (ncc.length > 0) return ncc;

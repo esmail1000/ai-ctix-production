@@ -1,25 +1,13 @@
 import { buildAnalysisReport } from '@/lib/server/analysis-build'
 import { createAnalysisRecord } from '@/lib/server/analysis-repository'
-import { prisma } from '@/lib/server/prisma'
 import type { StoredReport } from '@/lib/server/types'
+import { randomBytes } from 'crypto'
 
-function extractReportNumber(reportId: string): number {
-  const match = /^R-(\d+)$/.exec(reportId)
-  return match ? Number(match[1]) || 0 : 0
-}
+function createAnalysisReportId(): string {
+  const timestamp = Date.now().toString(36).toUpperCase()
+  const nonce = randomBytes(3).toString('hex').toUpperCase()
 
-async function getNextAnalysisReportId(): Promise<string> {
-  const reports = await prisma.analysisReport.findMany({
-    select: { id: true },
-  })
-
-  const nextNumber =
-    reports.reduce(
-      (max, report) => Math.max(max, extractReportNumber(report.id)),
-      0
-    ) + 1
-
-  return `R-${String(nextNumber).padStart(3, '0')}`
+  return `R-${timestamp}-${nonce}`
 }
 
 export async function ingestAnalysisReport(params: {
@@ -29,7 +17,7 @@ export async function ingestAnalysisReport(params: {
   content: string
   sourceFileName?: string
 }) {
-  const reportId = await getNextAnalysisReportId()
+  const reportId = createAnalysisReportId()
 
   const result = await buildAnalysisReport({
     reportId,

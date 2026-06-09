@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useMemo, useState, type ReactNode } from 'react'
 
-type Severity = 'Critical' | 'High' | 'Medium' | 'Low'
+export const dynamic = 'force-dynamic'
 
 type ExportReport = {
   id: string
@@ -20,7 +20,6 @@ type ExportReport = {
   medium?: number
   low?: number
   summary?: string
-  content?: string
   sourceFileName?: string
   parsingStatus?: string
   analysisVersion?: number
@@ -37,8 +36,8 @@ type ExportFinding = {
   reportName?: string
   title: string
   cve?: string
-  severity: Severity
-  asset: string
+  severity?: string
+  asset?: string
   score?: number
   status?: string
   detectedAt?: string
@@ -53,26 +52,106 @@ type ExportFinding = {
   }
 }
 
+type ExportSummaryRecord = {
+  id: string
+  reportId: string
+  summary?: {
+    executiveSummary?: string
+    technicalSummary?: string
+    confidence?: number
+    topRisks?: Array<{
+      id?: string
+      title?: string
+      severity?: string
+      score?: number
+      asset?: string
+      reason?: string
+    }>
+    stats?: Record<string, unknown>
+    grounding?: Record<string, unknown>
+  }
+  summaryMeta?: unknown
+  generatedAtIso?: string
+  updatedAtIso?: string
+}
+
+type ExportRiskRecord = {
+  id: string
+  reportId: string
+  overallRiskScore?: number | null
+  overallRiskBand?: string | null
+  risk?: {
+    overallRiskScore?: number
+    overallRiskBand?: string
+    rationale?: string[]
+    findingRisks?: Array<{
+      findingId?: string
+      title?: string
+      riskScore?: number
+      riskBand?: string
+      rationale?: string[]
+    }>
+    stats?: Record<string, unknown>
+  }
+  riskMeta?: unknown
+  generatedAtIso?: string
+  updatedAtIso?: string
+}
+
 type ExportSnapshot = {
   version?: number
   initializedAtIso?: string
   reports?: ExportReport[]
   findings?: ExportFinding[]
+  summaries?: ExportSummaryRecord[]
+  riskScores?: ExportRiskRecord[]
 }
 
-type SeverityCounts = Record<Severity, number>
+type AttackPathPrediction = {
+  findingId: string
+  findingTitle: string
+  severity?: string
+  riskScore?: number
+  attackPathScore?: number
+  exploitLikelihood?: string
+  confidence?: number
+  predictedOutcome?: string
+  reasoning?: string[]
+  path?: {
+    nodes?: Array<{ type?: string; id?: string; name?: string }>
+    relationships?: Array<{ type?: string }>
+  }
+}
+
+type AttackPathsResponse = {
+  paths?: AttackPathPrediction[]
+  error?: string
+  details?: string
+}
+
+type Recommendation = {
+  findingId: string
+  title: string
+  priority: 'Immediate' | 'High' | 'Medium' | 'Low'
+  category: string
+  fix: string
+  source: 'Reported remediation' | 'Derived from finding evidence'
+  effort: string
+  impactReduction: string
+  standard: string
+}
 
 const APP_TIME_ZONE = 'Africa/Cairo'
-const severityOrder: Severity[] = ['Critical', 'High', 'Medium', 'Low']
+const severityOrder = ['Critical', 'High', 'Medium', 'Low']
 
-const severityBadgeClass: Record<Severity, string> = {
+const severityBadgeClass: Record<string, string> = {
   Critical: 'border-red-200 bg-red-50 text-red-700',
   High: 'border-orange-200 bg-orange-50 text-orange-700',
   Medium: 'border-yellow-200 bg-yellow-50 text-yellow-700',
   Low: 'border-emerald-200 bg-emerald-50 text-emerald-700',
 }
 
-const reportStatusClass: Record<string, string> = {
+const statusClass: Record<string, string> = {
   Ready: 'border-emerald-200 bg-emerald-50 text-emerald-700',
   Reviewed: 'border-[#c4e3cf] bg-[#f6fff9] text-[#087a3a]',
   Pending: 'border-yellow-200 bg-yellow-50 text-yellow-700',
@@ -80,8 +159,13 @@ const reportStatusClass: Record<string, string> = {
 
 function clean(value: unknown, fallback = '-') {
   const text = String(value ?? '').trim()
-  if (!text || text === 'ΓÇö' || text === '╬ô├ç├╢') return fallback
+  if (!text || text === '╬ô├ç├╢' || text === 'Γò¼├┤Γö£├ºΓö£Γòó' || text.toLowerCase() === 'undefined') return fallback
   return text
+}
+
+function hasUsefulValue(value: unknown) {
+  const normalized = clean(value, '').trim().toLowerCase()
+  return Boolean(normalized && normalized !== '-' && normalized !== 'n/a' && normalized !== 'none' && normalized !== 'unknown')
 }
 
 function formatDate(value?: string) {
@@ -100,19 +184,6 @@ function formatDate(value?: string) {
   }).format(date)
 }
 
-function escapeHtml(value: unknown) {
-  const text = clean(value, '')
-  const map: Record<string, string> = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#039;',
-  }
-
-  return text.replace(/[&<>"']/g, (char) => map[char] ?? char)
-}
-
 function safeFileName(value: string) {
   return clean(value, 'report')
     .trim()
@@ -122,6 +193,18 @@ function safeFileName(value: string) {
     .replace(/^-|-$/g, '')
 }
 
+function escapeHtml(value: unknown) {
+  const text = clean(value, '')
+  const map: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;',
+  }
+  return text.replace(/[&<>"']/g, (char) => map[char] ?? char)
+}
+
 function normalizeConfidence(value: unknown) {
   const numeric = Number(value ?? 0)
   if (!Number.isFinite(numeric) || numeric <= 0) return 0
@@ -129,32 +212,25 @@ function normalizeConfidence(value: unknown) {
   return Math.max(0, Math.min(100, Math.round(percentage)))
 }
 
-function severityCounts(findings: ExportFinding[]): SeverityCounts {
-  const counts: SeverityCounts = { Critical: 0, High: 0, Medium: 0, Low: 0 }
+function normalizeSeverity(value: unknown) {
+  const severity = clean(value, 'Low')
+  return severityOrder.includes(severity) ? severity : 'Low'
+}
 
+function severityCounts(findings: ExportFinding[]) {
+  const counts: Record<string, number> = { Critical: 0, High: 0, Medium: 0, Low: 0 }
   for (const finding of findings) {
-    if (severityOrder.includes(finding.severity)) {
-      counts[finding.severity] += 1
-    }
+    counts[normalizeSeverity(finding.severity)] += 1
   }
-
   return counts
 }
 
-function reportRiskScore(findings: ExportFinding[]) {
+function fallbackRiskScore(findings: ExportFinding[]) {
   if (findings.length === 0) return 0
   return Math.max(...findings.map((finding) => Number(finding.score ?? 0)))
 }
 
-function averageConfidence(findings: ExportFinding[]) {
-  if (findings.length === 0) return 0
-  const values = findings.map((finding) =>
-    normalizeConfidence(finding.provenance?.parserConfidence)
-  )
-  return Math.round(values.reduce((sum, value) => sum + value, 0) / values.length)
-}
-
-function riskBand(score: number) {
+function fallbackRiskBand(score: number) {
   if (score >= 90) return 'Critical'
   if (score >= 70) return 'High'
   if (score >= 40) return 'Medium'
@@ -182,33 +258,10 @@ function topAssets(findings: ExportFinding[]) {
     .slice(0, 8)
 }
 
-function hasUsefulValue(value: string | undefined | null) {
-  const normalized = (value ?? '').trim().toLowerCase()
-  return Boolean(
-    normalized &&
-      normalized !== '-' &&
-      normalized !== 'ΓÇö' &&
-      normalized !== 'n/a' &&
-      normalized !== 'none' &&
-      normalized !== 'unknown'
-  )
-}
-
-function formatExtractionMethod(method: string | undefined) {
-  switch (method) {
-    case 'nlp-hybrid':
-      return 'NLP Hybrid'
-    case 'structured-parser':
-      return 'Structured Parser'
-    case 'heuristic-fallback':
-      return 'Heuristic Fallback'
-    case 'manual':
-      return 'Manual Review'
-    case 'seed':
-      return 'Seed Data'
-    default:
-      return clean(method, 'Unknown')
-  }
+function averageConfidence(findings: ExportFinding[]) {
+  if (findings.length === 0) return 0
+  const values = findings.map((finding) => normalizeConfidence(finding.provenance?.parserConfidence))
+  return Math.round(values.reduce((sum, value) => sum + value, 0) / values.length)
 }
 
 function percent(part: number, total: number) {
@@ -216,35 +269,84 @@ function percent(part: number, total: number) {
   return Math.round((part / total) * 100)
 }
 
-function exportReadinessScore(findings: ExportFinding[]) {
+function exportReadinessScore(findings: ExportFinding[], riskRecord: ExportRiskRecord | null, summaryRecord: ExportSummaryRecord | null) {
   if (findings.length === 0) return 0
 
   const withEvidence = findings.filter((finding) => hasUsefulValue(finding.evidence)).length
   const withRemediation = findings.filter((finding) => hasUsefulValue(finding.remediation)).length
   const confidence = averageConfidence(findings)
+  const riskBonus = riskRecord ? 10 : 0
+  const summaryBonus = summaryRecord ? 10 : 0
 
-  return Math.round(
-    (withEvidence / findings.length) * 35 +
-      (withRemediation / findings.length) * 35 +
-      confidence * 0.3
+  return Math.min(
+    100,
+    Math.round(
+      (withEvidence / findings.length) * 30 +
+        (withRemediation / findings.length) * 30 +
+        confidence * 0.2 +
+        riskBonus +
+        summaryBonus
+    )
   )
 }
 
-function severityNarrative(counts: SeverityCounts, total: number, band: string, riskScore: number) {
-  if (total === 0) return 'No findings are currently included in this export package.'
-
-  const criticalHigh = counts.Critical + counts.High
-
-  if (criticalHigh > 0) {
-    return `This report is classified as ${band} with a top observed risk score of ${riskScore}/100. ${criticalHigh} finding${criticalHigh > 1 ? 's' : ''} require priority review before closure.`
-  }
-
-  return `This report is classified as ${band} with a top observed risk score of ${riskScore}/100. Findings are currently concentrated in medium and low severity ranges.`
+function latestSummaryForReport(snapshot: ExportSnapshot | null, reportId: string) {
+  return (snapshot?.summaries ?? []).find((item) => item.reportId === reportId) ?? null
 }
 
-function reportFindingCount(report: ExportReport, findings: ExportFinding[]) {
-  const countFromFindings = findings.filter((finding) => finding.reportId === report.id).length
-  return countFromFindings || Number(report.findings ?? 0)
+function latestRiskForReport(snapshot: ExportSnapshot | null, reportId: string) {
+  return (snapshot?.riskScores ?? []).find((item) => item.reportId === reportId) ?? null
+}
+
+function deriveRecommendation(finding: ExportFinding): Recommendation {
+  const severity = normalizeSeverity(finding.severity)
+  const score = Number(finding.score ?? 0)
+  const title = `${finding.title} ${finding.summary ?? ''} ${finding.impact ?? ''} ${finding.cve ?? ''}`.toLowerCase()
+  const hasCve = hasUsefulValue(finding.cve)
+  const reportedFix = clean(finding.remediation, '')
+
+  let category = 'Configuration hardening'
+  let standard = 'Configuration baseline'
+  let fix = reportedFix
+
+  if (title.includes('xss') || title.includes('cross-site')) {
+    category = 'Secure coding practice'
+    standard = 'OWASP input validation / output encoding'
+    fix ||= 'Apply context-aware output encoding, validate user-controlled input, and enforce a restrictive Content Security Policy.'
+  } else if (title.includes('sql') || title.includes('injection')) {
+    category = 'Secure coding practice'
+    standard = 'OWASP injection mitigation'
+    fix ||= 'Replace dynamic queries with parameterized queries, validate inputs, and review database permissions.'
+  } else if (hasCve || title.includes('cve')) {
+    category = 'Patch management'
+    standard = 'Vendor advisory / CVE remediation'
+    fix ||= 'Prioritize vendor patch validation, schedule emergency remediation for exposed assets, and verify the CVE is no longer exploitable.'
+  } else if (title.includes('tls') || title.includes('ssl') || title.includes('config')) {
+    category = 'Configuration hardening'
+    standard = 'Secure configuration baseline'
+    fix ||= 'Harden the affected service configuration, remove weak options, and validate the change with a follow-up security scan.'
+  } else {
+    fix ||= 'Review the affected asset, validate exploitability, apply the recommended control, and re-test the finding before closure.'
+  }
+
+  return {
+    findingId: finding.id,
+    title: finding.title,
+    priority: severity === 'Critical' || score >= 90 ? 'Immediate' : severity === 'High' || score >= 70 ? 'High' : severity === 'Medium' ? 'Medium' : 'Low',
+    category,
+    fix,
+    source: reportedFix ? 'Reported remediation' : 'Derived from finding evidence',
+    effort: severity === 'Critical' || severity === 'High' ? 'Medium / urgent' : 'Low to medium',
+    impactReduction: severity === 'Critical' || severity === 'High' ? 'High' : 'Moderate',
+    standard,
+  }
+}
+
+function buildRecommendations(findings: ExportFinding[]) {
+  return findings
+    .slice()
+    .sort((a, b) => Number(b.score ?? 0) - Number(a.score ?? 0))
+    .map(deriveRecommendation)
 }
 
 function csvEscape(value: unknown) {
@@ -255,49 +357,28 @@ function csvEscape(value: unknown) {
 function downloadBlob(blob: Blob, fileName: string) {
   const url = URL.createObjectURL(blob)
   const anchor = document.createElement('a')
-
   anchor.href = url
   anchor.download = fileName
   document.body.appendChild(anchor)
   anchor.click()
   anchor.remove()
-
   URL.revokeObjectURL(url)
 }
 
 function buildCsv(report: ExportReport, findings: ExportFinding[]) {
   const rows = [
-    [
-      'Report ID',
-      'Report Name',
-      'Finding ID',
-      'Title',
-      'Severity',
-      'Score',
-      'Asset',
-      'CVE',
-      'Status',
-      'Method',
-      'Confidence',
-      'Detected At',
-      'Summary',
-      'Impact',
-      'Evidence',
-      'Remediation',
-    ],
+    ['Report ID', 'Report Name', 'Finding ID', 'Title', 'Severity', 'Score', 'Asset', 'CVE', 'Status', 'Confidence', 'Summary', 'Impact', 'Evidence', 'Remediation'],
     ...findings.map((finding) => [
       report.id,
       report.name,
       finding.id,
       finding.title,
-      finding.severity,
+      normalizeSeverity(finding.severity),
       finding.score ?? '',
-      finding.asset,
+      finding.asset ?? '',
       finding.cve ?? '',
       finding.status ?? '',
-      formatExtractionMethod(finding.provenance?.extractionMethod),
       `${normalizeConfidence(finding.provenance?.parserConfidence)}%`,
-      formatDate(finding.detectedAt),
       finding.summary ?? '',
       finding.impact ?? '',
       finding.evidence ?? '',
@@ -308,82 +389,102 @@ function buildCsv(report: ExportReport, findings: ExportFinding[]) {
   return rows.map((row) => row.map(csvEscape).join(',')).join('\r\n')
 }
 
-function buildJson(report: ExportReport, findings: ExportFinding[]) {
-  const counts = severityCounts(findings)
-  const riskScore = reportRiskScore(findings)
-
+function buildJson(input: {
+  report: ExportReport
+  findings: ExportFinding[]
+  summaryRecord: ExportSummaryRecord | null
+  riskRecord: ExportRiskRecord | null
+  recommendations: Recommendation[]
+  attackPaths: AttackPathPrediction[]
+  metrics: Record<string, unknown>
+}) {
   return JSON.stringify(
     {
       generatedAtIso: new Date().toISOString(),
-      report,
-      metrics: {
-        riskScore,
-        riskBand: riskBand(riskScore),
-        findings: findings.length,
-        severityCounts: counts,
-        averageConfidence: averageConfidence(findings),
-        exportReadiness: exportReadinessScore(findings),
-        topAssets: topAssets(findings),
-      },
-      findings,
+      report: input.report,
+      metrics: input.metrics,
+      summary: input.summaryRecord,
+      risk: input.riskRecord,
+      recommendations: input.recommendations,
+      attackPaths: input.attackPaths,
+      findings: input.findings,
     },
     null,
     2
   )
 }
 
-function buildHtmlDocument(report: ExportReport, findings: ExportFinding[]) {
-  const counts = severityCounts(findings)
-  const riskScore = reportRiskScore(findings)
-  const band = riskBand(riskScore)
+function buildHtmlDocument(input: {
+  report: ExportReport
+  findings: ExportFinding[]
+  summaryRecord: ExportSummaryRecord | null
+  riskRecord: ExportRiskRecord | null
+  recommendations: Recommendation[]
+  attackPaths: AttackPathPrediction[]
+  metrics: {
+    riskScore: number
+    riskBand: string
+    readiness: number
+    avgConfidence: number
+    counts: Record<string, number>
+  }
+}) {
+  const { report, findings, summaryRecord, riskRecord, recommendations, attackPaths, metrics } = input
+  const topFindings = findings.slice(0, 10)
   const assets = topAssets(findings)
-  const topFindings = [...findings]
-    .sort((a, b) => Number(b.score ?? 0) - Number(a.score ?? 0))
-    .slice(0, 8)
+  const executiveSummary = summaryRecord?.summary?.executiveSummary || report.summary || 'No executive summary available.'
 
-  const findingRows = findings
+  const findingRows = topFindings
     .map(
       (finding) => `
         <tr>
           <td>${escapeHtml(finding.id)}</td>
           <td>${escapeHtml(finding.title)}</td>
-          <td>${escapeHtml(finding.severity)}</td>
+          <td>${escapeHtml(normalizeSeverity(finding.severity))}</td>
           <td>${escapeHtml(finding.score ?? '-')}</td>
-          <td>${escapeHtml(finding.asset)}</td>
+          <td>${escapeHtml(finding.asset ?? '-')}</td>
           <td>${escapeHtml(finding.cve ?? '-')}</td>
-          <td>${escapeHtml(finding.status ?? '-')}</td>
-          <td>${escapeHtml(formatExtractionMethod(finding.provenance?.extractionMethod))}</td>
           <td>${normalizeConfidence(finding.provenance?.parserConfidence)}%</td>
-        </tr>
-      `
+        </tr>`
     )
     .join('')
 
-  const topFindingRows = topFindings
+  const recommendationRows = recommendations
+    .slice(0, 10)
     .map(
-      (finding) => `
+      (item) => `
         <li>
-          <strong>${escapeHtml(finding.title)}</strong>
-          <span>${escapeHtml(finding.severity)} - ${escapeHtml(finding.score ?? '-')} / 100</span>
-          <p>${escapeHtml(finding.summary ?? finding.impact ?? '')}</p>
-        </li>
-      `
+          <strong>${escapeHtml(item.priority)} - ${escapeHtml(item.title)}</strong>
+          <span>${escapeHtml(item.category)} / ${escapeHtml(item.standard)}</span>
+          <p>${escapeHtml(item.fix)}</p>
+        </li>`
     )
     .join('')
 
-  const assetRows = assets
-    .map((item) => `<li>${escapeHtml(item.asset)} <strong>${item.count}</strong></li>`)
+  const attackPathRows = attackPaths
+    .slice(0, 8)
+    .map(
+      (path) => `
+        <li>
+          <strong>${escapeHtml(path.findingTitle)}</strong>
+          <span>Likelihood: ${escapeHtml(path.exploitLikelihood ?? 'Unknown')} | Path score: ${escapeHtml(path.attackPathScore ?? '-')} | Confidence: ${escapeHtml(path.confidence ?? '-')}%</span>
+          <p>${escapeHtml(path.predictedOutcome ?? 'No predicted outcome returned.')}</p>
+        </li>`
+    )
     .join('')
 
-  const noteRows = (report.parsingNotes ?? [])
-    .map((note) => `<li>${escapeHtml(note)}</li>`)
+  const riskRationaleRows = (riskRecord?.risk?.rationale ?? [])
+    .slice(0, 8)
+    .map((line) => `<li>${escapeHtml(line)}</li>`)
     .join('')
+
+  const assetRows = assets.map((item) => `<li>${escapeHtml(item.asset)} <strong>${item.count}</strong></li>`).join('')
 
   return `<!doctype html>
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>${escapeHtml(report.id)} - AI CTIX Report</title>
+  <title>${escapeHtml(report.id)} - AI CTIX Final Export</title>
   <style>
     body { margin: 0; background: #ffffff; color: #0d2217; font-family: Arial, Helvetica, sans-serif; line-height: 1.55; }
     .page { max-width: 1120px; margin: 0 auto; padding: 32px; }
@@ -408,16 +509,16 @@ function buildHtmlDocument(report: ExportReport, findings: ExportFinding[]) {
 <body>
   <main class="page">
     <section class="header">
-      <div class="kicker">AI CTIX Export Report</div>
+      <div class="kicker">AI CTIX Final Export Package</div>
       <h1>${escapeHtml(report.name)}</h1>
-      <p class="summary">${escapeHtml(report.summary ?? 'No executive summary available.')}</p>
+      <p class="summary">${escapeHtml(executiveSummary)}</p>
     </section>
 
     <section class="grid">
       <div class="card"><div class="label">Report ID</div><div class="value">${escapeHtml(report.id)}</div></div>
-      <div class="card"><div class="label">Risk Band</div><div class="value">${escapeHtml(band)}</div></div>
-      <div class="card"><div class="label">Risk Score</div><div class="value">${riskScore}/100</div></div>
-      <div class="card"><div class="label">Findings</div><div class="value">${findings.length}</div></div>
+      <div class="card"><div class="label">Risk Band</div><div class="value">${escapeHtml(metrics.riskBand)}</div></div>
+      <div class="card"><div class="label">Risk Score</div><div class="value">${metrics.riskScore}/100</div></div>
+      <div class="card"><div class="label">Readiness</div><div class="value">${metrics.readiness}%</div></div>
     </section>
 
     <h2>Report Metadata</h2>
@@ -425,32 +526,26 @@ function buildHtmlDocument(report: ExportReport, findings: ExportFinding[]) {
       <tr><th>Type</th><td>${escapeHtml(report.type ?? '-')}</td></tr>
       <tr><th>Status</th><td>${escapeHtml(report.status ?? '-')}</td></tr>
       <tr><th>Uploaded At</th><td>${escapeHtml(formatDate(report.uploadedAt))}</td></tr>
-      <tr><th>Owner</th><td>${escapeHtml(report.owner ?? '-')}</td></tr>
       <tr><th>Source File</th><td>${escapeHtml(report.sourceFileName ?? '-')}</td></tr>
     </table>
 
     <h2>Severity Breakdown</h2>
-    <table>
-      <tr><th>Critical</th><th>High</th><th>Medium</th><th>Low</th></tr>
-      <tr><td>${counts.Critical}</td><td>${counts.High}</td><td>${counts.Medium}</td><td>${counts.Low}</td></tr>
-    </table>
+    <table><tr><th>Critical</th><th>High</th><th>Medium</th><th>Low</th></tr><tr><td>${metrics.counts.Critical}</td><td>${metrics.counts.High}</td><td>${metrics.counts.Medium}</td><td>${metrics.counts.Low}</td></tr></table>
+
+    <h2>Risk Rationale</h2>
+    <ul>${riskRationaleRows || '<li>No saved risk rationale available.</li>'}</ul>
 
     <h2>Top Affected Assets</h2>
     <ul>${assetRows || '<li>No affected assets available.</li>'}</ul>
 
+    <h2>Defense Recommendations</h2>
+    <ol>${recommendationRows || '<li>No recommendations available.</li>'}</ol>
+
+    <h2>Attack Path Predictions</h2>
+    <ol>${attackPathRows || '<li>No attack paths available in this export.</li>'}</ol>
+
     <h2>Top Risk Findings</h2>
-    <ol>${topFindingRows || '<li>No findings available.</li>'}</ol>
-
-    <h2>All Findings</h2>
-    <table>
-      <thead>
-        <tr><th>ID</th><th>Finding</th><th>Severity</th><th>Score</th><th>Asset</th><th>CVE</th><th>Status</th><th>Method</th><th>Confidence</th></tr>
-      </thead>
-      <tbody>${findingRows || '<tr><td colspan="9">No findings available.</td></tr>'}</tbody>
-    </table>
-
-    <h2>NLP / Parser Notes</h2>
-    <ul>${noteRows || '<li>No parser notes available.</li>'}</ul>
+    <table><thead><tr><th>ID</th><th>Finding</th><th>Severity</th><th>Score</th><th>Asset</th><th>CVE</th><th>Confidence</th></tr></thead><tbody>${findingRows || '<tr><td colspan="7">No findings available.</td></tr>'}</tbody></table>
 
     <section class="footer">Generated from AI CTIX Extractor - ${escapeHtml(new Date().toISOString())}</section>
   </main>
@@ -458,220 +553,66 @@ function buildHtmlDocument(report: ExportReport, findings: ExportFinding[]) {
 </html>`
 }
 
-function buildPowerPointHtml(report: ExportReport, findings: ExportFinding[]) {
-  const counts = severityCounts(findings)
-  const riskScore = reportRiskScore(findings)
-  const band = riskBand(riskScore)
-  const assets = topAssets(findings)
+function buildPowerPointHtml(input: {
+  report: ExportReport
+  findings: ExportFinding[]
+  recommendations: Recommendation[]
+  attackPaths: AttackPathPrediction[]
+  metrics: {
+    riskScore: number
+    riskBand: string
+    readiness: number
+    counts: Record<string, number>
+  }
+}) {
+  const { report, findings, recommendations, attackPaths, metrics } = input
   const topFindings = findings.slice(0, 6)
-  const readiness = exportReadinessScore(findings)
 
   const findingRows = topFindings
     .map(
-      (finding) => `
-        <tr>
-          <td>${escapeHtml(finding.title)}</td>
-          <td>${escapeHtml(finding.severity)}</td>
-          <td>${escapeHtml(finding.score ?? '-')}</td>
-          <td>${escapeHtml(finding.asset)}</td>
-        </tr>
-      `
+      (finding) => `<tr><td>${escapeHtml(finding.title)}</td><td>${escapeHtml(normalizeSeverity(finding.severity))}</td><td>${escapeHtml(finding.score ?? '-')}</td><td>${escapeHtml(finding.asset ?? '-')}</td></tr>`
     )
     .join('')
 
-  const assetRows = assets
-    .slice(0, 7)
-    .map((asset) => `<li>${escapeHtml(asset.asset)} - ${asset.count} finding${asset.count > 1 ? 's' : ''}</li>`)
+  const recRows = recommendations
+    .slice(0, 5)
+    .map((item) => `<li>${escapeHtml(item.priority)}: ${escapeHtml(item.fix)}</li>`)
+    .join('')
+
+  const pathRows = attackPaths
+    .slice(0, 5)
+    .map((item) => `<li>${escapeHtml(item.findingTitle)} - ${escapeHtml(item.exploitLikelihood ?? 'Unknown')}</li>`)
     .join('')
 
   return `<!doctype html>
-<html xmlns:o="urn:schemas-microsoft-com:office:office"
-      xmlns:p="urn:schemas-microsoft-com:office:powerpoint"
-      xmlns="http://www.w3.org/TR/REC-html40">
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:p="urn:schemas-microsoft-com:office:powerpoint" xmlns="http://www.w3.org/TR/REC-html40">
 <head>
   <meta charset="utf-8" />
   <meta name="ProgId" content="PowerPoint.Slide" />
-  <meta name="Generator" content="AI CTIX" />
   <title>${escapeHtml(report.name)} - AI CTIX Briefing</title>
   <style>
-    body {
-      margin: 0;
-      background: #fbfefd;
-      color: #0d2217;
-      font-family: Arial, Helvetica, sans-serif;
-    }
-
-    .slide {
-      width: 960px;
-      height: 540px;
-      padding: 42px;
-      box-sizing: border-box;
-      page-break-after: always;
-      background: linear-gradient(135deg, #fbfefd 0%, #ffffff 58%, #edfdf3 100%);
-      border-top: 10px solid #087a3a;
-      position: relative;
-    }
-
-    .kicker {
-      color: #087a3a;
-      font-size: 12px;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      font-weight: 700;
-      margin-bottom: 14px;
-    }
-
-    h1 {
-      font-size: 38px;
-      line-height: 1.08;
-      margin: 0 0 18px;
-      max-width: 760px;
-    }
-
-    h2 {
-      font-size: 30px;
-      line-height: 1.1;
-      margin: 0 0 18px;
-    }
-
-    p {
-      font-size: 17px;
-      line-height: 1.5;
-      color: #5a7668;
-      max-width: 790px;
-    }
-
-    .metrics {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-      margin-top: 36px;
-    }
-
-    .metric {
-      background: #ffffff;
-      border: 1px solid #dceee3;
-      border-radius: 18px;
-      padding: 18px;
-    }
-
-    .label {
-      color: #5a7668;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      font-weight: 700;
-    }
-
-    .value {
-      margin-top: 8px;
-      font-size: 26px;
-      font-weight: 700;
-      color: #0d2217;
-    }
-
-    .green {
-      color: #087a3a;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 24px;
-      font-size: 14px;
-      background: white;
-    }
-
-    th {
-      text-align: left;
-      background: #edfdf3;
-      color: #173128;
-      padding: 12px;
-      border: 1px solid #dceee3;
-    }
-
-    td {
-      padding: 12px;
-      border: 1px solid #dceee3;
-      color: #173128;
-      vertical-align: top;
-    }
-
-    li {
-      font-size: 18px;
-      line-height: 1.55;
-      margin-bottom: 12px;
-      color: #173128;
-    }
-
-    .footer {
-      position: absolute;
-      bottom: 24px;
-      left: 42px;
-      right: 42px;
-      color: #7a8d83;
-      font-size: 11px;
-      border-top: 1px solid #dceee3;
-      padding-top: 10px;
-    }
+    body { margin: 0; background: #fbfefd; color: #0d2217; font-family: Arial, Helvetica, sans-serif; }
+    .slide { width: 960px; height: 540px; padding: 42px; box-sizing: border-box; page-break-after: always; background: linear-gradient(135deg, #fbfefd 0%, #ffffff 58%, #edfdf3 100%); border-top: 10px solid #087a3a; position: relative; }
+    .kicker { color: #087a3a; font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700; margin-bottom: 14px; }
+    h1 { font-size: 38px; line-height: 1.08; margin: 0 0 18px; max-width: 760px; }
+    h2 { font-size: 30px; line-height: 1.1; margin: 0 0 18px; }
+    p, li { font-size: 17px; line-height: 1.5; color: #173128; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 36px; }
+    .metric { background: #ffffff; border: 1px solid #dceee3; border-radius: 18px; padding: 18px; }
+    .label { color: #5a7668; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
+    .value { margin-top: 8px; font-size: 26px; font-weight: 700; color: #0d2217; }
+    table { width: 100%; border-collapse: collapse; margin-top: 24px; font-size: 14px; background: white; }
+    th { text-align: left; background: #edfdf3; color: #173128; padding: 12px; border: 1px solid #dceee3; }
+    td { padding: 12px; border: 1px solid #dceee3; color: #173128; vertical-align: top; }
+    .footer { position: absolute; bottom: 24px; left: 42px; right: 42px; color: #7a8d83; font-size: 11px; border-top: 1px solid #dceee3; padding-top: 10px; }
   </style>
 </head>
 <body>
-  <section class="slide">
-    <div class="kicker">AI CTIX Export Briefing</div>
-    <h1>${escapeHtml(report.name)}</h1>
-    <p>${escapeHtml(clean(report.summary, 'Generated security intelligence export briefing.'))}</p>
-
-    <div class="metrics">
-      <div class="metric"><div class="label">Risk</div><div class="value green">${escapeHtml(band)}</div></div>
-      <div class="metric"><div class="label">Score</div><div class="value">${riskScore}/100</div></div>
-      <div class="metric"><div class="label">Findings</div><div class="value">${findings.length}</div></div>
-      <div class="metric"><div class="label">Readiness</div><div class="value">${readiness}%</div></div>
-    </div>
-
-    <div class="footer">Generated from AI CTIX Extractor - ${escapeHtml(new Date().toISOString())}</div>
-  </section>
-
-  <section class="slide">
-    <div class="kicker">Executive Summary</div>
-    <h2>Security posture overview</h2>
-    <p>${escapeHtml(severityNarrative(counts, findings.length, band, riskScore))}</p>
-
-    <div class="metrics">
-      <div class="metric"><div class="label">Critical</div><div class="value">${counts.Critical}</div></div>
-      <div class="metric"><div class="label">High</div><div class="value">${counts.High}</div></div>
-      <div class="metric"><div class="label">Medium</div><div class="value">${counts.Medium}</div></div>
-      <div class="metric"><div class="label">Low</div><div class="value">${counts.Low}</div></div>
-    </div>
-
-    <div class="footer">AI CTIX Export Briefing</div>
-  </section>
-
-  <section class="slide">
-    <div class="kicker">Priority Findings</div>
-    <h2>Top risk findings</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Finding</th>
-          <th>Severity</th>
-          <th>Score</th>
-          <th>Asset</th>
-        </tr>
-      </thead>
-      <tbody>${findingRows || '<tr><td colspan="4">No findings available.</td></tr>'}</tbody>
-    </table>
-
-    <div class="footer">AI CTIX Export Briefing</div>
-  </section>
-
-  <section class="slide">
-    <div class="kicker">Affected Assets</div>
-    <h2>Exposure concentration</h2>
-    <ul>${assetRows || '<li>No affected assets available.</li>'}</ul>
-
-    <div class="footer">AI CTIX Export Briefing</div>
-  </section>
+  <section class="slide"><div class="kicker">AI CTIX Final Briefing</div><h1>${escapeHtml(report.name)}</h1><p>${escapeHtml(clean(report.summary, 'Generated security intelligence export briefing.'))}</p><div class="metrics"><div class="metric"><div class="label">Risk</div><div class="value">${escapeHtml(metrics.riskBand)}</div></div><div class="metric"><div class="label">Score</div><div class="value">${metrics.riskScore}/100</div></div><div class="metric"><div class="label">Findings</div><div class="value">${findings.length}</div></div><div class="metric"><div class="label">Readiness</div><div class="value">${metrics.readiness}%</div></div></div><div class="footer">AI CTIX Export Briefing</div></section>
+  <section class="slide"><div class="kicker">Executive Summary</div><h2>Severity distribution</h2><div class="metrics"><div class="metric"><div class="label">Critical</div><div class="value">${metrics.counts.Critical}</div></div><div class="metric"><div class="label">High</div><div class="value">${metrics.counts.High}</div></div><div class="metric"><div class="label">Medium</div><div class="value">${metrics.counts.Medium}</div></div><div class="metric"><div class="label">Low</div><div class="value">${metrics.counts.Low}</div></div></div><div class="footer">AI CTIX Export Briefing</div></section>
+  <section class="slide"><div class="kicker">Priority Findings</div><h2>Top risk findings</h2><table><thead><tr><th>Finding</th><th>Severity</th><th>Score</th><th>Asset</th></tr></thead><tbody>${findingRows || '<tr><td colspan="4">No findings available.</td></tr>'}</tbody></table><div class="footer">AI CTIX Export Briefing</div></section>
+  <section class="slide"><div class="kicker">Defense</div><h2>Recommended next actions</h2><ul>${recRows || '<li>No recommendations available.</li>'}</ul><div class="footer">AI CTIX Export Briefing</div></section>
+  <section class="slide"><div class="kicker">Attack Paths</div><h2>Predicted attack paths</h2><ul>${pathRows || '<li>No attack path data available.</li>'}</ul><div class="footer">AI CTIX Export Briefing</div></section>
 </body>
 </html>`
 }
@@ -699,11 +640,15 @@ export default function ExportPage() {
 }
 
 function ExportPageContent() {
-  const [snapshot, setSnapshot] = useState<ExportSnapshot | null>(null)
   const searchParams = useSearchParams()
   const requestedReportId = searchParams.get('reportId')?.trim() ?? ''
+
+  const [snapshot, setSnapshot] = useState<ExportSnapshot | null>(null)
+  const [attackPaths, setAttackPaths] = useState<AttackPathPrediction[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingPaths, setLoadingPaths] = useState(false)
   const [error, setError] = useState('')
+  const [pathError, setPathError] = useState('')
 
   useEffect(() => {
     let cancelled = false
@@ -712,35 +657,26 @@ function ExportPageContent() {
       try {
         setLoading(true)
         setError('')
+        const exportUrl = requestedReportId
+          ? `/api/export?reportId=${encodeURIComponent(requestedReportId)}`
+          : '/api/export?mode=list'
 
-        const response = await fetch('/api/export', { cache: 'no-store' })
-
-        if (!response.ok) {
-          throw new Error('Failed to load export snapshot.')
-        }
-
-        const payload: ExportSnapshot = await response.json()
-
-        if (!cancelled) {
-          setSnapshot(payload)
-        }
+        const response = await fetch(exportUrl, { cache: 'no-store' })
+        const payload: ExportSnapshot = await response.json().catch(() => ({}))
+        if (!response.ok) throw new Error('Failed to load export snapshot.')
+        if (!cancelled) setSnapshot(payload)
       } catch (err) {
-        if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Export page failed to load.')
-        }
+        if (!cancelled) setError(err instanceof Error ? err.message : 'Export page failed to load.')
       } finally {
-        if (!cancelled) {
-          setLoading(false)
-        }
+        if (!cancelled) setLoading(false)
       }
     }
 
-    loadExportData()
-
+    void loadExportData()
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [requestedReportId])
 
   const reports = useMemo(() => snapshot?.reports ?? [], [snapshot])
   const allFindings = useMemo(() => snapshot?.findings ?? [], [snapshot])
@@ -757,17 +693,112 @@ function ExportPageContent() {
       .sort((a, b) => Number(b.score ?? 0) - Number(a.score ?? 0))
   }, [allFindings, selectedReport])
 
-  const counts = useMemo(() => severityCounts(reportFindings), [reportFindings])
-  const riskScore = useMemo(() => reportRiskScore(reportFindings), [reportFindings])
-  const band = riskBand(riskScore)
-  const assets = useMemo(() => topAssets(reportFindings), [reportFindings])
-  const avgConfidence = useMemo(() => averageConfidence(reportFindings), [reportFindings])
+  const summaryRecord = useMemo(
+    () => (selectedReport ? latestSummaryForReport(snapshot, selectedReport.id) : null),
+    [selectedReport, snapshot]
+  )
+
+  const riskRecord = useMemo(
+    () => (selectedReport ? latestRiskForReport(snapshot, selectedReport.id) : null),
+    [selectedReport, snapshot]
+  )
 
   useEffect(() => {
-    if (selectedReport) {
-      document.title = `${selectedReport.id} Export Report - AI CTIX`
+    let cancelled = false
+
+    async function loadAttackPaths(reportId: string) {
+      try {
+        setLoadingPaths(true)
+        setPathError('')
+        setAttackPaths([])
+
+        const response = await fetch(`/api/attack-paths/${encodeURIComponent(reportId)}?limit=12`, {
+          cache: 'no-store',
+        })
+        const payload: AttackPathsResponse = await response.json().catch(() => ({}))
+
+        if (!response.ok) {
+          throw new Error(payload.details || payload.error || `Attack paths unavailable: ${response.status}`)
+        }
+
+        if (!cancelled) setAttackPaths(payload.paths ?? [])
+      } catch (err) {
+        if (!cancelled) {
+          setAttackPaths([])
+          setPathError(err instanceof Error ? err.message : 'Attack paths unavailable for this export.')
+        }
+      } finally {
+        if (!cancelled) setLoadingPaths(false)
+      }
     }
-  }, [selectedReport])
+
+    if (selectedReport?.id) {
+      void loadAttackPaths(selectedReport.id)
+    } else {
+      setAttackPaths([])
+      setPathError('')
+    }
+
+    return () => {
+      cancelled = true
+    }
+  }, [selectedReport?.id])
+
+  const counts = useMemo(() => severityCounts(reportFindings), [reportFindings])
+  const savedRiskScore = Number(riskRecord?.overallRiskScore ?? riskRecord?.risk?.overallRiskScore ?? Number.NaN)
+  const riskScore = Number.isFinite(savedRiskScore) ? savedRiskScore : fallbackRiskScore(reportFindings)
+  const riskBand = clean(riskRecord?.overallRiskBand ?? riskRecord?.risk?.overallRiskBand, fallbackRiskBand(riskScore))
+  const readiness = exportReadinessScore(reportFindings, riskRecord, summaryRecord)
+  const avgConfidence = averageConfidence(reportFindings)
+  const recommendations = useMemo(() => buildRecommendations(reportFindings), [reportFindings])
+  const assets = useMemo(() => topAssets(reportFindings), [reportFindings])
+  const topFindings = reportFindings.slice(0, 8)
+
+  const findingsWithEvidence = reportFindings.filter((finding) => hasUsefulValue(finding.evidence)).length
+  const findingsWithRemediation = reportFindings.filter((finding) => hasUsefulValue(finding.remediation)).length
+  const highPriorityRecommendations = recommendations.filter((item) => item.priority === 'Immediate' || item.priority === 'High').length
+
+  const metrics = {
+    riskScore,
+    riskBand,
+    readiness,
+    avgConfidence,
+    counts,
+    totalFindings: reportFindings.length,
+    recommendations: recommendations.length,
+    attackPaths: attackPaths.length,
+    highPriorityRecommendations,
+  }
+
+  async function downloadServerExport(format: 'pdf' | 'word') {
+    if (!selectedReport) return
+
+    const extension = format === 'pdf' ? 'pdf' : 'doc'
+    const fallbackName = `${safeFileName(selectedReport.id)}-ai-ctix-final-report.${extension}`
+
+    try {
+      const response = await fetch(`/api/export?reportId=${encodeURIComponent(selectedReport.id)}&format=${format}`, { cache: 'no-store' })
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null)
+        throw new Error(payload?.error || `Failed to export ${format.toUpperCase()} file.`)
+      }
+
+      const blob = await response.blob()
+      const disposition = response.headers.get('content-disposition') ?? ''
+      const fileName = disposition.match(/filename=\"?([^\";]+)\"?/i)?.[1] ?? fallbackName
+      downloadBlob(blob, fileName)
+    } catch (err) {
+      window.alert(err instanceof Error ? err.message : `Failed to export ${format.toUpperCase()} file.`)
+    }
+  }
+
+  function downloadPdfReport() {
+    void downloadServerExport('pdf')
+  }
+
+  function downloadWordReport() {
+    void downloadServerExport('word')
+  }
 
   function printReport() {
     window.print()
@@ -775,14 +806,30 @@ function ExportPageContent() {
 
   function downloadHtmlReport() {
     if (!selectedReport) return
-    const html = buildHtmlDocument(selectedReport, reportFindings)
-    downloadBlob(new Blob([html], { type: 'text/html;charset=utf-8' }), `${safeFileName(selectedReport.id)}-ai-ctix-report.html`)
+    const html = buildHtmlDocument({
+      report: selectedReport,
+      findings: reportFindings,
+      summaryRecord,
+      riskRecord,
+      recommendations,
+      attackPaths,
+      metrics,
+    })
+    downloadBlob(new Blob([html], { type: 'text/html;charset=utf-8' }), `${safeFileName(selectedReport.id)}-ai-ctix-final-report.html`)
   }
 
   function downloadJsonReport() {
     if (!selectedReport) return
-    const json = buildJson(selectedReport, reportFindings)
-    downloadBlob(new Blob([json], { type: 'application/json;charset=utf-8' }), `${safeFileName(selectedReport.id)}-ai-ctix-report.json`)
+    const json = buildJson({
+      report: selectedReport,
+      findings: reportFindings,
+      summaryRecord,
+      riskRecord,
+      recommendations,
+      attackPaths,
+      metrics,
+    })
+    downloadBlob(new Blob([json], { type: 'application/json;charset=utf-8' }), `${safeFileName(selectedReport.id)}-ai-ctix-final-package.json`)
   }
 
   function downloadCsvReport() {
@@ -791,15 +838,8 @@ function ExportPageContent() {
     downloadBlob(new Blob([csv], { type: 'text/csv;charset=utf-8' }), `${safeFileName(selectedReport.id)}-ai-ctix-findings.csv`)
   }
 
-  function downloadPptxReport() {
-    if (!selectedReport) return
-
-    const ppt = buildPowerPointHtml(selectedReport, reportFindings)
-
-    downloadBlob(
-      new Blob([ppt], { type: 'application/vnd.ms-powerpoint;charset=utf-8' }),
-      `${safeFileName(selectedReport.id)}-ai-ctix-briefing.ppt`
-    )
+  function downloadPptReport() {
+    downloadWordReport()
   }
 
   if (loading) return <ExportLoading />
@@ -824,8 +864,8 @@ function ExportPageContent() {
         <Background />
         <section className="relative mx-auto max-w-[1480px] px-6 pb-16 pt-10 lg:px-8">
           <ExportHero
-            title="Export intelligence reports"
-            description="Choose a report and generate PDF, CSV, JSON, HTML, or PPT exports from the existing /api/export snapshot."
+            title="Export final CTI packages"
+            description="Choose a report and generate a final package with findings, saved risk score, summary, derived recommendations, and attack-path predictions."
             primaryAction={<ActionLink href="/api/export" primary>Raw JSON Export</ActionLink>}
           />
 
@@ -838,7 +878,9 @@ function ExportPageContent() {
               </div>
             ) : (
               reports.map((report) => {
-                const findingCount = reportFindingCount(report, allFindings)
+                const findingCount = allFindings.filter((finding) => finding.reportId === report.id).length || Number(report.findings ?? 0)
+                const reportRisk = latestRiskForReport(snapshot, report.id)
+                const reportSummary = latestSummaryForReport(snapshot, report.id)
 
                 return (
                   <Link
@@ -848,24 +890,14 @@ function ExportPageContent() {
                   >
                     <div className="flex items-center justify-between gap-3">
                       <Badge className="border-[#c4e3cf] bg-[#f6fff9] text-[#173128]">{report.id}</Badge>
-                      <Badge className={reportStatusClass[report.status ?? ''] ?? 'border-[#dceee3] bg-white text-[#44554b]'}>
-                        {report.status ?? 'Unknown'}
-                      </Badge>
+                      <Badge className={statusClass[report.status ?? ''] ?? 'border-[#dceee3] bg-white text-[#44554b]'}>{report.status ?? 'Unknown'}</Badge>
                     </div>
-
                     <h2 className="mt-4 text-xl font-semibold text-[#0d2217]">{report.name}</h2>
-                    <p className="mt-2 line-clamp-3 text-sm leading-6 text-[#5a7668]">{report.summary ?? 'No summary available.'}</p>
-
-                    <div className="mt-4 grid grid-cols-4 gap-2 text-center text-xs">
-                      <span className="rounded-2xl bg-red-50 px-2 py-2 font-semibold text-red-700">C {report.critical ?? 0}</span>
-                      <span className="rounded-2xl bg-orange-50 px-2 py-2 font-semibold text-orange-700">H {report.high ?? 0}</span>
-                      <span className="rounded-2xl bg-yellow-50 px-2 py-2 font-semibold text-yellow-700">M {report.medium ?? 0}</span>
-                      <span className="rounded-2xl bg-emerald-50 px-2 py-2 font-semibold text-emerald-700">L {report.low ?? 0}</span>
-                    </div>
-
-                    <div className="mt-5 rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-4">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-[#5a7668]">Export package</p>
-                      <p className="mt-2 text-sm font-semibold text-[#173128]">{findingCount} findings included</p>
+                    <p className="mt-2 text-sm leading-6 text-[#5a7668]">{report.summary ?? 'No summary available.'}</p>
+                    <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs">
+                      <span className="rounded-2xl bg-[#f8fffa] px-2 py-2 font-semibold text-[#087a3a]">{findingCount} findings</span>
+                      <span className="rounded-2xl bg-[#f8fffa] px-2 py-2 font-semibold text-[#087a3a]">{reportRisk ? 'Risk saved' : 'Risk pending'}</span>
+                      <span className="rounded-2xl bg-[#f8fffa] px-2 py-2 font-semibold text-[#087a3a]">{reportSummary ? 'Summary saved' : 'Summary pending'}</span>
                     </div>
                   </Link>
                 )
@@ -892,29 +924,15 @@ function ExportPageContent() {
     )
   }
 
-  const topFindings = reportFindings.slice(0, 8)
-  const findingsWithEvidence = reportFindings.filter((finding) => hasUsefulValue(finding.evidence)).length
-  const findingsWithRemediation = reportFindings.filter((finding) => hasUsefulValue(finding.remediation)).length
-  const lowConfidenceFindings = reportFindings.filter(
-    (finding) => normalizeConfidence(finding.provenance?.parserConfidence) < 70
-  ).length
-  const fallbackFindings = reportFindings.filter(
-    (finding) => finding.provenance?.extractionMethod === 'heuristic-fallback'
-  ).length
-
-  const readiness = exportReadinessScore(reportFindings)
-
   const exportChecks = [
-    { label: 'Report selected', value: 'Yes', ready: true },
+    { label: 'Report selected', value: selectedReport.id, ready: true },
     { label: 'Findings available', value: String(reportFindings.length), ready: reportFindings.length > 0 },
-    { label: 'Evidence available', value: `${findingsWithEvidence}/${reportFindings.length}`, ready: reportFindings.length > 0 && findingsWithEvidence === reportFindings.length },
-    { label: 'Remediation available', value: `${findingsWithRemediation}/${reportFindings.length}`, ready: reportFindings.length > 0 && findingsWithRemediation === reportFindings.length },
-    { label: 'Critical findings included', value: counts.Critical > 0 ? 'Yes' : 'No critical findings', ready: true },
-    { label: 'Low-confidence findings', value: String(lowConfidenceFindings), ready: lowConfidenceFindings === 0 },
-    { label: 'Fallback findings', value: String(fallbackFindings), ready: fallbackFindings === 0 },
+    { label: 'Saved risk score', value: riskRecord ? 'Available' : 'Using findings fallback', ready: Boolean(riskRecord) },
+    { label: 'Saved summary', value: summaryRecord ? 'Available' : 'Using report summary', ready: Boolean(summaryRecord) },
+    { label: 'Evidence coverage', value: `${findingsWithEvidence}/${reportFindings.length}`, ready: reportFindings.length > 0 && findingsWithEvidence === reportFindings.length },
+    { label: 'Remediation coverage', value: `${findingsWithRemediation}/${reportFindings.length}`, ready: reportFindings.length > 0 && findingsWithRemediation === reportFindings.length },
+    { label: 'Attack paths', value: loadingPaths ? 'Loading' : pathError ? 'Unavailable' : String(attackPaths.length), ready: attackPaths.length > 0 },
   ]
-
-  const exportReady = exportChecks.every((check) => check.ready)
 
   return (
     <>
@@ -928,40 +946,33 @@ function ExportPageContent() {
           .print-section, table, tr { break-inside: avoid; }
           .print-table-wrapper { overflow: visible !important; }
         }
-
-        @keyframes export-orbit-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes export-logo-float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-12px) rotate(2deg); } }
-        .export-orbit { animation: export-orbit-spin 14s linear infinite; }
-        .export-orbit > div:first-child { animation: export-logo-float 6s ease-in-out infinite; }
-        .export-platform { transform: perspective(800px) rotateX(58deg); }
       `}</style>
 
       <main className="relative min-h-screen overflow-hidden bg-[#fbfefd] text-[#111827]">
         <Background />
-
         <section className="print-page relative mx-auto max-w-[1480px] px-6 pb-16 pt-10 lg:px-8">
           <div className="no-print">
             <ExportHero
-              title="Export report package"
-              description="Generate a polished report and export it as PDF, CSV, JSON, HTML, or PPT without changing the backend."
-              primaryAction={<button onClick={printReport} className="rounded-2xl bg-[#087a3a] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_32px_rgba(8,122,58,0.18)] transition hover:-translate-y-0.5 hover:bg-[#066b33]">PDF</button>}
+              title="Final CTI export package"
+              description="Generate a polished package with report metadata, saved summary, saved risk scoring, findings, recommendations, and attack-path predictions."
+              primaryAction={<button onClick={downloadPdfReport} className="rounded-2xl bg-[#087a3a] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_32px_rgba(8,122,58,0.18)] transition hover:-translate-y-0.5 hover:bg-[#066b33]">PDF</button>}
             />
           </div>
 
           <section className="no-print mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-            <ExportOption title="PDF" description="Use browser print and save the polished report as PDF." action={printReport} primary />
-            <ExportOption title="CSV" description="Download findings rows for Excel, Sheets, or BI tools." action={downloadCsvReport} />
-            <ExportOption title="JSON" description="Download report, metrics, and findings as structured JSON." action={downloadJsonReport} />
-            <ExportOption title="HTML" description="Download a standalone readable HTML report." action={downloadHtmlReport} />
-            <ExportOption title="PPT" description="Download a briefing deck with summary slides." action={downloadPptxReport} />
+            <ExportOption title="PDF" description="Download a real PDF file generated from the saved report data." action={downloadPdfReport} primary />
+            <ExportOption title="CSV" description="Download findings rows for Excel or Sheets." action={downloadCsvReport} />
+            <ExportOption title="JSON" description="Download final package with risk, summary, recommendations, attack paths, and findings." action={downloadJsonReport} />
+            <ExportOption title="HTML" description="Download a standalone readable final report." action={downloadHtmlReport} />
+            <ExportOption title="WORD" description="Download a Word-compatible final report file." action={downloadWordReport} />
           </section>
 
           <section className="no-print mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-            <MetricCard label="Risk band" value={band} helper="Highest score band" />
-            <MetricCard label="Risk score" value={`${riskScore}/100`} helper="Report maximum" valueClass={riskTone(riskScore)} />
-            <MetricCard label="Findings" value={String(reportFindings.length)} helper="Included in export" />
-            <MetricCard label="Confidence" value={`${avgConfidence}%`} helper="Normalized average" />
-            <MetricCard label="Readiness" value={`${readiness}%`} helper={exportReady ? 'Ready' : 'Review'} />
+            <MetricCard label="Risk band" value={riskBand} helper={riskRecord ? 'Saved risk result' : 'Finding fallback'} />
+            <MetricCard label="Risk score" value={`${riskScore}/100`} helper="Final export score" valueClass={riskTone(riskScore)} />
+            <MetricCard label="Findings" value={String(reportFindings.length)} helper="Included records" />
+            <MetricCard label="Recommendations" value={String(recommendations.length)} helper={`${highPriorityRecommendations} high priority`} />
+            <MetricCard label="Attack paths" value={loadingPaths ? '…' : String(attackPaths.length)} helper={pathError ? 'Unavailable' : 'Included if available'} />
           </section>
 
           <section className="no-print mt-6 grid gap-6 xl:grid-cols-[1fr_430px]">
@@ -970,11 +981,11 @@ function ExportPageContent() {
                 <div>
                   <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#087a3a]">Selected report</p>
                   <h1 className="mt-2 text-3xl font-semibold tracking-[-0.035em] text-[#0d2217]">{selectedReport.name}</h1>
-                  <p className="mt-3 max-w-4xl text-sm leading-7 text-[#5a7668]">{selectedReport.summary ?? 'No executive summary available.'}</p>
+                  <p className="mt-3 max-w-4xl text-sm leading-7 text-[#5a7668]">
+                    {summaryRecord?.summary?.executiveSummary ?? selectedReport.summary ?? 'No executive summary available.'}
+                  </p>
                 </div>
-                <Badge className={reportStatusClass[selectedReport.status ?? ''] ?? 'border-[#dceee3] bg-white text-[#44554b]'}>
-                  {selectedReport.status ?? 'Unknown'}
-                </Badge>
+                <Badge className={statusClass[selectedReport.status ?? ''] ?? 'border-[#dceee3] bg-white text-[#44554b]'}>{selectedReport.status ?? 'Unknown'}</Badge>
               </div>
 
               <div className="mt-5 flex flex-wrap gap-3">
@@ -982,17 +993,18 @@ function ExportPageContent() {
                 <ActionLink href={`/reports/${encodeURIComponent(selectedReport.id)}`}>Report Details</ActionLink>
                 <ActionLink href={`/results?reportId=${encodeURIComponent(selectedReport.id)}`}>Findings</ActionLink>
                 <ActionLink href={`/risk-scoring?reportId=${encodeURIComponent(selectedReport.id)}`}>Risk</ActionLink>
+                <ActionLink href={`/recommendations?reportId=${encodeURIComponent(selectedReport.id)}`}>Recommendations</ActionLink>
+                <ActionLink href={`/attack-paths?reportId=${encodeURIComponent(selectedReport.id)}`}>Attack Paths</ActionLink>
                 <ActionLink href={`/graph?reportId=${encodeURIComponent(selectedReport.id)}`}>Graph</ActionLink>
               </div>
             </div>
 
             <SidePanel title="Export readiness">
               <div className="mb-5">
-                <Badge className={exportReady ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-yellow-200 bg-yellow-50 text-yellow-700'}>
-                  {exportReady ? 'Ready for export' : 'Needs analyst review'}
+                <Badge className={readiness >= 80 ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-yellow-200 bg-yellow-50 text-yellow-700'}>
+                  {readiness >= 80 ? 'Ready for export' : 'Needs analyst review'}
                 </Badge>
               </div>
-
               <div className="space-y-3">
                 {exportChecks.map((check) => (
                   <div key={check.label} className="rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-4">
@@ -1001,49 +1013,42 @@ function ExportPageContent() {
                         <p className="text-sm font-semibold text-[#173128]">{check.label}</p>
                         <p className="mt-1 text-sm text-[#5a7668]">{check.value}</p>
                       </div>
-                      <span className={`text-xs font-semibold ${check.ready ? 'text-[#087a3a]' : 'text-yellow-700'}`}>
-                        {check.ready ? 'Ready' : 'Review'}
-                      </span>
+                      <span className={`text-xs font-semibold ${check.ready ? 'text-[#087a3a]' : 'text-yellow-700'}`}>{check.ready ? 'Ready' : 'Review'}</span>
                     </div>
                   </div>
                 ))}
               </div>
+              {pathError ? <p className="mt-4 rounded-2xl border border-yellow-200 bg-yellow-50 p-3 text-xs leading-5 text-yellow-700">{pathError}</p> : null}
             </SidePanel>
           </section>
 
           <article className="print-card mt-6 overflow-hidden rounded-[34px] border border-[#dceee3] bg-white shadow-[0_24px_80px_rgba(15,43,29,0.07)]">
             <section className="print-section relative overflow-hidden border-b border-[#dcefe2] bg-[#fbfffd] p-8">
-              <div className="pointer-events-none absolute right-0 top-0 h-full w-1/2 bg-[radial-gradient(circle_at_70%_30%,rgba(8,122,58,0.11),transparent_34%),linear-gradient(135deg,rgba(8,122,58,0.04),transparent_55%)]" />
-
               <div className="relative grid gap-8 xl:grid-cols-[1fr_340px]">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.24em] text-[#087a3a]">AI CTIX Export Report</p>
+                  <p className="text-xs font-bold uppercase tracking-[0.24em] text-[#087a3a]">AI CTIX Final Export Report</p>
                   <h1 className="mt-4 max-w-4xl text-4xl font-semibold tracking-[-0.04em] text-[#0d2217] md:text-5xl">{selectedReport.name}</h1>
-                  <p className="mt-4 max-w-5xl text-base leading-8 text-[#5a7668]">{selectedReport.summary ?? 'No executive summary available.'}</p>
-
+                  <p className="mt-4 max-w-5xl text-base leading-8 text-[#5a7668]">
+                    {summaryRecord?.summary?.executiveSummary ?? selectedReport.summary ?? 'No executive summary available.'}
+                  </p>
                   <div className="mt-6 flex flex-wrap gap-3">
                     <Badge className="border-[#c4e3cf] bg-white text-[#173128]">Report {selectedReport.id}</Badge>
-                    <Badge className={reportStatusClass[selectedReport.status ?? ''] ?? 'border-[#dceee3] bg-white text-[#44554b]'}>
-                      {selectedReport.status ?? 'Unknown'}
-                    </Badge>
+                    <Badge className={statusClass[selectedReport.status ?? ''] ?? 'border-[#dceee3] bg-white text-[#44554b]'}>{selectedReport.status ?? 'Unknown'}</Badge>
                     <Badge className="border-[#c4e3cf] bg-white text-[#087a3a]">Generated {formatDate(new Date().toISOString())}</Badge>
                   </div>
                 </div>
 
                 <div className="rounded-[28px] border border-[#dceee3] bg-white/92 p-6 shadow-[0_20px_60px_rgba(15,43,29,0.06)]">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#5a7668]">Report scorecard</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#5a7668]">Final scorecard</p>
                   <div className="mt-5 grid gap-4">
                     <div>
                       <p className="text-sm text-[#5a7668]">Risk band</p>
-                      <p className={`mt-1 text-4xl font-semibold ${riskTone(riskScore)}`}>{band}</p>
+                      <p className={`mt-1 text-4xl font-semibold ${riskTone(riskScore)}`}>{riskBand}</p>
                     </div>
                     <div className="h-2 overflow-hidden rounded-full bg-[#e6f5eb]">
-                      <div className="h-full rounded-full bg-[#087a3a]" style={{ width: `${Math.max(6, riskScore)}%` }} />
+                      <div className="h-full rounded-full bg-[#087a3a]" style={{ width: `${Math.max(6, Math.min(100, riskScore))}%` }} />
                     </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <MiniStat label="Score" value={`${riskScore}/100`} />
-                      <MiniStat label="Readiness" value={`${readiness}%`} />
-                    </div>
+                    <div className="grid grid-cols-2 gap-3"><MiniStat label="Score" value={`${riskScore}/100`} /><MiniStat label="Readiness" value={`${readiness}%`} /></div>
                   </div>
                 </div>
               </div>
@@ -1051,11 +1056,11 @@ function ExportPageContent() {
 
             <section className="print-section p-8">
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-                <MetricCard label="Risk Band" value={band} helper="Highest score band" />
-                <MetricCard label="Risk Score" value={`${riskScore}/100`} helper="Maximum finding score" valueClass={riskTone(riskScore)} />
+                <MetricCard label="Risk Band" value={riskBand} helper={riskRecord ? 'Saved risk scoring' : 'Findings fallback'} />
+                <MetricCard label="Risk Score" value={`${riskScore}/100`} helper="Final score" valueClass={riskTone(riskScore)} />
                 <MetricCard label="Findings" value={String(reportFindings.length)} helper="Included records" />
-                <MetricCard label="Avg Confidence" value={`${avgConfidence}%`} helper="Normalized confidence" />
-                <MetricCard label="Export Readiness" value={`${readiness}%`} helper="Evidence and remediation quality" />
+                <MetricCard label="Recommendations" value={String(recommendations.length)} helper="Defense actions" />
+                <MetricCard label="Attack Paths" value={String(attackPaths.length)} helper="Predicted paths" />
               </div>
             </section>
 
@@ -1065,11 +1070,9 @@ function ExportPageContent() {
                   <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#087a3a]">Executive narrative</p>
                   <h2 className="mt-2 text-2xl font-semibold text-[#0d2217]">Security posture summary</h2>
                   <p className="mt-4 text-base leading-8 text-[#173128]">
-                    {severityNarrative(counts, reportFindings.length, band, riskScore)}
+                    {summaryRecord?.summary?.executiveSummary ?? `${selectedReport.name} is classified as ${riskBand} with a final risk score of ${riskScore}/100 based on ${reportFindings.length} extracted finding records.`}
                   </p>
-                  <p className="mt-4 text-sm leading-7 text-[#5a7668]">
-                    The package below contains report metadata, severity distribution, affected assets, top risk findings, evidence quality indicators, and the complete findings appendix.
-                  </p>
+                  {summaryRecord?.summary?.technicalSummary ? <p className="mt-4 text-sm leading-7 text-[#5a7668]">{summaryRecord.summary.technicalSummary}</p> : null}
                 </div>
 
                 <div className="rounded-[28px] border border-[#dceee3] bg-white p-6">
@@ -1087,172 +1090,106 @@ function ExportPageContent() {
 
             <section className="print-section px-8 pb-8">
               <div className="grid gap-6 xl:grid-cols-[1fr_430px]">
-                <div className="rounded-[28px] border border-[#dceee3] bg-white p-6">
-                  <h2 className="text-2xl font-semibold text-[#0d2217]">Severity distribution</h2>
-                  <div className="mt-5 grid gap-4">
+                <Panel title="Severity distribution">
+                  <div className="grid gap-4">
                     {severityOrder.map((severity) => {
                       const value = counts[severity]
                       const width = percent(value, reportFindings.length)
-
                       return (
                         <div key={severity}>
-                          <div className="mb-2 flex items-center justify-between gap-3 text-sm">
-                            <Badge className={severityBadgeClass[severity]}>{severity}</Badge>
-                            <span className="font-semibold text-[#173128]">{value} findings ({width}%)</span>
-                          </div>
-                          <div className="h-2 overflow-hidden rounded-full bg-[#e6f5eb]">
-                            <div className="h-full rounded-full bg-[#087a3a]" style={{ width: `${width}%` }} />
-                          </div>
+                          <div className="mb-2 flex items-center justify-between gap-3 text-sm"><Badge className={severityBadgeClass[severity]}>{severity}</Badge><span className="font-semibold text-[#173128]">{value} findings ({width}%)</span></div>
+                          <div className="h-2 overflow-hidden rounded-full bg-[#e6f5eb]"><div className="h-full rounded-full bg-[#087a3a]" style={{ width: `${width}%` }} /></div>
                         </div>
                       )
                     })}
                   </div>
-                </div>
+                </Panel>
 
-                <div className="rounded-[28px] border border-[#dceee3] bg-white p-6">
-                  <h2 className="text-2xl font-semibold text-[#0d2217]">Top affected assets</h2>
-                  <div className="mt-5 grid gap-3">
-                    {assets.length > 0 ? (
-                      assets.map((item) => (
-                        <div key={item.asset} className="rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-4">
-                          <div className="flex items-center justify-between gap-4">
-                            <span className="break-words text-sm font-semibold text-[#173128]">{item.asset}</span>
-                            <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[#087a3a]">{item.count}</span>
-                          </div>
-                          <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#e6f5eb]">
-                            <div className="h-full rounded-full bg-[#087a3a]" style={{ width: `${percent(item.count, reportFindings.length)}%` }} />
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-4 text-sm text-[#5a7668]">No affected assets available.</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <section className="print-section px-8 pb-8">
-              <div className="rounded-[28px] border border-[#dceee3] bg-white p-6">
-                <h2 className="text-2xl font-semibold text-[#0d2217]">Top risk findings</h2>
-                <div className="mt-5 grid gap-5">
-                  {topFindings.length > 0 ? (
-                    topFindings.map((finding, index) => (
-                      <div key={finding.id} className="rounded-[26px] border border-[#dcefe2] bg-[#fbfffc] p-5">
-                        <div className="flex flex-wrap items-center justify-between gap-3">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <Badge className="border-[#c4e3cf] bg-white text-[#173128]">Priority {index + 1}</Badge>
-                            <Badge className="border-[#c4e3cf] bg-white text-[#173128]">{finding.id}</Badge>
-                            <Badge className={severityBadgeClass[finding.severity]}>{finding.severity}</Badge>
-                          </div>
-                          <span className={`text-lg font-semibold ${riskTone(Number(finding.score ?? 0))}`}>{finding.score ?? '-'}/100</span>
-                        </div>
-
-                        <h3 className="mt-4 text-xl font-semibold text-[#0d2217]">{finding.title}</h3>
-                        <p className="mt-2 text-sm leading-7 text-[#5a7668]">{finding.summary ?? finding.impact ?? 'No summary available.'}</p>
-
-                        <div className="mt-4 grid gap-3 md:grid-cols-3">
-                          <InfoLine label="Asset" value={finding.asset} />
-                          <InfoLine label="CVE" value={finding.cve ?? '-'} />
-                          <InfoLine label="Status" value={finding.status ?? '-'} />
-                          <InfoLine label="Method" value={formatExtractionMethod(finding.provenance?.extractionMethod)} />
-                          <InfoLine label="Confidence" value={`${normalizeConfidence(finding.provenance?.parserConfidence)}%`} />
-                          <InfoLine label="Detected" value={formatDate(finding.detectedAt)} />
-                        </div>
-
-                        <div className="mt-4 grid gap-3 md:grid-cols-2">
-                          <div className="rounded-2xl border border-[#e4f2e9] bg-white p-4">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-[#5a7668]">Evidence</p>
-                            <p className="mt-2 text-sm leading-7 text-[#173128]">{finding.evidence ?? 'No evidence available.'}</p>
-                          </div>
-                          <div className="rounded-2xl border border-[#e4f2e9] bg-white p-4">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-[#5a7668]">Remediation</p>
-                            <p className="mt-2 text-sm leading-7 text-[#173128]">{finding.remediation ?? 'No remediation available.'}</p>
-                          </div>
-                        </div>
+                <Panel title="Top affected assets">
+                  <div className="grid gap-3">
+                    {assets.length > 0 ? assets.map((item) => (
+                      <div key={item.asset} className="rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-4">
+                        <div className="flex items-center justify-between gap-4"><span className="break-words text-sm font-semibold text-[#173128]">{item.asset}</span><span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[#087a3a]">{item.count}</span></div>
                       </div>
-                    ))
-                  ) : (
-                    <p className="rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-4 text-sm text-[#5a7668]">No findings available for this report.</p>
-                  )}
-                </div>
+                    )) : <p className="rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-4 text-sm text-[#5a7668]">No affected assets available.</p>}
+                  </div>
+                </Panel>
               </div>
             </section>
 
             <section className="print-section px-8 pb-8">
-              <div className="grid gap-6 xl:grid-cols-2">
-                <div className="rounded-[28px] border border-[#dceee3] bg-white p-6">
-                  <h2 className="text-2xl font-semibold text-[#0d2217]">NLP / Parser notes</h2>
-                  <div className="mt-4 space-y-3">
-                    {(selectedReport.parsingNotes ?? []).length > 0 ? (
-                      selectedReport.parsingNotes?.map((note, index) => (
-                        <p key={`${note}-${index}`} className="rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-4 text-sm leading-6 text-[#5a7668]">{note}</p>
-                      ))
-                    ) : (
-                      <p className="rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-4 text-sm text-[#5a7668]">No parser notes available.</p>
-                    )}
-                  </div>
+              <Panel title="Risk rationale">
+                <div className="grid gap-3">
+                  {(riskRecord?.risk?.rationale ?? []).length > 0 ? riskRecord?.risk?.rationale?.slice(0, 8).map((line, index) => (
+                    <p key={`${line}-${index}`} className="rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-4 text-sm leading-7 text-[#173128]">{line}</p>
+                  )) : <p className="rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-4 text-sm text-[#5a7668]">No saved risk rationale available. Generate risk scoring first for a stronger final export.</p>}
                 </div>
-
-                <div className="rounded-[28px] border border-[#dceee3] bg-white p-6">
-                  <h2 className="text-2xl font-semibold text-[#0d2217]">Quality indicators</h2>
-                  <div className="mt-4 grid gap-3">
-                    <InfoLine label="Evidence coverage" value={`${findingsWithEvidence}/${reportFindings.length}`} />
-                    <InfoLine label="Remediation coverage" value={`${findingsWithRemediation}/${reportFindings.length}`} />
-                    <InfoLine label="Low confidence findings" value={String(lowConfidenceFindings)} />
-                    <InfoLine label="Fallback extraction findings" value={String(fallbackFindings)} />
-                  </div>
-                </div>
-              </div>
+              </Panel>
             </section>
 
             <section className="print-section px-8 pb-8">
-              <div className="rounded-[28px] border border-[#dceee3] bg-white p-6">
-                <h2 className="text-2xl font-semibold text-[#0d2217]">All findings appendix</h2>
+              <Panel title="Defense recommendations">
+                <div className="grid gap-4">
+                  {recommendations.slice(0, 10).map((item) => (
+                    <article key={item.findingId} className="rounded-[24px] border border-[#dcefe2] bg-[#fbfffc] p-5">
+                      <div className="flex flex-wrap items-center justify-between gap-3"><Badge className="border-[#c4e3cf] bg-white text-[#173128]">{item.priority}</Badge><Badge className="border-[#c4e3cf] bg-white text-[#087a3a]">{item.source}</Badge></div>
+                      <h3 className="mt-3 text-lg font-semibold text-[#0d2217]">{item.title}</h3>
+                      <p className="mt-2 text-sm leading-7 text-[#173128]">{item.fix}</p>
+                      <div className="mt-4 grid gap-3 md:grid-cols-3"><InfoLine label="Category" value={item.category} /><InfoLine label="Standard" value={item.standard} /><InfoLine label="Impact reduction" value={item.impactReduction} /></div>
+                    </article>
+                  ))}
+                </div>
+              </Panel>
+            </section>
+
+            <section className="print-section px-8 pb-8">
+              <Panel title="Attack path predictions">
+                {loadingPaths ? <p className="rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-4 text-sm text-[#5a7668]">Loading attack paths...</p> : null}
+                {!loadingPaths && attackPaths.length === 0 ? <p className="rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-4 text-sm text-[#5a7668]">No attack path predictions available for this export.</p> : null}
+                <div className="grid gap-4">
+                  {attackPaths.slice(0, 8).map((path) => (
+                    <article key={path.findingId} className="rounded-[24px] border border-[#dcefe2] bg-[#fbfffc] p-5">
+                      <div className="flex flex-wrap items-center justify-between gap-3"><Badge className="border-[#c4e3cf] bg-white text-[#173128]">{path.exploitLikelihood ?? 'Unknown'}</Badge><span className="text-sm font-semibold text-[#087a3a]">Path {path.attackPathScore ?? '-'} / Risk {path.riskScore ?? '-'}</span></div>
+                      <h3 className="mt-3 text-lg font-semibold text-[#0d2217]">{path.findingTitle}</h3>
+                      {path.predictedOutcome ? <p className="mt-2 text-sm leading-7 text-[#173128]">{path.predictedOutcome}</p> : null}
+                      {(path.reasoning ?? []).length > 0 ? <ul className="mt-3 list-disc space-y-1 pl-5 text-sm leading-6 text-[#5a7668]">{path.reasoning?.slice(0, 4).map((line, index) => <li key={`${line}-${index}`}>{line}</li>)}</ul> : null}
+                    </article>
+                  ))}
+                </div>
+              </Panel>
+            </section>
+
+            <section className="print-section px-8 pb-8">
+              <Panel title="Top risk findings">
+                <div className="mt-1 grid gap-5">
+                  {topFindings.length > 0 ? topFindings.map((finding, index) => (
+                    <div key={finding.id} className="rounded-[26px] border border-[#dcefe2] bg-[#fbfffc] p-5">
+                      <div className="flex flex-wrap items-center justify-between gap-3"><div className="flex flex-wrap items-center gap-2"><Badge className="border-[#c4e3cf] bg-white text-[#173128]">Priority {index + 1}</Badge><Badge className="border-[#c4e3cf] bg-white text-[#173128]">{finding.id}</Badge><Badge className={severityBadgeClass[normalizeSeverity(finding.severity)]}>{normalizeSeverity(finding.severity)}</Badge></div><span className={`text-lg font-semibold ${riskTone(Number(finding.score ?? 0))}`}>{finding.score ?? '-'}/100</span></div>
+                      <h3 className="mt-4 text-xl font-semibold text-[#0d2217]">{finding.title}</h3>
+                      <p className="mt-2 text-sm leading-7 text-[#5a7668]">{finding.summary ?? finding.impact ?? 'No summary available.'}</p>
+                      <div className="mt-4 grid gap-3 md:grid-cols-3"><InfoLine label="Asset" value={finding.asset ?? '-'} /><InfoLine label="CVE" value={finding.cve ?? '-'} /><InfoLine label="Confidence" value={`${normalizeConfidence(finding.provenance?.parserConfidence)}%`} /></div>
+                    </div>
+                  )) : <p className="rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-4 text-sm text-[#5a7668]">No findings available for this report.</p>}
+                </div>
+              </Panel>
+            </section>
+
+            <section className="print-section px-8 pb-8">
+              <Panel title="All findings appendix">
                 <div className="print-table-wrapper mt-4 overflow-x-auto rounded-[22px] border border-[#dcefe2]">
                   <table className="min-w-full divide-y divide-[#dcefe2] text-left text-sm">
-                    <thead className="bg-[#edfdf3] text-xs uppercase tracking-wide text-[#173128]">
-                      <tr>
-                        <th className="px-4 py-3">ID</th>
-                        <th className="px-4 py-3">Finding</th>
-                        <th className="px-4 py-3">Severity</th>
-                        <th className="px-4 py-3">Score</th>
-                        <th className="px-4 py-3">Asset</th>
-                        <th className="px-4 py-3">CVE</th>
-                        <th className="px-4 py-3">Status</th>
-                        <th className="px-4 py-3">Method</th>
-                        <th className="px-4 py-3">Confidence</th>
-                      </tr>
-                    </thead>
+                    <thead className="bg-[#edfdf3] text-xs uppercase tracking-wide text-[#173128]"><tr><th className="px-4 py-3">ID</th><th className="px-4 py-3">Finding</th><th className="px-4 py-3">Severity</th><th className="px-4 py-3">Score</th><th className="px-4 py-3">Asset</th><th className="px-4 py-3">CVE</th><th className="px-4 py-3">Confidence</th></tr></thead>
                     <tbody className="divide-y divide-[#e4f2e9] bg-white">
-                      {reportFindings.length > 0 ? (
-                        reportFindings.map((finding) => (
-                          <tr key={finding.id}>
-                            <td className="whitespace-nowrap px-4 py-3 font-semibold text-[#173128]">{finding.id}</td>
-                            <td className="min-w-[260px] px-4 py-3 text-[#173128]">{finding.title}</td>
-                            <td className="whitespace-nowrap px-4 py-3"><Badge className={severityBadgeClass[finding.severity]}>{finding.severity}</Badge></td>
-                            <td className="whitespace-nowrap px-4 py-3 font-semibold text-[#173128]">{finding.score ?? '-'}</td>
-                            <td className="min-w-[180px] px-4 py-3 text-[#5a7668]">{finding.asset}</td>
-                            <td className="whitespace-nowrap px-4 py-3 text-[#5a7668]">{finding.cve ?? '-'}</td>
-                            <td className="whitespace-nowrap px-4 py-3 text-[#5a7668]">{finding.status ?? '-'}</td>
-                            <td className="whitespace-nowrap px-4 py-3 text-[#5a7668]">{formatExtractionMethod(finding.provenance?.extractionMethod)}</td>
-                            <td className="whitespace-nowrap px-4 py-3 text-[#5a7668]">{normalizeConfidence(finding.provenance?.parserConfidence)}%</td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr><td colSpan={9} className="px-4 py-6 text-center text-[#5a7668]">No findings available.</td></tr>
-                      )}
+                      {reportFindings.length > 0 ? reportFindings.map((finding) => (
+                        <tr key={finding.id}><td className="whitespace-nowrap px-4 py-3 font-semibold text-[#173128]">{finding.id}</td><td className="min-w-[260px] px-4 py-3 text-[#173128]">{finding.title}</td><td className="whitespace-nowrap px-4 py-3"><Badge className={severityBadgeClass[normalizeSeverity(finding.severity)]}>{normalizeSeverity(finding.severity)}</Badge></td><td className="whitespace-nowrap px-4 py-3 font-semibold text-[#173128]">{finding.score ?? '-'}</td><td className="min-w-[180px] px-4 py-3 text-[#5a7668]">{finding.asset ?? '-'}</td><td className="whitespace-nowrap px-4 py-3 text-[#5a7668]">{finding.cve ?? '-'}</td><td className="whitespace-nowrap px-4 py-3 text-[#5a7668]">{normalizeConfidence(finding.provenance?.parserConfidence)}%</td></tr>
+                      )) : <tr><td colSpan={7} className="px-4 py-6 text-center text-[#5a7668]">No findings available.</td></tr>}
                     </tbody>
                   </table>
                 </div>
-              </div>
+              </Panel>
             </section>
 
-            <section className="px-8 pb-8 text-xs leading-6 text-[#5a7668]">
-              <div className="border-t border-[#dcefe2] pt-5">
-                Generated from AI CTIX Extractor - {new Date().toISOString()}
-              </div>
-            </section>
+            <section className="px-8 pb-8 text-xs leading-6 text-[#5a7668]"><div className="border-t border-[#dcefe2] pt-5">Generated from AI CTIX Extractor - {new Date().toISOString()}</div></section>
           </article>
         </section>
       </main>
@@ -1270,152 +1207,48 @@ function Background() {
   )
 }
 
-function ExportHero({
-  title,
-  description,
-  primaryAction,
-}: {
-  title: string
-  description: string
-  primaryAction?: ReactNode
-}) {
+function ExportHero({ title, description, primaryAction }: { title: string; description: string; primaryAction?: ReactNode }) {
   return (
     <header className="relative overflow-hidden rounded-[34px] border border-[#dceee3] bg-white/92 p-7 shadow-[0_24px_80px_rgba(15,43,29,0.07)] backdrop-blur">
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(8,122,58,0.05),transparent_42%),radial-gradient(circle_at_86%_24%,rgba(22,163,74,0.12),transparent_28%)]" />
-      <div className="pointer-events-none absolute right-[180px] bottom-8 h-20 w-52 rounded-[50%] border border-[#bfe6cc] bg-gradient-to-b from-white to-[#e5f8ec] shadow-[0_24px_60px_rgba(8,122,58,0.12)] export-platform" />
-      <div className="pointer-events-none absolute right-24 top-12 h-28 w-28 rounded-full border border-[#c7efd4] bg-white/70 shadow-[0_22px_55px_rgba(8,122,58,0.12)] export-orbit">
-        <div className="absolute left-1/2 top-1/2 h-14 w-14 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-[#dff7e8] to-[#087a3a] shadow-[0_18px_45px_rgba(8,122,58,0.18)]" />
-        <div className="absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-[58px] rounded-full bg-[#087a3a] shadow-[0_12px_28px_rgba(8,122,58,0.20)]" />
-      </div>
-
-      <div className="relative grid gap-8 lg:grid-cols-[1fr_0.72fr]">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#087a3a]">Export Center</p>
-          <h1 className="mt-4 max-w-4xl text-4xl font-semibold tracking-[-0.04em] text-[#111827] md:text-5xl">{title}</h1>
-          <p className="mt-4 max-w-3xl text-base leading-8 text-[#5f6f66]">{description}</p>
-          <div className="mt-7 flex flex-wrap gap-3">
-            <ActionLink href="/dashboard">Dashboard</ActionLink>
-            <ActionLink href="/reports">All Reports</ActionLink>
-            <ActionLink href="/results">All Findings</ActionLink>
-            {primaryAction}
-          </div>
-        </div>
-
-        <div className="rounded-[28px] border border-[#dceee3] bg-white/78 p-5 shadow-[0_20px_60px_rgba(15,43,29,0.07)] backdrop-blur">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#087a3a]">Export formats</p>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            <MiniStat label="PDF" value="Print" />
-            <MiniStat label="CSV" value="Rows" />
-            <MiniStat label="JSON" value="Snapshot" />
-            <MiniStat label="PPT" value="Briefing" />
-          </div>
-        </div>
-      </div>
+      <div className="relative grid gap-8 lg:grid-cols-[1fr_0.72fr]"><div><p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#087a3a]">Export Center</p><h1 className="mt-4 max-w-4xl text-4xl font-semibold tracking-[-0.04em] text-[#111827] md:text-5xl">{title}</h1><p className="mt-4 max-w-3xl text-base leading-8 text-[#5f6f66]">{description}</p><div className="mt-7 flex flex-wrap gap-3"><ActionLink href="/dashboard">Dashboard</ActionLink><ActionLink href="/reports">All Reports</ActionLink><ActionLink href="/results">All Findings</ActionLink>{primaryAction}</div></div><div className="rounded-[28px] border border-[#dceee3] bg-white/78 p-5 shadow-[0_20px_60px_rgba(15,43,29,0.07)] backdrop-blur"><p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#087a3a]">Final package</p><div className="mt-5 grid gap-3 sm:grid-cols-2"><MiniStat label="PDF" value="File" /><MiniStat label="CSV" value="Rows" /><MiniStat label="JSON" value="Full" /><MiniStat label="WORD" value="Report" /></div></div></div>
     </header>
   )
 }
 
-function ExportOption({
-  title,
-  description,
-  action,
-  primary = false,
-}: {
-  title: string
-  description: string
-  action: () => void
-  primary?: boolean
-}) {
+function ExportOption({ title, description, action, primary = false }: { title: string; description: string; action: () => void; primary?: boolean }) {
   return (
-    <button
-      type="button"
-      onClick={action}
-      className={
-        primary
-          ? 'rounded-[26px] border border-[#087a3a] bg-[#087a3a] p-5 text-left text-white shadow-[0_18px_40px_rgba(8,122,58,0.18)] transition hover:-translate-y-1 hover:bg-[#066b33]'
-          : 'rounded-[26px] border border-[#dceee3] bg-white p-5 text-left shadow-[0_22px_60px_rgba(15,43,29,0.05)] transition hover:-translate-y-1 hover:border-[#b7ddc4] hover:shadow-[0_30px_80px_rgba(15,43,29,0.09)]'
-      }
-    >
+    <button type="button" onClick={action} className={primary ? 'rounded-[26px] border border-[#087a3a] bg-[#087a3a] p-5 text-left text-white shadow-[0_18px_40px_rgba(8,122,58,0.18)] transition hover:-translate-y-1 hover:bg-[#066b33]' : 'rounded-[26px] border border-[#dceee3] bg-white p-5 text-left shadow-[0_22px_60px_rgba(15,43,29,0.05)] transition hover:-translate-y-1 hover:border-[#b7ddc4] hover:shadow-[0_30px_80px_rgba(15,43,29,0.09)]'}>
       <p className={primary ? 'text-2xl font-semibold text-white' : 'text-2xl font-semibold text-[#0d2217]'}>{title}</p>
       <p className={primary ? 'mt-2 text-sm leading-6 text-white/85' : 'mt-2 text-sm leading-6 text-[#5a7668]'}>{description}</p>
     </button>
   )
 }
 
-function ActionLink({
-  href,
-  children,
-  primary = false,
-}: {
-  href: string
-  children: ReactNode
-  primary?: boolean
-}) {
-  return (
-    <Link
-      href={href}
-      className={
-        primary
-          ? 'inline-flex items-center justify-center rounded-2xl bg-[#087a3a] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_32px_rgba(8,122,58,0.18)] transition hover:-translate-y-0.5 hover:bg-[#066b33]'
-          : 'inline-flex items-center justify-center rounded-2xl border border-[#c4e3cf] bg-white px-5 py-3 text-sm font-semibold text-[#173128] transition hover:-translate-y-0.5 hover:bg-[#f4fff7]'
-      }
-    >
-      {children}
-    </Link>
-  )
+function ActionLink({ href, children, primary = false }: { href: string; children: ReactNode; primary?: boolean }) {
+  return <Link href={href} className={primary ? 'inline-flex items-center justify-center rounded-2xl bg-[#087a3a] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_32px_rgba(8,122,58,0.18)] transition hover:-translate-y-0.5 hover:bg-[#066b33]' : 'inline-flex items-center justify-center rounded-2xl border border-[#c4e3cf] bg-white px-5 py-3 text-sm font-semibold text-[#173128] transition hover:-translate-y-0.5 hover:bg-[#f4fff7]'}>{children}</Link>
 }
 
 function MiniStat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-4">
-      <p className="text-xs font-semibold uppercase tracking-wide text-[#5a7668]">{label}</p>
-      <p className="mt-2 text-xl font-semibold text-[#0d2217]">{value}</p>
-    </div>
-  )
+  return <div className="rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-4"><p className="text-xs font-semibold uppercase tracking-wide text-[#5a7668]">{label}</p><p className="mt-2 text-xl font-semibold text-[#0d2217]">{value}</p></div>
 }
 
-function MetricCard({
-  label,
-  value,
-  helper,
-  valueClass,
-}: {
-  label: string
-  value: ReactNode
-  helper?: string
-  valueClass?: string
-}) {
-  return (
-    <div className="rounded-[26px] border border-[#dceee3] bg-white p-5 shadow-[0_22px_60px_rgba(15,43,29,0.05)] transition hover:-translate-y-1 hover:shadow-[0_30px_80px_rgba(15,43,29,0.09)]">
-      <p className="text-sm font-medium text-[#5a7668]">{label}</p>
-      <div className={`mt-3 text-3xl font-semibold tracking-tight ${valueClass ?? 'text-[#0d2217]'}`}>{value}</div>
-      {helper ? <p className="mt-2 text-sm leading-6 text-[#5a7668]">{helper}</p> : null}
-    </div>
-  )
+function MetricCard({ label, value, helper, valueClass }: { label: string; value: ReactNode; helper?: string; valueClass?: string }) {
+  return <div className="rounded-[26px] border border-[#dceee3] bg-white p-5 shadow-[0_22px_60px_rgba(15,43,29,0.05)] transition hover:-translate-y-1 hover:shadow-[0_30px_80px_rgba(15,43,29,0.09)]"><p className="text-sm font-medium text-[#5a7668]">{label}</p><div className={`mt-3 text-3xl font-semibold tracking-tight ${valueClass ?? 'text-[#0d2217]'}`}>{value}</div>{helper ? <p className="mt-2 text-sm leading-6 text-[#5a7668]">{helper}</p> : null}</div>
 }
 
 function InfoLine({ label, value }: { label: string; value: ReactNode }) {
-  return (
-    <div className="rounded-2xl border border-[#e4f2e9] bg-white p-3">
-      <p className="text-xs font-semibold uppercase tracking-wide text-[#5a7668]">{label}</p>
-      <div className="mt-1 break-words text-sm font-semibold text-[#173128]">{value}</div>
-    </div>
-  )
+  return <div className="rounded-2xl border border-[#e4f2e9] bg-white p-3"><p className="text-xs font-semibold uppercase tracking-wide text-[#5a7668]">{label}</p><div className="mt-1 break-words text-sm font-semibold text-[#173128]">{value}</div></div>
 }
 
 function SidePanel({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <section className="rounded-[28px] border border-[#dceee3] bg-white/95 p-6 shadow-[0_22px_60px_rgba(15,43,29,0.06)] backdrop-blur">
-      <h2 className="mb-5 text-xl font-semibold text-[#0d2217]">{title}</h2>
-      {children}
-    </section>
-  )
+  return <section className="rounded-[28px] border border-[#dceee3] bg-white/95 p-6 shadow-[0_22px_60px_rgba(15,43,29,0.06)] backdrop-blur"><h2 className="mb-5 text-xl font-semibold text-[#0d2217]">{title}</h2>{children}</section>
+}
+
+function Panel({ title, children }: { title: string; children: ReactNode }) {
+  return <section className="rounded-[28px] border border-[#dceee3] bg-white p-6"><h2 className="mb-5 text-2xl font-semibold text-[#0d2217]">{title}</h2>{children}</section>
 }
 
 function Badge({ className, children }: { className: string; children: ReactNode }) {
-  return (
-    <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${className}`}>
-      {children}
-    </span>
-  )
+  return <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${className}`}>{children}</span>
 }

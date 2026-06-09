@@ -107,6 +107,36 @@ function hashToken(token: string): string {
   return crypto.createHash('sha256').update(token).digest('hex')
 }
 
+function verifyHashedToken(token: string, storedHash: string): boolean {
+  if (!token || !storedHash) return false
+
+  const cleanedToken = token.trim()
+
+  // Backward compatibility for any pre-existing unverified users that still
+  // have a plaintext 6-digit OTP from older local development builds. New OTPs
+  // are always stored as SHA-256 hashes.
+  if (/^\d{6}$/.test(storedHash)) {
+    const expectedBuffer = Buffer.from(storedHash)
+    const actualBuffer = Buffer.from(cleanedToken)
+
+    if (expectedBuffer.length !== actualBuffer.length) {
+      return false
+    }
+
+    return crypto.timingSafeEqual(expectedBuffer, actualBuffer)
+  }
+
+  const actualHash = hashToken(cleanedToken)
+  const expectedBuffer = Buffer.from(storedHash, 'hex')
+  const actualBuffer = Buffer.from(actualHash, 'hex')
+
+  if (expectedBuffer.length !== actualBuffer.length) {
+    return false
+  }
+
+  return crypto.timingSafeEqual(expectedBuffer, actualBuffer)
+}
+
 function generateOtp(): string {
   return crypto.randomInt(100000, 1000000).toString()
 }
@@ -127,16 +157,36 @@ export async function getUsers(): Promise<User[]> {
 }
 
 export async function getUserByUsername(username: string): Promise<User | undefined> {
-  const normalized = username.trim().toLowerCase()
-  const users = await getAllDbUsers()
-  const user = users.find((item) => item.username.toLowerCase() === normalized)
+  const normalized = username.trim()
+
+  if (!normalized) return undefined
+
+  const user = await prisma.user.findFirst({
+    where: {
+      username: {
+        equals: normalized,
+        mode: 'insensitive',
+      },
+    },
+  })
+
   return user ? toAuthUser(user) : undefined
 }
 
 export async function getUserByEmail(email: string): Promise<User | undefined> {
-  const normalized = email.trim().toLowerCase()
-  const users = await getAllDbUsers()
-  const user = users.find((item) => item.email.toLowerCase() === normalized)
+  const normalized = email.trim()
+
+  if (!normalized) return undefined
+
+  const user = await prisma.user.findFirst({
+    where: {
+      email: {
+        equals: normalized,
+        mode: 'insensitive',
+      },
+    },
+  })
+
   return user ? toAuthUser(user) : undefined
 }
 
@@ -160,23 +210,24 @@ export async function registerUser(
   }
 
   const cleanUsername = username.trim()
-  const cleanEmail = email.trim()
+  const cleanEmail = email.trim().toLowerCase()
   const cleanPhone = phone.trim()
 
-  const normalizedUsername = cleanUsername.toLowerCase()
-  const normalizedEmail = cleanEmail.toLowerCase()
+  const [existingUsername, existingEmail] = await Promise.all([
+    getUserByUsername(cleanUsername),
+    getUserByEmail(cleanEmail),
+  ])
 
-  const users = await getAllDbUsers()
-
-  if (users.some((user) => user.username.toLowerCase() === normalizedUsername)) {
+  if (existingUsername) {
     throw new Error('Username is already taken.')
   }
 
-  if (users.some((user) => user.email.toLowerCase() === normalizedEmail)) {
+  if (existingEmail) {
     throw new Error('Email is already registered.')
   }
 
   const otp = generateOtp()
+  const otpHash = hashToken(otp)
 
   const dbUser = await prisma.user.create({
     data: {
@@ -187,7 +238,7 @@ export async function registerUser(
       passwordHash: hashPassword(passwordPlain),
       emailVerified: false,
       phoneVerified: false,
-      otpCode: otp,
+      otpCode: otpHash,
       otpExpiry: new Date(Date.now() + OTP_TTL_MS),
       verificationChannel: 'email',
     },
@@ -227,7 +278,11 @@ export async function verifyUserOtp(userId: string, otp: string): Promise<boolea
   const cleanedOtp = otp.trim()
   const otpExpiryTime = user.otpExpiry ? new Date(user.otpExpiry).getTime() : 0
 
-  if (!user.otpCode || user.otpCode !== cleanedOtp || Date.now() >= otpExpiryTime) {
+  if (!user.otpCode || Date.now() >= otpExpiryTime) {
+    return false
+  }
+
+  if (!verifyHashedToken(cleanedOtp, user.otpCode)) {
     return false
   }
 
@@ -235,7 +290,7 @@ export async function verifyUserOtp(userId: string, otp: string): Promise<boolea
     where: { id: user.id },
     data: {
       emailVerified: true,
-      phoneVerified: true,
+      phoneVerified: false,
       otpCode: null,
       otpExpiry: null,
     },
@@ -247,9 +302,7 @@ export async function verifyUserOtp(userId: string, otp: string): Promise<boolea
 export async function createPasswordResetToken(
   email: string
 ): Promise<{ user: User; token: string } | null> {
-  const normalizedEmail = email.trim().toLowerCase()
-  const users = await getAllDbUsers()
-  const user = users.find((item) => item.email.toLowerCase() === normalizedEmail)
+  const user = await getUserByEmail(email)
 
   if (!user) {
     return null

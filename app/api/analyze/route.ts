@@ -26,7 +26,7 @@ export async function POST(request: Request) {
 
     let content = text
     let name = 'Analyzed Report'
-    let type: 'PDF' | 'DOCX' | 'TXT' = 'TXT'
+    let type: 'PDF' | 'DOCX' | 'TXT' | 'HTML' = 'TXT'
     let sourceFileName: string | undefined
 
    if (file && file.size > 0) {
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
         error:
           `Could not extract readable text from "${file.name}". ` +
           'The file may be scanned, image-based, encrypted, corrupted, or unsupported. ' +
-          'Please upload a text-based PDF/DOCX/TXT file or paste the report text.',
+        'Please upload a text-based PDF/DOCX/HTML/TXT file or paste the report text.',
         extractionMethod: extracted.extractionMethod ?? 'unknown',
         ocrUsed: extracted.ocrUsed ?? false,
         warnings,
@@ -99,7 +99,7 @@ export async function POST(request: Request) {
     let postAnalysis: any = null
 
     try {
-      postAnalysis = await runPostAnalysisPipeline(result)
+      postAnalysis = await runPostAnalysisPipeline(result, session.userId)
     } catch (pipelineError) {
       console.error('Post-analysis pipeline failed:', pipelineError)
 

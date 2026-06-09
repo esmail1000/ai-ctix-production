@@ -6,7 +6,7 @@ export type Report = {
   id: string
   slug: string
   name: string
-  type: 'PDF' | 'DOCX' | 'TXT'
+  type: 'PDF' | 'DOCX' | 'TXT' | 'HTML'
   uploadedAt: string
   owner: string
   status: ReportStatus
@@ -32,6 +32,22 @@ export type Finding = {
   impact: string
   evidence: string
   remediation: string
+  exploitationSteps?: string[]
+  reportCvss?: number | null
+  reportCvssVector?: string | null
+  intelCvss?: number | null
+  intelCvssSeverity?: string | null
+  intelCvssVector?: string | null
+  knownExploited?: boolean
+  cisaKev?: boolean
+  mispMatches?: number
+  exploitAvailable?: boolean
+  attackVector?: string | null
+  finalRiskScore?: number
+  riskBand?: 'Low' | 'Medium' | 'High' | 'Critical'
+  riskFactors?: string[]
+  recommendations?: string[]
+  recommendationSources?: string[]
  provenance?: {
   extractionMethod: 'seed' | 'structured-parser' | 'heuristic-fallback' | 'nlp-hybrid' | 'manual'
   parserConfidence?: number

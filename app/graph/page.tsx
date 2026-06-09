@@ -1,6 +1,6 @@
-﻿'use client'
+  'use client'
 
-import cytoscape, { Core } from 'cytoscape'
+  import cytoscape, { type Core, type ElementDefinition, type NodeSingular } from 'cytoscape'
 import Link from 'next/link'
 import {
   useCallback,
@@ -11,1116 +11,673 @@ import {
   type ReactNode,
 } from 'react'
 
-import { AttackPathPredictionsPanel } from '@/components/knowledge-graph/AttackPathPredictionsPanel'
-import { ThreatIntelPanel } from '@/components/knowledge-graph/ThreatIntelPanel'
-import { ThreatScenariosPanel } from '@/components/knowledge-graph/ThreatScenariosPanel'
-
-type ApiReport = {
-  id: string
-  slug?: string
-  name: string
-  type?: string
-  uploadedAt?: string
-  owner?: string
-  status?: string
-  findings?: number
-  critical?: number
-  high?: number
-  medium?: number
-  low?: number
-  summary?: string
-}
-
-type ApiFinding = {
-  id: string
-  slug?: string
-  reportId: string
-  title: string
-  summary: string
-  severity: 'Critical' | 'High' | 'Medium' | 'Low'
-  score: number
-  status: 'Open' | 'In Review' | 'Resolved'
-  cve?: string
-  asset: string
-  impact?: string
-  evidence?: string
-  remediation?: string
-  detectedAt?: string
-  provenance?: {
-    extractionMethod?: string
-    parserConfidence?: number
-  }
-}
-
-type ReportsResponse = {
-  reports?: ApiReport[]
-}
-
-type FindingsResponse = {
-  findings?: ApiFinding[]
-}
-
-type Neo4jGraphResponse = {
-  nodes: Array<{
-    data: Record<string, any>
-  }>
-  edges: Array<{
-    data: Record<string, any>
-  }>
-}
-
-type GraphStats = {
-  reports: number
-  findings: number
-  nodes: number
-  edges: number
-}
-
-function getReportIdFromUrl() {
-  if (typeof window === 'undefined') return ''
-
-  return (
-    new URLSearchParams(window.location.search).get('reportId')?.trim() ?? ''
-  )
-}
-
-function safeId(value: string) {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9:_-]+/gi, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '')
-}
-
-function cleanValue(value: string | undefined | null, fallback = 'Unknown') {
-  const next = (value ?? '').trim()
-  return next.length > 0 ? next : fallback
-}
-
-function shortLabel(value: string, maxLength = 34) {
-  const cleaned = cleanValue(value, 'Unknown')
-
-  return cleaned.length > maxLength
-    ? `${cleaned.slice(0, maxLength - 1)}…`
-    : cleaned
-}
-
-function isUsefulCve(value: string | undefined) {
-  const normalized = cleanValue(value, '').toLowerCase()
-
-  return Boolean(
-    normalized &&
-      normalized !== '-' &&
-      normalized !== '—' &&
-      normalized !== 'n/a' &&
-      normalized !== 'none' &&
-      normalized !== 'unknown'
-  )
-}
-
-function attackTypeFromFinding(finding: ApiFinding) {
-  const text = `${finding.title} ${finding.summary} ${
-    finding.evidence ?? ''
-  }`.toLowerCase()
-
-  if (text.includes('sql') || text.includes('sqli')) return 'SQL Injection'
-  if (text.includes('xss') || text.includes('cross-site')) {
-    return 'Cross-Site Scripting'
-  }
-  if (text.includes('command injection') || text.includes('cmd')) {
-    return 'Command Injection'
-  }
-  if (text.includes('path traversal') || text.includes('../')) {
-    return 'Path Traversal'
-  }
-  if (text.includes('brute force')) return 'Brute Force'
-  if (text.includes('credential')) return 'Credential Attack'
-  if (text.includes('ssrf')) return 'SSRF'
-  if (text.includes('rce') || text.includes('remote code')) {
-    return 'Remote Code Execution'
-  }
-  if (text.includes('waf') || text.includes('blocked')) return 'WAF Event'
-
-  return cleanValue(finding.title.split(' related ')[0], 'Detected Threat')
-}
-
-function riskBandFromFinding(finding: ApiFinding) {
-  if (finding.severity === 'Critical' || finding.score >= 90) {
-    return 'Critical Risk'
+  type ApiReport = {
+    id: string
+    name: string
+    type?: string
+    uploadedAt?: string
+    status?: string
+    findings?: number
+    critical?: number
+    high?: number
+    medium?: number
+    low?: number
+    summary?: string
   }
 
-  if (finding.severity === 'High' || finding.score >= 70) {
-    return 'High Risk'
+  type ReportsResponse = {
+    reports?: ApiReport[]
+    error?: string
   }
 
-  if (finding.severity === 'Medium' || finding.score >= 40) {
-    return 'Medium Risk'
+  type GraphRecord = {
+    data?: Record<string, unknown>
   }
 
-  return 'Low Risk'
-}
-
-function edgeId(source: string, target: string, label: string) {
-  return `${source}->${target}:${safeId(label)}`
-}
-
-function makeGraphBuilder() {
-  const nodes: cytoscape.ElementDefinition[] = []
-  const edges: cytoscape.ElementDefinition[] = []
-  const ids = new Set<string>()
-
-  const addNode = (
-    id: string,
-    label: string,
-    type: string,
-    extra: Record<string, unknown> = {}
-  ) => {
-    if (ids.has(id)) return
-
-    ids.add(id)
-
-    nodes.push({
-      data: {
-        id,
-        label,
-        type,
-        ...extra,
-      },
-    })
+  type KnowledgeGraphResponse = {
+    nodes?: GraphRecord[]
+    edges?: GraphRecord[]
+    error?: string
+    details?: string
   }
 
-  const addEdge = (source: string, target: string, label: string, weight = 1) => {
-    const id = edgeId(source, target, label)
-
-    if (ids.has(id)) return
-
-    ids.add(id)
-
-    edges.push({
-      data: {
-        id,
-        source,
-        target,
-        label,
-        weight,
-      },
-    })
+  type AttackPathPrediction = {
+    findingId: string
+    findingTitle: string
+    severity: string
+    riskScore: number
+    attackPathScore: number
+    exploitLikelihood?: string
+    confidence?: number
+    predictedOutcome?: string
+    reasoning?: string[]
+    path?: {
+      nodes: Array<{ type: string; id: string; name: string }>
+      relationships: Array<{ type: string }>
+    }
   }
 
-  return {
-    addNode,
-    addEdge,
-    getElements: () => [...nodes, ...edges],
+  type AttackPathsResponse = {
+    paths?: AttackPathPrediction[]
+    error?: string
+    details?: string
   }
-}
 
-function getFindingText(finding: ApiFinding) {
-  return [
-    finding.title,
-    finding.summary,
-    finding.impact,
-    finding.evidence,
-    finding.remediation,
-    finding.cve,
-    finding.asset,
+  type NodeData = Record<string, unknown> & {
+    id: string
+    label: string
+    type: string
+    domainId?: string
+    reportId?: string
+    findingId?: string
+    severity?: string
+    score?: number
+    riskScore?: number
+    cve?: string
+    summary?: string
+    description?: string
+    mitigation?: string
+    text?: string
+    name?: string
+  }
+
+  type GraphStats = {
+    nodes: number
+    edges: number
+    findings: number
+    assets: number
+    cves: number
+    mitre: number
+    impacts: number
+    remediations: number
+    attackPaths: number
+    highSignalPaths: number
+  }
+
+  const DEFAULT_DEPTH = 4
+  const MAX_DEPTH = 6
+  const TYPE_LABELS: Record<string, string> = {
+    report: 'Report',
+    finding: 'Finding',
+    asset: 'Asset',
+    cve: 'CVE',
+    cwe: 'CWE',
+    owasp: 'OWASP',
+    mitre: 'MITRE',
+    impact: 'Impact',
+    remediation: 'Remediation',
+    exploit: 'Exploit',
+    advisory: 'Advisory',
+    cvss: 'CVSS',
+    kev: 'Known Exploited',
+    reference: 'Reference',
+    misp: 'MISP Intel',
+    risk: 'Risk',
+    status: 'Status',
+    sourceIp: 'Source IP',
+    domain: 'Domain',
+    hash: 'Hash',
+    unknown: 'Unknown',
+  }
+
+  const TYPE_ORDER = [
+    'report',
+    'finding',
+    'asset',
+    'cve',
+    'cwe',
+    'owasp',
+    'mitre',
+    'impact',
+    'remediation',
+    'exploit',
+    'kev',
+    'cvss',
+    'advisory',
+    'reference',
+    'misp',
+    'risk',
+    'status',
+    'sourceIp',
+    'domain',
+    'hash',
   ]
-    .filter(Boolean)
-    .join(' ')
-}
 
-function extractIps(text: string) {
-  return Array.from(
-    new Set(text.match(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g) ?? [])
-  ).filter((ip) =>
-    ip.split('.').every((part) => {
-      const value = Number(part)
-      return Number.isInteger(value) && value >= 0 && value <= 255
-    })
-  )
-}
-
-function extractDomains(text: string) {
-  const normalized = text.replace(/\[\.\]/g, '.').replace(/\(\.\)/g, '.')
-
-  return Array.from(
-    new Set(normalized.match(/\b(?:[a-z0-9-]+\.)+[a-z]{2,}\b/gi) ?? [])
-  ).filter((domain) => !domain.match(/^\d+(?:\.\d+){3}$/))
-}
-
-function extractHashes(text: string) {
-  return Array.from(
-    new Set(
-      text.match(/\b[a-f0-9]{32}\b|\b[a-f0-9]{40}\b|\b[a-f0-9]{64}\b/gi) ??
-        []
-    )
-  )
-}
-
-function extractMitreTechniques(text: string) {
-  return Array.from(new Set(text.match(/\bT\d{4}(?:\.\d{3})?\b/g) ?? []))
-}
-
-function buildReportGraph(
-  reports: ApiReport[],
-  findings: ApiFinding[],
-  focusedReportId: string
-) {
-  const builder = makeGraphBuilder()
-  const reportById = new Map(reports.map((report) => [report.id, report]))
-
-  const selectedFindings = focusedReportId
-    ? findings.filter((finding) => finding.reportId === focusedReportId)
-    : [...findings].sort((a, b) => b.score - a.score).slice(0, 35)
-
-  const selectedReportIds = Array.from(
-    new Set(selectedFindings.map((finding) => finding.reportId))
-  )
-
-  selectedReportIds.forEach((reportId) => {
-    const report = reportById.get(reportId) ?? {
-      id: reportId,
-      name: `Report ${reportId}`,
-      status: 'Unknown',
-    }
-
-    const reportNode = `report:${safeId(report.id)}`
-
-    builder.addNode(reportNode, report.name, 'report', {
-      reportId: report.id,
-      status: report.status ?? 'Unknown',
-      summary: report.summary ?? '',
-      findings: selectedFindings.filter(
-        (finding) => finding.reportId === report.id
-      ).length,
-    })
-  })
-
-  selectedFindings.forEach((finding) => {
-    const reportNode = `report:${safeId(finding.reportId)}`
-    const findingNode = `finding:${safeId(finding.id)}`
-    const attackType = attackTypeFromFinding(finding)
-    const attackNode = `attack:${safeId(attackType)}`
-    const assetNode = `asset:${safeId(finding.asset)}`
-    const severityNode = `severity:${safeId(finding.severity)}`
-    const statusNode = `status:${safeId(finding.status)}`
-    const riskBand = riskBandFromFinding(finding)
-    const riskNode = `risk:${safeId(riskBand)}`
-    const findingText = getFindingText(finding)
-
-    const ips = extractIps(findingText)
-    const domains = extractDomains(findingText)
-    const hashes = extractHashes(findingText)
-    const mitreTechniques = extractMitreTechniques(findingText)
-
-    builder.addNode(findingNode, finding.title, 'finding', {
-      findingId: finding.id,
-      reportId: finding.reportId,
-      severity: finding.severity,
-      score: finding.score,
-      status: finding.status,
-      cve: finding.cve ?? '',
-      asset: finding.asset,
-      summary: finding.summary,
-      evidence: finding.evidence ?? '',
-      mitigation: finding.remediation ?? '',
-      extractionMethod: finding.provenance?.extractionMethod ?? 'unknown',
-    })
-
-    builder.addNode(attackNode, attackType, 'attackType')
-    builder.addNode(assetNode, finding.asset, 'asset')
-    builder.addNode(severityNode, finding.severity, 'severity', {
-      severity: finding.severity,
-    })
-    builder.addNode(statusNode, finding.status, 'status', {
-      status: finding.status,
-    })
-    builder.addNode(riskNode, riskBand, 'risk', { riskBand })
-
-    builder.addEdge(reportNode, findingNode, 'contains', 2)
-    builder.addEdge(findingNode, attackNode, 'classified as', 1.6)
-    builder.addEdge(findingNode, assetNode, 'affects', 1.4)
-    builder.addEdge(findingNode, severityNode, 'severity', 1.3)
-    builder.addEdge(findingNode, statusNode, 'status', 0.9)
-    builder.addEdge(findingNode, riskNode, 'risk', 1.4)
-
-    if (isUsefulCve(finding.cve)) {
-      const cve = cleanValue(finding.cve)
-      const cveNode = `cve:${safeId(cve)}`
-
-      builder.addNode(cveNode, cve, 'cve')
-      builder.addEdge(findingNode, cveNode, 'references', 1.5)
-      builder.addEdge(cveNode, attackNode, 'maps to', 0.8)
-    }
-
-    ips.slice(0, 8).forEach((ip) => {
-      const ipNode = `ip:${safeId(ip)}`
-
-      builder.addNode(ipNode, ip, 'sourceIp')
-      builder.addEdge(findingNode, ipNode, 'mentions IP', 1.2)
-    })
-
-    domains.slice(0, 8).forEach((domain) => {
-      const domainNode = `domain:${safeId(domain)}`
-
-      builder.addNode(domainNode, domain, 'domain')
-      builder.addEdge(findingNode, domainNode, 'mentions domain', 1.2)
-    })
-
-    hashes.slice(0, 6).forEach((hash) => {
-      const hashNode = `hash:${safeId(hash)}`
-
-      builder.addNode(hashNode, shortLabel(hash, 18), 'hash', { hash })
-      builder.addEdge(findingNode, hashNode, 'mentions hash', 1.2)
-    })
-
-    mitreTechniques.slice(0, 10).forEach((technique) => {
-      const techniqueNode = `mitre:${safeId(technique)}`
-
-      builder.addNode(techniqueNode, technique, 'mitre')
-      builder.addEdge(findingNode, techniqueNode, 'maps to MITRE', 1.3)
-      builder.addEdge(techniqueNode, attackNode, 'supports', 0.9)
-    })
-  })
-
-  return builder.getElements()
-}
-
-function neo4jTypeToUiType(type: string) {
-  switch (type) {
-    case 'Report':
-      return 'report'
-    case 'Finding':
-      return 'finding'
-    case 'Asset':
-      return 'asset'
-    case 'CVE':
-      return 'cve'
-    case 'CWE':
-      return 'cwe'
-    case 'OWASP':
-      return 'owasp'
-    case 'MITRETechnique':
-      return 'mitre'
-    case 'Impact':
-      return 'impact'
-    case 'Remediation':
-      return 'remediation'
-    case 'Exploit':
-      return 'exploit'
-    case 'Advisory':
-      return 'advisory'
-    case 'CVSS':
-      return 'cvss'
-    case 'KnownExploitedVulnerability':
-      return 'kev'
-    case 'Reference':
-      return 'reference'
-    case 'MISPAttribute':
-      return 'misp'
-    default:
-      return safeId(type || 'node')
+  const TYPE_COLORS: Record<string, string> = {
+    report: '#087a3a',
+    finding: '#0f766e',
+    asset: '#2563eb',
+    cve: '#dc2626',
+    cwe: '#ef4444',
+    owasp: '#7c3aed',
+    mitre: '#be123c',
+    impact: '#f97316',
+    remediation: '#16a34a',
+    exploit: '#ea580c',
+    advisory: '#0f766e',
+    cvss: '#ca8a04',
+    kev: '#991b1b',
+    reference: '#64748b',
+    misp: '#7c3aed',
+    risk: '#ca8a04',
+    status: '#65a30d',
+    sourceIp: '#ea580c',
+    domain: '#0891b2',
+    hash: '#4338ca',
+    unknown: '#64748b',
   }
-}
 
-function neo4jGraphToCytoscapeElements(
-  graph: Neo4jGraphResponse
-): cytoscape.ElementDefinition[] {
-  const nodes = (graph.nodes ?? []).map((node) => {
-    const data = node.data ?? {}
-    const id = String(data.id)
-    const type = neo4jTypeToUiType(String(data.type ?? 'Node'))
+  function getReportIdFromUrl() {
+    if (typeof window === 'undefined') return ''
 
-    return {
-      data: {
-        ...data,
-        id,
-        label: shortLabel(
-          String(data.name ?? data.title ?? data.text ?? data.domainId ?? id),
-          42
-        ),
-        type,
-        score: data.riskScore ?? data.score ?? 0,
-        reportId: data.reportId ?? data.domainId,
-        findingId: type === 'finding' ? data.domainId : data.findingId,
-        summary: data.description ?? data.summary ?? data.text ?? '',
-        mitigation: data.text ?? data.remediation ?? '',
-      },
-    }
-  })
-
-  const edges = (graph.edges ?? []).map((edge) => {
-    const data = edge.data ?? {}
-
-    return {
-      data: {
-        ...data,
-        id: String(data.id),
-        source: String(data.source),
-        target: String(data.target),
-        label: String(data.label ?? data.type ?? 'related to').toLowerCase(),
-        weight: data.weight ?? 1.4,
-      },
-    }
-  })
-
-  return [...nodes, ...edges]
-}
-
-function ActionLink(props: {
-  href: string
-  children: ReactNode
-  primary?: boolean
-}) {
-  return (
-    <Link
-      href={props.href}
-      className={
-        props.primary
-          ? 'inline-flex items-center justify-center rounded-xl bg-[#15803d] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-[#166534]'
-          : 'inline-flex items-center justify-center rounded-xl border border-[#c4e3cf] bg-white px-3 py-1.5 text-xs font-semibold text-[#173128] transition hover:bg-[#edfdf3]'
-      }
-    >
-      {props.children}
-    </Link>
-  )
-}
-
-function nodeTypeLabel(type: string) {
-  switch (type) {
-    case 'report':
-      return 'Report'
-    case 'finding':
-      return 'Finding'
-    case 'attackType':
-      return 'Attack Type'
-    case 'asset':
-      return 'Asset / Target'
-    case 'targetPath':
-      return 'Target Path'
-    case 'severity':
-      return 'Severity'
-    case 'risk':
-      return 'Risk'
-    case 'cve':
-      return 'CVE'
-    case 'cwe':
-      return 'CWE'
-    case 'owasp':
-      return 'OWASP'
-    case 'mitre':
-      return 'MITRE Technique'
-    case 'impact':
-      return 'Impact'
-    case 'remediation':
-      return 'Remediation'
-    case 'exploit':
-      return 'Exploit'
-    case 'advisory':
-      return 'Advisory'
-    case 'cvss':
-      return 'CVSS'
-    case 'kev':
-      return 'Known Exploited Vulnerability'
-    case 'reference':
-      return 'Reference'
-    case 'misp':
-      return 'MISP Intel'
-    case 'sourceIp':
-      return 'Source IP'
-    case 'status':
-      return 'Status'
-    case 'action':
-      return 'Action'
-    case 'blocked':
-      return 'Blocked Status'
-    case 'domain':
-      return 'Domain'
-    case 'hash':
-      return 'File Hash'
-    default:
-      return type
+    return new URLSearchParams(window.location.search).get('reportId')?.trim() ?? ''
   }
-}
 
-const LEGEND = [
-  { type: 'report', label: 'App Report', color: '#15803d' },
-  { type: 'finding', label: 'Finding', color: '#0f766e' },
-  { type: 'attackType', label: 'Attack Type', color: '#7c3aed' },
-  { type: 'asset', label: 'Asset / Target', color: '#2563eb' },
-  { type: 'cve', label: 'CVE', color: '#dc2626' },
-  { type: 'cwe', label: 'CWE', color: '#ef4444' },
-  { type: 'owasp', label: 'OWASP', color: '#9333ea' },
-  { type: 'mitre', label: 'MITRE Technique', color: '#be123c' },
-  { type: 'impact', label: 'Impact', color: '#f97316' },
-  { type: 'remediation', label: 'Remediation', color: '#16a34a' },
-  { type: 'advisory', label: 'Advisory', color: '#0f766e' },
-  { type: 'cvss', label: 'CVSS', color: '#ca8a04' },
-  { type: 'kev', label: 'CISA KEV', color: '#991b1b' },
-  { type: 'reference', label: 'Reference', color: '#64748b' },
-  { type: 'misp', label: 'MISP', color: '#7c3aed' },
-  { type: 'sourceIp', label: 'Source IP', color: '#ea580c' },
-  { type: 'targetPath', label: 'Target Path', color: '#0891b2' },
-  { type: 'severity', label: 'Severity', color: '#b91c1c' },
-  { type: 'status', label: 'Status', color: '#65a30d' },
-  { type: 'domain', label: 'Domain', color: '#0891b2' },
-  { type: 'hash', label: 'Hash', color: '#4338ca' },
-]
+  function setReportIdInUrl(reportId: string) {
+    if (typeof window === 'undefined') return
 
-const GRAPH_FILTERS = [
-  { type: 'finding', label: 'Findings' },
-  { type: 'asset', label: 'Assets' },
-  { type: 'cve', label: 'CVEs' },
-  { type: 'cwe', label: 'CWEs' },
-  { type: 'owasp', label: 'OWASP' },
-  { type: 'mitre', label: 'MITRE' },
-  { type: 'impact', label: 'Impacts' },
-  { type: 'remediation', label: 'Remediations' },
-  { type: 'advisory', label: 'Advisories' },
-  { type: 'cvss', label: 'CVSS' },
-  { type: 'kev', label: 'CISA KEV' },
-  { type: 'reference', label: 'References' },
-  { type: 'misp', label: 'MISP' },
-  { type: 'attackType', label: 'Attack Types' },
-  { type: 'severity', label: 'Severity' },
-  { type: 'status', label: 'Status' },
-  { type: 'sourceIp', label: 'Source IPs' },
-  { type: 'targetPath', label: 'Target Paths' },
-  { type: 'domain', label: 'Domains' },
-  { type: 'hash', label: 'Hashes' },
-]
+    const next = reportId ? `/graph?reportId=${encodeURIComponent(reportId)}` : '/graph'
+    window.history.replaceState(null, '', next)
+  }
 
-function defaultVisibleTypes() {
-  return Object.fromEntries(
-    GRAPH_FILTERS.map((item) => [item.type, true])
-  ) as Record<string, boolean>
-}
+  function stringValue(value: unknown, fallback = ''): string {
+    if (typeof value === 'string') return value.trim() || fallback
+    if (typeof value === 'number' || typeof value === 'boolean') return String(value)
+    return fallback
+  }
 
-export default function AttackGraphPage() {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const cyRef = useRef<Core | null>(null)
+  function numberValue(value: unknown, fallback = 0): number {
+    if (typeof value === 'number' && Number.isFinite(value)) return value
+    const parsed = Number(value)
+    return Number.isFinite(parsed) ? parsed : fallback
+  }
 
-  const [reports, setReports] = useState<ApiReport[]>([])
-  const [focusedReportId, setFocusedReportId] = useState('')
-  const [selectedNode, setSelectedNode] =
-    useState<Record<string, unknown> | null>(null)
-  const [layout, setLayout] = useState('cose')
-  const [stats, setStats] = useState<GraphStats>({
-    reports: 0,
-    findings: 0,
-    nodes: 0,
-    edges: 0,
-  })
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [visibleTypes, setVisibleTypes] = useState<Record<string, boolean>>(
-    () => defaultVisibleTypes()
-  )
+  function shortLabel(value: unknown, maxLength = 44): string {
+    const label = stringValue(value, 'Unknown')
+    return label.length > maxLength ? `${label.slice(0, maxLength - 1)}…` : label
+  }
 
-  const focusedReport = useMemo(() => {
-    if (!focusedReportId) return null
+  function normalizeType(value: unknown): string {
+    const type = stringValue(value, 'unknown')
 
-    return reports.find((report) => report.id === focusedReportId) ?? null
-  }, [focusedReportId, reports])
-
-  const applyLayout = useCallback((name: string) => {
-    const cy = cyRef.current
-
-    if (!cy) return
-
-    setLayout(name)
-
-    const options: Record<string, unknown> = {
-      name,
-      animate: true,
-      animationDuration: 650,
-      padding: 30,
-      fit: true,
+    switch (type) {
+      case 'Report':
+        return 'report'
+      case 'Finding':
+        return 'finding'
+      case 'Asset':
+        return 'asset'
+      case 'CVE':
+        return 'cve'
+      case 'CWE':
+        return 'cwe'
+      case 'OWASP':
+        return 'owasp'
+      case 'MITRETechnique':
+        return 'mitre'
+      case 'Impact':
+        return 'impact'
+      case 'Remediation':
+        return 'remediation'
+      case 'Exploit':
+        return 'exploit'
+      case 'Advisory':
+        return 'advisory'
+      case 'CVSS':
+        return 'cvss'
+      case 'KnownExploitedVulnerability':
+        return 'kev'
+      case 'Reference':
+        return 'reference'
+      case 'MISPAttribute':
+        return 'misp'
+      default:
+        return type
+          .trim()
+          .replace(/[^a-z0-9:_-]+/gi, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-|-$/g, '')
+          .toLowerCase() || 'unknown'
     }
+  }
 
-    if (name === 'cose') {
-      Object.assign(options, {
-        nodeRepulsion: () => 9000,
-        idealEdgeLength: () => 95,
-        edgeElasticity: () => 120,
-        nestingFactor: 1.1,
-        gravity: 0.38,
-        numIter: 1400,
-        initialTemp: 140,
-        coolingFactor: 0.92,
-        minTemp: 1,
-        componentSpacing: 80,
-        nodeDimensionsIncludeLabels: true,
-      })
-    }
+  function selectedReportParam(reportId: string) {
+    return reportId ? encodeURIComponent(reportId) : ''
+  }
 
-    if (name === 'breadthfirst') {
-      const roots = cy.nodes('[type = "report"]')
+  function graphToElements(graph: KnowledgeGraphResponse): ElementDefinition[] {
+    const nodeIds = new Set<string>()
+    const elements: ElementDefinition[] = []
 
-      Object.assign(options, {
-        directed: true,
-        spacingFactor: 1.25,
-        roots: roots.length > 0 ? roots : undefined,
-      })
-    }
+    for (const node of graph.nodes ?? []) {
+      const data = node.data ?? {}
+      const id = stringValue(data.id || data.domainId, '')
 
-    if (name === 'concentric') {
-      Object.assign(options, {
-        minNodeSpacing: 70,
-        concentric: (node: any) => {
-          const type = node.data('type')
+      if (!id) continue
 
-          if (type === 'report') return 10
-          if (type === 'finding') return 8
-          if (type === 'cve' || type === 'cwe') return 7
-          if (type === 'owasp' || type === 'mitre') return 6
+      const type = normalizeType(data.type || data.label)
+      const domainId = stringValue(data.domainId || data.id, '')
+      const name = stringValue(
+        data.name || data.title || data.text || domainId || id,
+        'Unknown'
+      )
+      const label = shortLabel(name)
+      const findingId = type === 'finding' ? domainId : stringValue(data.findingId, '')
+      const reportId = type === 'report' ? domainId : stringValue(data.reportId, '')
+      const score = numberValue(data.riskScore ?? data.score, 0)
 
-          return node.degree()
+      nodeIds.add(id)
+
+      elements.push({
+        data: {
+          ...data,
+          id,
+          domainId,
+          label,
+          type,
+          name,
+          findingId,
+          reportId,
+          score,
+          riskScore: score,
+          summary: stringValue(data.description || data.summary || data.text, ''),
+          mitigation: stringValue(data.remediation || data.mitigation || data.text, ''),
         },
-        levelWidth: () => 2,
       })
     }
 
-    cy.layout(options as any).run()
+    const graphEdges = graph.edges ?? []
 
-    window.setTimeout(() => {
-      cy.fit(undefined, 35)
-      cy.center()
-    }, 750)
-  }, [])
+    for (let index = 0; index < graphEdges.length; index += 1) {
+      const edge = graphEdges[index]
+      const data = edge.data ?? {}
+      const source = stringValue(data.source, '')
+      const target = stringValue(data.target, '')
 
-  function zoomBy(factor: number) {
-    const cy = cyRef.current
+      if (!source || !target) continue
+      if (!nodeIds.has(source) || !nodeIds.has(target)) continue
 
-    if (!cy) return
+      elements.push({
+        data: {
+          ...data,
+          id: stringValue(data.id, `${source}->${target}:${index}`),
+          source,
+          target,
+          label: stringValue(data.label || data.type, 'related to')
+            .replace(/_/g, ' ')
+            .toLowerCase(),
+          weight: numberValue(data.weight, 1.2),
+        },
+      })
+    }
 
-    cy.zoom({
-      level: cy.zoom() * factor,
-      renderedPosition: {
-        x: cy.width() / 2,
-        y: cy.height() / 2,
-      },
+    return elements
+  }
+
+  function calculateStats(elements: ElementDefinition[], attackPaths: AttackPathPrediction[]): GraphStats {
+    const nodes = elements.filter((element) => !element.data?.source)
+    const edges = elements.filter((element) => Boolean(element.data?.source))
+
+    const countType = (type: string) =>
+      nodes.filter((node) => stringValue(node.data?.type) === type).length
+
+    const countPathType = (type: string) =>
+      new Set(
+        attackPaths.flatMap((path) =>
+          (path.path?.nodes ?? [])
+            .filter((node) => stringValue(node.type).toLowerCase() === type)
+            .map((node) => `${type}:${node.id || node.name}`)
+        )
+      ).size
+
+    return {
+      nodes: nodes.length,
+      edges: edges.length,
+      findings: Math.max(countType('finding'), countPathType('finding')),
+      assets: Math.max(countType('asset'), countPathType('asset')),
+      cves: Math.max(countType('cve'), countPathType('cve')),
+      mitre: Math.max(countType('mitre'), countPathType('mitretechnique')),
+      impacts: Math.max(countType('impact'), countPathType('impact')),
+      remediations: Math.max(countType('remediation'), countPathType('remediation')),
+      attackPaths: attackPaths.length,
+      highSignalPaths: attackPaths.filter((item) => {
+        const likelihood = stringValue(item.exploitLikelihood).toLowerCase()
+        return likelihood.includes('critical') || likelihood.includes('high')
+      }).length,
+    }
+  }
+
+  function getNodeTypes(elements: ElementDefinition[]) {
+    const found = new Set<string>()
+
+    for (const element of elements) {
+      if (!element.data?.source) {
+        const type = stringValue(element.data?.type, 'unknown')
+        found.add(type)
+      }
+    }
+
+    return Array.from(found).sort((a, b) => {
+      const left = TYPE_ORDER.indexOf(a)
+      const right = TYPE_ORDER.indexOf(b)
+      const leftOrder = left === -1 ? 999 : left
+      const rightOrder = right === -1 ? 999 : right
+
+      if (leftOrder !== rightOrder) return leftOrder - rightOrder
+      return a.localeCompare(b)
     })
   }
 
-  function fitGraph() {
-    const cy = cyRef.current
+  function buildExplanation(stats: GraphStats, attackPaths: AttackPathPrediction[]) {
+    const lines: string[] = []
 
-    if (!cy) return
+    if (stats.findings > 0) {
+      lines.push(`Graph contains ${stats.findings} finding${stats.findings === 1 ? '' : 's'} linked to the selected report.`)
+    }
 
-    cy.fit(undefined, 35)
-    cy.center()
+    if (stats.cves > 0) {
+      lines.push(`${stats.cves} CVE node${stats.cves === 1 ? '' : 's'} were connected from extracted finding data.`)
+    }
+
+    if (stats.assets > 0) {
+      lines.push(`${stats.assets} affected asset${stats.assets === 1 ? '' : 's'} are visible in the graph scope.`)
+    }
+
+    if (stats.mitre > 0 || stats.impacts > 0) {
+      lines.push(`Enrichment includes ${stats.mitre} MITRE technique node${stats.mitre === 1 ? '' : 's'} and ${stats.impacts} impact node${stats.impacts === 1 ? '' : 's'}.`)
+    }
+
+    if (stats.attackPaths > 0) {
+      lines.push(`${stats.attackPaths} attack path prediction${stats.attackPaths === 1 ? '' : 's'} were derived from graph relationships.`)
+    }
+
+    if (stats.highSignalPaths > 0) {
+      lines.push(`${stats.highSignalPaths} path${stats.highSignalPaths === 1 ? '' : 's'} have High/Critical likelihood labels and should be reviewed first.`)
+    }
+
+    const topPath = attackPaths[0]
+    if (topPath?.predictedOutcome) {
+      lines.push(`Top predicted outcome: ${topPath.predictedOutcome}`)
+    }
+
+    if (lines.length === 0) {
+      lines.push('No graph-derived explanation is available yet. Generate graph data by analyzing a report first.')
+    }
+
+    return lines.slice(0, 6)
   }
 
-  useEffect(() => {
-    let cancelled = false
+  function riskTone(value?: string) {
+    const normalized = stringValue(value).toLowerCase()
 
-    async function loadData() {
-      try {
-        setLoading(true)
-        setError('')
+    if (normalized.includes('critical')) return 'border-red-200 bg-red-50 text-red-700'
+    if (normalized.includes('high')) return 'border-orange-200 bg-orange-50 text-orange-700'
+    if (normalized.includes('medium')) return 'border-yellow-200 bg-yellow-50 text-yellow-700'
+    if (normalized.includes('low')) return 'border-emerald-200 bg-emerald-50 text-emerald-700'
+    return 'border-slate-200 bg-slate-50 text-slate-700'
+  }
 
-        const requestedReportId = getReportIdFromUrl()
-        setFocusedReportId(requestedReportId)
+  function nodeTypeLabel(type: string) {
+    return TYPE_LABELS[type] ?? type
+  }
 
-        let nextReports: ApiReport[] = []
-        let elements: cytoscape.ElementDefinition[] = []
-        let findingsCount = 0
+  function applyTypeVisibility(cy: Core, visibleTypes: Record<string, boolean>) {
+    cy.batch(() => {
+      cy.elements().removeClass('type-hidden')
 
-        if (requestedReportId) {
-          const [reportsResponse, graphResponse] = await Promise.all([
-            fetch('/api/reports', { cache: 'no-store' }),
-            fetch(
-              `/api/knowledge-graph/${encodeURIComponent(
-                requestedReportId
-              )}?depth=4`,
-              { cache: 'no-store' }
-            ),
-          ])
-
-          if (!reportsResponse.ok) {
-            throw new Error('Failed to load reports from /api/reports')
-          }
-
-          if (!graphResponse.ok) {
-            throw new Error('Failed to load Neo4j knowledge graph')
-          }
-
-          const reportsPayload: ReportsResponse = await reportsResponse.json()
-          const graphPayload: Neo4jGraphResponse = await graphResponse.json()
-
-          nextReports = reportsPayload.reports ?? []
-          elements = neo4jGraphToCytoscapeElements(graphPayload)
-
-          findingsCount = (graphPayload.nodes ?? []).filter(
-            (node) => node.data?.type === 'Finding'
-          ).length
-
-          const graphReportNode = (graphPayload.nodes ?? []).find(
-            (node) => node.data?.type === 'Report'
-          )
-
-          if (!nextReports.some((report) => report.id === requestedReportId)) {
-            nextReports.push({
-              id: requestedReportId,
-              name: String(
-                graphReportNode?.data?.name ?? `Report ${requestedReportId}`
-              ),
-              status: 'Ready',
-              findings: findingsCount,
-            })
-          }
-        } else {
-          const [reportsResponse, findingsResponse] = await Promise.all([
-            fetch('/api/reports', { cache: 'no-store' }),
-            fetch('/api/findings', { cache: 'no-store' }),
-          ])
-
-          if (!reportsResponse.ok) {
-            throw new Error('Failed to load reports from /api/reports')
-          }
-
-          if (!findingsResponse.ok) {
-            throw new Error('Failed to load findings from /api/findings')
-          }
-
-          const reportsPayload: ReportsResponse = await reportsResponse.json()
-          const findingsPayload: FindingsResponse =
-            await findingsResponse.json()
-
-          nextReports = reportsPayload.reports ?? []
-          const nextFindings = findingsPayload.findings ?? []
-
-          findingsCount = nextFindings.length
-
-          elements =
-            nextFindings.length > 0
-              ? buildReportGraph(nextReports, nextFindings, '')
-              : []
+      for (const [type, isVisible] of Object.entries(visibleTypes)) {
+        if (!isVisible) {
+          cy.nodes(`[type = "${type}"]`).addClass('type-hidden')
         }
+      }
 
-        if (cancelled) return
+      cy.edges().forEach((edge) => {
+        if (edge.source().hasClass('type-hidden') || edge.target().hasClass('type-hidden')) {
+          edge.addClass('type-hidden')
+        }
+      })
+    })
+  }
 
-        setReports(nextReports)
+  function getCytoscapeStyles(): any[] {
+    const base: any[] = [
+      {
+        selector: 'node',
+        style: {
+          label: 'data(label)',
+          'font-family': 'Inter, system-ui, sans-serif',
+          'font-size': '9px',
+          'font-weight': 800,
+          color: '#173128',
+          'text-valign': 'bottom',
+          'text-halign': 'center',
+          'text-margin-y': 8,
+          'text-wrap': 'wrap',
+          'text-max-width': '95px',
+          'text-outline-color': '#ffffff',
+          'text-outline-width': 3,
+          width: 42,
+          height: 42,
+          'background-color': '#64748b',
+          'border-width': 2,
+          'border-color': '#ffffff',
+          'overlay-padding': 7,
+          'transition-property': 'opacity border-width width height background-color',
+          'transition-duration': 180,
+        },
+      },
+      {
+        selector: 'edge',
+        style: {
+          width: 'mapData(weight, 0.5, 3, 0.8, 2.8)',
+          'line-color': '#b7d8c2',
+          'target-arrow-color': '#83b895',
+          'target-arrow-shape': 'triangle',
+          'curve-style': 'bezier',
+          'line-opacity': 0.74,
+          opacity: 0.82,
+          label: '',
+          'font-size': '8px',
+          color: '#4d6b5b',
+          'text-outline-color': '#ffffff',
+          'text-outline-width': 3,
+          'transition-property': 'opacity line-color width',
+          'transition-duration': 180,
+        },
+      },
+      {
+        selector: 'edge.highlighted',
+        style: {
+          label: 'data(label)',
+          width: 3,
+          'line-color': '#087a3a',
+          'target-arrow-color': '#087a3a',
+          opacity: 1,
+        },
+      },
+      {
+        selector: 'node.highlighted',
+        style: {
+          'border-width': 4,
+          'border-color': '#f59e0b',
+          width: 54,
+          height: 54,
+          opacity: 1,
+          'font-size': '10px',
+        },
+      },
+      {
+        selector: '.faded',
+        style: {
+          opacity: 0.13,
+        },
+      },
+      {
+        selector: '.type-hidden',
+        style: {
+          display: 'none',
+        },
+      },
+      {
+        selector: 'node:selected',
+        style: {
+          'border-color': '#f59e0b',
+          'border-width': 4,
+        },
+      },
+    ]
 
-        setStats({
-          reports: requestedReportId ? 1 : nextReports.length,
-          findings: findingsCount,
-          nodes: elements.filter((element) => !element.data.source).length,
-          edges: elements.filter((element) => Boolean(element.data.source))
-            .length,
+    const typedStyles: any[] = Object.entries(TYPE_COLORS).map(([type, color]) => ({
+      selector: `node[type = "${type}"]`,
+      style: {
+        'background-color': color,
+        shape:
+          type === 'report'
+            ? 'round-rectangle'
+            : type === 'finding'
+              ? 'round-rectangle'
+              : type === 'cve' || type === 'cwe' || type === 'hash'
+                ? 'hexagon'
+                : type === 'mitre'
+                  ? 'triangle'
+                  : type === 'impact' || type === 'misp'
+                    ? 'diamond'
+                    : type === 'kev' || type === 'exploit'
+                      ? 'star'
+                      : type === 'remediation' || type === 'status'
+                        ? 'round-tag'
+                        : 'ellipse',
+        width: type === 'report' ? 86 : type === 'finding' ? 74 : type === 'remediation' ? 64 : 44,
+        height: type === 'report' ? 40 : type === 'finding' ? 36 : type === 'remediation' ? 34 : 44,
+        'font-size': type === 'report' ? '10px' : type === 'finding' ? '8px' : '9px',
+      },
+    }))
+
+    return [...base, ...typedStyles]
+  }
+
+  export default function AIKnowledgeGraphCenter() {
+    const containerRef = useRef<HTMLDivElement>(null)
+    const cyRef = useRef<Core | null>(null)
+
+    const [reports, setReports] = useState<ApiReport[]>([])
+    const [selectedReportId, setSelectedReportId] = useState('')
+    const [depth, setDepth] = useState(DEFAULT_DEPTH)
+    const [elements, setElements] = useState<ElementDefinition[]>([])
+    const [attackPaths, setAttackPaths] = useState<AttackPathPrediction[]>([])
+    const [selectedNode, setSelectedNode] = useState<NodeData | null>(null)
+    const [visibleTypes, setVisibleTypes] = useState<Record<string, boolean>>({})
+    const [layout, setLayout] = useState('cose')
+    const [isLoadingReports, setIsLoadingReports] = useState(true)
+    const [isLoadingGraph, setIsLoadingGraph] = useState(false)
+    const [error, setError] = useState('')
+    const [attackPathError, setAttackPathError] = useState('')
+
+    const selectedReport = useMemo(
+      () => reports.find((report) => report.id === selectedReportId) ?? null,
+      [reports, selectedReportId]
+    )
+
+    const nodeTypes = useMemo(() => getNodeTypes(elements), [elements])
+
+    const stats = useMemo(
+      () => calculateStats(elements, attackPaths),
+      [elements, attackPaths]
+    )
+
+    const explanation = useMemo(
+      () => buildExplanation(stats, attackPaths),
+      [stats, attackPaths]
+    )
+
+    const encodedReportId = selectedReportParam(selectedReportId)
+
+    const applyLayout = useCallback((name: string) => {
+      const cy = cyRef.current
+      if (!cy) return
+
+      setLayout(name)
+
+      const options: Record<string, unknown> = {
+        name,
+        animate: true,
+        animationDuration: 650,
+        padding: 42,
+        fit: true,
+      }
+
+      if (name === 'cose') {
+        Object.assign(options, {
+          nodeRepulsion: () => 10500,
+          idealEdgeLength: () => 110,
+          edgeElasticity: () => 130,
+          nestingFactor: 1.15,
+          gravity: 0.34,
+          numIter: 1500,
+          initialTemp: 150,
+          coolingFactor: 0.92,
+          minTemp: 1,
+          componentSpacing: 92,
+          nodeDimensionsIncludeLabels: true,
         })
+      }
 
-        if (!containerRef.current) {
-          setLoading(false)
-          return
-        }
+      if (name === 'breadthfirst') {
+        const roots = cy.nodes('[type = "report"]')
+        Object.assign(options, {
+          directed: true,
+          spacingFactor: 1.24,
+          roots: roots.length > 0 ? roots : undefined,
+        })
+      }
+
+      if (name === 'concentric') {
+        Object.assign(options, {
+          minNodeSpacing: 72,
+          concentric: (node: NodeSingular) => {
+            const type = stringValue(node.data('type'))
+            if (type === 'report') return 10
+            if (type === 'finding') return 8
+            if (type === 'cve' || type === 'cwe' || type === 'kev') return 7
+            if (type === 'mitre' || type === 'impact') return 6
+            return node.degree()
+          },
+          levelWidth: () => 2,
+        })
+      }
+
+      cy.layout(options as any).run()
+
+      window.setTimeout(() => {
+        cy.fit(undefined, 42)
+        cy.center()
+      }, 760)
+    }, [])
+
+    const renderGraph = useCallback(
+      (nextElements: ElementDefinition[], nextVisibleTypes: Record<string, boolean>) => {
+        if (!containerRef.current) return
 
         cyRef.current?.destroy()
 
         const cy = cytoscape({
           container: containerRef.current,
-          elements,
-          minZoom: 0.18,
-          maxZoom: 3,
+          elements: nextElements,
+          minZoom: 0.16,
+          maxZoom: 3.2,
           wheelSensitivity: 0.18,
-          style: [
-            {
-              selector: 'node',
-              style: {
-                label: 'data(label)',
-                'font-family': 'Inter, system-ui, sans-serif',
-                'font-size': '9px',
-                'font-weight': 700,
-                color: '#173128',
-                'text-valign': 'bottom',
-                'text-halign': 'center',
-                'text-margin-y': 7,
-                'text-wrap': 'wrap',
-                'text-max-width': '88px',
-                'text-outline-color': '#ffffff',
-                'text-outline-width': 3,
-                width: 38,
-                height: 38,
-                'border-width': 2,
-                'border-color': '#ffffff',
-                'overlay-padding': 6,
-                'transition-property': 'opacity border-width width height',
-                'transition-duration': 160,
-              } as any,
-            },
-            {
-              selector: 'node[type="report"]',
-              style: {
-                'background-color': '#15803d',
-                shape: 'round-rectangle',
-                width: 78,
-                height: 36,
-                'font-size': '10px',
-              } as any,
-            },
-            {
-              selector: 'node[type="finding"]',
-              style: {
-                'background-color': '#0f766e',
-                shape: 'round-rectangle',
-                width: 68,
-                height: 32,
-                'font-size': '8px',
-              } as any,
-            },
-            {
-              selector: 'node[type="attackType"]',
-              style: {
-                'background-color': '#7c3aed',
-                shape: 'diamond',
-                width: 38,
-                height: 38,
-              } as any,
-            },
-            {
-              selector: 'node[type="asset"], node[type="targetPath"]',
-              style: {
-                'background-color': '#2563eb',
-                shape: 'ellipse',
-              } as any,
-            },
-            {
-              selector: 'node[type="cve"]',
-              style: {
-                'background-color': '#dc2626',
-                shape: 'hexagon',
-                width: 44,
-                height: 44,
-              } as any,
-            },
-            {
-              selector: 'node[type="cwe"]',
-              style: {
-                'background-color': '#ef4444',
-                shape: 'hexagon',
-                width: 44,
-                height: 44,
-              } as any,
-            },
-            {
-              selector: 'node[type="owasp"]',
-              style: {
-                'background-color': '#9333ea',
-                shape: 'round-rectangle',
-                width: 58,
-                height: 34,
-              } as any,
-            },
-            {
-              selector: 'node[type="mitre"]',
-              style: {
-                'background-color': '#be123c',
-                shape: 'triangle',
-                width: 50,
-                height: 50,
-              } as any,
-            },
-            {
-              selector: 'node[type="impact"]',
-              style: {
-                'background-color': '#f97316',
-                shape: 'diamond',
-                width: 48,
-                height: 48,
-              } as any,
-            },
-            {
-              selector: 'node[type="remediation"]',
-              style: {
-                'background-color': '#16a34a',
-                shape: 'round-tag',
-                width: 58,
-                height: 32,
-                'font-size': '8px',
-              } as any,
-            },
-            {
-              selector: 'node[type="exploit"]',
-              style: {
-                'background-color': '#ea580c',
-                shape: 'star',
-                width: 46,
-                height: 46,
-              } as any,
-            },
-            {
-              selector: 'node[type="advisory"]',
-              style: {
-                'background-color': '#0f766e',
-                shape: 'round-rectangle',
-                width: 70,
-                height: 36,
-              } as any,
-            },
-            {
-              selector: 'node[type="cvss"]',
-              style: {
-                'background-color': '#ca8a04',
-                shape: 'vee',
-                width: 46,
-                height: 46,
-              } as any,
-            },
-            {
-              selector: 'node[type="kev"]',
-              style: {
-                'background-color': '#991b1b',
-                shape: 'star',
-                width: 54,
-                height: 54,
-              } as any,
-            },
-            {
-              selector: 'node[type="reference"]',
-              style: {
-                'background-color': '#64748b',
-                shape: 'tag',
-                width: 58,
-                height: 32,
-                'font-size': '7px',
-              } as any,
-            },
-            {
-              selector: 'node[type="misp"]',
-              style: {
-                'background-color': '#7c3aed',
-                shape: 'diamond',
-                width: 48,
-                height: 48,
-              } as any,
-            },
-            {
-              selector: 'node[type="sourceIp"]',
-              style: {
-                'background-color': '#ea580c',
-                shape: 'ellipse',
-              } as any,
-            },
-            {
-              selector: 'node[type="domain"]',
-              style: {
-                'background-color': '#0891b2',
-                shape: 'ellipse',
-                width: 44,
-                height: 44,
-                'font-size': '7px',
-              } as any,
-            },
-            {
-              selector: 'node[type="hash"]',
-              style: {
-                'background-color': '#4338ca',
-                shape: 'hexagon',
-                width: 44,
-                height: 44,
-                'font-size': '7px',
-              } as any,
-            },
-            {
-              selector: 'node[type="severity"]',
-              style: {
-                'background-color': '#b91c1c',
-                shape: 'star',
-                width: 42,
-                height: 42,
-              } as any,
-            },
-            {
-              selector: 'node[type="risk"]',
-              style: {
-                'background-color': '#ca8a04',
-                shape: 'vee',
-              } as any,
-            },
-            {
-              selector:
-                'node[type="status"], node[type="action"], node[type="blocked"]',
-              style: {
-                'background-color': '#65a30d',
-                shape: 'round-tag',
-                width: 45,
-                height: 30,
-              } as any,
-            },
-            {
-              selector: 'edge',
-              style: {
-                width: 'mapData(weight, 0.5, 2, 0.8, 2.4)',
-                'line-color': '#b7d8c2',
-                'target-arrow-color': '#83b895',
-                'target-arrow-shape': 'triangle',
-                'curve-style': 'bezier',
-                'line-opacity': 0.72,
-                opacity: 0.75,
-                label: '',
-                'font-size': '8px',
-                color: '#4d6b5b',
-                'text-outline-color': '#ffffff',
-                'text-outline-width': 3,
-                'transition-property': 'opacity line-color width',
-                'transition-duration': 160,
-              } as any,
-            },
-            {
-              selector: 'edge.highlighted',
-              style: {
-                label: 'data(label)',
-                width: 2.6,
-                'line-color': '#15803d',
-                'target-arrow-color': '#15803d',
-                opacity: 1,
-              } as any,
-            },
-            {
-              selector: 'node.highlighted',
-              style: {
-                'border-width': 4,
-                'border-color': '#f59e0b',
-                width: 48,
-                height: 48,
-                opacity: 1,
-                'font-size': '10px',
-              } as any,
-            },
-            {
-              selector: '.faded',
-              style: {
-                opacity: 0.12,
-              } as any,
-            },
-            {
-              selector: '.type-hidden',
-              style: {
-                display: 'none',
-              } as any,
-            },
-            {
-              selector: 'node:selected',
-              style: {
-                'border-color': '#f59e0b',
-                'border-width': 4,
-              } as any,
-            },
-          ],
+          style: getCytoscapeStyles(),
         })
 
         cyRef.current = cy
 
         cy.on('tap', 'node', (event) => {
-          const node = event.target
-
-          setSelectedNode(node.data())
+          const node = event.target as NodeSingular
+          const data = node.data() as NodeData
+          setSelectedNode(data)
 
           cy.elements().removeClass('highlighted faded')
-
           const neighborhood = node.closedNeighborhood()
-
           cy.elements().not(neighborhood).addClass('faded')
           neighborhood.addClass('highlighted')
         })
@@ -1132,454 +689,618 @@ export default function AttackGraphPage() {
           }
         })
 
+        applyTypeVisibility(cy, nextVisibleTypes)
+
         cy.layout({
           name: 'cose',
           animate: false,
-          padding: 30,
-          nodeRepulsion: () => 9000,
-          idealEdgeLength: () => 95,
-          edgeElasticity: () => 120,
-          nestingFactor: 1.1,
-          gravity: 0.38,
-          numIter: 1400,
-          initialTemp: 140,
+          padding: 42,
+          nodeRepulsion: () => 10500,
+          idealEdgeLength: () => 110,
+          edgeElasticity: () => 130,
+          nestingFactor: 1.15,
+          gravity: 0.34,
+          numIter: 1500,
+          initialTemp: 150,
           coolingFactor: 0.92,
           minTemp: 1,
-          componentSpacing: 80,
+          componentSpacing: 92,
           nodeDimensionsIncludeLabels: true,
         } as any).run()
 
         window.setTimeout(() => {
-          cy.fit(undefined, 35)
+          cy.fit(undefined, 42)
           cy.center()
-        }, 500)
+        }, 520)
+      },
+      []
+    )
 
-        setLoading(false)
+    const loadReports = useCallback(async () => {
+      try {
+        setIsLoadingReports(true)
+        setError('')
+
+        const response = await fetch('/api/reports', { cache: 'no-store' })
+        const payload: ReportsResponse = await response.json().catch(() => ({}))
+
+        if (!response.ok) {
+          throw new Error(payload.error || `Failed to load reports: ${response.status}`)
+        }
+
+        const nextReports = payload.reports ?? []
+        const requestedReportId = getReportIdFromUrl()
+        const requestedExists = nextReports.some((report) => report.id === requestedReportId)
+        const nextSelected = requestedExists ? requestedReportId : requestedReportId || nextReports[0]?.id || ''
+
+        setReports(nextReports)
+        setSelectedReportId(nextSelected)
+        if (nextSelected) setReportIdInUrl(nextSelected)
       } catch (err) {
-        if (!cancelled) {
-          setError(
-            err instanceof Error ? err.message : 'Failed to load attack graph.'
-          )
-          setLoading(false)
-        }
+        setError(err instanceof Error ? err.message : 'Failed to load reports.')
+      } finally {
+        setIsLoadingReports(false)
       }
+    }, [])
+
+    const loadGraph = useCallback(
+      async (reportId: string, nextDepth: number) => {
+        if (!reportId) {
+          setElements([])
+          setAttackPaths([])
+          setVisibleTypes({})
+          return
+        }
+
+        try {
+          setIsLoadingGraph(true)
+          setError('')
+          setAttackPathError('')
+          setSelectedNode(null)
+
+          const [graphResponse, pathsResponse] = await Promise.all([
+            fetch(
+              `/api/knowledge-graph/${encodeURIComponent(reportId)}?depth=${encodeURIComponent(String(nextDepth))}`,
+              { cache: 'no-store' }
+            ),
+            fetch(`/api/attack-paths/${encodeURIComponent(reportId)}?limit=8`, {
+              cache: 'no-store',
+            }),
+          ])
+
+          const graphPayload: KnowledgeGraphResponse = await graphResponse.json().catch(() => ({}))
+
+          if (!graphResponse.ok) {
+            throw new Error(
+              graphPayload.details || graphPayload.error || `Failed to load graph: ${graphResponse.status}`
+            )
+          }
+
+          let nextAttackPaths: AttackPathPrediction[] = []
+          if (pathsResponse.ok) {
+            const pathsPayload: AttackPathsResponse = await pathsResponse.json().catch(() => ({}))
+            nextAttackPaths = pathsPayload.paths ?? []
+          } else {
+            const pathsPayload: AttackPathsResponse = await pathsResponse.json().catch(() => ({}))
+            setAttackPathError(
+              pathsPayload.details || pathsPayload.error || `Attack paths unavailable: ${pathsResponse.status}`
+            )
+          }
+
+          const nextElements = graphToElements(graphPayload)
+          const nextTypes = getNodeTypes(nextElements)
+          const nextVisibleTypes = Object.fromEntries(nextTypes.map((type) => [type, true]))
+
+          setElements(nextElements)
+          setAttackPaths(nextAttackPaths)
+          setVisibleTypes(nextVisibleTypes)
+          setLayout('cose')
+          renderGraph(nextElements, nextVisibleTypes)
+        } catch (err) {
+          setElements([])
+          setAttackPaths([])
+          setVisibleTypes({})
+          cyRef.current?.destroy()
+          cyRef.current = null
+          setError(err instanceof Error ? err.message : 'Failed to load knowledge graph.')
+        } finally {
+          setIsLoadingGraph(false)
+        }
+      },
+      [renderGraph]
+    )
+
+    useEffect(() => {
+      void loadReports()
+
+      return () => {
+        cyRef.current?.destroy()
+      }
+    }, [loadReports])
+
+    useEffect(() => {
+      if (!isLoadingReports && selectedReportId) {
+        void loadGraph(selectedReportId, depth)
+      }
+    }, [depth, isLoadingReports, loadGraph, selectedReportId])
+
+    useEffect(() => {
+      const cy = cyRef.current
+      if (!cy) return
+      applyTypeVisibility(cy, visibleTypes)
+    }, [visibleTypes])
+
+    function handleReportChange(reportId: string) {
+      setSelectedReportId(reportId)
+      setReportIdInUrl(reportId)
     }
 
-    loadData()
+    function zoomBy(factor: number) {
+      const cy = cyRef.current
+      if (!cy) return
 
-    return () => {
-      cancelled = true
-      cyRef.current?.destroy()
-    }
-  }, [])
-
-  useEffect(() => {
-    const cy = cyRef.current
-
-    if (!cy) return
-
-    cy.batch(() => {
-      cy.elements().removeClass('type-hidden')
-
-      for (const [type, isVisible] of Object.entries(visibleTypes)) {
-        if (!isVisible) {
-          cy.nodes(`[type = "${type}"]`).addClass('type-hidden')
-        }
-      }
-
-      cy.edges().forEach((edge) => {
-        if (
-          edge.source().hasClass('type-hidden') ||
-          edge.target().hasClass('type-hidden')
-        ) {
-          edge.addClass('type-hidden')
-        }
+      cy.zoom({
+        level: cy.zoom() * factor,
+        renderedPosition: { x: cy.width() / 2, y: cy.height() / 2 },
       })
-    })
-  }, [visibleTypes, loading])
+    }
 
-  const graphTitle = focusedReport?.name ?? `Report ${focusedReportId}`
+    function fitGraph() {
+      const cy = cyRef.current
+      if (!cy) return
+      cy.fit(undefined, 42)
+      cy.center()
+    }
 
-  return (
-    <main className="min-h-screen bg-[#f7fbf8]" style={{ paddingTop: '78px' }}>
-      <div className="mx-auto max-w-[1850px] px-4 py-4">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-[22px] border border-[#dcefe2] bg-white px-4 py-3 shadow-sm">
-          <div>
-            <h1 className="text-sm font-bold text-[#173128]">{graphTitle}</h1>
-            <p className="text-xs text-[#5a7668]">
-              Dynamic Neo4j Knowledge Graph and Attack Path Analysis
-            </p>
-          </div>
+    function openFullscreenGraph() {
+      const target = containerRef.current?.parentElement
+      if (!target || typeof target.requestFullscreen !== 'function') return
 
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full border border-[#c4e3cf] bg-[#f6fff9] px-3 py-1 text-xs font-semibold text-[#173128]">
-              {stats.nodes} nodes
-            </span>
+      void target.requestFullscreen()
+    }
 
-            <span className="rounded-full border border-[#c4e3cf] bg-[#f6fff9] px-3 py-1 text-xs font-semibold text-[#173128]">
-              {stats.edges} edges
-            </span>
+    const isEmpty = !isLoadingGraph && !error && elements.length === 0
 
-            <span className="rounded-full border border-[#c4e3cf] bg-[#f6fff9] px-3 py-1 text-xs font-semibold text-[#173128]">
-              {stats.findings} findings
-            </span>
-          </div>
+    return (
+      <main className="relative min-h-screen overflow-hidden bg-[#fbfefd] text-[#111827]">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_8%,rgba(34,197,94,0.12),transparent_31%),radial-gradient(circle_at_88%_15%,rgba(8,122,58,0.10),transparent_34%),linear-gradient(180deg,#fbfefd,#f6fbf7)]" />
+        <div className="pointer-events-none absolute right-[-120px] top-24 h-[480px] w-[600px] rounded-full bg-[#dff7e8]/70 blur-3xl" />
+        <div className="pointer-events-none absolute left-[-140px] top-[620px] h-[380px] w-[560px] rounded-full bg-[#edf9f2] blur-3xl" />
 
-          <div className="flex flex-wrap items-center gap-2">
-            {['cose', 'breadthfirst', 'concentric', 'circle', 'grid'].map(
-              (item) => (
-                <button
-                  key={item}
-                  onClick={() => applyLayout(item)}
-                  className={`rounded-xl px-3 py-1.5 text-xs font-semibold capitalize transition ${
-                    layout === item
-                      ? 'bg-[#15803d] text-white'
-                      : 'border border-[#c4e3cf] bg-white text-[#173128] hover:bg-[#edfdf3]'
-                  }`}
-                >
-                  {item}
-                </button>
-              )
-            )}
+        <section className="relative mx-auto max-w-[1920px] px-4 pb-6 pt-4 lg:px-6">
+          <header className="relative overflow-hidden rounded-[28px] border border-[#dceee3] bg-white/92 p-4 shadow-[0_18px_55px_rgba(15,43,29,0.06)] backdrop-blur">
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(8,122,58,0.06),transparent_48%),radial-gradient(circle_at_86%_24%,rgba(22,163,74,0.12),transparent_28%)]" />
+            <div className="pointer-events-none absolute right-12 top-5 hidden h-20 w-20 rounded-full bg-gradient-to-br from-[#eafff0] via-[#8ee8aa] to-[#087a3a] shadow-[0_20px_50px_rgba(8,122,58,0.16)] graph-ai-core lg:block" />
+            <div className="pointer-events-none absolute bottom-4 right-[120px] hidden h-12 w-48 rounded-[50%] border border-[#bfe6cc] bg-gradient-to-b from-white to-[#e5f8ec] shadow-[0_18px_45px_rgba(8,122,58,0.10)] graph-platform lg:block" />
 
-            <button
-              onClick={() => zoomBy(1.2)}
-              className="rounded-xl border border-[#c4e3cf] bg-white px-3 py-1.5 text-xs font-semibold text-[#173128] hover:bg-[#edfdf3]"
-            >
-              Zoom +
-            </button>
+            <div className="relative grid gap-4 xl:grid-cols-[1fr_460px]">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#087a3a]">
+                  AI Knowledge Graph Center
+                </p>
+                <h1 className="mt-2 max-w-4xl text-3xl font-semibold tracking-[-0.04em] text-[#111827] md:text-4xl">
+                  Report-to-risk relationship map
+                </h1>
+                <p className="mt-3 max-w-4xl text-sm leading-7 text-[#5f6f66]">
+                  Visualize only real graph data returned from the secured knowledge graph API: reports, findings, assets, CVEs, weaknesses, MITRE techniques, impact, remediation, and attack-path evidence.
+                </p>
 
-            <button
-              onClick={fitGraph}
-              className="rounded-xl border border-[#c4e3cf] bg-white px-3 py-1.5 text-xs font-semibold text-[#173128] hover:bg-[#edfdf3]"
-            >
-              Fit
-            </button>
-
-            <button
-              onClick={() => zoomBy(0.8)}
-              className="rounded-xl border border-[#c4e3cf] bg-white px-3 py-1.5 text-xs font-semibold text-[#173128] hover:bg-[#edfdf3]"
-            >
-              Zoom -
-            </button>
-          </div>
-        </div>
-
-        <div
-          className="flex overflow-hidden rounded-[26px] border border-[#dcefe2] bg-white shadow-sm"
-          style={{ height: 'calc(100vh - 205px)', minHeight: 720 }}
-        >
-          <div className="relative flex-1 bg-[#fbfffc]">
-            {loading ? (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/80">
-                <div className="text-center">
-                  <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-[#15803d] border-t-transparent" />
-                  <p className="mt-4 text-sm font-medium text-[#15803d]">
-                    Building attack graph...
-                  </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <ActionLink href="/dashboard">Dashboard</ActionLink>
+                  <ActionLink href="/reports">Reports</ActionLink>
+                  {encodedReportId ? (
+                    <>
+                      <ActionLink href={`/reports/${encodedReportId}`}>Open Report</ActionLink>
+                      <ActionLink href={`/results?reportId=${encodedReportId}`}>View Findings</ActionLink>
+                      <ActionLink href={`/risk-scoring?reportId=${encodedReportId}`}>Risk Scoring</ActionLink>
+                      <ActionLink href={`/attack-paths?reportId=${encodedReportId}`}>Attack Paths</ActionLink>
+                      <ActionLink href={`/recommendations?reportId=${encodedReportId}`}>Recommendations</ActionLink>
+                      <ActionLink href={`/export?reportId=${encodedReportId}`} primary>
+                        Export
+                      </ActionLink>
+                    </>
+                  ) : null}
                 </div>
               </div>
-            ) : null}
 
-            {error ? (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white">
-                <div className="max-w-md rounded-3xl border border-red-200 bg-red-50 p-6 text-center">
-                  <p className="text-lg font-semibold text-red-700">
-                    Graph error
-                  </p>
-
-                  <p className="mt-2 text-sm leading-6 text-red-600">
-                    {error}
-                  </p>
-                </div>
-              </div>
-            ) : null}
-
-            {!loading && !error && stats.nodes === 0 ? (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white">
-                <div className="max-w-md rounded-3xl border border-[#dcefe2] bg-[#f8fffa] p-6 text-center">
-                  <p className="text-lg font-semibold text-[#0d2217]">
-                    No real attack graph data yet
-                  </p>
-
-                  <p className="mt-2 text-sm leading-6 text-[#5a7668]">
-                    Analyze a report first to generate findings, assets, CVEs,
-                    severities, and risk nodes.
-                  </p>
-
-                  <Link
-                    href="/analyzer"
-                    className="mt-4 inline-flex rounded-2xl bg-[#15803d] px-4 py-2 text-sm font-semibold text-white hover:bg-[#166534]"
+              <div className="rounded-[24px] border border-[#dceee3] bg-white/80 p-4 shadow-[0_16px_45px_rgba(15,43,29,0.06)] backdrop-blur">
+                <div className="grid gap-3">
+                  <label className="text-xs font-semibold uppercase tracking-[0.16em] text-[#5a7668]">
+                    Report scope
+                  </label>
+                  <select
+                    value={selectedReportId}
+                    onChange={(event) => handleReportChange(event.target.value)}
+                    disabled={isLoadingReports || reports.length === 0}
+                    className="h-12 rounded-2xl border border-[#c4e3cf] bg-[#f6fff9] px-4 text-sm font-semibold text-[#173128] outline-none focus:border-[#087a3a] disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    Analyze report
-                  </Link>
-                </div>
-              </div>
-            ) : null}
+                    {reports.length === 0 ? (
+                      <option value="">No reports available</option>
+                    ) : (
+                      reports.map((report) => (
+                        <option key={report.id} value={report.id}>
+                          {report.name} - {report.id}
+                        </option>
+                      ))
+                    )}
+                  </select>
 
-            <div ref={containerRef} className="h-full w-full" />
-          </div>
+                  <div className="grid gap-3 sm:grid-cols-[1fr_150px]">
+                    <div>
+                      <label className="text-xs font-semibold uppercase tracking-[0.16em] text-[#5a7668]">
+                        Graph depth: {depth}
+                      </label>
+                      <input
+                        type="range"
+                        min={1}
+                        max={MAX_DEPTH}
+                        value={depth}
+                        onChange={(event) => setDepth(Number(event.target.value))}
+                        className="mt-3 w-full accent-[#087a3a]"
+                      />
+                    </div>
 
-          <aside className="flex w-[360px] shrink-0 flex-col gap-4 overflow-y-auto border-l border-[#dcefe2] bg-white p-4">
-            <section className="rounded-[20px] border border-[#dcefe2] bg-[#f8fffa] p-4">
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-[#4d6b5b]">
-                Legend
-              </h3>
-
-              <div className="mt-3 grid gap-2">
-                {LEGEND.map((item) => (
-                  <div key={item.type} className="flex items-center gap-2">
-                    <span
-                      className="h-3 w-3 rounded-full border border-white shadow-sm"
-                      style={{ backgroundColor: item.color }}
-                    />
-
-                    <span className="text-xs font-medium text-[#173128]">
-                      {item.label}
-                    </span>
+                    <button
+                      type="button"
+                      onClick={() => void loadGraph(selectedReportId, depth)}
+                      disabled={!selectedReportId || isLoadingGraph}
+                      className="h-12 self-end rounded-2xl bg-[#087a3a] px-5 text-sm font-semibold text-white transition hover:bg-[#066b33] disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {isLoadingGraph ? 'Loading…' : 'Refresh Graph'}
+                    </button>
                   </div>
-                ))}
+                </div>
               </div>
+            </div>
+          </header>
+
+          {selectedReport ? (
+            <section className="mt-4 rounded-[24px] border border-[#dceee3] bg-white/92 p-4 shadow-[0_16px_45px_rgba(15,43,29,0.045)]">
+              <div className="flex flex-wrap items-center gap-3">
+                <Pill>{selectedReport.id}</Pill>
+                <Pill>{selectedReport.type ?? 'Report'}</Pill>
+                <Pill>{selectedReport.status ?? 'Ready'}</Pill>
+                {selectedReport.findings !== undefined ? <Pill>{selectedReport.findings} findings</Pill> : null}
+              </div>
+              <h2 className="mt-3 text-xl font-semibold text-[#0d2217]">{selectedReport.name}</h2>
+              {selectedReport.summary ? (
+                <p className="mt-2 max-w-6xl text-sm leading-7 text-[#5a7668]">{selectedReport.summary}</p>
+              ) : null}
             </section>
+          ) : null}
 
-            <section className="rounded-[20px] border border-[#dcefe2] bg-white p-4">
-              <div className="flex items-center justify-between gap-3">
-                <h3 className="text-sm font-semibold uppercase tracking-wide text-[#4d6b5b]">
-                  Graph Filters
-                </h3>
+          <section className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+            <MetricCard label="Graph nodes" value={String(stats.nodes)} helper={`${stats.edges} edges`} />
+            <MetricCard label="Findings" value={String(stats.findings)} helper={`${stats.assets} assets`} />
+            <MetricCard label="CVEs" value={String(stats.cves)} helper="Report-linked CVE nodes" />
+            <MetricCard label="MITRE / Impact" value={`${stats.mitre}/${stats.impacts}`} helper="Enrichment coverage" />
+            <MetricCard label="Attack paths" value={String(stats.attackPaths)} helper={`${stats.highSignalPaths} high-signal`} />
+          </section>
 
-                <button
-                  type="button"
-                  onClick={() => setVisibleTypes(defaultVisibleTypes())}
-                  className="rounded-xl border border-[#c4e3cf] bg-white px-3 py-1.5 text-xs font-semibold text-[#173128] hover:bg-[#edfdf3]"
-                >
-                  Reset
-                </button>
-              </div>
+          <section className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_390px]">
+            <div className="overflow-hidden rounded-[28px] border border-[#dceee3] bg-white/96 shadow-[0_22px_70px_rgba(15,43,29,0.07)]">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e4f2e9] bg-[#f8fffa] px-4 py-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#087a3a]">
+                    Live graph canvas
+                  </p>
+                  <p className="mt-1 text-sm text-[#5a7668]">
+                    Click any node to inspect real properties and graph relationships.
+                  </p>
+                </div>
 
-              <div className="mt-3 grid gap-2">
-                {GRAPH_FILTERS.map((item) => (
+                <div className="flex flex-wrap gap-2">
+                  {['cose', 'breadthfirst', 'concentric', 'circle', 'grid'].map((item) => (
+                    <button
+                      key={item}
+                      type="button"
+                      onClick={() => applyLayout(item)}
+                      className={`rounded-xl px-3 py-1.5 text-xs font-semibold capitalize transition ${
+                        layout === item
+                          ? 'bg-[#087a3a] text-white'
+                          : 'border border-[#c4e3cf] bg-white text-[#173128] hover:bg-[#edfdf3]'
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  ))}
                   <button
-                    key={item.type}
                     type="button"
-                    onClick={() =>
-                      setVisibleTypes((current) => ({
-                        ...current,
-                        [item.type]: !current[item.type],
-                      }))
-                    }
-                    className={`flex items-center justify-between rounded-2xl border px-3 py-2 text-xs font-semibold transition ${
-                      visibleTypes[item.type]
-                        ? 'border-[#bbf7d0] bg-[#f0fdf4] text-[#15803d]'
-                        : 'border-[#e4f2e9] bg-[#f8fffa] text-[#6b8477]'
-                    }`}
+                    onClick={() => zoomBy(1.2)}
+                    className="rounded-xl border border-[#c4e3cf] bg-white px-3 py-1.5 text-xs font-semibold text-[#173128] hover:bg-[#edfdf3]"
                   >
-                    <span>{item.label}</span>
-                    <span>{visibleTypes[item.type] ? 'On' : 'Off'}</span>
+                    Zoom +
                   </button>
-                ))}
+                  <button
+                    type="button"
+                    onClick={fitGraph}
+                    className="rounded-xl border border-[#c4e3cf] bg-white px-3 py-1.5 text-xs font-semibold text-[#173128] hover:bg-[#edfdf3]"
+                  >
+                    Fit
+                  </button>
+                  <button
+                    type="button"
+                    onClick={openFullscreenGraph}
+                    className="rounded-xl border border-[#c4e3cf] bg-white px-3 py-1.5 text-xs font-semibold text-[#173128] hover:bg-[#edfdf3]"
+                  >
+                    Fullscreen
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => zoomBy(0.82)}
+                    className="rounded-xl border border-[#c4e3cf] bg-white px-3 py-1.5 text-xs font-semibold text-[#173128] hover:bg-[#edfdf3]"
+                  >
+                    Zoom -
+                  </button>
+                </div>
               </div>
-            </section>
 
-            <section className="rounded-[20px] border border-[#dcefe2] bg-white p-4">
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-[#4d6b5b]">
-                Selected Node
-              </h3>
+              <div className="relative h-[calc(100vh-330px)] min-h-[620px] bg-[#fbfffc]">
+                {isLoadingGraph ? (
+                  <div className="absolute inset-0 z-10 grid place-items-center bg-white/80 backdrop-blur-sm">
+                    <div className="text-center">
+                      <div className="mx-auto grid h-20 w-20 place-items-center rounded-full border border-[#c4e3cf] bg-[#f6fff9] shadow-[0_18px_55px_rgba(8,122,58,0.12)]">
+                        <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#087a3a] border-t-transparent" />
+                      </div>
+                      <p className="mt-4 text-sm font-semibold text-[#087a3a]">Building real knowledge graph…</p>
+                      <p className="mt-1 text-xs text-[#5a7668]">Fetching secured report-scoped nodes and relationships.</p>
+                    </div>
+                  </div>
+                ) : null}
 
-              {selectedNode ? (
-                <div className="mt-3 space-y-2 text-sm">
-                  <InfoLine
-                    label="Label"
-                    value={String(selectedNode.label ?? '-')}
-                  />
+                {error ? (
+                  <div className="absolute inset-0 z-20 grid place-items-center bg-white">
+                    <div className="max-w-lg rounded-[28px] border border-red-200 bg-red-50 p-7 text-center">
+                      <p className="text-lg font-semibold text-red-700">Graph error</p>
+                      <p className="mt-2 text-sm leading-6 text-red-600">{error}</p>
+                    </div>
+                  </div>
+                ) : null}
 
-                  <InfoLine
-                    label="Type"
-                    value={nodeTypeLabel(String(selectedNode.type ?? '-'))}
-                  />
+                {isEmpty ? (
+                  <div className="absolute inset-0 z-10 grid place-items-center bg-white">
+                    <div className="max-w-xl rounded-[30px] border border-dashed border-[#c4e3cf] bg-[#f8fffa] p-8 text-center">
+                      <p className="text-xl font-semibold text-[#0d2217]">No real graph data yet</p>
+                      <p className="mt-3 text-sm leading-7 text-[#5a7668]">
+                        The secured Neo4j query returned no nodes for this report. Analyze or re-analyze the report so the user-scoped graph builder can persist report, finding, asset, CVE, and enrichment nodes.
+                      </p>
+                      <div className="mt-5 flex flex-wrap justify-center gap-3">
+                        <ActionLink href="/analyzer" primary>Analyze Report</ActionLink>
+                        {encodedReportId ? <ActionLink href={`/reports/${encodedReportId}`}>Open Report</ActionLink> : null}
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
 
-                  {selectedNode.reportId ? (
-                    <InfoLine
-                      label="Report"
-                      value={String(selectedNode.reportId)}
-                    />
-                  ) : null}
+                <div ref={containerRef} className="h-full w-full" />
+              </div>
+            </div>
 
-                  {selectedNode.findingId ? (
-                    <InfoLine
-                      label="Finding"
-                      value={String(selectedNode.findingId)}
-                    />
-                  ) : null}
+            <aside className="max-h-[calc(100vh-170px)] space-y-4 overflow-y-auto pr-1 xl:sticky xl:top-24">
+              <Panel title="Selected node">
+                {selectedNode ? (
+                  <div className="space-y-3">
+                    <InfoLine label="Label" value={selectedNode.label} />
+                    <InfoLine label="Type" value={nodeTypeLabel(selectedNode.type)} />
+                    {selectedNode.domainId ? <InfoLine label="ID" value={selectedNode.domainId} /> : null}
+                    {selectedNode.severity ? <InfoLine label="Severity" value={selectedNode.severity} /> : null}
+                    {selectedNode.score ? <InfoLine label="Score" value={`${selectedNode.score}/100`} /> : null}
+                    {selectedNode.cve ? <InfoLine label="CVE" value={selectedNode.cve} /> : null}
+                    {selectedNode.summary ? <TextBlock label="Summary" value={selectedNode.summary} /> : null}
+                    {selectedNode.mitigation ? <TextBlock label="Mitigation" value={selectedNode.mitigation} /> : null}
+                    {selectedNode.text ? <TextBlock label="Text" value={selectedNode.text} /> : null}
 
-                  {selectedNode.severity ? (
-                    <InfoLine
-                      label="Severity"
-                      value={String(selectedNode.severity)}
-                    />
-                  ) : null}
+                    <div className="grid gap-2 pt-1">
+                      {(selectedNode.reportId || selectedReportId) ? (
+                        <>
+                          <ActionLink href={`/reports/${encodeURIComponent(stringValue(selectedNode.reportId, selectedReportId))}`}>Open Report</ActionLink>
+                          <ActionLink href={`/results?reportId=${encodeURIComponent(stringValue(selectedNode.reportId, selectedReportId))}`}>Report Findings</ActionLink>
+                          <ActionLink href={`/risk-scoring?reportId=${encodeURIComponent(stringValue(selectedNode.reportId, selectedReportId))}`}>Risk Scoring</ActionLink>
+                        </>
+                      ) : null}
+                      {selectedNode.findingId ? (
+                        <ActionLink href={`/results/${encodeURIComponent(selectedNode.findingId)}`}>Open Finding</ActionLink>
+                      ) : null}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm leading-7 text-[#5a7668]">
+                    Click a node to highlight its neighborhood and inspect report-scoped properties.
+                  </p>
+                )}
+              </Panel>
 
-                  {selectedNode.score ? (
-                    <InfoLine
-                      label="Score"
-                      value={`${String(selectedNode.score)}/100`}
-                    />
-                  ) : null}
+              <Panel title="Attack path preview">
+                {attackPathError ? (
+                  <p className="rounded-2xl border border-yellow-200 bg-yellow-50 p-3 text-xs leading-5 text-yellow-700">
+                    {attackPathError}
+                  </p>
+                ) : null}
 
-                  {selectedNode.cve ? (
-                    <InfoLine label="CVE" value={String(selectedNode.cve)} />
-                  ) : null}
-
-                  {selectedNode.cvssScore ? (
-                    <InfoLine
-                      label="CVSS"
-                      value={String(selectedNode.cvssScore)}
-                    />
-                  ) : null}
-
-                  {selectedNode.cvssSeverity ? (
-                    <InfoLine
-                      label="CVSS Severity"
-                      value={String(selectedNode.cvssSeverity)}
-                    />
-                  ) : null}
-
-                  {selectedNode.knownExploited ? (
-                    <InfoLine label="Known Exploited" value="Yes" />
-                  ) : null}
-
-                  {selectedNode.evidence ? (
-                    <TextBlock
-                      label="Evidence"
-                      value={String(selectedNode.evidence)}
-                    />
-                  ) : null}
-
-                  {selectedNode.summary ? (
-                    <TextBlock
-                      label="Summary"
-                      value={String(selectedNode.summary)}
-                    />
-                  ) : null}
-
-                  {selectedNode.mitigation ? (
-                    <TextBlock
-                      label="Mitigation"
-                      value={String(selectedNode.mitigation)}
-                    />
-                  ) : null}
-
-                  {selectedNode.hash ? (
-                    <TextBlock
-                      label="Hash"
-                      value={String(selectedNode.hash)}
-                      mono
-                    />
-                  ) : null}
-
-                  <div className="grid gap-2 pt-2">
-                    {selectedNode.reportId ? (
-                      <>
-                        <ActionLink
-                          href={`/reports/${encodeURIComponent(
-                            String(selectedNode.reportId)
-                          )}`}
-                        >
-                          Open Report
-                        </ActionLink>
-
-                        <ActionLink
-                          href={`/results?reportId=${encodeURIComponent(
-                            String(selectedNode.reportId)
-                          )}`}
-                        >
-                          Report Findings
-                        </ActionLink>
-                      </>
-                    ) : null}
-
-                    {selectedNode.findingId ? (
-                      <ActionLink
-                        href={`/results/${encodeURIComponent(
-                          String(selectedNode.findingId)
-                        )}`}
-                      >
-                        Open Finding
+                {attackPaths.length === 0 ? (
+                  <p className="text-sm leading-7 text-[#5a7668]">
+                    No attack path predictions returned for this report.
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {attackPaths.slice(0, 4).map((path) => (
+                      <article key={path.findingId} className="rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <h3 className="text-sm font-semibold leading-6 text-[#0d2217]">{path.findingTitle}</h3>
+                          <span className={`shrink-0 rounded-full border px-2.5 py-1 text-[10px] font-bold ${riskTone(path.exploitLikelihood)}`}>
+                            {path.exploitLikelihood ?? 'Unknown'}
+                          </span>
+                        </div>
+                        <div className="mt-3 grid grid-cols-3 gap-2">
+                          <MiniBox label="Risk" value={String(path.riskScore ?? 0)} />
+                          <MiniBox label="Path" value={String(path.attackPathScore ?? 0)} />
+                          <MiniBox label="Conf." value={`${path.confidence ?? 0}%`} />
+                        </div>
+                        {path.predictedOutcome ? (
+                          <p className="mt-3 text-xs leading-5 text-[#5a7668]">{path.predictedOutcome}</p>
+                        ) : null}
+                      </article>
+                    ))}
+                    {encodedReportId ? (
+                      <ActionLink href={`/attack-paths?reportId=${encodedReportId}`} primary>
+                        Open Attack Paths
                       </ActionLink>
                     ) : null}
                   </div>
+                )}
+              </Panel>
+              <Panel title="AI graph explanation">
+                <div className="space-y-3">
+                  {explanation.map((line, index) => (
+                    <p
+                      key={`${line}-${index}`}
+                      className="rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-4 text-sm leading-7 text-[#173128]"
+                    >
+                      {line}
+                    </p>
+                  ))}
                 </div>
-              ) : (
-                <p className="mt-3 text-xs leading-5 text-[#5a7668]">
-                  Click a node to highlight its connections and inspect its
-                  data.
-                </p>
-              )}
-            </section>
+              </Panel>
 
-            <section className="rounded-[20px] border border-[#dcefe2] bg-white p-4">
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-[#4d6b5b]">
-                Controls
-              </h3>
+              <Panel title="Node filters">
+                {nodeTypes.length === 0 ? (
+                  <p className="text-sm leading-6 text-[#5a7668]">No node types loaded yet.</p>
+                ) : (
+                  <div className="grid gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setVisibleTypes(Object.fromEntries(nodeTypes.map((type) => [type, true])))}
+                      className="mb-1 rounded-2xl border border-[#c4e3cf] bg-white px-3 py-2 text-xs font-semibold text-[#173128] hover:bg-[#edfdf3]"
+                    >
+                      Reset filters
+                    </button>
+                    {nodeTypes.map((type) => (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() =>
+                          setVisibleTypes((current) => ({
+                            ...current,
+                            [type]: !current[type],
+                          }))
+                        }
+                        className={`flex items-center justify-between rounded-2xl border px-3 py-2 text-xs font-semibold transition ${
+                          visibleTypes[type]
+                            ? 'border-[#bbf7d0] bg-[#f0fdf4] text-[#087a3a]'
+                            : 'border-[#e4f2e9] bg-[#f8fffa] text-[#6b8477]'
+                        }`}
+                      >
+                        <span className="flex items-center gap-2">
+                          <span
+                            className="h-2.5 w-2.5 rounded-full"
+                            style={{ backgroundColor: TYPE_COLORS[type] ?? TYPE_COLORS.unknown }}
+                          />
+                          {nodeTypeLabel(type)}
+                        </span>
+                        <span>{visibleTypes[type] ? 'On' : 'Off'}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </Panel>
 
-              <ul className="mt-3 space-y-1 text-xs leading-5 text-[#5a7668]">
-                <li>Click node → highlight neighbours.</li>
-                <li>Click empty background → reset.</li>
-                <li>Scroll to zoom, drag to pan.</li>
-                <li>Use COSE for the old attack graph style.</li>
-              </ul>
-            </section>
 
-            {focusedReportId ? (
-              <>
-                <AttackPathPredictionsPanel reportId={focusedReportId} />
-                <ThreatIntelPanel reportId={focusedReportId} />
-                <ThreatScenariosPanel reportId={focusedReportId} />
-              </>
-            ) : null}
-          </aside>
-        </div>
-      </div>
-    </main>
-  )
-}
+            </aside>
+          </section>
+        </section>
 
-function InfoLine({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-3">
-      <p className="text-[10px] font-semibold uppercase tracking-wide text-[#5a7668]">
-        {label}
-      </p>
+        <style>{`
+          @keyframes graph-core-float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(3deg); }
+          }
 
-      <p className="mt-1 break-words text-xs font-semibold text-[#173128]">
-        {value}
-      </p>
-    </div>
-  )
-}
+          @keyframes graph-core-pulse {
+            0%, 100% { box-shadow: 0 30px 70px rgba(8,122,58,0.18), inset 0 0 24px rgba(255,255,255,0.8); }
+            50% { box-shadow: 0 34px 90px rgba(8,122,58,0.28), inset 0 0 34px rgba(255,255,255,0.95); }
+          }
 
-function TextBlock({
-  label,
-  value,
-  mono,
-}: {
-  label: string
-  value: string
-  mono?: boolean
-}) {
-  return (
-    <div className="rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-3">
-      <p className="text-[10px] font-semibold uppercase tracking-wide text-[#5a7668]">
-        {label}
-      </p>
+          .graph-ai-core {
+            animation: graph-core-float 6.4s ease-in-out infinite, graph-core-pulse 4.8s ease-in-out infinite;
+          }
 
-      <p
-        className={`mt-1 break-words text-xs leading-5 text-[#173128] ${
-          mono ? 'font-mono' : ''
-        }`}
+          .graph-platform {
+            transform: perspective(860px) rotateX(58deg);
+          }
+
+          @media (prefers-reduced-motion: reduce) {
+            .graph-ai-core { animation: none; }
+          }
+        `}</style>
+      </main>
+    )
+  }
+
+  function ActionLink({ href, children, primary }: { href: string; children: ReactNode; primary?: boolean }) {
+    return (
+      <Link
+        href={href}
+        className={
+          primary
+            ? 'inline-flex items-center justify-center rounded-xl bg-[#087a3a] px-3 py-2 text-xs font-semibold text-white shadow-[0_12px_24px_rgba(8,122,58,0.16)] transition hover:-translate-y-0.5 hover:bg-[#066b33]'
+            : 'inline-flex items-center justify-center rounded-xl border border-[#c4e3cf] bg-white px-3 py-2 text-xs font-semibold text-[#173128] transition hover:-translate-y-0.5 hover:bg-[#f4fff7]'
+        }
       >
-        {value}
-      </p>
-    </div>
-  )
-}
+        {children}
+      </Link>
+    )
+  }
+
+  function Pill({ children }: { children: ReactNode }) {
+    return (
+      <span className="rounded-full border border-[#c4e3cf] bg-[#f6fff9] px-3 py-1 text-xs font-semibold text-[#173128]">
+        {children}
+      </span>
+    )
+  }
+
+  function MetricCard({ label, value, helper }: { label: string; value: string; helper: string }) {
+    return (
+      <div className="rounded-[22px] border border-[#dceee3] bg-white p-4 shadow-[0_16px_45px_rgba(15,43,29,0.045)] transition hover:-translate-y-0.5 hover:shadow-[0_24px_65px_rgba(15,43,29,0.08)]">
+        <p className="text-sm font-medium text-[#5a7668]">{label}</p>
+        <p className="mt-2 text-2xl font-semibold tracking-tight text-[#0d2217]">{value}</p>
+        <p className="mt-1 text-xs leading-5 text-[#5a7668]">{helper}</p>
+      </div>
+    )
+  }
+
+  function Panel({ title, children }: { title: string; children: ReactNode }) {
+    return (
+      <section className="rounded-[24px] border border-[#dceee3] bg-white/95 p-4 shadow-[0_16px_45px_rgba(15,43,29,0.055)] backdrop-blur">
+        <h2 className="mb-3 text-base font-semibold text-[#0d2217]">{title}</h2>
+        {children}
+      </section>
+    )
+  }
+
+  function InfoLine({ label, value }: { label: string; value: string | number }) {
+    return (
+      <div className="rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-3">
+        <p className="text-[10px] font-semibold uppercase tracking-wide text-[#5a7668]">{label}</p>
+        <p className="mt-1 break-words text-sm font-semibold text-[#173128]">{value}</p>
+      </div>
+    )
+  }
+
+  function TextBlock({ label, value }: { label: string; value: string }) {
+    return (
+      <div className="rounded-2xl border border-[#e4f2e9] bg-[#f8fffa] p-3">
+        <p className="text-[10px] font-semibold uppercase tracking-wide text-[#5a7668]">{label}</p>
+        <p className="mt-1 break-words text-xs leading-5 text-[#173128]">{value}</p>
+      </div>
+    )
+  }
+
+  function MiniBox({ label, value }: { label: string; value: string }) {
+    return (
+      <div className="rounded-xl border border-[#e4f2e9] bg-white px-3 py-2">
+        <p className="text-[9px] font-semibold uppercase tracking-wide text-[#5a7668]">{label}</p>
+        <p className="mt-1 text-sm font-bold text-[#173128]">{value}</p>
+      </div>
+    )
+  }

@@ -87,3 +87,18 @@ nlp_engine/models/
 fix_waf_indent.py
 nlp_test.txt
 git
+
+# Ignore local model/training artifacts by default
+nlp_engine/models/**
+
+# Allow only verified production model files
+!nlp_engine/models/
+!nlp_engine/models/cyberbert-ner-verified/
+!nlp_engine/models/cyberbert-ner-verified/config.json
+!nlp_engine/models/cyberbert-ner-verified/label_map.json
+!nlp_engine/models/cyberbert-ner-verified/model.safetensors
+!nlp_engine/models/cyberbert-ner-verified/tokenizer.json
+!nlp_engine/models/cyberbert-ner-verified/tokenizer_config.json
+!nlp_engine/models/cyberbert-ner-verified/test_metrics.json
+!nlp_engine/models/cyberbert-ner-verified/data_profile.json
+!nlp_engine/models/cyberbert-ner-verified/final_eval_report.json

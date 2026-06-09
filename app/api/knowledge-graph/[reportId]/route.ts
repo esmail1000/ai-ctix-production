@@ -1,3 +1,5 @@
+// app/api/knowledge-graph/[reportId]/route.ts
+
 import { getAnalysisReportForUser } from '@/lib/server/analysis-repository'
 import { getCurrentSessionFromCookies } from '@/lib/server/current-session'
 import { getKnowledgeGraphForReport } from '@/lib/server/knowledge-graph/query-graph'
@@ -38,12 +40,15 @@ export async function GET(
 
     const url = new URL(request.url)
     const rawDepth = Number(url.searchParams.get('depth') ?? 4)
-
     const depth = Number.isFinite(rawDepth)
       ? Math.max(1, Math.min(Math.floor(rawDepth), 6))
       : 4
 
-    const graph = await getKnowledgeGraphForReport(normalizedReportId, depth)
+    const graph = await getKnowledgeGraphForReport(
+      session.userId,
+      normalizedReportId,
+      depth
+    )
 
     return NextResponse.json(graph)
   } catch (error) {

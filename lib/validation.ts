@@ -1,6 +1,7 @@
 export const ALLOWED_FILE_TYPES = [
   'text/plain',
   'text/markdown',
+  'text/html',
   'text/csv',
   'application/json',
   'application/pdf',
@@ -11,6 +12,8 @@ export const ALLOWED_FILE_TYPES = [
 export const ALLOWED_FILE_EXTENSIONS = [
   '.txt',
   '.md',
+  '.html',
+  '.htm',
   '.log',
   '.csv',
   '.json',
@@ -37,7 +40,7 @@ export function validateUploadedFile(file: File) {
     mimeType.startsWith('text/')
 
   if (!isAllowedByExtension && !isAllowedByMime) {
-    return 'Unsupported file type. Please upload PDF, DOCX, TXT, MD, LOG, CSV, or JSON.'
+    return 'Unsupported file type. Please upload PDF, DOCX, HTML, TXT, MD, LOG, CSV, or JSON.'
   }
 
   if (file.size > MAX_FILE_SIZE_BYTES) {

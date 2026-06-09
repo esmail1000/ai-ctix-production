@@ -1,4 +1,4 @@
-﻿// components/DashboardClient.tsx
+// components/DashboardClient.tsx
 'use client'
 
 import { Badge, EmptyState, SeverityBadge, StatusBadge } from '@/components/ui'
@@ -11,7 +11,7 @@ import {
 } from '@/lib/ui-quality'
 import Link from 'next/link'
 import type { ReactNode } from 'react'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   Bar,
   BarChart,
@@ -49,6 +49,75 @@ type CountItem = {
   id: string
   value: string
   count: number
+}
+
+type AssetBoardEntry = {
+  asset: string
+  findings: number
+  open: number
+  maxRisk: number
+  totalRisk: number
+  worstSeverity: Severity
+}
+
+type DashboardFinding = Finding & {
+  dashboardKey: string
+}
+
+type AttackPathNode = {
+  type?: string
+  id?: string
+  name?: string
+}
+
+type AttackPathAlert = {
+  findingId: string
+  findingTitle: string
+  severity: Severity | string
+  riskScore?: number
+  attackPathScore?: number
+  exploitLikelihood?: string
+  confidence?: number
+  predictedOutcome?: string
+  pathStatus?: string
+  graphDerived?: boolean
+  path?: {
+    nodes?: AttackPathNode[]
+    relationships?: Array<{ type?: string }>
+  }
+}
+
+type AttackPathApiResponse = {
+  paths?: AttackPathAlert[]
+  error?: string
+  details?: string
+}
+
+type AttackPathState = {
+  loading: boolean
+  error: string | null
+  reportId: string | null
+  paths: AttackPathAlert[]
+}
+
+type RecommendationItem = {
+  id: string
+  title: string
+  priority: Severity
+  effort: 'Low' | 'Medium' | 'High'
+  impact: 'Low' | 'Medium' | 'High'
+  status: 'Open' | 'In Review'
+  href: string
+  source: string
+}
+
+type ThreatAwareFinding = Finding & {
+  knownExploited?: boolean
+  cisaKev?: boolean
+  exploitAvailable?: boolean
+  finalRiskScore?: number
+  recommendations?: string[]
+  recommendationSources?: string[]
 }
 
 function average(values: number[]) {
@@ -201,6 +270,109 @@ function extractCvesFromFinding(finding: Finding) {
   )
 }
 
+function primaryCve(finding: Finding) {
+  return extractCvesFromFinding(finding)[0] ?? 'Unmapped vulnerability'
+}
+
+function asThreatAwareFinding(finding: Finding): ThreatAwareFinding {
+  return finding as ThreatAwareFinding
+}
+
+function isKnownExploitedFinding(finding: Finding) {
+  const item = asThreatAwareFinding(finding)
+  return item.knownExploited === true || item.cisaKev === true
+}
+
+function hasExploitEvidence(finding: Finding) {
+  const item = asThreatAwareFinding(finding)
+  return item.exploitAvailable === true || (finding.exploitationSteps?.length ?? 0) > 0
+}
+
+function backendRecommendations(finding: Finding) {
+  return (asThreatAwareFinding(finding).recommendations ?? [])
+    .map((item) => String(item ?? '').trim())
+    .filter(Boolean)
+}
+
+function backendRecommendationSources(finding: Finding) {
+  return (asThreatAwareFinding(finding).recommendationSources ?? [])
+    .map((item) => String(item ?? '').trim())
+    .filter(Boolean)
+}
+
+function firstBackendRecommendationSource(finding: Finding) {
+  return backendRecommendationSources(finding)[0] ?? (backendRecommendations(finding).length > 0 ? 'backend-risk-engine' : '')
+}
+
+function dailyCountsFromDates(values: string[], days = 7) {
+  const byDay = new Map<string, number>()
+
+  values.forEach((value) => {
+    const date = new Date(value)
+    if (Number.isNaN(date.getTime())) return
+    const key = date.toISOString().slice(0, 10)
+    byDay.set(key, (byDay.get(key) ?? 0) + 1)
+  })
+
+  const sorted = Array.from(byDay.entries())
+    .sort(([left], [right]) => left.localeCompare(right))
+    .slice(-days)
+    .map(([, count]) => count)
+
+  return sorted.length > 0 ? sorted : [0]
+}
+
+function trendlessLabel(value: string) {
+  return value
+}
+
+function likelihoodLabel(score: number) {
+  if (score >= 85) return 'Very high'
+  if (score >= 70) return 'High'
+  if (score >= 50) return 'Medium'
+  return 'Low'
+}
+
+function recommendationForFinding(finding: Finding) {
+  const backend = backendRecommendations(finding)
+  if (backend.length > 0) return backend[0]
+
+  if (finding.remediation?.trim()) return finding.remediation.trim()
+
+  const cve = primaryCve(finding)
+  const asset = finding.asset || 'affected asset'
+
+  if (finding.severity === 'Critical') {
+    return `Review ${cve} on ${asset} and apply report-backed remediation evidence.`
+  }
+
+  if (finding.severity === 'High') {
+    return `Prioritize remediation for ${asset} and validate compensating controls.`
+  }
+
+  return `Review ${asset}, validate impact, and schedule remediation.`
+}
+
+function recommendationSourceForFinding(finding: Finding) {
+  const source = firstBackendRecommendationSource(finding)
+  if (source) return source
+  if (finding.remediation?.trim()) return 'reported-remediation'
+  return 'finding-derived-fallback'
+}
+
+function buildRecommendations(findings: Finding[]): RecommendationItem[] {
+  return findings.slice(0, 4).map((finding, index) => ({
+    id: `${safeKey(finding.id, 'recommendation')}-${index}`,
+    title: recommendationForFinding(finding),
+    priority: finding.severity,
+    effort: finding.score >= 85 ? 'High' : finding.score >= 65 ? 'Medium' : 'Low',
+    impact: finding.severity === 'Critical' || finding.severity === 'High' ? 'High' : 'Medium',
+    status: finding.status === 'In Review' ? 'In Review' : 'Open',
+    href: `/results/${finding.id}`,
+    source: recommendationSourceForFinding(finding),
+  }))
+}
+
 export default function DashboardClient({
   kpis,
   findingsTrend,
@@ -255,37 +427,35 @@ export default function DashboardClient({
       }))
       .sort((a, b) => b.count - a.count)
 
-    const assetBoard = Array.from(
-      uniqueFindings
-        .reduce((map, finding) => {
-          const assetName = finding.asset || 'Unknown asset'
+    const assetMap = uniqueFindings.reduce<Map<string, AssetBoardEntry>>((map, finding) => {
+      const assetName = finding.asset || 'Unknown asset'
 
-          const item = map.get(assetName) ?? {
-            asset: assetName,
-            findings: 0,
-            open: 0,
-            maxRisk: 0,
-            totalRisk: 0,
-            worstSeverity: finding.severity,
-          }
+      const item = map.get(assetName) ?? {
+        asset: assetName,
+        findings: 0,
+        open: 0,
+        maxRisk: 0,
+        totalRisk: 0,
+        worstSeverity: finding.severity,
+      }
 
-          item.findings += 1
-          item.totalRisk += finding.score
-          item.maxRisk = Math.max(item.maxRisk, finding.score)
+      item.findings += 1
+      item.totalRisk += finding.score
+      item.maxRisk = Math.max(item.maxRisk, finding.score)
 
-          if (finding.status !== 'Resolved') {
-            item.open += 1
-          }
+      if (finding.status !== 'Resolved') {
+        item.open += 1
+      }
 
-          if (severityWeight[finding.severity] > severityWeight[item.worstSeverity]) {
-            item.worstSeverity = finding.severity
-          }
+      if (severityWeight[finding.severity] > severityWeight[item.worstSeverity]) {
+        item.worstSeverity = finding.severity
+      }
 
-          map.set(assetName, item)
-          return map
-        }, new Map<string, { asset: string; findings: number; open: number; maxRisk: number; totalRisk: number; worstSeverity: Severity }>())
-        .values()
-    )
+      map.set(assetName, item)
+      return map
+    }, new Map<string, AssetBoardEntry>())
+
+    const assetBoard = Array.from(assetMap.values())
       .map((asset, index) => ({
         id: `${safeKey(asset.asset, 'asset')}-${index}`,
         ...asset,
@@ -324,6 +494,25 @@ export default function DashboardClient({
     const topMitre = countValues(extractMitreFromText(allFindingText), 6)
     const topCves = countValues(uniqueFindings.flatMap(extractCvesFromFinding), 6)
 
+    const findingsWithCves = uniqueFindings.filter((finding) => extractCvesFromFinding(finding).length > 0)
+    const knownExploitedFindings = uniqueFindings.filter(isKnownExploitedFinding)
+    const exploitEvidenceFindings = uniqueFindings.filter(hasExploitEvidence)
+    const knownExploitedCves = countValues(knownExploitedFindings.flatMap(extractCvesFromFinding), 6)
+    const exploitLikelihood = clamp(
+      Math.round(
+        avgRisk * 0.45 +
+          Math.min(knownExploitedFindings.length, 10) * 12 +
+          Math.min(exploitEvidenceFindings.length, 20) * 4 +
+          Math.min(criticalHighOpen.length, 20) * 1.8
+      )
+    )
+    const recommendationsQueue = buildRecommendations(criticalHighOpen.length > 0 ? criticalHighOpen : unresolved)
+    const latestReportId = recentReports[0]?.id ?? priorityFindings[0]?.reportId ?? reports[0]?.id ?? null
+    const reportsSparkline = dailyCountsFromDates(reports.map((report) => report.uploadedAt))
+    const findingsSparkline = findingsTrend.length > 0 ? findingsTrend.map((item) => item.findings) : [0]
+    const criticalSparkline = findingsTrend.length > 0 ? findingsTrend.map((item) => item.critical) : [uniqueFindings.filter((finding) => finding.severity === 'Critical').length]
+    const avgRiskSparkline = dailyCountsFromDates(uniqueFindings.map((finding) => finding.detectedAt)).map(() => avgRisk)
+
     const readyForExport = reports.filter((report) => {
       const reportFindings = uniqueFindings.filter((finding) => finding.reportId === report.id)
       return reportFindings.length > 0 && reportFindings.every((finding) => !needsHumanReview(finding))
@@ -351,8 +540,19 @@ export default function DashboardClient({
       topHashes,
       topMitre,
       topCves,
+      knownExploitedCves,
+      knownExploitedFindings,
+      exploitEvidenceFindings,
+      exploitLikelihood,
+      recommendationsQueue,
+      findingsWithCves,
+      latestReportId,
+      reportsSparkline,
+      findingsSparkline,
+      criticalSparkline,
+      avgRiskSparkline,
     }
-  }, [findings, reports])
+  }, [findings, findingsTrend, reports])
 
   const totalFindings = data.uniqueFindings.length
   const reviewedCount = data.inReview.length + data.resolved.length
@@ -361,23 +561,82 @@ export default function DashboardClient({
     kpis.criticalFindings ||
     data.uniqueFindings.filter((finding) => finding.severity === 'Critical').length
 
+  const [attackPathState, setAttackPathState] = useState<AttackPathState>({
+    loading: false,
+    error: null,
+    reportId: null,
+    paths: [],
+  })
+
+  useEffect(() => {
+    const reportId = data.latestReportId
+
+    if (!reportId) {
+      setAttackPathState({ loading: false, error: null, reportId: null, paths: [] })
+      return
+    }
+
+    let cancelled = false
+
+    setAttackPathState((current) => ({
+      loading: true,
+      error: null,
+      reportId,
+      paths: current.reportId === reportId ? current.paths : [],
+    }))
+
+    fetch(`/api/attack-paths/${encodeURIComponent(reportId)}?limit=3`, { cache: 'no-store' })
+      .then(async (response) => {
+        const payload = (await response.json().catch(() => ({}))) as AttackPathApiResponse
+
+        if (!response.ok) {
+          throw new Error(payload.details || payload.error || `Failed to load attack paths: ${response.status}`)
+        }
+
+        return payload
+      })
+      .then((payload) => {
+        if (cancelled) return
+        setAttackPathState({ loading: false, error: null, reportId, paths: payload.paths ?? [] })
+      })
+      .catch((error) => {
+        if (cancelled) return
+        setAttackPathState({
+          loading: false,
+          error: error instanceof Error ? error.message : String(error),
+          reportId,
+          paths: [],
+        })
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [data.latestReportId])
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#fbfefd] text-[#111827]">
       <style>{`
         @keyframes dashboard-orbit-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes dashboard-logo-float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-12px) rotate(2deg); } }
-        .dashboard-orbit { animation: dashboard-orbit-spin 15s linear infinite; }
-        .dashboard-orbit > div:first-child { animation: dashboard-logo-float 6s ease-in-out infinite; }
+        @keyframes dashboard-logo-float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-8px) rotate(1deg); } }
+        .dashboard-orbit { animation: dashboard-orbit-spin 22s linear infinite; }
+        .dashboard-orbit > div:first-child { animation: dashboard-logo-float 8s ease-in-out infinite; }
         .dashboard-platform { transform: perspective(800px) rotateX(58deg); }
+        @media (prefers-reduced-motion: reduce) {
+          .dashboard-orbit,
+          .dashboard-orbit > div:first-child {
+            animation: none !important;
+          }
+        }
       `}</style>
 
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_10%,rgba(34,197,94,0.10),transparent_30%),radial-gradient(circle_at_86%_18%,rgba(8,122,58,0.08),transparent_34%)]" />
       <div className="pointer-events-none absolute right-0 top-24 h-[420px] w-[560px] rounded-full bg-[#dcf7e7]/60 blur-3xl" />
       <div className="pointer-events-none absolute left-0 top-[560px] h-[320px] w-[520px] rounded-full bg-[#eefaf3] blur-3xl" />
 
-      <section className="relative mx-auto max-w-[1480px] px-6 pb-16 pt-10 lg:px-8">
+      <section className="relative mx-auto max-w-[1640px] px-4 pb-16 pt-6 sm:px-6 lg:px-8">
         <div>
-            <header className="relative mb-6 overflow-hidden rounded-[34px] border border-[#dceee3] bg-white/92 p-7 shadow-[0_24px_80px_rgba(15,43,29,0.07)] backdrop-blur">
+            <header className="relative mb-6 overflow-hidden rounded-[30px] border border-[#dceee3] bg-white/92 p-5 shadow-[0_20px_64px_rgba(15,43,29,0.06)] backdrop-blur sm:p-6">
               <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(8,122,58,0.05),transparent_42%),radial-gradient(circle_at_86%_24%,rgba(22,163,74,0.12),transparent_28%)]" />
               <div className="pointer-events-none absolute right-[190px] bottom-8 h-20 w-52 rounded-[50%] border border-[#bfe6cc] bg-gradient-to-b from-white to-[#e5f8ec] shadow-[0_24px_60px_rgba(8,122,58,0.12)] dashboard-platform" />
               <div className="pointer-events-none absolute right-24 top-12 h-28 w-28 rounded-full border border-[#c7efd4] bg-white/70 shadow-[0_22px_55px_rgba(8,122,58,0.12)] dashboard-orbit">
@@ -385,19 +644,19 @@ export default function DashboardClient({
                 <div className="absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-[58px] rounded-full bg-[#087a3a] shadow-[0_12px_28px_rgba(8,122,58,0.20)]" />
               </div>
 
-              <div className="relative grid gap-8 lg:grid-cols-[1fr_0.72fr]">
+              <div className="relative grid gap-6 lg:grid-cols-[1fr_0.62fr]">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#087a3a]">
                     Command Dashboard
                   </p>
-                  <h1 className="mt-4 max-w-4xl text-4xl font-semibold tracking-[-0.04em] text-[#111827] md:text-5xl">
+                  <h1 className="mt-3 max-w-4xl text-3xl font-semibold tracking-[-0.04em] text-[#111827] md:text-4xl">
                     Security operations overview
                   </h1>
-                  <p className="mt-4 max-w-3xl text-base leading-8 text-[#5f6f66]">
+                  <p className="mt-3 max-w-3xl text-sm leading-7 text-[#5f6f66] sm:text-base">
                     Executive view for reports, extracted findings, risk posture, affected assets, and intelligence indicators.
                   </p>
 
-                  <div className="mt-7 flex flex-wrap gap-3">
+                  <div className="mt-6 flex flex-wrap gap-3">
                     <Link
                       href="/analyzer"
                       className="rounded-2xl bg-[#087a3a] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_32px_rgba(8,122,58,0.18)] transition hover:-translate-y-0.5 hover:bg-[#066b33]"
@@ -445,24 +704,24 @@ export default function DashboardClient({
                 label="Reports analyzed"
                 value={kpis.reportsProcessed || reports.length}
                 note={`${data.recentReports.length} recent reports`}
-                trend="+18%"
-                sparkline={[10, 18, 16, 24, 20, 29, 33]}
+                trend={trendlessLabel(`${reports.length} total`)}
+                sparkline={data.reportsSparkline}
               />
 
               <KpiCard
                 label="Findings extracted"
                 value={kpis.totalFindings || totalFindings}
                 note={`${data.open.length} open findings`}
-                trend="+24%"
-                sparkline={[14, 20, 23, 21, 30, 28, 35]}
+                trend={trendlessLabel(`${data.open.length} open`)}
+                sparkline={data.findingsSparkline}
               />
 
               <KpiCard
                 label="Critical findings"
                 value={criticalFindings}
                 note={`${data.criticalHighOpen.length} critical/high active`}
-                trend="-10%"
-                sparkline={[28, 24, 22, 20, 19, 17, 16]}
+                trend={trendlessLabel(`${data.criticalHighOpen.length} active high signal`)}
+                sparkline={data.criticalSparkline}
                 danger
               />
 
@@ -471,8 +730,8 @@ export default function DashboardClient({
                 value={avgRiskScore}
                 suffix="/100"
                 note={avgRiskScore >= 70 ? 'High risk' : avgRiskScore >= 45 ? 'Medium risk' : 'Low risk'}
-                trend="+6 pts"
-                sparkline={[35, 42, 39, 48, 45, 55, avgRiskScore || 50]}
+                trend={trendlessLabel('Current score')}
+                sparkline={data.avgRiskSparkline}
               />
 
               <PostureCard score={data.postureScore} />
@@ -627,53 +886,10 @@ export default function DashboardClient({
                     message="All extracted findings are resolved or no findings have been loaded yet."
                   />
                 ) : (
-                  <div className="overflow-hidden rounded-[22px] border border-[#e1eee6]">
-                    <table className="min-w-full divide-y divide-[#e7f2eb] text-left text-sm">
-                      <thead className="bg-[#fbfffd] text-xs uppercase tracking-[0.12em] text-[#748579]">
-                        <tr>
-                          <th className="px-4 py-3 font-semibold">Finding</th>
-                          <th className="px-4 py-3 font-semibold">Severity</th>
-                          <th className="px-4 py-3 font-semibold">Asset</th>
-                          <th className="px-4 py-3 font-semibold">Risk</th>
-                          <th className="px-4 py-3 font-semibold">Status</th>
-                        </tr>
-                      </thead>
-
-                      <tbody className="divide-y divide-[#eef6f1] bg-white">
-                        {data.priorityFindings.map((finding) => (
-                          <tr key={finding.dashboardKey} className="align-top transition hover:bg-[#fbfffd]">
-                            <td className="px-4 py-3">
-                              <Link
-                                href={`/results/${finding.id}`}
-                                className="font-semibold text-[#111827] hover:text-[#087a3a]"
-                              >
-                                {finding.title}
-                              </Link>
-                              <p className="mt-1 text-xs text-[#748579]">
-                                {data.reportNameMap.get(finding.reportId) ?? 'Unknown report'}
-                              </p>
-                            </td>
-
-                            <td className="px-4 py-3">
-                              <SeverityBadge severity={finding.severity} />
-                            </td>
-
-                            <td className="max-w-[160px] truncate px-4 py-3 text-[#5f6f66]">
-                              {finding.asset}
-                            </td>
-
-                            <td className="px-4 py-3 font-semibold text-[#111827]">
-                              {finding.score}
-                            </td>
-
-                            <td className="px-4 py-3">
-                              <StatusBadge status={finding.status} />
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                  <PriorityFindingsList
+                    findings={data.priorityFindings}
+                    reportNameMap={data.reportNameMap}
+                  />
                 )}
               </Panel>
 
@@ -686,11 +902,11 @@ export default function DashboardClient({
                 }
               >
                 <div className="space-y-3">
-                  <ThreatIntelRow label="IP addresses" value={data.topIps.length} trend="+12%" />
-                  <ThreatIntelRow label="Domains" value={data.topDomains.length} trend="+18%" />
-                  <ThreatIntelRow label="CVEs" value={data.topCves.length} trend="+8%" />
-                  <ThreatIntelRow label="MITRE techniques" value={data.topMitre.length} trend="+6%" />
-                  <ThreatIntelRow label="Hashes" value={data.topHashes.length} trend="+4%" />
+                  <ThreatIntelRow label="IP addresses" value={data.topIps.length} trend="Extracted" />
+                  <ThreatIntelRow label="Domains" value={data.topDomains.length} trend="Extracted" />
+                  <ThreatIntelRow label="CVEs" value={data.topCves.length} trend="Extracted" />
+                  <ThreatIntelRow label="MITRE techniques" value={data.topMitre.length} trend="Extracted" />
+                  <ThreatIntelRow label="Hashes" value={data.topHashes.length} trend="Extracted" />
                 </div>
               </Panel>
 
@@ -702,7 +918,50 @@ export default function DashboardClient({
                   </Link>
                 }
               >
-                <AttackGraphPreview />
+                <AttackGraphPreview reportId={data.latestReportId} nodes={totalFindings} edges={data.topCves.length + data.topMitre.length} />
+              </Panel>
+            </section>
+
+            <section className="mt-5 grid gap-5 xl:grid-cols-[1fr_0.95fr_0.75fr]">
+              <Panel
+                title="Attack path alerts"
+                description="Graph-derived compromise chains loaded from /api/attack-paths for the latest report."
+                action={
+                  <Link href="/attack-paths" className="text-sm font-semibold text-[#087a3a] hover:underline">
+                    View attack paths
+                  </Link>
+                }
+              >
+                <AttackPathAlertsPanel state={attackPathState} />
+              </Panel>
+
+              <Panel
+                title="Recommendations queue"
+                description="Immediate remediation tasks prioritized for analyst review."
+                action={
+                  <Link href="/recommendations" className="text-sm font-semibold text-[#087a3a] hover:underline">
+                    View all
+                  </Link>
+                }
+              >
+                <RecommendationsQueue items={data.recommendationsQueue} />
+              </Panel>
+
+              <Panel
+                title="Exploit signals"
+                description="Exposure, CVE presence, and active high-severity pressure."
+                action={
+                  <Link href="/threat-intel" className="text-sm font-semibold text-[#087a3a] hover:underline">
+                    Threat intel
+                  </Link>
+                }
+              >
+                <ExploitSignalsPanel
+                  likelihood={data.exploitLikelihood}
+                  cveCount={data.findingsWithCves.length}
+                  knownExploitedCves={data.knownExploitedCves}
+                  criticalHighOpen={data.criticalHighOpen.length}
+                />
               </Panel>
             </section>
 
@@ -910,6 +1169,283 @@ function Panel({
   )
 }
 
+function PriorityFindingsList({
+  findings,
+  reportNameMap,
+}: {
+  findings: DashboardFinding[]
+  reportNameMap: Map<string, string>
+}) {
+  return (
+    <>
+      <div className="grid gap-3 md:hidden">
+        {findings.map((finding) => (
+          <Link
+            key={finding.dashboardKey}
+            href={`/results/${finding.id}`}
+            className="rounded-[22px] border border-[#e1eee6] bg-[#fbfffd] p-4 transition hover:-translate-y-0.5 hover:border-[#b6dec5] hover:bg-white hover:shadow-[0_14px_34px_rgba(15,43,29,0.07)]"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="font-semibold leading-5 text-[#111827]">{finding.title}</p>
+                <p className="mt-1 text-xs text-[#748579]">
+                  {reportNameMap.get(finding.reportId) ?? 'Unknown report'}
+                </p>
+              </div>
+              <SeverityBadge severity={finding.severity} />
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
+              <div>
+                <p className="font-semibold uppercase tracking-[0.12em] text-[#8a9b91]">Asset</p>
+                <p className="mt-1 truncate font-semibold text-[#111827]">{finding.asset}</p>
+              </div>
+              <div>
+                <p className="font-semibold uppercase tracking-[0.12em] text-[#8a9b91]">Risk</p>
+                <p className="mt-1 font-semibold text-[#111827]">{finding.score}/100</p>
+              </div>
+            </div>
+
+            <div className="mt-4 flex items-center justify-between gap-3">
+              <StatusBadge status={finding.status} />
+              <span className="text-xs font-semibold text-[#087a3a]">View details</span>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      <div className="hidden overflow-hidden rounded-[22px] border border-[#e1eee6] md:block">
+        <table className="min-w-full divide-y divide-[#e7f2eb] text-left text-sm">
+          <thead className="bg-[#fbfffd] text-xs uppercase tracking-[0.12em] text-[#748579]">
+            <tr>
+              <th className="px-4 py-3 font-semibold">Finding</th>
+              <th className="px-4 py-3 font-semibold">Severity</th>
+              <th className="px-4 py-3 font-semibold">Asset</th>
+              <th className="px-4 py-3 font-semibold">Risk</th>
+              <th className="px-4 py-3 font-semibold">Status</th>
+            </tr>
+          </thead>
+
+          <tbody className="divide-y divide-[#eef6f1] bg-white">
+            {findings.map((finding) => (
+              <tr key={finding.dashboardKey} className="align-top transition hover:bg-[#fbfffd]">
+                <td className="px-4 py-3">
+                  <Link
+                    href={`/results/${finding.id}`}
+                    className="font-semibold text-[#111827] hover:text-[#087a3a]"
+                  >
+                    {finding.title}
+                  </Link>
+                  <p className="mt-1 text-xs text-[#748579]">
+                    {reportNameMap.get(finding.reportId) ?? 'Unknown report'}
+                  </p>
+                </td>
+
+                <td className="px-4 py-3">
+                  <SeverityBadge severity={finding.severity} />
+                </td>
+
+                <td className="max-w-[160px] truncate px-4 py-3 text-[#5f6f66]">
+                  {finding.asset}
+                </td>
+
+                <td className="px-4 py-3 font-semibold text-[#111827]">
+                  {finding.score}
+                </td>
+
+                <td className="px-4 py-3">
+                  <StatusBadge status={finding.status} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
+  )
+}
+
+function AttackPathAlertsPanel({ state }: { state: AttackPathState }) {
+  if (!state.reportId) {
+    return (
+      <EmptyState
+        title="No report selected"
+        message="Analyze or select a report before loading graph-derived attack paths."
+        action={{ href: '/reports', label: 'Select report' }}
+      />
+    )
+  }
+
+  if (state.loading) {
+    return (
+      <div className="rounded-[22px] border border-[#e1eee6] bg-[#fbfffd] p-4 text-sm font-semibold text-[#5a7668]">
+        Loading graph-derived attack paths from the secured API…
+      </div>
+    )
+  }
+
+  if (state.error) {
+    return (
+      <div className="rounded-[22px] border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">
+        Attack path API error: {state.error}
+      </div>
+    )
+  }
+
+  if (state.paths.length === 0) {
+    return (
+      <EmptyState
+        title="No graph-derived attack paths"
+        message="The attack-path API returned no paths for the latest report. Re-analyze the report or review graph generation."
+        action={{ href: `/attack-paths?reportId=${encodeURIComponent(state.reportId)}`, label: 'Open attack paths' }}
+      />
+    )
+  }
+
+  return (
+    <div className="space-y-3">
+      {state.paths.map((alert, index) => {
+        const pathLabel = (alert.path?.nodes ?? [])
+          .map((node) => node.name || node.id || node.type)
+          .filter(Boolean)
+          .slice(0, 7)
+          .join(' → ')
+
+        return (
+          <Link
+            key={`${alert.findingId}-${index}`}
+            href={`/attack-paths?reportId=${encodeURIComponent(state.reportId ?? '')}`}
+            className="block rounded-[22px] border border-[#e1eee6] bg-[#fbfffd] p-4 transition hover:-translate-y-0.5 hover:border-[#b6dec5] hover:bg-white hover:shadow-[0_14px_34px_rgba(15,43,29,0.07)]"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold leading-6 text-[#111827]">
+                  {alert.findingTitle || alert.findingId}
+                </p>
+                <p className="mt-1 text-xs leading-5 text-[#5f6f66]">
+                  {pathLabel || 'No path nodes returned.'}
+                </p>
+              </div>
+              <SeverityBadge severity={(alert.severity as Severity) || 'Low'} />
+            </div>
+
+            <div className="mt-3 grid gap-2 text-xs text-[#5f6f66] sm:grid-cols-2">
+              <p>
+                Path score <span className="font-semibold text-[#111827]">{alert.attackPathScore ?? alert.riskScore ?? 0}/100</span>
+              </p>
+              <p>
+                Confidence <span className="font-semibold text-[#111827]">{alert.confidence ?? 0}%</span>
+              </p>
+            </div>
+
+            <div className="mt-3 flex flex-wrap gap-2 text-xs">
+              <Badge tone={alert.graphDerived ? 'success' : 'warning'}>
+                {alert.pathStatus ?? (alert.graphDerived ? 'graph-derived' : 'not graph-derived')}
+              </Badge>
+              {alert.exploitLikelihood ? <Badge tone="info">{alert.exploitLikelihood}</Badge> : null}
+            </div>
+
+            {alert.predictedOutcome ? (
+              <p className="mt-3 text-xs leading-5 text-[#748579]">Outcome: {alert.predictedOutcome}</p>
+            ) : null}
+          </Link>
+        )
+      })}
+    </div>
+  )
+}
+
+function RecommendationsQueue({ items }: { items: RecommendationItem[] }) {
+  if (items.length === 0) {
+    return (
+      <EmptyState
+        title="No urgent actions"
+        message="Recommendations will appear after active findings are extracted."
+        action={{ href: '/analyzer', label: 'Analyze report' }}
+      />
+    )
+  }
+
+  return (
+    <div className="space-y-3">
+      {items.map((item) => (
+        <Link
+          key={item.id}
+          href={item.href}
+          className="block rounded-[22px] border border-[#e1eee6] bg-[#fbfffd] p-4 transition hover:-translate-y-0.5 hover:border-[#b6dec5] hover:bg-white hover:shadow-[0_14px_34px_rgba(15,43,29,0.07)]"
+        >
+          <div className="flex items-start justify-between gap-3">
+            <p className="text-sm font-semibold leading-6 text-[#111827]">{item.title}</p>
+            <SeverityBadge severity={item.priority} />
+          </div>
+
+          <div className="mt-3 flex flex-wrap gap-2 text-xs">
+            <Badge tone={item.status === 'Open' ? 'warning' : 'info'}>{item.status}</Badge>
+            <Badge tone="neutral">Effort {item.effort}</Badge>
+            <Badge tone={item.impact === 'High' ? 'danger' : 'warning'}>Impact {item.impact}</Badge>
+            <Badge tone="neutral">{item.source}</Badge>
+          </div>
+        </Link>
+      ))}
+    </div>
+  )
+}
+
+function ExploitSignalsPanel({
+  likelihood,
+  cveCount,
+  knownExploitedCves,
+  criticalHighOpen,
+}: {
+  likelihood: number
+  cveCount: number
+  knownExploitedCves: CountItem[]
+  criticalHighOpen: number
+}) {
+  const tone = riskTone(likelihood)
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-[24px] border border-[#e1eee6] bg-[#fbfffd] p-4">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="text-sm font-semibold text-[#111827]">Exploit likelihood</p>
+            <p className="mt-1 text-xs text-[#748579]">Based on stored risk, exploit evidence, and CISA KEV/known-exploited flags.</p>
+          </div>
+          <Badge tone={tone}>{likelihoodLabel(likelihood)}</Badge>
+        </div>
+
+        <div className="mt-4 flex items-end gap-3">
+          <p className="text-4xl font-semibold tracking-tight text-[#111827]">{likelihood}</p>
+          <p className="pb-1 text-sm font-semibold text-[#748579]">/100</p>
+        </div>
+        <ProgressBar value={likelihood} className="mt-4" />
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
+        <MiniMetric label="Findings with CVEs" value={String(cveCount)} />
+        <MiniMetric label="Critical / High open" value={String(criticalHighOpen)} />
+      </div>
+
+      <div className="rounded-[24px] border border-[#e1eee6] bg-[#fbfffd] p-4">
+        <p className="text-sm font-semibold text-[#111827]">Known exploited CVEs</p>
+        {knownExploitedCves.length === 0 ? (
+          <p className="mt-2 text-sm text-[#748579]">No CVEs are flagged as CISA KEV or known exploited in stored findings.</p>
+        ) : (
+          <div className="mt-3 space-y-2">
+            {knownExploitedCves.map((item) => (
+              <div key={item.id} className="flex items-center justify-between text-sm">
+                <span className="truncate font-semibold text-[#111827]">{item.value}</span>
+                <span className="text-xs font-semibold text-[#087a3a]">{item.count} hits</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 function ThreatIntelRow({
   label,
   value,
@@ -933,45 +1469,27 @@ function ThreatIntelRow({
   )
 }
 
-function AttackGraphPreview() {
-  const nodes = [
-    { x: 50, y: 50, color: '#087a3a' },
-    { x: 20, y: 30, color: '#dc2626' },
-    { x: 28, y: 72, color: '#f97316' },
-    { x: 75, y: 26, color: '#64748b' },
-    { x: 82, y: 70, color: '#16a34a' },
-    { x: 58, y: 82, color: '#16a34a' },
-    { x: 38, y: 18, color: '#64748b' },
-  ]
+function AttackGraphPreview({ reportId, nodes, edges }: { reportId: string | null; nodes: number; edges: number }) {
+  const href = reportId ? `/graph?reportId=${encodeURIComponent(reportId)}` : '/graph'
 
   return (
     <div className="rounded-[24px] border border-[#e1eee6] bg-[#fbfffd] p-4">
-      <svg viewBox="0 0 100 100" className="h-[230px] w-full">
-        {nodes.slice(1).map((node, index) => (
-          <line
-            key={`line-${index}`}
-            x1="50"
-            y1="50"
-            x2={node.x}
-            y2={node.y}
-            stroke="#94a3a0"
-            strokeWidth="0.7"
-          />
-        ))}
-
-        {nodes.map((node, index) => (
-          <g key={`node-${index}`}>
-            <circle cx={node.x} cy={node.y} r={index === 0 ? 7 : 5} fill="white" stroke={node.color} strokeWidth="2" />
-            <circle cx={node.x} cy={node.y} r={index === 0 ? 3 : 2.2} fill={node.color} />
-          </g>
-        ))}
-      </svg>
-
-      <div className="flex flex-wrap justify-center gap-4 text-xs font-semibold text-[#5f6f66]">
-        <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-red-600" /> High risk</span>
-        <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-orange-500" /> Medium risk</span>
-        <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-[#16a34a]" /> Low risk</span>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <MiniMetric label="Report-scoped findings" value={String(nodes)} />
+        <MiniMetric label="Extracted CVE/MITRE signals" value={String(edges)} />
       </div>
+
+      <p className="mt-4 text-sm leading-7 text-[#5a7668]">
+        The dashboard does not draw synthetic graph nodes. Open the secured graph page to inspect real Neo4j nodes,
+        relationships, attack paths, and source-backed enrichment for the selected report.
+      </p>
+
+      <Link
+        href={href}
+        className="mt-4 inline-flex rounded-xl bg-[#087a3a] px-3 py-2 text-xs font-bold text-white transition hover:bg-[#066b33]"
+      >
+        Open real graph
+      </Link>
     </div>
   )
 }

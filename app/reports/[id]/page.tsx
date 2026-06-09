@@ -4,10 +4,9 @@ import { generateReportSummary } from '@/lib/server/ai-summarization'
 import {
   getAnalysisFindingsByReportIdForUser,
   getAnalysisReportForUser,
-  saveAnalysisRiskScoreForUser,
-  saveAnalysisSummaryForUser,
 } from '@/lib/server/analysis-repository'
 import { getCurrentSessionFromCookies } from '@/lib/server/current-session'
+import { getReportThreatIntel } from '@/lib/server/threat-intel/read-report-intel'
 import { notFound, redirect } from 'next/navigation'
 
 export const dynamic = 'force-dynamic'
@@ -27,7 +26,9 @@ export default async function ReportDetailsPage({
 
   const report = await getAnalysisReportForUser(session.userId, id)
 
-  if (!report) return notFound()
+  if (!report) {
+    notFound()
+  }
 
   const findings = await getAnalysisFindingsByReportIdForUser(
     session.userId,
@@ -35,40 +36,15 @@ export default async function ReportDetailsPage({
   )
 
   const summary = await generateReportSummary(report, findings)
-  const risk = await generateReportRisk(report, findings, summary)
+  let threatIntel: any = null
 
-  const summaryMeta = {
-    generatedAtIso: summary.generatedAtIso,
-    confidence: summary.confidence,
-    grounding: summary.grounding,
-    totalFindings: summary.stats.totalFindings,
-    openFindings: summary.stats.openCount,
-    distinctAssets: summary.stats.distinctAssets,
+  try {
+    threatIntel = await getReportThreatIntel(report.id)
+  } catch {
+    threatIntel = null
   }
 
-  const riskMeta = {
-    generatedAtIso: risk.generatedAtIso,
-    overallRiskScore: risk.overallRiskScore,
-    overallRiskBand: risk.overallRiskBand,
-    totalFindings: risk.stats.totalFindings,
-    openFindings: risk.stats.openFindings,
-    findingsWithCve: risk.stats.findingsWithCve,
-    distinctAssets: risk.stats.distinctAssets,
-  }
-
-  await saveAnalysisSummaryForUser({
-    userId: session.userId,
-    reportId: report.id,
-    summary,
-    summaryMeta,
-  })
-
-  await saveAnalysisRiskScoreForUser({
-    userId: session.userId,
-    reportId: report.id,
-    risk,
-    riskMeta,
-  })
+  const risk = await generateReportRisk(report, findings, summary, { threatIntel })
 
   return (
     <ReportDetailsShowcase

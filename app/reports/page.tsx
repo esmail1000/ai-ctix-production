@@ -2,6 +2,7 @@
 import { getReports } from '@/lib/data-service'
 import type { Report } from '@/lib/mock-data'
 import Link from 'next/link'
+import { ReportDeleteButton } from '@/components/report-delete-button'
 
 export const dynamic = 'force-dynamic'
 
@@ -467,6 +468,11 @@ function ReportCard({ report }: { report: Report }) {
             >
               Export
             </Link>
+            <ReportDeleteButton
+              reportId={report.id}
+              reportName={report.name}
+              findingCount={report.findings}
+            />
           </div>
         </div>
       </div>

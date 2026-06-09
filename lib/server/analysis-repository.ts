@@ -1,6 +1,9 @@
-import { prisma } from '@/lib/server/prisma'
 import type { PipelineRun } from '@/lib/pipeline'
+import { prisma } from '@/lib/server/prisma'
 import type { StoredFinding, StoredReport } from '@/lib/server/types'
+
+import type { ReportRiskResult } from '@/lib/server/risk-scoring'
+import type { ReportSummaryResult } from '@/lib/server/summarization'
 
 function safeJsonStringify(value: unknown, fallback: string) {
   try {
@@ -70,6 +73,16 @@ function toStoredFinding(row: any): StoredFinding {
   }
 }
 
+function chunkArray<T>(items: T[], size: number) {
+  const chunks: T[][] = []
+
+  for (let index = 0; index < items.length; index += size) {
+    chunks.push(items.slice(index, index + size))
+  }
+
+  return chunks
+}
+
 export async function listAnalysisReportsForUser(userId: string): Promise<StoredReport[]> {
   const rows = await prisma.analysisReport.findMany({
     where: { userId },
@@ -97,6 +110,25 @@ export async function getAnalysisReportForUser(
   })
 
   return row ? toStoredReport(row) : undefined
+}
+
+export async function deleteAnalysisReportForUser(userId: string, reportId: string) {
+  const report = await prisma.analysisReport.findFirst({
+    where: { id: reportId, userId },
+    select: { id: true, name: true, findingCount: true },
+  })
+
+  if (!report) return undefined
+
+  await prisma.$transaction(async (tx) => {
+    await tx.analysisFinding.deleteMany({ where: { userId, reportId } })
+    await tx.analysisRun.deleteMany({ where: { userId, reportId } })
+    await tx.analysisSummary.deleteMany({ where: { userId, reportId } })
+    await tx.analysisRiskScore.deleteMany({ where: { userId, reportId } })
+    await tx.analysisReport.delete({ where: { id: report.id } })
+  })
+
+  return report
 }
 
 export async function getAnalysisFindingForUser(
@@ -168,71 +200,85 @@ export async function createAnalysisRecord(input: {
   findings: StoredFinding[]
   run: PipelineRun
 }) {
-  await prisma.$transaction(async (tx) => {
-    await tx.analysisReport.create({
-      data: {
-        id: input.report.id,
-        userId: input.userId,
-        slug: input.report.slug,
-        name: input.report.name,
-        type: input.report.type,
-        uploadedAt: input.report.uploadedAt,
-        owner: input.report.owner,
-        status: input.report.status,
-        findingCount: input.report.findings ?? input.findings.length,
-        critical: input.report.critical ?? 0,
-        high: input.report.high ?? 0,
-        medium: input.report.medium ?? 0,
-        low: input.report.low ?? 0,
-        summary: input.report.summary ?? '',
-        content: input.report.content ?? '',
-        sourceFileName: input.report.sourceFileName,
-        parsingStatus: input.report.parsingStatus,
-        analysisVersion: input.report.analysisVersion,
-        parserVersion: input.report.parserVersion,
-        parsingNotesJson: safeJsonStringify(input.report.parsingNotes ?? [], '[]'),
-        createdAt: new Date(input.report.createdAtIso),
-        updatedAt: new Date(input.report.updatedAtIso),
-      },
-    })
+  const findingRows = input.findings.map((finding) => ({
+    id: finding.id,
+    userId: input.userId,
+    reportId: finding.reportId,
+    reportName: finding.reportName,
+    slug: finding.slug,
+    title: finding.title,
+    cve: finding.cve || '',
+    severity: finding.severity,
+    asset: finding.asset,
+    score: finding.score ?? 0,
+    status: finding.status,
+    detectedAt: finding.detectedAt,
+    summary: finding.summary ?? '',
+    impact: finding.impact ?? '',
+    evidence: finding.evidence ?? '',
+    remediation: finding.remediation ?? '',
+    evidenceSentenceIndex: finding.evidenceSentenceIndex,
+    historyJson: safeJsonStringify(finding.history ?? [], '[]'),
+    reportedJson: safeJsonStringify(finding.reported ?? {}, '{}'),
+    normalizationJson: safeJsonStringify(finding.normalization ?? {}, '{}'),
+    provenanceJson: safeJsonStringify(finding.provenance ?? {}, '{}'),
+  }))
 
-    for (const finding of input.findings) {
-      await tx.analysisFinding.create({
+  await prisma.$transaction(
+    async (tx) => {
+      await tx.analysisReport.create({
         data: {
-          id: finding.id,
+          id: input.report.id,
           userId: input.userId,
-          reportId: finding.reportId,
-          reportName: finding.reportName,
-          slug: finding.slug,
-          title: finding.title,
-          cve: finding.cve || '',
-          severity: finding.severity,
-          asset: finding.asset,
-          score: finding.score ?? 0,
-          status: finding.status,
-          detectedAt: finding.detectedAt,
-          summary: finding.summary ?? '',
-          impact: finding.impact ?? '',
-          evidence: finding.evidence ?? '',
-          remediation: finding.remediation ?? '',
-          evidenceSentenceIndex: finding.evidenceSentenceIndex,
-          historyJson: safeJsonStringify(finding.history ?? [], '[]'),
-          reportedJson: safeJsonStringify(finding.reported ?? {}, '{}'),
-          normalizationJson: safeJsonStringify(finding.normalization ?? {}, '{}'),
-          provenanceJson: safeJsonStringify(finding.provenance ?? {}, '{}'),
+          slug: input.report.slug,
+          name: input.report.name,
+          type: input.report.type,
+          uploadedAt: input.report.uploadedAt,
+          owner: input.report.owner,
+          status: input.report.status,
+          findingCount: input.report.findings ?? input.findings.length,
+          critical: input.report.critical ?? 0,
+          high: input.report.high ?? 0,
+          medium: input.report.medium ?? 0,
+          low: input.report.low ?? 0,
+          summary: input.report.summary ?? '',
+          content: input.report.content ?? '',
+          sourceFileName: input.report.sourceFileName,
+          parsingStatus: input.report.parsingStatus,
+          analysisVersion: input.report.analysisVersion,
+          parserVersion: input.report.parserVersion,
+          parsingNotesJson: safeJsonStringify(input.report.parsingNotes ?? [], '[]'),
+          createdAt: new Date(input.report.createdAtIso),
+          updatedAt: new Date(input.report.updatedAtIso),
         },
       })
-    }
 
-    await tx.analysisRun.create({
-      data: {
-        userId: input.userId,
-        reportId: input.report.id,
-        runJson: safeJsonStringify(input.run, '{}'),
-      },
-    })
-  })
-}export async function saveAnalysisSummaryForUser(input: {
+      if (findingRows.length > 0) {
+        const chunks = chunkArray(findingRows, 250)
+
+        for (const chunk of chunks) {
+          await tx.analysisFinding.createMany({
+            data: chunk,
+          })
+        }
+      }
+
+      await tx.analysisRun.create({
+        data: {
+          userId: input.userId,
+          reportId: input.report.id,
+          runJson: safeJsonStringify(input.run, '{}'),
+        },
+      })
+    },
+    {
+      maxWait: 10000,
+      timeout: 60000,
+    }
+  )
+}
+
+export async function saveAnalysisSummaryForUser(input: {
   userId: string
   reportId: string
   summary: unknown
@@ -269,6 +315,7 @@ export async function createAnalysisRecord(input: {
     },
   })
 }
+
 
 export async function saveAnalysisRiskScoreForUser(input: {
   userId: string
@@ -313,5 +360,81 @@ export async function saveAnalysisRiskScoreForUser(input: {
       reportId: input.reportId,
       ...data,
     },
+    
   })
+
+  
+}
+
+
+
+// Add these imports at the top of lib/server/analysis-repository.ts
+// import type { ReportSummaryResult } from '@/lib/server/summarization'
+// import type { ReportRiskResult } from '@/lib/server/risk-scoring'
+
+export type LatestAnalysisSummaryRecord = {
+  id: string
+  summary: ReportSummaryResult
+  summaryMeta: unknown
+  generatedAtIso: string
+  updatedAtIso: string
+}
+
+export type LatestAnalysisRiskScoreRecord = {
+  id: string
+  risk: ReportRiskResult
+  riskMeta: unknown
+  generatedAtIso: string
+  updatedAtIso: string
+}
+
+export async function getLatestAnalysisSummaryForUser(
+  userId: string,
+  reportId: string
+): Promise<LatestAnalysisSummaryRecord | null> {
+  const row = await prisma.analysisSummary.findFirst({
+    where: { userId, reportId },
+    orderBy: { generatedAt: 'desc' },
+  })
+
+  if (!row) return null
+
+  const summary = safeJsonParse<ReportSummaryResult | null>(
+    row.summaryJson,
+    null
+  )
+
+  if (!summary) return null
+
+  return {
+    id: row.id,
+    summary,
+    summaryMeta: safeJsonParse<unknown>(row.summaryMetaJson, {}),
+    generatedAtIso: row.generatedAt.toISOString(),
+    updatedAtIso: row.updatedAt.toISOString(),
+  }
+}
+
+export async function getLatestAnalysisRiskScoreForUser(
+  userId: string,
+  reportId: string
+): Promise<LatestAnalysisRiskScoreRecord | null> {
+  const row = await prisma.analysisRiskScore.findFirst({
+    where: { userId, reportId },
+    orderBy: { generatedAt: 'desc' },
+  })
+
+  if (!row) return null
+
+  const risk = safeJsonParse<ReportRiskResult | null>(row.riskJson, null)
+
+  if (!risk) return null
+
+  return {
+    id: row.id,
+    risk,
+    riskMeta: safeJsonParse<unknown>(row.riskMetaJson, {}),
+    generatedAtIso: row.generatedAt.toISOString(),
+    updatedAtIso: row.updatedAt.toISOString(),
+  }
 }

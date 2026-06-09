@@ -48,6 +48,7 @@ export type NlpEngineFinding = {
   attack_vector?: string;
   attack_technique?: string;
   exploitability?: string;
+  exploitation_steps?: string[];
 
   cve_ids?: string[];
   cwe_ids?: string[];
@@ -129,6 +130,7 @@ export type NlpEngineResult = {
   exploit_available?: string[];
 
   exploitability?: string[];
+  exploitation_steps?: string[];
   confidentiality_impacts?: string[];
   integrity_impacts?: string[];
   availability_impacts?: string[];

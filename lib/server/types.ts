@@ -19,6 +19,7 @@ export type FindingSourceSpan = {
     | 'impact'
     | 'evidence'
     | 'remediation'
+    | 'exploitationSteps'
     | 'cve'
     | 'reference'
     | 'block'
@@ -36,6 +37,7 @@ export type ParsedFindingFields = {
   impact?: string
   evidence?: string
   remediation?: string
+  exploitationSteps?: string[]
   cve?: string
   references?: string[]
 }
@@ -56,6 +58,7 @@ export type FindingFieldSources = Partial<
     | 'impact'
     | 'evidence'
     | 'remediation'
+    | 'exploitationSteps'
     | 'cve',
     FieldSource
   >
