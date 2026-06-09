@@ -1,6 +1,6 @@
 FROM node:22-bookworm-slim
 
-WORKDIR /app
+WORKDIR /app`n`nENV NLP_MODEL_DIR=/app/nlp_engine/models/cyberbert-ner`nENV NLP_STRICT_MODEL=true`nENV NLP_REQUIRE_QUALITY_GATE=true
 
 RUN apt-get update && apt-get install -y python3 python3-pip tesseract-ocr poppler-utils curl unzip && rm -rf /var/lib/apt/lists/*
 
