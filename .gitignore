@@ -102,3 +102,14 @@ nlp_engine/models/**
 !nlp_engine/models/cyberbert-ner-verified/test_metrics.json
 !nlp_engine/models/cyberbert-ner-verified/data_profile.json
 !nlp_engine/models/cyberbert-ner-verified/final_eval_report.json
+
+# Final release exclusions
+.env.local
+.env
+node_modules/
+.next/
+dev.db
+desktop.ini
+*.log
+**/__pycache__/
+*.pyc

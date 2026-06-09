@@ -74,6 +74,7 @@ OUTPUT_KEYS: Tuple[str, ...] = (
     "hashes",
     "malware",
     "attack_vectors",
+    "exploitation_steps",
     "attack_techniques",
     "mitre_techniques",
     "threat_actors",
@@ -672,6 +673,7 @@ def _clean_structured_output(raw: Dict[str, List[str]]) -> Dict[str, List[str]]:
     cleaned["malware"] = _clean_free_text(raw.get("malware", []), min_chars=2, min_words=1)
 
     cleaned["attack_vectors"] = _clean_attack_vectors(raw.get("attack_vectors", []))
+    cleaned["exploitation_steps"] = _clean_free_text(raw.get("exploitation_steps", []), min_chars=8, min_words=2)
     cleaned["attack_techniques"] = _clean_free_text(raw.get("attack_techniques", []), min_chars=2, min_words=1)
     cleaned["mitre_techniques"] = _clean_mitre(raw.get("mitre_techniques", []))
     cleaned["threat_actors"] = _clean_free_text(raw.get("threat_actors", []), min_chars=2, min_words=1)
@@ -908,11 +910,7 @@ def _load_model(model_dir: Path) -> Tuple[Any, Any]:
     return model, tokenizer
 
 
-def build_findings(structured: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """Create lightweight finding objects for dashboard/API usage.
-
-    This is heuristic grouping. A later relation model can replace it.
-    """
+def _build_single_finding(structured: Dict[str, Any]) -> Dict[str, Any]:
     finding: Dict[str, Any] = {}
 
     first_map = {
@@ -945,6 +943,7 @@ def build_findings(structured: Dict[str, Any]) -> List[Dict[str, Any]]:
         "ports": "ports",
         "mitre_techniques": "mitre_techniques",
         "exploits": "exploits",
+        "exploitation_steps": "exploitation_steps",
     }
 
     for output_field, source_key in list_map.items():
@@ -952,10 +951,54 @@ def build_findings(structured: Dict[str, Any]) -> List[Dict[str, Any]]:
         if values:
             finding[output_field] = values
 
-    if not finding:
+    return finding
+
+
+def _split_finding_sections_for_output(text: str) -> List[str]:
+    normalized = (text or "").replace("\r\n", "\n").replace("\r", "\n").strip()
+    if not normalized:
         return []
 
-    return [finding]
+    marker = re.compile(
+        r"(?im)^\s*(?:pentest\s+)?(?:finding|issue|vulnerability)\s+(?:#?\d+|[A-Z0-9_-]{2,})\s*[:.-]"
+    )
+    matches = list(marker.finditer(normalized))
+
+    if len(matches) < 2:
+        return []
+
+    sections: List[str] = []
+    for index, match in enumerate(matches):
+        end = matches[index + 1].start() if index + 1 < len(matches) else len(normalized)
+        section = normalized[match.start():end].strip()
+        if len(section) >= 60:
+            sections.append(section)
+
+    return sections[:100]
+
+
+def build_findings(structured: Dict[str, Any], text: str = "") -> List[Dict[str, Any]]:
+    """Create lightweight finding objects for dashboard/API usage.
+
+    Prefer per-finding report sections when the input has explicit finding
+    markers. This prevents CVEs/severities from multiple findings being merged
+    into one aggregate object.
+    """
+    sections = _split_finding_sections_for_output(text)
+
+    if sections:
+        findings: List[Dict[str, Any]] = []
+        for section in sections:
+            section_structured = extract_all_structured(section)
+            merge_dict_lists(section_structured, _contextual_rule_enrichment(section))
+            finding = _build_single_finding(_clean_structured_output(section_structured))
+            if finding:
+                findings.append(finding)
+        if findings:
+            return findings
+
+    finding = _build_single_finding(structured)
+    return [finding] if finding else []
 
 
 def _contextual_rule_enrichment(text: str) -> Dict[str, List[str]]:
@@ -1018,6 +1061,10 @@ def _contextual_rule_enrichment(text: str) -> Dict[str, List[str]]:
             r"\battack\s+vector\s+(Network|Adjacent Network|Local|Physical)\b",
             r"\bvector\s+(Network|Adjacent Network|Local|Physical)\b",
         ],
+        "exploitation_steps": [
+            r"\b(?:exploitation\s+steps|steps\s+to\s+reproduce|reproduction\s+steps|proof\s+of\s+concept|poc|attack\s+scenario)\s*:\s*(.*?)(?=\n\s*(?:Impact|Remediation|Recommendation|Severity|Finding|Vulnerability|References?)\s*:|\Z)",
+            r"^\s*(?:step\s*)?\d+[.)-]\s+(.{8,260})$",
+        ],
     }
 
     for key, regexes in patterns.items():
@@ -1045,11 +1092,13 @@ def run_inference_text(
     min_entity_confidence: float = MIN_ENTITY_CONFIDENCE_DEFAULT,
     use_regex_enrichment: bool = True,
 ) -> Dict[str, Any]:
+    raw_text = text or ""
     text = normalize_report_text(text)
 
     if use_regex_enrichment:
-        regex_hits = extract_all_structured(text, filter_domain_fp=True, strict_ports=True)
-        contextual_hits = _contextual_rule_enrichment(text)
+        regex_source = raw_text or text
+        regex_hits = extract_all_structured(regex_source, filter_domain_fp=True, strict_ports=True)
+        contextual_hits = _contextual_rule_enrichment(regex_source)
         merge_dict_lists(regex_hits, contextual_hits)
     else:
         regex_hits = empty_structured_output()
@@ -1098,7 +1147,7 @@ def run_inference_text(
     structured: Dict[str, Any] = structured_hybrid_output(ner, regex_hits)
 
     if include_findings:
-        structured["findings"] = build_findings(structured)
+        structured["findings"] = build_findings(structured, raw_text)
 
     if include_meta:
         structured["meta"] = {

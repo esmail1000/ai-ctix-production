@@ -491,6 +491,46 @@ def extract_remediations(text: str) -> List[str]:
     return _extract_named_patterns(text, _REMEDIATION_PATTERNS)
 
 
+def extract_exploitation_steps(text: str) -> List[str]:
+    """Extract concise reproduction/exploitation steps from pentest prose."""
+    text = text or ""
+    blocks: List[str] = []
+
+    label_re = re.compile(
+        r"\b(?:exploitation\s+steps|steps\s+to\s+reproduce|reproduction\s+steps|proof\s+of\s+concept|poc|attack\s+scenario)\s*:\s*"
+        r"(?P<body>.*?)(?=\n\s*(?:Impact|Remediation|Recommendation|Severity|Finding|Vulnerability|References?)\s*:|\Z)",
+        re.IGNORECASE | re.DOTALL,
+    )
+
+    for match in label_re.finditer(text):
+        blocks.append(match.group("body"))
+
+    search_text = "\n".join(blocks) if blocks else text
+    steps: List[str] = []
+
+    for line in search_text.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+
+        m = re.match(r"^(?:step\s*)?\d+[.)-]\s+(.{8,260})$", line, flags=re.IGNORECASE)
+        if m:
+            steps.append(m.group(1))
+            continue
+
+        m = re.match(r"^[-*•]\s+(.{8,260})$", line)
+        if m:
+            steps.append(m.group(1))
+
+    if not steps and blocks:
+        for sentence in re.split(r"(?<=[.!?])\s+", " ".join(blocks)):
+            cleaned = sentence.strip()
+            if 8 <= len(cleaned) <= 260:
+                steps.append(cleaned)
+
+    return _dedupe_preserve_order(steps)[:12]
+
+
 def extract_products(text: str) -> List[str]:
     return _extract_named_patterns(text, _PRODUCT_PATTERNS)
 
@@ -533,6 +573,7 @@ def extract_all_structured(
         "file_names": extract_file_names(text),
         "mitre_techniques": extract_mitre_techniques(text),
         "attack_vectors": extract_attack_vectors(text),
+        "exploitation_steps": extract_exploitation_steps(text),
         "exploits": exploits,
         "exploit_available": ["true"] if exploits else [],
         "remediations": remediations,

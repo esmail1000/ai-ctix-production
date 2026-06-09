@@ -1,0 +1,44 @@
+Finding 1: SQL Injection in Login API
+
+Severity: Critical
+CVE: CVE-2024-12345
+CWE: CWE-89
+CVSS score: 9.8
+Affected Component: /api/login endpoint
+Attack Vector: Network
+Affected IP: 192.168.1.10
+Affected URL: https://example.com/api/login
+Port: 443
+
+Exploitation Steps:
+1. Send a crafted POST request to /api/login.
+2. Inject the payload ' OR '1'='1 into the username field.
+3. Observe authentication bypass and database error messages.
+
+Impact:
+An attacker can bypass authentication, extract sensitive user data, and modify database records.
+
+Remediation:
+Use parameterized queries, validate all input, apply least privilege database permissions, and add WAF rules.
+
+Finding 2: Remote Code Execution in Apache Struts
+
+Severity: High
+CVE: CVE-2017-5638
+CWE: CWE-94
+CVSS score: 8.1
+Affected Component: Apache Struts file upload parser
+Attack Vector: Network
+Affected URL: https://example.com/upload
+Port: 8443
+
+Proof of Concept:
+1. Upload a malicious Content-Type header.
+2. Trigger OGNL expression evaluation.
+3. Execute arbitrary operating system commands.
+
+Impact:
+Remote attackers can execute commands on the server and take full control of the application host.
+
+Recommended Fix:
+Upgrade Apache Struts to the latest patched version and block malicious upload headers.
