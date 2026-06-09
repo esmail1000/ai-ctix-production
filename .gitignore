@@ -114,3 +114,4 @@ desktop.ini
 **/__pycache__/
 *.pyc
 nlp_engine/models/cyberbert-ner-verified/model.safetensors
+nlp_engine/models/cyberbert-ner-verified/model.safetensors
